@@ -129,6 +129,137 @@ Keep it practical and direct.`;
   }
 };
 
+// ── Generate a hint for a question (without giving away answer) ───
+// Cached: same question → same hint permanently.
+export const generateHint = async (questionText, topic) => {
+  const prompt = `A student is stuck on this question: "${questionText}"
+Topic: ${topic}
+
+Give ONE helpful hint (2 sentences max):
+1. Point them toward the right approach WITHOUT revealing the answer
+2. Mention which concept or formula they should recall
+
+Be a good tutor — guide, don't solve.`;
+
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 120,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: prompt }],
+    });
+    return res.content[0]?.text?.trim() || null;
+  } catch (err) {
+    console.error("Claude hint error:", err.message);
+    return null;
+  }
+};
+
+// ── Generate a full lesson for a topic ───────────────────────────
+// Returns a lesson object matching lessonSchema.
+// Caller saves to DB — never called twice for same topic.
+export const generateLesson = async (topic, subject = "Math", grade = "10") => {
+  const prompt = `Generate a complete lesson for "${topic}" (${subject}, Grade ${grade}, CBSE India).
+
+Return ONLY valid JSON — no markdown, no explanation outside the JSON.
+
+{
+  "title": "short catchy title",
+  "tagline": "one-line hook: what student will be able to do",
+  "shortLesson": {
+    "estimatedMinutes": 7,
+    "keyIdea": "THE one sentence they must remember",
+    "slides": [
+      {
+        "type": "concept",
+        "title": "slide title",
+        "body": "2-3 sentence explanation, simple language",
+        "formula": "formula string if applicable or null"
+      },
+      {
+        "type": "example",
+        "title": "Worked Example",
+        "body": "brief intro",
+        "example": {
+          "problem": "the problem statement",
+          "steps": ["step 1", "step 2", "step 3"],
+          "answer": "final answer"
+        }
+      },
+      {
+        "type": "shortcut",
+        "title": "Quick Trick",
+        "body": "when to use this",
+        "shortcut": "the actual shortcut tip"
+      },
+      {
+        "type": "mistake_warning",
+        "title": "Common Mistake",
+        "body": "what students often get wrong",
+        "warning": "the specific mistake to avoid"
+      }
+    ]
+  },
+  "longLesson": {
+    "estimatedMinutes": 20,
+    "slides": [
+      {
+        "type": "concept",
+        "title": "Deep Dive: Core Concept",
+        "body": "thorough explanation, 4-5 sentences",
+        "formula": "formula if any"
+      },
+      {
+        "type": "visual",
+        "title": "Visualise It",
+        "body": "describe what the visual shows",
+        "visual": "simple ASCII or emoji diagram"
+      },
+      {
+        "type": "example",
+        "title": "Example 1 — Easy",
+        "body": "starter example",
+        "example": { "problem": "...", "steps": ["..."], "answer": "..." }
+      },
+      {
+        "type": "example",
+        "title": "Example 2 — Medium",
+        "body": "standard exam style",
+        "example": { "problem": "...", "steps": ["...","...","..."], "answer": "..." }
+      },
+      {
+        "type": "shortcut",
+        "title": "Exam Shortcut",
+        "body": "context for when this helps",
+        "shortcut": "the shortcut"
+      },
+      {
+        "type": "mistake_warning",
+        "title": "Watch Out",
+        "body": "why students lose marks here",
+        "warning": "exact mistake description"
+      }
+    ]
+  },
+  "prerequisites": ["topic1", "topic2"]
+}`;
+
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1800,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const raw   = res.content[0]?.text?.trim() || "";
+    const clean = raw.replace(/```json|```/g, "").trim();
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error("Claude lesson generation error:", err.message);
+    return null;
+  }
+};
+
 // ── Multi-turn AI tutor chat ──────────────────────────────────────
 // history = [{role:"user"|"assistant", content:"..."}]
 export const getChatResponse = async (history, userMessage, topic) => {

@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import express from "express";
 import { studyAdvice, usageInfo, cacheStats, tutorChat } from "../controllers/aiController.js";
-import { getChatResponse } from "../services/aiService.js";
+import { getChatResponse, generateHint } from "../services/aiService.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { AIResponseCache } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
@@ -63,6 +63,52 @@ Be encouraging but honest.`;
     }
 
     res.json({ feedback: reply || "Good effort! Review the concept and try explaining it again." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Hint for a stuck student — DB-first cache by question text hash.
+// Same question across all users → stored once, served forever.
+const HINT_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in RAM
+
+r.post("/hint", auth, async (req, res) => {
+  try {
+    const { questionText, topic } = req.body;
+    if (!questionText) return res.status(400).json({ error: "questionText is required" });
+
+    const cacheKey = `hint::${crypto.createHash("md5")
+      .update(questionText.toLowerCase().trim())
+      .digest("hex")}`;
+
+    // RAM cache
+    const memHit = getCached(cacheKey);
+    if (memHit) return res.json({ hint: memHit, fromCache: true });
+
+    // DB cache
+    const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
+    if (dbHit?.response) {
+      setCache(cacheKey, dbHit.response, HINT_CACHE_TTL);
+      AIResponseCache.findOneAndUpdate(
+        { cacheKey },
+        { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
+      ).catch(() => {});
+      return res.json({ hint: dbHit.response, fromCache: true });
+    }
+
+    // Not cached — call Claude once, store permanently
+    const hint = await generateHint(questionText, topic || "Math");
+    if (hint) {
+      const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+      AIResponseCache.findOneAndUpdate(
+        { cacheKey },
+        { cacheKey, questionSnippet: questionText.slice(0, 120), mistakeType: "hint", response: hint, expiresAt },
+        { upsert: true }
+      ).catch(() => {});
+      setCache(cacheKey, hint, HINT_CACHE_TTL);
+    }
+
+    res.json({ hint: hint || "Think about which formula applies here. Review the concept and try again!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

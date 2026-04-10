@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const BEHAVIOR = {
@@ -43,6 +43,8 @@ export default function Practice() {
   const [evalFeedback, setEvalFeedback] = useState(null);
   const [evalLoading, setEvalLoading]   = useState(false);
   const [flagged, setFlagged]           = useState(false);
+  const [hint, setHint]                 = useState(null);
+  const [hintLoading, setHintLoading]   = useState(false);
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);
@@ -134,6 +136,19 @@ export default function Practice() {
     }
   };
 
+  const handleHint = async () => {
+    if (hintLoading || hint || !question) return;
+    setHintLoading(true);
+    try {
+      const { data } = await getHint(question.questionText, selectedTopic);
+      setHint(data.hint);
+    } catch {
+      setHint("Think step by step — which formula or concept applies here?");
+    } finally {
+      setHintLoading(false);
+    }
+  };
+
   const handleFlag = async () => {
     if (!question?._id || flagged) return;
     try {
@@ -148,6 +163,8 @@ export default function Practice() {
     setEvalFeedback(null);
     setShowSteps(false);
     setFlagged(false);
+    setHint(null);
+    setHintLoading(false);
     if (feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
       setFeedback(null);
@@ -316,23 +333,38 @@ export default function Practice() {
           })}
         </div>
 
-        {/* Confidence — only before answering */}
+        {/* Confidence + Hint — only before answering */}
         {!feedback && (
-          <div className="mt-5 flex items-center gap-2 pt-4 border-t border-apple-gray5">
-            <p className="text-[12px] text-apple-gray mr-1">Confidence</p>
-            {["low", "medium", "high"].map((c) => (
+          <div className="mt-5 pt-4 border-t border-apple-gray5 space-y-3">
+            <div className="flex items-center gap-2">
+              <p className="text-[12px] text-apple-gray mr-1">Confidence</p>
+              {["low", "medium", "high"].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setConfidence(c)}
+                  className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-all capitalize
+                    ${confidence === c
+                      ? "bg-apple-blue text-white border-apple-blue"
+                      : "bg-apple-gray6 border-apple-gray5 text-apple-gray hover:border-apple-gray3"
+                    }`}
+                >
+                  {c}
+                </button>
+              ))}
               <button
-                key={c}
-                onClick={() => setConfidence(c)}
-                className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-all capitalize
-                  ${confidence === c
-                    ? "bg-apple-blue text-white border-apple-blue"
-                    : "bg-apple-gray6 border-apple-gray5 text-apple-gray hover:border-apple-gray3"
-                  }`}
+                onClick={handleHint}
+                disabled={hintLoading || !!hint}
+                className="ml-auto text-[12px] font-medium text-apple-orange hover:opacity-70 transition-opacity disabled:opacity-40"
               >
-                {c}
+                {hintLoading ? "Getting hint…" : hint ? "Hint shown" : "💡 Get Hint"}
               </button>
-            ))}
+            </div>
+            {hint && (
+              <div className="bg-apple-orange/6 border border-apple-orange/20 rounded-apple-lg px-4 py-3">
+                <p className="text-[11px] font-semibold text-apple-orange uppercase tracking-wider mb-1">Hint</p>
+                <p className="text-[13px] text-[var(--label2)] leading-relaxed">{hint}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -67,6 +67,7 @@ export const getAIUsage          = ()                           => api.get("/ai/
 export const getAICacheStats     = ()                           => api.get("/ai/cache-stats");
 export const askTutor            = (message, history, topic)   => api.post("/ai/chat", { message, history, topic });
 export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
+export const getHint             = (questionText, topic)       => api.post("/ai/hint", { questionText, topic });
 
 // ── Live Room ─────────────────────────────────────────────
 export const getRoomQuestions = (topic, count) =>

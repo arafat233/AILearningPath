@@ -15,12 +15,45 @@ export const getNextQuestion = async (userId, topic) => {
     const sorted = Object.entries(behaviorStats || {}).sort((a, b) => b[1] - a[1]);
     if (sorted.length && sorted[0][1] > 5) weakness = sorted[0][0];
 
-    // AI question for persistent concept errors
+    // AI question for persistent concept errors —
+    // DB-first: pick an existing AI question the user hasn't seen yet.
+    // Only call Claude if none exists yet for this topic.
     if (weakness === "concept_error" && (behaviorStats?.concept_error || 0) > 5) {
       try {
+        const seenForTopic = await SeenQuestion.find({ userId, topic }).select("questionId").lean();
+        const seenIds = seenForTopic.map((s) => s.questionId);
+
+        const existingAIQ = await Question.findOne({
+          topic,
+          isAIGenerated: true,
+          isFlagged: { $ne: true },
+          ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
+        }).lean();
+
+        if (existingAIQ) {
+          // Reuse the stored question — zero AI cost
+          SeenQuestion.create({ userId, questionId: existingAIQ._id.toString(), topic }).catch(() => {});
+          return existingAIQ;
+        }
+
+        // Nothing in DB yet — generate once and save permanently
         const aiQ = await generateAIQuestion(topic, weakness);
-        if (aiQ) return { ...aiQ, isAIGenerated: true };
-      } catch { /* fallback to DB */ }
+        if (aiQ) {
+          const saved = await Question.create({
+            topic,
+            questionText:  aiQ.questionText,
+            options:       aiQ.options,
+            solutionSteps: aiQ.solutionSteps || [],
+            shortcut:      aiQ.shortcut || null,
+            conceptTested: aiQ.conceptTested || null,
+            expectedTime:  aiQ.expectedTime  || 25,
+            difficultyScore: 0.65,
+            isAIGenerated: true,
+          });
+          SeenQuestion.create({ userId, questionId: saved._id.toString(), topic }).catch(() => {});
+          return { ...saved.toObject(), isAIGenerated: true };
+        }
+      } catch { /* fallback to regular DB question */ }
     }
   }
 

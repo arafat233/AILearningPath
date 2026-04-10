@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(mongosh --version)",
+      "Bash(mongod --version)",
+      "Bash(winget:*)",
+      "Bash(net start:*)",
+      "Bash(powershell:*)",
+      "Bash(npm install:*)",
+      "Bash(wait)",
+      "Bash(node config/seed.js)",
+      "Bash(node config/seedLessons.js)"
+    ]
+  }
+}

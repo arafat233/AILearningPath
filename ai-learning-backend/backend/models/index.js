@@ -1,0 +1,222 @@
+import mongoose from "mongoose";
+
+// ==================== User ====================
+const userSchema = new mongoose.Schema({
+  name:      { type: String, required: true },
+  email:     { type: String, required: true, unique: true },
+  password:  { type: String, required: true },
+  examDate:  Date,
+  subject:   { type: String, default: "Math" },
+  grade:     { type: String, default: "10" },
+  goal:      { type: String, default: "pass" },
+  // Subscription fields
+  isPaid:    { type: Boolean, default: false },
+  plan:      { type: String, enum: ["free", "pro", "premium"], default: "free" },
+  planExpiry: Date,
+  aiCallsToday: { type: Number, default: 0 },
+  aiCallsDate:  { type: String, default: "" }, // YYYY-MM-DD
+  createdAt: { type: Date, default: Date.now },
+});
+export const User = mongoose.model("User", userSchema);
+
+// ==================== Topic ====================
+const topicSchema = new mongoose.Schema({
+  name:           { type: String, required: true },
+  subject:        String,
+  grade:          String,
+  prerequisites:  [String],
+  examFrequency:  { type: Number, default: 0.5 },
+  estimatedHours: { type: Number, default: 2 },
+});
+export const Topic = mongoose.model("Topic", topicSchema);
+
+// ==================== Question ====================
+const questionSchema = new mongoose.Schema({
+  topic:         { type: String, required: true },
+  subtopic:      String,
+  questionText:  { type: String, required: true },
+  questionType:  { type: String, enum: ["mcq", "case_based", "assertion_reason", "pyq"], default: "mcq" },
+  difficulty:    { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
+  difficultyScore: { type: Number, default: 0.5 },
+  expectedTime:  { type: Number, default: 20 },
+  conceptTested: String,
+  prerequisites: [String],
+  isAIGenerated: { type: Boolean, default: false },
+  isFlagged:     { type: Boolean, default: false },
+  isPYQ:         { type: Boolean, default: false },
+  pyqYear:       Number,
+  options: [{
+    text:     String,
+    type:     { type: String, enum: ["correct","concept_error","calculation_error","partial_logic","guessing","misinterpretation"] },
+    logicTag: String,
+  }],
+  solutionSteps: [String],
+  shortcut:      String,
+  caseContext:   String,  // for case-based questions: the passage/scenario
+  marks:         { type: Number, default: 1 },
+  negativeMarks: { type: Number, default: 0 },
+  createdAt:     { type: Date, default: Date.now },
+});
+export const Question = mongoose.model("Question", questionSchema);
+
+// ==================== Attempt ====================
+const attemptSchema = new mongoose.Schema({
+  userId:       { type: String, required: true },
+  questionId:   String,
+  topic:        String,
+  isCorrect:    Boolean,
+  selectedType: String,
+  timeTaken:    Number,
+  confidence:   { type: String, enum: ["low","medium","high"] },
+  difficulty:   Number,
+  examId:       String,
+  createdAt:    { type: Date, default: Date.now },
+});
+export const Attempt = mongoose.model("Attempt", attemptSchema);
+
+// ==================== SeenQuestion (exposure control) ====================
+const seenQuestionSchema = new mongoose.Schema({
+  userId:     { type: String, required: true },
+  questionId: { type: String, required: true },
+  topic:      String,
+  seenAt:     { type: Date, default: Date.now },
+});
+seenQuestionSchema.index({ userId: 1, questionId: 1 }, { unique: true });
+export const SeenQuestion = mongoose.model("SeenQuestion", seenQuestionSchema);
+
+// ==================== Streak ====================
+const streakSchema = new mongoose.Schema({
+  userId:        { type: String, required: true, unique: true },
+  currentStreak: { type: Number, default: 0 },
+  longestStreak: { type: Number, default: 0 },
+  lastActiveDate: { type: String, default: "" }, // YYYY-MM-DD
+  updatedAt:     { type: Date, default: Date.now },
+});
+export const Streak = mongoose.model("Streak", streakSchema);
+
+// ==================== UserProfile ====================
+const userProfileSchema = new mongoose.Schema({
+  userId:         { type: String, required: true, unique: true },
+  accuracy:       { type: Number, default: 0 },
+  avgTime:        { type: Number, default: 0 },
+  totalAttempts:  { type: Number, default: 0 },
+  thinkingProfile: {
+    type: String,
+    enum: ["Guesser","Surface Learner","Overthinker","Pattern Recognizer","Deep Thinker"],
+    default: "Surface Learner",
+  },
+  weakAreas:   [String],
+  strongAreas: [String],
+  behaviorStats: {
+    guessing:           { type: Number, default: 0 },
+    concept_error:      { type: Number, default: 0 },
+    calculation_error:  { type: Number, default: 0 },
+    partial_logic:      { type: Number, default: 0 },
+    misinterpretation:  { type: Number, default: 0 },
+  },
+  confidenceAccuracy: {
+    highConfidenceWrong: { type: Number, default: 0 },
+    lowConfidenceRight:  { type: Number, default: 0 },
+  },
+  topicProgress: [{
+    topic:        String,
+    accuracy:     Number,
+    attempts:     Number,
+    lastAttempted: Date,
+  }],
+  updatedAt: { type: Date, default: Date.now },
+});
+export const UserProfile = mongoose.model("UserProfile", userProfileSchema);
+
+// ==================== QuestionStats ====================
+const questionStatsSchema = new mongoose.Schema({
+  questionId:  { type: String, required: true, unique: true },
+  attempts:    { type: Number, default: 0 },
+  correct:     { type: Number, default: 0 },
+  avgTime:     { type: Number, default: 0 },
+  errorDistribution: {
+    concept_error:     { type: Number, default: 0 },
+    calculation_error: { type: Number, default: 0 },
+    partial_logic:     { type: Number, default: 0 },
+    guessing:          { type: Number, default: 0 },
+    misinterpretation: { type: Number, default: 0 },
+  },
+  computedDifficulty: { type: Number, default: 0.5 },
+  isBadQuestion:      { type: Boolean, default: false },
+  updatedAt:          { type: Date, default: Date.now },
+});
+export const QuestionStats = mongoose.model("QuestionStats", questionStatsSchema);
+
+// ==================== Exam ====================
+const examSchema = new mongoose.Schema({
+  title:          String,
+  topic:          String,
+  totalQuestions: { type: Number, default: 10 },
+  duration:       { type: Number, default: 30 },
+  negativeMarking: { type: Boolean, default: false },
+  negativeValue:  { type: Number, default: 0.25 },
+  questionDistribution: {
+    easy:   { type: Number, default: 3 },
+    medium: { type: Number, default: 5 },
+    hard:   { type: Number, default: 2 },
+  },
+  isActive:  { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+});
+export const Exam = mongoose.model("Exam", examSchema);
+
+// ==================== ExamAttempt ====================
+const examAttemptSchema = new mongoose.Schema({
+  userId:  String,
+  examId:  String,
+  answers: [{
+    questionId:   String,
+    questionText: String,
+    isCorrect:    Boolean,
+    difficulty:   Number,
+    selectedType: String,
+    selectedText: String,
+    correctText:  String,
+    solutionSteps: [String],
+    timeTaken:    Number,
+    marksAwarded: Number,
+  }],
+  rawScore:        { type: Number, default: 0 },
+  normalizedScore: { type: Number, default: 0 },
+  rank:      Number,
+  percentile: Number,
+  createdAt: { type: Date, default: Date.now },
+});
+export const ExamAttempt = mongoose.model("ExamAttempt", examAttemptSchema);
+
+// ==================== StudyPlan ====================
+const studyPlanSchema = new mongoose.Schema({
+  userId:   { type: String, required: true },
+  examDate: Date,
+  totalDays: Number,
+  dailyPlan: [{
+    day:            Number,
+    date:           Date,
+    topics:         [String],
+    estimatedHours: Number,
+    completed:      { type: Boolean, default: false },
+  }],
+  priorityTopics: [{ topic: String, priority: Number, reason: String }],
+  skipSuggestions: [{ topic: String, effort: String, marksLost: Number, reason: String }],
+  createdAt: { type: Date, default: Date.now },
+});
+export const StudyPlan = mongoose.model("StudyPlan", studyPlanSchema);
+
+// ==================== WeeklyLeaderboard ====================
+const weeklyLeaderboardSchema = new mongoose.Schema({
+  userId:    { type: String, required: true },
+  topic:     String,
+  week:      { type: String, required: true }, // "2025-W20"
+  score:     { type: Number, default: 0 },
+  accuracy:  { type: Number, default: 0 },
+  rank:      Number,
+  percentile: Number,
+  createdAt: { type: Date, default: Date.now },
+});
+weeklyLeaderboardSchema.index({ week: 1, score: -1 });
+export const WeeklyLeaderboard = mongoose.model("WeeklyLeaderboard", weeklyLeaderboardSchema);

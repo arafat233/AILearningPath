@@ -1,0 +1,59 @@
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
+import http from "http";
+import { initSocket } from "./utils/socket.js";
+
+import authRoutes        from "./routes/authRoutes.js";
+import practiceRoutes    from "./routes/practiceRoutes.js";
+import analysisRoutes    from "./routes/analysisRoutes.js";
+import examRoutes        from "./routes/examRoutes.js";
+import plannerRoutes     from "./routes/plannerRoutes.js";
+import aiRoutes          from "./routes/aiRoutes.js";
+import userRoutes        from "./routes/userRoutes.js";
+import revisionRoutes    from "./routes/revisionRoutes.js";
+import lessonRoutes      from "./routes/lessonRoutes.js";
+import topicRoutes       from "./routes/topicRoutes.js";
+import competitionRoutes from "./routes/competitionRoutes.js";
+
+dotenv.config();
+
+const app    = express();
+const server = http.createServer(app);
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.json());
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => { console.error("❌ DB:", err.message); process.exit(1); });
+
+// Initialise Socket.IO for real-time competition rooms
+initSocket(server);
+
+// REST API routes
+app.use("/api/auth",        authRoutes);
+app.use("/api/practice",    practiceRoutes);
+app.use("/api/analysis",    analysisRoutes);
+app.use("/api/exam",        examRoutes);
+app.use("/api/planner",     plannerRoutes);
+app.use("/api/ai",          aiRoutes);
+app.use("/api/user",        userRoutes);
+app.use("/api/revision",    revisionRoutes);
+app.use("/api/lessons",     lessonRoutes);
+app.use("/api/topics",      topicRoutes);
+app.use("/api/competition", competitionRoutes);
+
+app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));
+app.use((err, _req, res, _next) => {
+  console.error(err.message);
+  res.status(500).json({ error: "Internal server error" });
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`🚀 Server + WebSocket on port ${PORT}`));

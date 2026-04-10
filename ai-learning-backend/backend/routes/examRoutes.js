@@ -1,0 +1,10 @@
+import express from "express";
+import { listExams, startExam, submitExam, getExamReview, getLeaderboard } from "../controllers/examController.js";
+import { auth } from "../middleware/auth.js";
+const r = express.Router();
+r.get("/list",                   auth, listExams);
+r.post("/start",                 auth, startExam);
+r.post("/submit",                auth, submitExam);
+r.get("/review/:attemptId",      auth, getExamReview);
+r.get("/leaderboard/:examId",    auth, getLeaderboard);
+export default r;

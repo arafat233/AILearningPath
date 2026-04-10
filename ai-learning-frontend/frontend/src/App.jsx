@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
-import Layout      from "./components/Layout";
-import Login       from "./pages/Login";
-import Register    from "./pages/Register";
-import Onboarding  from "./pages/Onboarding";
+import Layout           from "./components/Layout";
+import Login            from "./pages/Login";
+import Register         from "./pages/Register";
+import Onboarding       from "./pages/Onboarding";
+import StartOnboarding  from "./pages/StartOnboarding";
 import Dashboard   from "./pages/Dashboard";
 import Lessons     from "./pages/Lessons";
 import LessonView  from "./pages/LessonView";
@@ -19,13 +20,14 @@ import ExamReview  from "./pages/ExamReview";
 
 const Protected = ({ children }) => {
   const token = useAuthStore((s) => s.token);
-  return token ? children : <Navigate to="/login" replace />;
+  return token ? children : <Navigate to="/start" replace />;
 };
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/start"      element={<StartOnboarding />} />
         <Route path="/login"      element={<Login />} />
         <Route path="/register"   element={<Register />} />
         <Route path="/onboarding" element={<Protected><Onboarding /></Protected>} />

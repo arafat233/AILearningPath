@@ -59,3 +59,25 @@ export const getNextQuestion = async (userId, topic) => {
 
   return q;
 };
+
+export const getInterleavedQuestion = async (userId, topics) => {
+  const profile = await UserProfile.findOne({ userId });
+  const topicProgress = profile?.topicProgress || [];
+
+  // Weight topics by weakness — weak topics appear more often
+  const weighted = topics.map((t) => {
+    const tp = topicProgress.find((p) => p.topic === t);
+    const accuracy = tp?.accuracy ?? 0.5;
+    return { topic: t, weight: 1 - accuracy };
+  });
+
+  const totalWeight = weighted.reduce((s, t) => s + t.weight, 0) || 1;
+  let rand = Math.random() * totalWeight;
+  let chosen = weighted[0].topic;
+  for (const w of weighted) {
+    rand -= w.weight;
+    if (rand <= 0) { chosen = w.topic; break; }
+  }
+
+  return getNextQuestion(userId, chosen);
+};

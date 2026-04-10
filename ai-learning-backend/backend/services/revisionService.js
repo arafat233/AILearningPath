@@ -1,6 +1,6 @@
 import { UserProfile } from "../models/index.js";
 
-const INTERVALS = [1, 3, 7, 15, 30];
+const INTERVALS = [1, 3, 7, 15, 30]; // days between revisions
 
 export const getRevisionTopics = async (userId) => {
   const profile = await UserProfile.findOne({ userId });
@@ -11,11 +11,35 @@ export const getRevisionTopics = async (userId) => {
 
   for (const tp of profile.topicProgress) {
     if (!tp.lastAttempted) continue;
-    const daysSince = Math.floor((now - new Date(tp.lastAttempted)) / (1000 * 60 * 60 * 24));
-    const stageIndex = Math.min((tp.attempts || 1) - 1, INTERVALS.length - 1);
-    const nextInterval = INTERVALS[stageIndex];
-    if (daysSince >= nextInterval) {
-      due.push({ topic: tp.topic, accuracy: Math.round(tp.accuracy * 100), daysSince, nextInterval, priority: daysSince / nextInterval });
+
+    // Use persisted nextRevision if available, otherwise fall back to legacy logic
+    if (tp.nextRevision) {
+      if (now >= new Date(tp.nextRevision)) {
+        const daysSince = Math.floor((now - new Date(tp.lastAttempted)) / (1000 * 60 * 60 * 24));
+        due.push({
+          topic: tp.topic,
+          accuracy: Math.round((tp.accuracy || 0) * 100),
+          daysSince,
+          nextInterval: INTERVALS[tp.revisionStage ?? 0],
+          revisionStage: tp.revisionStage ?? 0,
+          priority: daysSince / Math.max(1, INTERVALS[tp.revisionStage ?? 0]),
+        });
+      }
+    } else {
+      // Legacy fallback for topics without nextRevision yet
+      const daysSince = Math.floor((now - new Date(tp.lastAttempted)) / (1000 * 60 * 60 * 24));
+      const stageIndex = Math.min((tp.attempts || 1) - 1, INTERVALS.length - 1);
+      const nextInterval = INTERVALS[stageIndex];
+      if (daysSince >= nextInterval) {
+        due.push({
+          topic: tp.topic,
+          accuracy: Math.round((tp.accuracy || 0) * 100),
+          daysSince,
+          nextInterval,
+          revisionStage: stageIndex,
+          priority: daysSince / nextInterval,
+        });
+      }
     }
   }
 
@@ -23,8 +47,22 @@ export const getRevisionTopics = async (userId) => {
 };
 
 export const markRevised = async (userId, topic) => {
+  const profile = await UserProfile.findOne({ userId });
+  const tp = profile?.topicProgress?.find((t) => t.topic === topic);
+  const currentStage = tp?.revisionStage ?? 0;
+  const nextStage = Math.min(currentStage + 1, INTERVALS.length - 1);
+  const nextRevision = new Date(Date.now() + INTERVALS[nextStage] * 864e5);
+
   await UserProfile.findOneAndUpdate(
     { userId, "topicProgress.topic": topic },
-    { $set: { "topicProgress.$.lastAttempted": new Date() } }
+    {
+      $set: {
+        "topicProgress.$.lastAttempted": new Date(),
+        "topicProgress.$.nextRevision":  nextRevision,
+        "topicProgress.$.revisionStage": nextStage,
+      },
+    }
   );
+
+  return { nextRevision, nextStage, nextInterval: INTERVALS[nextStage] };
 };

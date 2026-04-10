@@ -51,6 +51,15 @@ export const updateUserProfile = async (userId) => {
 
   const thinkingProfile = classifyThinkingProfile(behaviorStats, accuracy);
 
+  // Difficulty level per topic (1=basic, 2=application, 3=tricky, 4=exam-level)
+  const difficultyLevels = {};
+  for (const tp of topicProgress) {
+    if      (tp.accuracy >= 0.85) difficultyLevels[tp.topic] = 4;
+    else if (tp.accuracy >= 0.70) difficultyLevels[tp.topic] = 3;
+    else if (tp.accuracy >= 0.50) difficultyLevels[tp.topic] = 2;
+    else                           difficultyLevels[tp.topic] = 1;
+  }
+
   await UserProfile.findOneAndUpdate(
     { userId },
     {
@@ -63,6 +72,7 @@ export const updateUserProfile = async (userId) => {
       behaviorStats,
       confidenceAccuracy: { highConfidenceWrong, lowConfidenceRight },
       topicProgress,
+      difficultyLevels,
       updatedAt: new Date(),
     },
     { upsert: true, new: true }

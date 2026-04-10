@@ -1,4 +1,4 @@
-import { Attempt } from "../models/index.js";
+import { Attempt, ErrorMemory } from "../models/index.js";
 import { analyzeAnswer } from "../services/analysisService.js";
 import { getNextQuestion } from "../services/adaptiveService.js";
 import { updateUserProfile } from "../services/profileService.js";
@@ -85,6 +85,19 @@ export const submitAnswer = async (req, res) => {
     updateUserProfile(userId).catch(() => {});
     updateStreak(userId).catch(() => {});
 
+    // Log to ErrorMemory on wrong answers
+    if (!result.isCorrect) {
+      ErrorMemory.findOneAndUpdate(
+        { userId, topic: session.topic, mistakeType: selectedType },
+        {
+          $inc: { count: 1 },
+          $set: { lastSeen: new Date() },
+          $push: { questionSnippets: { $each: [question.questionText.slice(0, 60)], $slice: -5 } },
+        },
+        { upsert: true }
+      ).catch(() => {});
+    }
+
     // ── SMART AI ROUTER (cost-optimized) ──────────────────────────
     let aiExplanation = null;
     let doubtResolution = null;
@@ -112,8 +125,12 @@ export const submitAnswer = async (req, res) => {
         ).catch(() => null);
     }
 
+    // Capture difficulty level before background update settles
+    const profileBefore = await UserProfile.findOne({ userId }).catch(() => null);
+    const prevLevel = profileBefore?.difficultyLevels?.get?.(session.topic) || 1;
+
     // AI teacher message based on session progress
-    const profile = await UserProfile.findOne({ userId }).catch(() => null);
+    const profile = profileBefore;
     const teacherMessage = profile
       ? generateTeacherMessage(profile, {
           questionsAnswered: session.sessionTotal,
@@ -150,6 +167,8 @@ export const submitAnswer = async (req, res) => {
       aiFromCache: !!(aiExplanation && question.solutionSteps?.length === 0),
       // Next question
       nextQuestion,
+      // Difficulty level for this topic
+      difficultyLevel: prevLevel,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -34,15 +34,18 @@ export const getLesson    = (topic)  => api.get(`/lessons/${encodeURIComponent(t
 export const saveProgress = (data)   => api.post("/lessons/progress", data);
 
 // Practice
-export const startTopic   = (topicId) => api.post("/practice/start", { topicId });
-export const submitAnswer  = (data)   => api.post("/practice/submit", data);
+export const startTopic        = (topicId) => api.post("/practice/start", { topicId });
+export const submitAnswer      = (data)    => api.post("/practice/submit", data);
+export const startMixedPractice = (topics) => api.post("/practice/mixed", { topics });
 
 // Analysis
-export const getReport = () => api.get("/analysis/report");
+export const getReport      = ()  => api.get("/analysis/report");
+export const getErrorMemory = ()  => api.get("/analysis/errors");
 
 // Revision
-export const getRevisionDue = ()       => api.get("/revision/due");
-export const markRevised    = (topic)  => api.post("/revision/mark", { topic });
+export const getRevisionDue     = ()       => api.get("/revision/due");
+export const markRevised        = (topic)  => api.post("/revision/mark", { topic });
+export const getLastDayRevision = ()       => api.get("/revision/last-day");
 
 // Exam / Competition
 export const listExams      = ()       => api.get("/exam/list");
@@ -55,10 +58,11 @@ export const getPlan         = ()    => api.get("/planner");
 export const markDayComplete = (day) => api.post("/planner/complete", { day });
 
 // AI
-export const getAIAdvice    = ()                      => api.get("/ai/advice");
-export const getAIUsage     = ()                      => api.get("/ai/usage");
-export const getAICacheStats= ()                      => api.get("/ai/cache-stats");
-export const askTutor       = (message, history, topic) => api.post("/ai/chat", { message, history, topic });
+export const getAIAdvice         = ()                           => api.get("/ai/advice");
+export const getAIUsage          = ()                           => api.get("/ai/usage");
+export const getAICacheStats     = ()                           => api.get("/ai/cache-stats");
+export const askTutor            = (message, history, topic)   => api.post("/ai/chat", { message, history, topic });
+export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
 
 // ── Live Room ─────────────────────────────────────────────
 export const getRoomQuestions = (topic, count) =>

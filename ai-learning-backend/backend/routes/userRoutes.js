@@ -25,11 +25,13 @@ r.get("/me", auth, async (req, res) => {
 
 r.put("/me", auth, async (req, res) => {
   try {
-    const { name, examDate, grade } = req.body;
+    const { name, examDate, grade, subject, goal } = req.body;
     const updates = {};
     if (name)     updates.name     = name.trim();
     if (examDate) updates.examDate = new Date(examDate);
     if (grade)    updates.grade    = grade;
+    if (subject)  updates.subject  = subject;
+    if (goal)     updates.goal     = goal;
     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
     res.json({ user });
   } catch (err) {

@@ -27,6 +27,9 @@ const topicSchema = new mongoose.Schema({
   prerequisites:  [String],
   examFrequency:  { type: Number, default: 0.5 },
   estimatedHours: { type: Number, default: 2 },
+  examMarks:      { type: Number, default: 5 },
+  realWorldUse:   { type: String, default: "" },
+  whyMatters:     { type: String, default: "" },
 });
 export const Topic = mongoose.model("Topic", topicSchema);
 
@@ -119,11 +122,19 @@ const userProfileSchema = new mongoose.Schema({
     lowConfidenceRight:  { type: Number, default: 0 },
   },
   topicProgress: [{
-    topic:        String,
-    accuracy:     Number,
-    attempts:     Number,
+    topic:         String,
+    accuracy:      Number,
+    attempts:      Number,
     lastAttempted: Date,
+    nextRevision:  Date,
+    revisionStage: { type: Number, default: 0 },
+    difficulty:    { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
   }],
+  difficultyLevels: {
+    type: Map,
+    of: { type: Number, default: 1, min: 1, max: 4 },
+    default: {},
+  },
   updatedAt: { type: Date, default: Date.now },
 });
 export const UserProfile = mongoose.model("UserProfile", userProfileSchema);
@@ -238,6 +249,18 @@ const aiResponseCacheSchema = new mongoose.Schema({
 });
 aiResponseCacheSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // auto-purge old entries
 export const AIResponseCache = mongoose.model("AIResponseCache", aiResponseCacheSchema);
+
+// ==================== ErrorMemory (per-user per-topic mistake tracking) ====================
+const errorMemorySchema = new mongoose.Schema({
+  userId:      { type: String, required: true },
+  topic:       { type: String, required: true },
+  mistakeType: { type: String, required: true },
+  count:       { type: Number, default: 1 },
+  lastSeen:    { type: Date,   default: Date.now },
+  questionSnippets: [String],
+});
+errorMemorySchema.index({ userId: 1, topic: 1, mistakeType: 1 }, { unique: true });
+export const ErrorMemory = mongoose.model("ErrorMemory", errorMemorySchema);
 
 // ==================== AIUsageStats (per-user daily tracking) ====================
 const aiUsageStatsSchema = new mongoose.Schema({

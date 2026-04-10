@@ -3,7 +3,7 @@ import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from "recharts";
-import { getReport } from "../services/api";
+import { getReport, getErrorMemory } from "../services/api";
 
 const LEVEL_COLOR = {
   high:   "bg-red-100 text-red-700",
@@ -12,13 +12,16 @@ const LEVEL_COLOR = {
 };
 
 export default function Analytics() {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState("");
+  const [data, setData]         = useState(null);
+  const [errors, setErrors]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
 
   useEffect(() => {
-    getReport()
-      .then((r) => setData(r.data))
+    Promise.all([
+      getReport().then((r) => setData(r.data)),
+      getErrorMemory().then((r) => setErrors(r.data || [])).catch(() => {}),
+    ])
       .catch(() => setError("Could not load analytics. Make sure the backend is running."))
       .finally(() => setLoading(false));
   }, []);
@@ -127,6 +130,54 @@ export default function Analytics() {
             ) : (
               <p className="text-sm text-gray-400">Use the confidence selector in Practice to unlock this.</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Confidence vs Reality — visual card */}
+      {hasData && data?.confidenceAccuracy && (
+        <div className="card p-5 mb-5">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Confidence vs Reality</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-red-50 rounded-xl p-4">
+              <p className="text-3xl font-bold text-red-600">
+                {data.confidenceAccuracy.highConfidenceWrong}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                High confidence → wrong (dangerous misconceptions)
+              </p>
+            </div>
+            <div className="bg-amber-50 rounded-xl p-4">
+              <p className="text-3xl font-bold text-amber-600">
+                {data.confidenceAccuracy.lowConfidenceRight}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Low confidence → correct (unstable knowledge)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Memory — repeated mistakes */}
+      {errors.length > 0 && (
+        <div className="card p-5 mb-5">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Repeated Mistakes</p>
+          <div className="flex flex-col gap-3">
+            {errors.map((e, i) => (
+              <div key={i} className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-sm font-medium text-gray-700 capitalize">{e.mistakeType.replace(/_/g, " ")}</span>
+                    <span className="badge text-xs bg-gray-100 text-gray-500">{e.topic}</span>
+                  </div>
+                  {e.questionSnippets?.length > 0 && (
+                    <p className="text-xs text-gray-400 truncate">e.g. "{e.questionSnippets[e.questionSnippets.length - 1]}…"</p>
+                  )}
+                </div>
+                <span className="text-sm font-bold text-red-600 shrink-0">{e.count}×</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

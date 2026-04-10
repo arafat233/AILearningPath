@@ -38,16 +38,31 @@ export default function Practice() {
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [foundationMsg, setFoundationMsg] = useState(null);
   const [showSteps, setShowSteps]   = useState(false);
+  const [recallMode, setRecallMode] = useState(true);
+  const [recallAttempt, setRecallAttempt] = useState("");
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
+  const [timeLimit, setTimeLimit]   = useState(null);
+  const [timeWarning, setTimeWarning] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
     if (question && !feedback) {
       startTimeRef.current = Date.now();
       setElapsed(0);
+      setTimeWarning(false);
+      const limit = question.expectedTime ? question.expectedTime * 2 : null;
+      setTimeLimit(limit);
       timerRef.current = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        const secs = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setElapsed(secs);
+        if (limit) {
+          if (secs >= limit - 5) setTimeWarning(true);
+          if (secs >= limit) {
+            clearInterval(timerRef.current);
+            handleAnswer("guessing");
+          }
+        }
       }, 1000);
     }
     return () => clearInterval(timerRef.current);
@@ -97,11 +112,13 @@ export default function Practice() {
   };
 
   const handleNext = () => {
+    setRecallMode(true);
+    setRecallAttempt("");
+    setShowSteps(false);
     if (feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
       setFeedback(null);
       setConfidence("");
-      setShowSteps(false);
     } else {
       handleStart();
     }
@@ -168,9 +185,9 @@ export default function Practice() {
           )}
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-[13px] text-apple-gray">
+          <div className={`flex items-center gap-1.5 text-[13px] ${timeWarning ? "text-apple-red animate-pulse" : "text-apple-gray"}`}>
             <span>⏱</span>
-            <span className="font-mono">{elapsed}s</span>
+            <span className="font-mono">{elapsed}s{timeLimit ? ` / ${timeLimit}s` : ""}</span>
           </div>
           <div className="card px-3 py-1.5 shadow-none border border-apple-gray5">
             <span className="text-[12px] font-semibold text-[var(--label)]">
@@ -292,8 +309,48 @@ export default function Practice() {
             </div>
           )}
 
-          {/* Solution steps */}
-          {feedback.solutionSteps?.length > 0 && (
+          {/* Solution steps — active recall gate for wrong answers */}
+          {feedback.solutionSteps?.length > 0 && !feedback.isCorrect && (
+            recallMode ? (
+              <div className="bg-apple-orange/6 border border-apple-orange/15 rounded-apple-lg p-4">
+                <p className="text-[12px] font-semibold text-apple-orange mb-2">
+                  Try it yourself first — write how you'd solve this:
+                </p>
+                <textarea
+                  className="w-full bg-[var(--fill)] border border-apple-gray5 rounded-apple-lg px-3 py-2 text-[13px] text-[var(--label)] resize-none focus:outline-none focus:border-apple-blue"
+                  rows={2}
+                  value={recallAttempt}
+                  onChange={(e) => setRecallAttempt(e.target.value)}
+                  placeholder="Write your approach before seeing the solution…"
+                />
+                <button
+                  onClick={() => setRecallMode(false)}
+                  disabled={recallAttempt.trim().length < 5}
+                  className="btn-primary mt-2 text-[13px] disabled:opacity-40"
+                >
+                  Show Solution →
+                </button>
+              </div>
+            ) : (
+              <div>
+                <button
+                  onClick={() => setShowSteps((s) => !s)}
+                  className="btn-ghost text-[13px]"
+                >
+                  {showSteps ? "Hide" : "Show"} solution steps
+                </button>
+                {showSteps && (
+                  <ol className="mt-3 space-y-1.5 list-decimal list-inside">
+                    {feedback.solutionSteps.map((step, i) => (
+                      <li key={i} className="text-[13px] text-[var(--label2)]">{step}</li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            )
+          )}
+          {/* Solution steps for correct answers — show directly */}
+          {feedback.solutionSteps?.length > 0 && feedback.isCorrect && (
             <div>
               <button
                 onClick={() => setShowSteps((s) => !s)}
@@ -332,6 +389,20 @@ export default function Practice() {
             <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg p-4">
               <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider mb-1">🤖 AI Teacher</p>
               <p className="text-[13px] text-[var(--label2)]">{feedback.teacherMessage.message}</p>
+            </div>
+          )}
+
+          {/* Difficulty level */}
+          {feedback.difficultyLevel && (
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-[11px] text-apple-gray">
+                Difficulty Level: {["", "Basic", "Application", "Tricky", "Exam-level"][feedback.difficultyLevel] || feedback.difficultyLevel}
+              </span>
+              <div className="flex gap-0.5">
+                {[1,2,3,4].map((l) => (
+                  <div key={l} className={`w-2 h-2 rounded-full ${l <= feedback.difficultyLevel ? "bg-apple-blue" : "bg-apple-gray5"}`} />
+                ))}
+              </div>
             </div>
           )}
 

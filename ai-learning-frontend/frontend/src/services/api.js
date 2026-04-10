@@ -25,8 +25,10 @@ export const login    = (data) => api.post("/auth/login", data);
 export const getMe    = ()     => api.get("/user/me");
 export const updateMe = (data) => api.put("/user/me", data);
 
-// Topics (loaded from DB)
-export const getTopics = () => api.get("/topics");
+// Topics (loaded from DB — public, no auth needed)
+// Optional filters: getTopics({ grade: "10", subject: "Math" })
+export const getTopics     = (params) => api.get("/topics", { params });
+export const getTopicsMeta = ()       => api.get("/topics/meta"); // unique subjects + grades
 
 // Lessons
 export const listLessons  = ()       => api.get("/lessons");

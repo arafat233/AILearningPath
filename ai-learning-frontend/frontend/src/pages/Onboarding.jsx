@@ -1,16 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateMe } from "../services/api";
+import { updateMe, getTopics, getTopicsMeta } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const STEPS = ["grade", "examDate", "weakTopics", "done"];
-
-const ALL_TOPICS = [
-  "Real Numbers", "Polynomials", "Linear Equations",
-  "Quadratic Equations", "Arithmetic Progressions",
-  "Triangles", "Coordinate Geometry", "Trigonometry",
-  "Circles", "Surface Areas & Volumes", "Statistics", "Probability",
-];
 
 export default function Onboarding() {
   const [step, setStep]         = useState(0);
@@ -18,8 +11,22 @@ export default function Onboarding() {
   const [examDate, setExamDate] = useState("");
   const [weakTopics, setWeakTopics] = useState([]);
   const [saving, setSaving]     = useState(false);
+  const [grades, setGrades]     = useState(["8","9","10","11","12"]);
+  const [topicList, setTopicList] = useState([]);
   const { setAuth, token, user } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getTopicsMeta().then((r) => {
+      if (r.data.grades?.length) setGrades(r.data.grades.sort());
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    getTopics({ grade })
+      .then((r) => setTopicList(r.data.map((t) => t.name)))
+      .catch(() => {});
+  }, [grade]);
 
   const toggleTopic = (t) =>
     setWeakTopics((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
@@ -50,7 +57,7 @@ export default function Onboarding() {
             <h2 className="text-xl font-semibold mb-1">What class are you in?</h2>
             <p className="text-sm text-gray-500 mb-5">We'll set up your syllabus and study plan.</p>
             <div className="grid grid-cols-3 gap-3 mb-6">
-              {["8", "9", "10", "11", "12"].map((g) => (
+              {grades.map((g) => (
                 <button key={g} onClick={() => setGrade(g)}
                   className={`py-3 rounded-xl border font-medium transition-all ${grade === g ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-700"}`}>
                   Class {g}
@@ -80,7 +87,7 @@ export default function Onboarding() {
             <h2 className="text-xl font-semibold mb-1">Which topics feel difficult?</h2>
             <p className="text-sm text-gray-500 mb-4">Select all that apply — we'll prioritise these.</p>
             <div className="flex flex-wrap gap-2 mb-6">
-              {ALL_TOPICS.map((t) => (
+              {topicList.map((t) => (
                 <button key={t} onClick={() => toggleTopic(t)}
                   className={`text-sm px-3 py-1.5 rounded-full border transition-all ${weakTopics.includes(t) ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-600"}`}>
                   {t}

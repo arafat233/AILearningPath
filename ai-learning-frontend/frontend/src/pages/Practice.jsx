@@ -1,11 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion } from "../services/api";
-
-const TOPICS = [
-  "Algebra Basics", "Linear Equations", "Quadratic Equations",
-  "Factorization", "Trigonometry", "Probability",
-];
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics } from "../services/api";
+import { useAuthStore } from "../store/authStore";
 
 const BEHAVIOR = {
   guessing:          { text: "Guessing detected",    bg: "bg-apple-orange/10", text_c: "text-apple-orange" },
@@ -30,7 +26,9 @@ function diffLevel(score) {
 export default function Practice() {
   const location   = useLocation();
   const navigate   = useNavigate();
+  const user       = useAuthStore((s) => s.user);
   const mixTopics  = location.state?.mixTopics || null; // from Planner "Start today"
+  const [topics, setTopics]           = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(location.state?.topic || "");
   const [question, setQuestion]     = useState(null);
   const [feedback, setFeedback]     = useState(null);
@@ -159,6 +157,16 @@ export default function Practice() {
     }
   };
 
+  // Load topics from DB (filtered by user's grade + subject if available)
+  useEffect(() => {
+    const params = {};
+    if (user?.grade)   params.grade   = user.grade;
+    if (user?.subject) params.subject = user.subject;
+    getTopics(params)
+      .then((r) => setTopics(r.data.map((t) => t.name)))
+      .catch(() => {});
+  }, [user?.grade, user?.subject]);
+
   // ── Auto-start mixed practice if coming from Planner ───────────
   useEffect(() => {
     if (mixTopics?.length && !question) handleStart();
@@ -177,21 +185,25 @@ export default function Practice() {
 
         <div className="card p-6">
           <p className="section-label">Select Topic</p>
-          <div className="grid grid-cols-2 gap-2">
-            {TOPICS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setSelectedTopic(t)}
-                className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150
-                  ${selectedTopic === t
-                    ? "bg-apple-blue text-white shadow-apple"
-                    : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
-                  }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+          {topics.length === 0 ? (
+            <p className="text-[13px] text-apple-gray">Loading topics…</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {topics.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedTopic(t)}
+                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150
+                    ${selectedTopic === t
+                      ? "bg-apple-blue text-white shadow-apple"
+                      : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
+                    }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <button

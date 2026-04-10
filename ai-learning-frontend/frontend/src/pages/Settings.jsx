@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMe, updateMe } from "../services/api";
+import { getMe, updateMe, getTopicsMeta } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 export default function Settings() {
@@ -11,6 +11,11 @@ export default function Settings() {
   const [saving, setSaving]   = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError]     = useState("");
+  const [meta, setMeta]       = useState({ subjects: ["Math"], grades: ["8","9","10","11","12"] });
+
+  useEffect(() => {
+    getTopicsMeta().then((r) => setMeta(r.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     getMe()
@@ -85,7 +90,7 @@ export default function Settings() {
               value={form.grade}
               onChange={(e) => setForm({ ...form, grade: e.target.value })}
             >
-              {["8","9","10","11","12"].map((g) => (
+              {meta.grades.map((g) => (
                 <option key={g} value={g}>Class {g}</option>
               ))}
             </select>
@@ -98,7 +103,7 @@ export default function Settings() {
               value={form.subject}
               onChange={(e) => setForm({ ...form, subject: e.target.value })}
             >
-              {["Math", "Science", "English", "Social Studies", "Hindi"].map((s) => (
+              {meta.subjects.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>

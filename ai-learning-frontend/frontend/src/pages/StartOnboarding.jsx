@@ -1,24 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { register } from "../services/api";
-import { updateMe } from "../services/api";
+import { register, updateMe, getTopics, getTopicsMeta } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 // ─── Constants ──────────────────────────────────────────────────────
-const GRADES = ["8", "9", "10", "11", "12"];
-
 const GOALS = [
-  { value: "pass",        label: "Pass the exam",            emoji: "🎯", sub: "Clear boards comfortably" },
-  { value: "distinction", label: "Score 75%+",               emoji: "⭐", sub: "Distinction level" },
-  { value: "top",         label: "Top 90%+",                 emoji: "🏆", sub: "Top of class" },
-  { value: "scholarship", label: "Scholarship rank",          emoji: "🎓", sub: "Highest achievers" },
-];
-
-const TOPICS = [
-  "Real Numbers", "Polynomials", "Linear Equations",
-  "Quadratic Equations", "Arithmetic Progressions",
-  "Triangles", "Coordinate Geometry", "Trigonometry",
-  "Circles", "Surface Areas & Volumes", "Statistics", "Probability",
+  { value: "pass",        label: "Pass the exam",   emoji: "🎯", sub: "Clear boards comfortably" },
+  { value: "distinction", label: "Score 75%+",      emoji: "⭐", sub: "Distinction level" },
+  { value: "top",         label: "Top 90%+",         emoji: "🏆", sub: "Top of class" },
+  { value: "scholarship", label: "Scholarship rank", emoji: "🎓", sub: "Highest achievers" },
 ];
 
 const ANALYZE_MESSAGES = [
@@ -43,8 +33,25 @@ export default function StartOnboarding() {
   const [form, setForm]           = useState({ name: "", email: "", password: "" });
   const [error, setError]         = useState("");
   const [saving, setSaving]       = useState(false);
+  // Dynamic data from DB
+  const [grades, setGrades]       = useState(["8","9","10","11","12"]); // fallback
+  const [topicList, setTopicList] = useState([]);
   const { setAuth }               = useAuthStore();
   const navigate                  = useNavigate();
+
+  // Load grades + subjects from DB on mount
+  useEffect(() => {
+    getTopicsMeta().then((r) => {
+      if (r.data.grades?.length) setGrades(r.data.grades.sort());
+    }).catch(() => {});
+  }, []);
+
+  // Reload topics whenever grade changes
+  useEffect(() => {
+    getTopics({ grade })
+      .then((r) => setTopicList(r.data.map((t) => t.name)))
+      .catch(() => {});
+  }, [grade]);
 
   // Auto-run analysis animation on step 5
   useEffect(() => {
@@ -76,7 +83,7 @@ export default function StartOnboarding() {
     ? Math.max(0, Math.ceil((new Date(examDate) - new Date()) / 86400000))
     : null;
 
-  const todayFocus = weakTopics.length > 0 ? weakTopics[0] : TOPICS[7]; // default Trig
+  const todayFocus = weakTopics.length > 0 ? weakTopics[0] : (topicList[7] || topicList[0] || "your first topic");
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -178,7 +185,7 @@ export default function StartOnboarding() {
             <h2 className="text-[26px] font-black text-[var(--label)] tracking-tight mb-1">Which class are you in?</h2>
             <p className="text-[14px] text-apple-gray mb-7">We'll load your exact syllabus and exam pattern.</p>
             <div className="grid grid-cols-5 gap-2 mb-8">
-              {GRADES.map((g) => (
+              {grades.map((g) => (
                 <button key={g} onClick={() => setGrade(g)}
                   className={`py-4 rounded-apple-lg font-bold text-[15px] transition-all
                     ${grade === g
@@ -254,7 +261,7 @@ export default function StartOnboarding() {
             <h2 className="text-[26px] font-black text-[var(--label)] tracking-tight mb-1">Which topics feel hard?</h2>
             <p className="text-[14px] text-apple-gray mb-6">Select all that apply — we'll focus here first.</p>
             <div className="flex flex-wrap gap-2 mb-8">
-              {TOPICS.map((t) => (
+              {topicList.map((t) => (
                 <button key={t} onClick={() => toggleTopic(t)}
                   className={`text-[13px] font-medium px-4 py-2 rounded-full border transition-all
                     ${weakTopics.includes(t)

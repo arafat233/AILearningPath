@@ -220,3 +220,32 @@ const weeklyLeaderboardSchema = new mongoose.Schema({
 });
 weeklyLeaderboardSchema.index({ week: 1, score: -1 });
 export const WeeklyLeaderboard = mongoose.model("WeeklyLeaderboard", weeklyLeaderboardSchema);
+
+// ==================== AIResponseCache (permanent DB cache) ====================
+// Stores every Claude response keyed by question+mistakeType
+// Shared across ALL users — if 1000 students get the same question wrong the same
+// way, Claude is called ONCE. Every future request hits this cache instead.
+const aiResponseCacheSchema = new mongoose.Schema({
+  cacheKey:    { type: String, required: true, unique: true }, // hash of questionText+mistakeType
+  questionSnippet: String,   // first 120 chars of question (for debugging)
+  mistakeType: String,
+  response:    { type: String, required: true },  // Claude's explanation
+  hitCount:    { type: Number, default: 0 },      // how many times this was reused
+  savedCalls:  { type: Number, default: 0 },      // Claude calls avoided
+  createdAt:   { type: Date, default: Date.now },
+  lastHitAt:   { type: Date, default: Date.now },
+  expiresAt:   { type: Date, default: () => new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) }, // 90 days
+});
+aiResponseCacheSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // auto-purge old entries
+export const AIResponseCache = mongoose.model("AIResponseCache", aiResponseCacheSchema);
+
+// ==================== AIUsageStats (per-user daily tracking) ====================
+const aiUsageStatsSchema = new mongoose.Schema({
+  userId:    { type: String, required: true },
+  date:      { type: String, required: true }, // YYYY-MM-DD
+  callsMade: { type: Number, default: 0 },
+  callsSaved:{ type: Number, default: 0 },     // cache hits today
+  tokensUsed:{ type: Number, default: 0 },
+});
+aiUsageStatsSchema.index({ userId: 1, date: 1 }, { unique: true });
+export const AIUsageStats = mongoose.model("AIUsageStats", aiUsageStatsSchema);

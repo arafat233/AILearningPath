@@ -104,7 +104,7 @@ export const submitAnswer = async (req, res) => {
         session.topic
       ).catch(() => null);
 
-      // Smart AI explanation (uses cache/static before calling OpenAI)
+      // Smart AI explanation — checks DB cache before calling Claude
       aiExplanation = doubtResolution?.aiHelp ||
         await smartAIExplanation(
           userId, question.questionText, selectedType,
@@ -121,8 +121,8 @@ export const submitAnswer = async (req, res) => {
         })
       : null;
 
-    // AI usage remaining
-    const aiUsageToday = getUsageCount(userId);
+    // AI usage remaining (awaited properly)
+    const aiUsage = await getUsageCount(userId).catch(() => null);
 
     // Preload next question
     const nextQuestion = await getNextQuestion(userId, session.topic).catch(() => null);
@@ -146,7 +146,8 @@ export const submitAnswer = async (req, res) => {
       // Teacher guidance
       teacherMessage,
       // AI usage info
-      aiUsageToday,
+      aiUsage,
+      aiFromCache: !!(aiExplanation && question.solutionSteps?.length === 0),
       // Next question
       nextQuestion,
     });

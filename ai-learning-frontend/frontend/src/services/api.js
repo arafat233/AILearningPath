@@ -55,7 +55,9 @@ export const getPlan         = ()    => api.get("/planner");
 export const markDayComplete = (day) => api.post("/planner/complete", { day });
 
 // AI
-export const getAIAdvice = () => api.get("/ai/advice");
+export const getAIAdvice    = ()     => api.get("/ai/advice");
+export const getAIUsage     = ()     => api.get("/ai/usage");
+export const getAICacheStats= ()     => api.get("/ai/cache-stats");
 
 // ── Live Room ─────────────────────────────────────────────
 export const getRoomQuestions = (topic, count) =>

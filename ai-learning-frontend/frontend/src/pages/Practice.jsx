@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion } from "../services/api";
 
 const TOPICS = [
   "Algebra Basics", "Linear Equations", "Quadratic Equations",
@@ -28,8 +28,9 @@ function diffLevel(score) {
 }
 
 export default function Practice() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location   = useLocation();
+  const navigate   = useNavigate();
+  const mixTopics  = location.state?.mixTopics || null; // from Planner "Start today"
   const [selectedTopic, setSelectedTopic] = useState(location.state?.topic || "");
   const [question, setQuestion]     = useState(null);
   const [feedback, setFeedback]     = useState(null);
@@ -43,6 +44,7 @@ export default function Practice() {
   const [recallAttempt, setRecallAttempt] = useState("");
   const [evalFeedback, setEvalFeedback] = useState(null);
   const [evalLoading, setEvalLoading]   = useState(false);
+  const [flagged, setFlagged]           = useState(false);
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);
@@ -72,18 +74,24 @@ export default function Practice() {
   }, [question, feedback]);
 
   const handleStart = async () => {
-    if (!selectedTopic) return;
+    // For mixed practice: pick a random topic from the day's topics
+    const topic = mixTopics?.length
+      ? mixTopics[Math.floor(Math.random() * mixTopics.length)]
+      : selectedTopic;
+    if (!topic) return;
     setLoading(true);
     setFeedback(null);
     setFoundationMsg(null);
+    setFlagged(false);
     try {
-      const { data } = await startTopic(selectedTopic);
+      const { data } = await startTopic(topic);
       if (data.foundationRedirect) {
         setFoundationMsg(data.message);
         setQuestion(data.question);
       } else {
         setQuestion(data);
       }
+      if (mixTopics) setSelectedTopic(topic);
     } catch (err) {
       alert(err.response?.data?.error || "Failed to start topic");
     } finally {
@@ -128,11 +136,20 @@ export default function Practice() {
     }
   };
 
+  const handleFlag = async () => {
+    if (!question?._id || flagged) return;
+    try {
+      await flagQuestion(question._id);
+      setFlagged(true);
+    } catch {}
+  };
+
   const handleNext = () => {
     setRecallMode(true);
     setRecallAttempt("");
     setEvalFeedback(null);
     setShowSteps(false);
+    setFlagged(false);
     if (feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
       setFeedback(null);
@@ -142,13 +159,20 @@ export default function Practice() {
     }
   };
 
+  // ── Auto-start mixed practice if coming from Planner ───────────
+  useEffect(() => {
+    if (mixTopics?.length && !question) handleStart();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Topic selector ──────────────────────────────────────────────
   if (!question) {
     return (
       <div className="max-w-lg mx-auto space-y-4">
         <div>
           <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Practice</h1>
-          <p className="text-[14px] text-apple-gray mt-0.5">Choose a topic to begin</p>
+          <p className="text-[14px] text-apple-gray mt-0.5">
+            {mixTopics ? `Mixed session: ${mixTopics.join(", ")}` : "Choose a topic to begin"}
+          </p>
         </div>
 
         <div className="card p-6">
@@ -244,9 +268,14 @@ export default function Practice() {
           </div>
         )}
 
-        <h2 className="text-[17px] font-semibold text-[var(--label)] leading-snug mb-6">
-          {question.questionText}
-        </h2>
+        {/* Assertion-Reason special rendering */}
+        {question.questionType === "assertion_reason" ? (
+          <AssertionReasonText text={question.questionText} />
+        ) : (
+          <h2 className="text-[17px] font-semibold text-[var(--label)] leading-snug mb-6">
+            {question.questionText}
+          </h2>
+        )}
 
         {/* Options */}
         <div className="flex flex-col gap-2">
@@ -460,11 +489,50 @@ export default function Practice() {
             </div>
           )}
 
+          {/* Flag question */}
+          <div className="flex items-center justify-between pt-1">
+            <button
+              onClick={handleFlag}
+              disabled={flagged}
+              className={`text-[11px] transition-colors ${flagged ? "text-apple-red cursor-default" : "text-apple-gray hover:text-apple-red"}`}
+            >
+              {flagged ? "⚑ Reported — thanks" : "⚑ Report this question"}
+            </button>
+          </div>
+
           <button onClick={handleNext} className="btn-primary w-full py-3 text-[15px] mt-2">
             Next Question →
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+// ── Assertion-Reason formatter ──────────────────────────────────────
+function AssertionReasonText({ text }) {
+  // Try to split on "Assertion" and "Reason" keywords
+  const aMatch = text.match(/assertion\s*(?:\(A\))?\s*[:\-]\s*(.*?)(?=reason|$)/is);
+  const rMatch = text.match(/reason\s*(?:\(R\))?\s*[:\-]\s*(.*)/is);
+
+  if (aMatch && rMatch) {
+    return (
+      <div className="mb-6 space-y-3">
+        <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg px-4 py-3">
+          <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider mb-1">Assertion (A)</p>
+          <p className="text-[15px] font-semibold text-[var(--label)] leading-snug">{aMatch[1].trim()}</p>
+        </div>
+        <div className="bg-apple-purple/6 border border-apple-purple/15 rounded-apple-lg px-4 py-3">
+          <p className="text-[11px] font-semibold text-apple-purple uppercase tracking-wider mb-1">Reason (R)</p>
+          <p className="text-[15px] font-semibold text-[var(--label)] leading-snug">{rMatch[1].trim()}</p>
+        </div>
+        <p className="text-[12px] text-apple-gray">Choose the correct relation between A and R:</p>
+      </div>
+    );
+  }
+
+  // Fallback — render as plain text
+  return (
+    <h2 className="text-[17px] font-semibold text-[var(--label)] leading-snug mb-6">{text}</h2>
   );
 }

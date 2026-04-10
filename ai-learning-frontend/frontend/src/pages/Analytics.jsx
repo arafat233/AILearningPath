@@ -3,7 +3,7 @@ import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from "recharts";
-import { getReport, getErrorMemory } from "../services/api";
+import { getReport, getErrorMemory, getWeeklyLeaderboard, getLastDayRevision } from "../services/api";
 
 const LEVEL_COLOR = {
   high:   "bg-red-100 text-red-700",
@@ -12,15 +12,19 @@ const LEVEL_COLOR = {
 };
 
 export default function Analytics() {
-  const [data, setData]         = useState(null);
-  const [errors, setErrors]     = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
+  const [data, setData]           = useState(null);
+  const [errors, setErrors]       = useState([]);
+  const [weekly, setWeekly]       = useState(null);
+  const [lastDay, setLastDay]     = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
 
   useEffect(() => {
     Promise.all([
       getReport().then((r) => setData(r.data)),
       getErrorMemory().then((r) => setErrors(r.data || [])).catch(() => {}),
+      getWeeklyLeaderboard().then((r) => setWeekly(r.data)).catch(() => {}),
+      getLastDayRevision().then((r) => setLastDay(r.data)).catch(() => {}),
     ])
       .catch(() => setError("Could not load analytics. Make sure the backend is running."))
       .finally(() => setLoading(false));
@@ -176,6 +180,68 @@ export default function Analytics() {
                   )}
                 </div>
                 <span className="text-sm font-bold text-red-600 shrink-0">{e.count}×</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Last-day trouble spots */}
+      {lastDay && (lastDay.topMistakes?.length > 0 || lastDay.recentWrong?.length > 0) && (
+        <div className="card p-5 mb-5">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Recent Trouble Spots</p>
+          {lastDay.topMistakes?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {lastDay.topMistakes.map((m) => (
+                <span key={m.type} className="text-xs px-3 py-1.5 rounded-full bg-red-50 text-red-700 font-medium capitalize">
+                  {m.type.replace(/_/g, " ")} — {m.count}×
+                </span>
+              ))}
+            </div>
+          )}
+          {lastDay.weakTopics?.length > 0 && (
+            <p className="text-xs text-gray-500 mb-3">
+              Weak areas: <span className="font-medium text-gray-700">{lastDay.weakTopics.join(", ")}</span>
+            </p>
+          )}
+          {lastDay.recentWrong?.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-medium text-gray-500 mb-1">Last {lastDay.recentWrong.length} wrong answers:</p>
+              {lastDay.recentWrong.slice(0, 5).map((a, i) => (
+                <p key={i} className="text-xs text-gray-400 truncate">• {a.topic}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Weekly leaderboard */}
+      {weekly?.board?.length > 0 && (
+        <div className="card p-5 mb-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Weekly Leaderboard</p>
+            <span className="text-xs text-gray-400">{weekly.week}</span>
+          </div>
+          {weekly.userEntry && (
+            <div className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-2 mb-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-brand-700">Your rank: #{weekly.userEntry.rank}</span>
+              <span className="text-xs text-brand-500">{weekly.userEntry.percentile}% percentile</span>
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            {weekly.board.slice(0, 10).map((row, i) => (
+              <div key={i} className={`flex items-center justify-between py-1.5 ${weekly.userEntry?.userId === row.userId ? "font-semibold" : ""}`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm w-6">
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                  </span>
+                  <span className="text-xs text-gray-500 font-mono">{String(row.userId).slice(-6)}</span>
+                  {row.topic && <span className="badge text-xs bg-gray-100 text-gray-500">{row.topic}</span>}
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-medium text-gray-800">{row.score?.toFixed(2)}</span>
+                  <span className="text-xs text-gray-400 ml-2">{Math.round((row.accuracy || 0) * 100)}%</span>
+                </div>
               </div>
             ))}
           </div>

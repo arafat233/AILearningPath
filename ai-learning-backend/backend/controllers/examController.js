@@ -1,5 +1,12 @@
-import { Exam, ExamAttempt, Question } from "../models/index.js";
+import { Exam, ExamAttempt, Question, WeeklyLeaderboard } from "../models/index.js";
 import { calculateExamScore, normalizeScores, assignRanks } from "../services/scoringService.js";
+
+function currentWeekStr() {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const week = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  return `${now.getFullYear()}-W${String(week).padStart(2, "0")}`;
+}
 
 const activeExams = {};
 
@@ -36,6 +43,7 @@ export const startExam = async (req, res) => {
     // Store full question data server-side for validation
     activeExams[userId] = {
       examId,
+      topic: exam.topic,
       negativeMarking: exam.negativeMarking,
       negativeValue: exam.negativeValue || 0.25,
       questions: [...easy, ...medium, ...hard],
@@ -96,6 +104,25 @@ export const submitExam = async (req, res) => {
     }
 
     const userResult = ranked.find((r) => r.userId === userId);
+
+    // Update weekly leaderboard — keep user's best score for the week
+    if (userResult) {
+      const week = currentWeekStr();
+      await WeeklyLeaderboard.findOneAndUpdate(
+        { userId, week },
+        {
+          $max: { score: rawScore },
+          $set: {
+            topic:     session.topic || "General",
+            accuracy:  parseFloat((evaluated.filter((e) => e.isCorrect).length / evaluated.length).toFixed(3)),
+            rank:      userResult.rank,
+            percentile: userResult.percentile,
+          },
+        },
+        { upsert: true }
+      ).catch(() => {}); // non-blocking
+    }
+
     delete activeExams[userId];
 
     res.json({

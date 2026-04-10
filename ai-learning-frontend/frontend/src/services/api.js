@@ -34,13 +34,15 @@ export const getLesson    = (topic)  => api.get(`/lessons/${encodeURIComponent(t
 export const saveProgress = (data)   => api.post("/lessons/progress", data);
 
 // Practice
-export const startTopic        = (topicId) => api.post("/practice/start", { topicId });
-export const submitAnswer      = (data)    => api.post("/practice/submit", data);
-export const startMixedPractice = (topics) => api.post("/practice/mixed", { topics });
+export const startTopic         = (topicId)    => api.post("/practice/start", { topicId });
+export const submitAnswer       = (data)       => api.post("/practice/submit", data);
+export const startMixedPractice = (topics)     => api.post("/practice/mixed", { topics });
+export const flagQuestion       = (questionId) => api.post("/practice/flag", { questionId });
 
 // Analysis
-export const getReport      = ()  => api.get("/analysis/report");
-export const getErrorMemory = ()  => api.get("/analysis/errors");
+export const getReport            = ()  => api.get("/analysis/report");
+export const getErrorMemory       = ()  => api.get("/analysis/errors");
+export const getWeeklyLeaderboard = ()  => api.get("/analysis/weekly-leaderboard");
 
 // Revision
 export const getRevisionDue     = ()       => api.get("/revision/due");

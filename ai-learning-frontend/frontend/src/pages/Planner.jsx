@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getPlan, markDayComplete } from "../services/api";
 
+const GOAL_LABEL = {
+  pass:        "Pass the exam",
+  distinction: "Score 75%+",
+  top:         "Top 90%+",
+  scholarship: "Scholarship rank",
+};
+
 export default function Planner() {
+  const navigate = useNavigate();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(null);
@@ -31,12 +40,30 @@ export default function Planner() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-1">Study Planner</h1>
-      <p className="text-sm text-gray-500 mb-6">
-        {plan?.daysLeft != null
-          ? `${plan.daysLeft} days until your exam. Your personalised plan is below.`
-          : "Set your exam date in your profile to get a tailored plan."}
-      </p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold mb-1">Study Planner</h1>
+          <p className="text-sm text-gray-500">
+            {plan?.daysLeft != null
+              ? `${plan.daysLeft} days until your exam. Your personalised plan is below.`
+              : "Set your exam date in your profile to get a tailored plan."}
+            {plan?.goal && (
+              <span className="ml-2 text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+                Goal: {GOAL_LABEL[plan.goal] || plan.goal}
+              </span>
+            )}
+          </p>
+        </div>
+        {/* Start today's session */}
+        {plan?.dailyPlan?.[0]?.topics?.length > 0 && !plan.dailyPlan[0].completed && (
+          <button
+            onClick={() => navigate("/practice", { state: { topic: plan.dailyPlan[0].topics[0], mixTopics: plan.dailyPlan[0].topics } })}
+            className="btn-primary shrink-0 ml-4"
+          >
+            Start today →
+          </button>
+        )}
+      </div>
 
       {/* Top row: priorities + skip suggestions */}
       <div className="grid md:grid-cols-2 gap-5 mb-7">

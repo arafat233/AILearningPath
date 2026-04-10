@@ -4,7 +4,15 @@
 // ============================================================
 import { getCached, setCache } from "../utils/cache.js";
 
-export const generateTeacherMessage = (profile, sessionData = {}) => {
+// Goal-specific push messages shown when student is performing well
+const GOAL_PUSH = {
+  pass:        "You're on track to pass. Keep covering the high-frequency topics.",
+  distinction: "Solid work — aim for consistency across all medium-difficulty topics to hit distinction.",
+  top:         "To reach top 90%+, you need to master the hard questions. Push into tricky territory.",
+  scholarship: "Scholarship level demands near-perfect scores. Review every mistake and target hard questions daily.",
+};
+
+export const generateTeacherMessage = (profile, sessionData = {}, goal = "distinction") => {
   const { accuracy = 0, thinkingProfile, weakAreas = [], behaviorStats = {}, totalAttempts = 0 } = profile;
   const { questionsAnswered = 0, sessionCorrect = 0 } = sessionData;
 
@@ -37,11 +45,15 @@ export const generateTeacherMessage = (profile, sessionData = {}) => {
     };
   }
 
-  // Good performance — push harder
+  // Good performance — push based on goal
   if (accuracy > 0.8 && totalAttempts > 20) {
+    const pushMsg = GOAL_PUSH[goal] || GOAL_PUSH.distinction;
+    const needsHarder = goal === "top" || goal === "scholarship";
     return {
       type: "challenge",
-      message: "You're doing great on easy and medium questions. Time to tackle the hard ones — that's where real understanding is tested.",
+      message: needsHarder
+        ? `You're at ${Math.round(accuracy * 100)}% accuracy. ${pushMsg}`
+        : pushMsg,
       action: "increase_difficulty",
     };
   }
@@ -57,11 +69,14 @@ export const generateTeacherMessage = (profile, sessionData = {}) => {
     }
   }
 
-  // Weak area focus
+  // Weak area focus — goal-aware urgency
   if (weakAreas.length > 0) {
+    const urgency = (goal === "scholarship" || goal === "top")
+      ? "This is critical — you cannot afford gaps at your target level."
+      : "Focus here first before moving on.";
     return {
       type: "focus",
-      message: `Your priority right now: ${weakAreas[0]}. You're weak here and it likely appears in your exam. Focus here first.`,
+      message: `Your priority: ${weakAreas[0]}. You're weak here and it appears in your exam. ${urgency}`,
       action: "focus_weak",
       topic: weakAreas[0],
     };

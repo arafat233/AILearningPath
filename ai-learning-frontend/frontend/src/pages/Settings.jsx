@@ -6,7 +6,7 @@ export default function Settings() {
   const { user, setAuth } = useAuthStore();
   const token = useAuthStore((s) => s.token);
 
-  const [form, setForm]       = useState({ name: "", examDate: "", grade: "10" });
+  const [form, setForm]       = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [success, setSuccess] = useState(false);
@@ -20,6 +20,8 @@ export default function Settings() {
           name:     u.name     || "",
           examDate: u.examDate ? u.examDate.split("T")[0] : "",
           grade:    u.grade    || "10",
+          subject:  u.subject  || "Math",
+          goal:     u.goal     || "distinction",
         });
       })
       .catch(() => setError("Could not load profile."))
@@ -87,6 +89,34 @@ export default function Settings() {
                 <option key={g} value={g}>Class {g}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 block mb-1">Subject</label>
+            <select
+              className="input"
+              value={form.subject}
+              onChange={(e) => setForm({ ...form, subject: e.target.value })}
+            >
+              {["Math", "Science", "English", "Social Studies", "Hindi"].map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 block mb-1">My target</label>
+            <select
+              className="input"
+              value={form.goal}
+              onChange={(e) => setForm({ ...form, goal: e.target.value })}
+            >
+              <option value="pass">Pass the exam</option>
+              <option value="distinction">Score 75%+ (Distinction)</option>
+              <option value="top">Top 90%+</option>
+              <option value="scholarship">Scholarship rank</option>
+            </select>
+            <p className="text-xs text-gray-400 mt-1">Used to calibrate difficulty and study priorities</p>
           </div>
 
           <button className="btn-primary mt-2" disabled={saving}>

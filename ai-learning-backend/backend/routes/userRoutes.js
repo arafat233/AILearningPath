@@ -25,7 +25,7 @@ r.get("/me", auth, async (req, res) => {
 
 r.put("/me", auth, async (req, res) => {
   try {
-    const { name, examDate, grade, subject, goal } = req.body;
+    const { name, examDate, grade, subject, goal, weakTopics } = req.body;
     const updates = {};
     if (name)     updates.name     = name.trim();
     if (examDate) updates.examDate = new Date(examDate);
@@ -33,6 +33,16 @@ r.put("/me", auth, async (req, res) => {
     if (subject)  updates.subject  = subject;
     if (goal)     updates.goal     = goal;
     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
+
+    // Persist weak topics into UserProfile so the planner and AI can use them
+    if (Array.isArray(weakTopics)) {
+      await UserProfile.findOneAndUpdate(
+        { userId: req.user.id },
+        { $set: { weakAreas: weakTopics } },
+        { upsert: true }
+      );
+    }
+
     res.json({ user });
   } catch (err) {
     res.status(500).json({ error: err.message });

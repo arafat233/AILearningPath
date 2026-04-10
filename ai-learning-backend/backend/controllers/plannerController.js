@@ -7,7 +7,7 @@ export const getPlan = async (req, res) => {
     const user = await User.findById(userId);
     const examDate = user?.examDate || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
 
-    const plan = await generateStudyPlan(userId, examDate);
+    const plan = await generateStudyPlan(userId, examDate, user?.goal || "distinction");
     res.json(plan);
   } catch (err) {
     res.status(500).json({ error: err.message });

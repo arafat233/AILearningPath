@@ -1,6 +1,18 @@
 import { UserProfile, Topic } from "../models/index.js";
 
-export const generateStudyPlan = async (userId, examDate) => {
+// Goal-based priority weights:
+// pass        → heavily favour high-frequency topics, skip hard low-freq ones
+// distinction → balanced (default)
+// top         → push accuracy improvement, cover everything
+// scholarship → maximise all areas, no skipping
+const GOAL_WEIGHTS = {
+  pass:        { freq: 0.65, weak: 0.25, accuracy: 0.10 },
+  distinction: { freq: 0.50, weak: 0.30, accuracy: 0.20 },
+  top:         { freq: 0.30, weak: 0.30, accuracy: 0.40 },
+  scholarship: { freq: 0.20, weak: 0.40, accuracy: 0.40 },
+};
+
+export const generateStudyPlan = async (userId, examDate, goal = "distinction") => {
   const profile = await UserProfile.findOne({ userId });
   const topics = await Topic.find();
 
@@ -10,6 +22,7 @@ export const generateStudyPlan = async (userId, examDate) => {
   );
 
   const weakAreas = profile?.weakAreas || [];
+  const w = GOAL_WEIGHTS[goal] || GOAL_WEIGHTS.distinction;
 
   // Score each topic by priority
   const prioritized = topics.map((t) => {
@@ -18,15 +31,17 @@ export const generateStudyPlan = async (userId, examDate) => {
     const accuracy = topicProgress?.accuracy || 0;
 
     const priority =
-      t.examFrequency * 0.5 +
-      (isWeak ? 0.3 : 0) +
-      (1 - accuracy) * 0.2;
+      t.examFrequency * w.freq +
+      (isWeak ? w.weak : 0) +
+      (1 - accuracy) * w.accuracy;
 
     return {
       topic: t.name,
       priority: parseFloat(priority.toFixed(3)),
       examFrequency: t.examFrequency,
       estimatedHours: t.estimatedHours,
+      examMarks: t.examMarks || 5,
+      whyMatters: t.whyMatters || "",
       isWeak,
       accuracy,
     };
@@ -34,15 +49,18 @@ export const generateStudyPlan = async (userId, examDate) => {
 
   prioritized.sort((a, b) => b.priority - a.priority);
 
-  // Skip suggestions: low exam frequency, user is weak, would take a long time
-  const skipSuggestions = prioritized
-    .filter((t) => t.examFrequency < 0.3 && t.isWeak && t.estimatedHours > 3)
-    .map((t) => ({
-      topic: t.topic,
-      effort: `~${t.estimatedHours} hours`,
-      marksLost: Math.round(t.examFrequency * 15), // estimated marks
-      reason: "Low exam weight + high effort. Consider skipping to save time.",
-    }));
+  // Skip suggestions — suppressed for top/scholarship goals (cover everything)
+  const canSkip = goal === "pass" || goal === "distinction";
+  const skipSuggestions = canSkip
+    ? prioritized
+        .filter((t) => t.examFrequency < 0.3 && t.isWeak && t.estimatedHours > 3)
+        .map((t) => ({
+          topic: t.topic,
+          effort: `~${t.estimatedHours} hours`,
+          marksLost: Math.round(t.examFrequency * 15),
+          reason: "Low exam weight + high effort. Consider skipping to save time.",
+        }))
+    : [];
 
   // Build daily plan
   const dailyPlan = [];
@@ -73,6 +91,7 @@ export const generateStudyPlan = async (userId, examDate) => {
 
   return {
     daysLeft,
+    goal,
     dailyPlan: dailyPlan.slice(0, 30), // cap at 30 days
     priorityTopics: prioritized.slice(0, 5),
     skipSuggestions,

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { startTopic, submitAnswer } from "../services/api";
+import { useLocation, useNavigate } from "react-router-dom";
+import { startTopic, submitAnswer, evaluateExplanation } from "../services/api";
 
 const TOPICS = [
   "Algebra Basics", "Linear Equations", "Quadratic Equations",
@@ -29,6 +29,7 @@ function diffLevel(score) {
 
 export default function Practice() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState(location.state?.topic || "");
   const [question, setQuestion]     = useState(null);
   const [feedback, setFeedback]     = useState(null);
@@ -40,6 +41,8 @@ export default function Practice() {
   const [showSteps, setShowSteps]   = useState(false);
   const [recallMode, setRecallMode] = useState(true);
   const [recallAttempt, setRecallAttempt] = useState("");
+  const [evalFeedback, setEvalFeedback] = useState(null);
+  const [evalLoading, setEvalLoading]   = useState(false);
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);
@@ -111,9 +114,24 @@ export default function Practice() {
     }
   };
 
+  const handleEvaluate = async () => {
+    if (!recallAttempt.trim() || evalLoading) return;
+    setEvalLoading(true);
+    try {
+      const concept = question?.conceptTested || selectedTopic;
+      const { data } = await evaluateExplanation(concept, recallAttempt);
+      setEvalFeedback(data.feedback);
+    } catch {
+      setEvalFeedback("Could not evaluate — try showing the solution directly.");
+    } finally {
+      setEvalLoading(false);
+    }
+  };
+
   const handleNext = () => {
     setRecallMode(true);
     setRecallAttempt("");
+    setEvalFeedback(null);
     setShowSteps(false);
     if (feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
@@ -173,7 +191,7 @@ export default function Practice() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { setQuestion(null); setFeedback(null); setFoundationMsg(null); navigate("/practice", { replace: true }); }}
+            onClick={() => { setQuestion(null); setFeedback(null); setFoundationMsg(null); setEvalFeedback(null); navigate("/practice", { replace: true }); }}
             className="btn-ghost flex items-center gap-1"
           >
             ← Topics
@@ -217,6 +235,14 @@ export default function Practice() {
             <span className="badge bg-apple-gray6 text-apple-gray">{question.conceptTested}</span>
           )}
         </div>
+
+        {/* Case-based passage */}
+        {question.caseContext && (
+          <div className="bg-apple-gray6 border border-apple-gray5 rounded-apple-lg px-4 py-3 mb-4">
+            <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wider mb-1">Read the passage</p>
+            <p className="text-[13px] text-[var(--label2)] leading-relaxed">{question.caseContext}</p>
+          </div>
+        )}
 
         <h2 className="text-[17px] font-semibold text-[var(--label)] leading-snug mb-6">
           {question.questionText}
@@ -323,13 +349,29 @@ export default function Practice() {
                   onChange={(e) => setRecallAttempt(e.target.value)}
                   placeholder="Write your approach before seeing the solution…"
                 />
-                <button
-                  onClick={() => setRecallMode(false)}
-                  disabled={recallAttempt.trim().length < 5}
-                  className="btn-primary mt-2 text-[13px] disabled:opacity-40"
-                >
-                  Show Solution →
-                </button>
+                {/* AI evaluation feedback */}
+                {evalFeedback && (
+                  <div className="mt-3 bg-apple-purple/6 border border-apple-purple/15 rounded-apple-lg px-3 py-2">
+                    <p className="text-[11px] font-semibold text-apple-purple mb-1">AI Feedback on your answer</p>
+                    <p className="text-[13px] text-[var(--label2)] leading-relaxed">{evalFeedback}</p>
+                  </div>
+                )}
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={handleEvaluate}
+                    disabled={recallAttempt.trim().length < 5 || evalLoading}
+                    className="btn-secondary text-[13px] disabled:opacity-40"
+                  >
+                    {evalLoading ? "Evaluating…" : "Evaluate my answer"}
+                  </button>
+                  <button
+                    onClick={() => setRecallMode(false)}
+                    disabled={recallAttempt.trim().length < 5}
+                    className="btn-primary text-[13px] disabled:opacity-40"
+                  >
+                    Show Solution →
+                  </button>
+                </div>
               </div>
             ) : (
               <div>

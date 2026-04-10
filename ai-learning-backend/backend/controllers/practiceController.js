@@ -1,4 +1,4 @@
-import { Attempt, ErrorMemory } from "../models/index.js";
+import { Attempt, ErrorMemory, User } from "../models/index.js";
 import { analyzeAnswer } from "../services/analysisService.js";
 import { getNextQuestion } from "../services/adaptiveService.js";
 import { updateUserProfile } from "../services/profileService.js";
@@ -131,11 +131,13 @@ export const submitAnswer = async (req, res) => {
 
     // AI teacher message based on session progress
     const profile = profileBefore;
+    const userDoc = await User.findById(userId).select("goal").catch(() => null);
     const teacherMessage = profile
-      ? generateTeacherMessage(profile, {
-          questionsAnswered: session.sessionTotal,
-          sessionCorrect: session.sessionCorrect,
-        })
+      ? generateTeacherMessage(
+          profile,
+          { questionsAnswered: session.sessionTotal, sessionCorrect: session.sessionCorrect },
+          userDoc?.goal || "distinction"
+        )
       : null;
 
     // AI usage remaining (awaited properly)

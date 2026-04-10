@@ -291,9 +291,16 @@ export default function StartOnboarding() {
               <p className="section-label mb-3">Today's Focus</p>
               <div className="flex flex-col gap-3">
                 <PlanItem icon="📖" label="Start with" value={todayFocus} accent="blue" />
-                <PlanItem icon="✏️" label="Practice"  value="10 adaptive questions" accent="green" />
-                <PlanItem icon="⚡" label="Mini test"  value="5-question speed round" accent="orange" />
+                <PlanItem icon="✏️" label="Practice"
+                  value={`${weakTopics.length > 2 ? 15 : 10} adaptive questions`}
+                  accent="green" />
+                <PlanItem icon="⚡" label="Mini test"
+                  value={`${weakTopics.length > 0 ? weakTopics.length * 2 + 3 : 5}-question speed round`}
+                  accent="orange" />
                 {daysLeft && <PlanItem icon="📅" label="Time left" value={`${daysLeft} days to exam`} accent="purple" />}
+                {goal === "scholarship" || goal === "top"
+                  ? <PlanItem icon="🏆" label="Target" value="Hard questions today" accent="purple" />
+                  : null}
               </div>
             </div>
 

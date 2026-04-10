@@ -10,6 +10,7 @@ const NAV = [
   { to: "/live",        label: "Live Room",    icon: "🎙" },
   { to: "/planner",     label: "Study Planner",icon: "📅" },
   { to: "/voice-tutor", label: "Voice Tutor",  icon: "🎧" },
+  { to: "/profile",     label: "Profile",      icon: "👤" },
 ];
 
 export default function Layout() {

@@ -12,6 +12,7 @@ import Analytics   from "./pages/Analytics";
 import Competition from "./pages/Competition";
 import LiveRoom    from "./pages/LiveRoom";
 import Planner     from "./pages/Planner";
+import Profile     from "./pages/Profile";
 import Settings    from "./pages/Settings";
 import VoiceTutor  from "./pages/VoiceTutor";
 import ExamReview  from "./pages/ExamReview";
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="live"              element={<LiveRoom />} />
           <Route path="planner"           element={<Planner />} />
           <Route path="voice-tutor"       element={<VoiceTutor />} />
+          <Route path="profile"           element={<Profile />} />
           <Route path="settings"          element={<Settings />} />
           <Route path="exam-review"        element={<ExamReview />} />
         </Route>

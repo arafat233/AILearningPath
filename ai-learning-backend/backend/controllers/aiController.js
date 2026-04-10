@@ -1,4 +1,4 @@
-import { getStudyAdvice } from "../services/aiService.js";
+import { getStudyAdvice, getChatResponse } from "../services/aiService.js";
 import { smartStudyAdvice, getUsageCount, getCacheStats } from "../services/aiRouter.js";
 import { UserProfile } from "../models/index.js";
 
@@ -23,6 +23,22 @@ export const usageInfo = async (req, res) => {
   try {
     const usage = await getUsageCount(req.user.id);
     res.json(usage);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ── Multi-turn tutor chat ─────────────────────────────────────────
+export const tutorChat = async (req, res) => {
+  try {
+    const { message, history = [], topic } = req.body;
+    if (!message?.trim()) return res.status(400).json({ error: "message is required" });
+    const reply = await getChatResponse(
+      history.map((m) => ({ role: m.role, content: m.content })),
+      message,
+      topic
+    );
+    res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

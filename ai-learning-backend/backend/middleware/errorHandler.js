@@ -1,10 +1,15 @@
 import { AppError } from "../utils/AppError.js";
+import logger from "../utils/logger.js";
 
 // Standardised error response shape — always { error: string, ...optional }
 // Operational errors (AppError) → surface message to client
 // Programmer errors / unknown → generic 500, log details server-side only
 export const errorHandler = (err, req, res, next) => {
   if (err instanceof AppError) {
+    // Operational — expected, client gets the message
+    if (err.statusCode >= 500) {
+      logger.error(err.message, { route: req.path, method: req.method, statusCode: err.statusCode });
+    }
     return res.status(err.statusCode).json({ error: err.message });
   }
 
@@ -24,7 +29,13 @@ export const errorHandler = (err, req, res, next) => {
   if (err.name === "JsonWebTokenError") return res.status(401).json({ error: "Invalid token" });
   if (err.name === "TokenExpiredError")  return res.status(401).json({ error: "Token expired" });
 
-  // Unknown — don't leak internals
-  console.error("Unhandled error:", err);
+  // Unknown programmer error — log full details, never leak internals to client
+  logger.error("Unhandled error", {
+    err:    err.message,
+    stack:  err.stack?.split("\n").slice(0, 4).join(" | "),
+    route:  req.path,
+    method: req.method,
+    userId: req.user?.id,
+  });
   res.status(500).json({ error: "Internal server error" });
 };

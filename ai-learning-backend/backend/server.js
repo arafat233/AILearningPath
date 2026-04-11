@@ -8,6 +8,7 @@ import morgan from "morgan";
 import http from "http";
 import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import logger from "./utils/logger.js";
 
 import authRoutes        from "./routes/authRoutes.js";
 import practiceRoutes    from "./routes/practiceRoutes.js";
@@ -38,8 +39,8 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => { console.error("❌ DB:", err.message); process.exit(1); });
+  .then(() => logger.info("MongoDB connected"))
+  .catch((err) => { logger.error("MongoDB connection failed", { err: err.message }); process.exit(1); });
 
 initSocket(server);
 
@@ -67,4 +68,4 @@ app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} n
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`🚀 Server + WebSocket on port ${PORT}`));
+server.listen(PORT, () => logger.info("Server + WebSocket started", { port: PORT, env: process.env.NODE_ENV || "development" }));

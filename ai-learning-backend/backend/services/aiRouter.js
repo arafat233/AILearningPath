@@ -15,6 +15,7 @@
 // ============================================================
 import crypto from "crypto";
 import { getCached, setCache } from "../utils/cache.js";
+import logger from "../utils/logger.js";
 import { getAIExplanation, getStudyAdvice } from "./aiService.js";
 
 import { User, AIResponseCache, AIUsageStats } from "../models/index.js";
@@ -96,7 +97,7 @@ async function storeCacheResult(cacheKey, questionSnippet, mistakeType, response
     );
   } catch (err) {
     // Duplicate key on race condition — harmless
-    if (err.code !== 11000) console.error("DB cache store error:", err.message);
+    if (err.code !== 11000) logger.warn("DB cache store error", { err: err.message, cacheKey });
   }
 
   // RAM — fast lookup for hot questions
@@ -141,7 +142,7 @@ export const smartAIExplanation = async (
       return dbCached.response;
     }
   } catch (err) {
-    console.error("DB cache lookup error:", err.message);
+    logger.warn("DB cache lookup error", { err: err.message, cacheKey });
   }
 
   // Layer 6: Daily limit check

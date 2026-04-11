@@ -5,6 +5,7 @@
 // which checks DB cache first before calling Claude.
 // ============================================================
 import Anthropic from "@anthropic-ai/sdk";
+import logger from "../utils/logger.js";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL  = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
@@ -77,7 +78,7 @@ Be direct and helpful like a good tutor.`;
     });
     return res.content[0]?.text?.trim() || null;
   } catch (err) {
-    console.error("Claude explanation error:", err.message);
+    logger.error("Claude explanation error", { err: err.message, topic: question?.slice(0, 60), subject });
     return null;
   }
 };
@@ -118,7 +119,7 @@ Format:
     const clean = raw.replace(/```json|```/g, "").trim();
     return JSON.parse(clean);
   } catch (err) {
-    console.error("Claude question generation error:", err.message);
+    logger.error("Claude question generation error", { err: err.message, topic, subject });
     return null;
   }
 };
@@ -153,7 +154,7 @@ Keep it practical and direct.`;
     });
     return res.content[0]?.text?.trim() || null;
   } catch (err) {
-    console.error("Claude advice error:", err.message);
+    logger.error("Claude advice error", { err: err.message, subject });
     return null;
   }
 };
@@ -178,7 +179,7 @@ Be a good tutor — guide, don't solve.`;
     });
     return res.content[0]?.text?.trim() || null;
   } catch (err) {
-    console.error("Claude hint error:", err.message);
+    logger.error("Claude hint error", { err: err.message, topic, subject });
     return null;
   }
 };
@@ -281,7 +282,7 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
     const clean = raw.replace(/```json|```/g, "").trim();
     return JSON.parse(clean);
   } catch (err) {
-    console.error("Claude lesson generation error:", err.message);
+    logger.error("Claude lesson generation error", { err: err.message, topic, subject, grade });
     return null;
   }
 };
@@ -303,7 +304,7 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
     });
     return res.content[0]?.text?.trim() || null;
   } catch (err) {
-    console.error("Claude chat error:", err.message);
+    logger.error("Claude chat error", { err: err.message, topic, subject });
     return null;
   }
 };

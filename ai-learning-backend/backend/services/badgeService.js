@@ -4,6 +4,7 @@
 // Unique index on {userId, badgeType} prevents double-awarding
 // ============================================================
 import { Badge, Streak, UserProfile } from "../models/index.js";
+import logger from "../utils/logger.js";
 
 const BADGE_LABELS = {
   streak_7:           "7-Day Streak",
@@ -26,7 +27,7 @@ const award = async (userId, badgeType, meta = {}) => {
     return result.lastErrorObject?.updatedExisting === false ? badgeType : null;
   } catch (err) {
     if (err.code === 11000) return null; // already exists, fine
-    console.error("Badge award error:", err.message);
+    logger.error("Badge award error", { err: err.message, userId, badgeType });
     return null;
   }
 };

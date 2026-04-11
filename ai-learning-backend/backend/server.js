@@ -28,6 +28,7 @@ import badgeRoutes       from "./routes/badgeRoutes.js";
 import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 import curriculumRoutes  from "./routes/curriculumRoutes.js";
+import paymentRoutes    from "./routes/paymentRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
@@ -67,6 +68,7 @@ app.use("/api/badges",      badgeRoutes);
 app.use("/api/doubt",       doubtRoutes);
 app.use("/api/portal",      portalRoutes);
 app.use("/api/v1/curriculum", curriculumRoutes);
+app.use("/api/v1/payment",   paymentRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));

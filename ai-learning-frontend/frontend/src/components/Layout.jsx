@@ -59,8 +59,15 @@ export default function Layout() {
 
         <div className="divider mx-4 mb-3" />
 
-        {/* Settings link */}
-        <div className="px-3 mb-2">
+        {/* Bottom links */}
+        <div className="px-3 mb-2 flex flex-col gap-0.5">
+          <NavLink
+            to="/pricing"
+            className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+          >
+            <span className="w-4 text-center text-sm leading-none">⚡</span>
+            Upgrade
+          </NavLink>
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}

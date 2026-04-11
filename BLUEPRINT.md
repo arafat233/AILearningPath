@@ -850,18 +850,21 @@ To activate push (not yet wired):
 | CBSE Class 10 Social Science curriculum (22 chapters — History/Geo/Eco/PolSci, seed) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
+| Payment / Subscription system (Razorpay — Pro ₹199/mo, Premium ₹499/mo) | ✅ Complete |
+| Pricing page (/pricing) with plan cards and Razorpay checkout | ✅ Complete |
+| Settings page subscription status card with Upgrade CTA | ✅ Complete |
 
 ---
 
 ## 15. WHAT STILL NEEDS TO BE BUILT 🔨
 
-### Priority 1 — Payment
-**Payment / Subscription System**
-- User model already has: isPaid, plan (free|pro|premium), planExpiry
-- Need: Razorpay or Stripe integration
-- Routes: POST /api/payment/create-order, POST /api/payment/verify-payment
-- Frontend: paywall UI when free quota (10 AI calls/day) is hit
-- Frontend: Settings page upgrade flow
+### Priority 1 — Payment [DONE ✅]
+~~Payment / Subscription System~~
+Built: services/paymentService.js, controllers/paymentController.js, routes/paymentRoutes.js
+Routes: GET /api/v1/payment/plans, GET /api/v1/payment/subscription,
+        POST /api/v1/payment/create-order, POST /api/v1/payment/verify
+Plans: Pro ₹199/mo (100 AI calls/day), Premium ₹499/mo (500 AI calls/day)
+Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 
 ### Priority 2 — Engagement
 **Push Notifications (backend shell exists)**

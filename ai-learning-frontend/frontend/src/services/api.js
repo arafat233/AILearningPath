@@ -111,3 +111,9 @@ export const getCurriculumSubjects  = ()                                       =
 export const listCurriculumChapters = (subject = "Mathematics", grade = "10") => api.get("/v1/curriculum", { params: { subject, grade } });
 export const getCurriculumChapter   = (chapterNumber, subject = "Mathematics", grade = "10") =>
   api.get(`/v1/curriculum/${chapterNumber}`, { params: { subject, grade } });
+
+// Payment / Subscription
+export const getPlans          = ()               => api.get("/v1/payment/plans");
+export const getSubscription   = ()               => api.get("/v1/payment/subscription");
+export const createOrder       = (planKey)        => api.post("/v1/payment/create-order", { planKey });
+export const verifyPayment     = (payload)        => api.post("/v1/payment/verify", payload);

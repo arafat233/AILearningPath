@@ -35,4 +35,8 @@ export function validateEnv() {
   if (!process.env.REDIS_URL) {
     logger.warn("REDIS_URL not set — session store will use in-memory fallback (not safe for multi-instance)");
   }
+
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    logger.warn("RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not set — payment endpoints will return 503");
+  }
 }

@@ -19,6 +19,7 @@ import VoiceTutor  from "./pages/VoiceTutor";
 import ExamReview  from "./pages/ExamReview";
 import Portal      from "./pages/Portal";
 import ChapterView    from "./pages/ChapterView";
+import Pricing        from "./pages/Pricing";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword  from "./pages/ResetPassword";
 import AdminLayout     from "./pages/admin/AdminLayout";
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="exam-review"       element={<ExamReview />} />
           <Route path="portal"            element={<Portal />} />
           <Route path="chapters/:chapterNumber" element={<ChapterView />} />
+          <Route path="pricing"               element={<Pricing />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getMe, updateMe, getTopicsMeta } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { getMe, updateMe, getTopicsMeta, getSubscription } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const GOALS = [
@@ -11,23 +12,25 @@ const GOALS = [
 
 export default function Settings() {
   const { user, setAuth } = useAuthStore();
-  const token = useAuthStore((s) => s.token);
+  const token    = useAuthStore((s) => s.token);
+  const navigate = useNavigate();
 
-  const [form, setForm]       = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction" });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError]     = useState("");
-  const [meta, setMeta]       = useState({ subjects: ["Math"], grades: ["8","9","10","11","12"] });
+  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction" });
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
+  const [success, setSuccess]     = useState(false);
+  const [error, setError]         = useState("");
+  const [meta, setMeta]           = useState({ subjects: ["Math"], grades: ["8","9","10","11","12"] });
+  const [subscription, setSub]    = useState(null);
 
   useEffect(() => {
     getTopicsMeta().then((r) => setMeta(r.data)).catch(() => {});
   }, []);
 
   useEffect(() => {
-    getMe()
-      .then(({ data }) => {
-        const u = data.user;
+    Promise.all([getMe(), getSubscription()])
+      .then(([meRes, subRes]) => {
+        const u = meRes.data.user;
         setForm({
           name:     u.name     || "",
           examDate: u.examDate ? u.examDate.split("T")[0] : "",
@@ -35,6 +38,7 @@ export default function Settings() {
           subject:  u.subject  || "Math",
           goal:     u.goal     || "distinction",
         });
+        setSub(subRes.data.data);
       })
       .catch(() => setError("Could not load profile."))
       .finally(() => setLoading(false));
@@ -69,6 +73,52 @@ export default function Settings() {
         <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Settings</h1>
         <p className="text-[14px] text-apple-gray mt-0.5">Update your profile and exam details</p>
       </div>
+
+      {/* Subscription card */}
+      {subscription && (
+        <div className={`card p-5 flex items-center justify-between gap-4 ${
+          subscription.isActive
+            ? "border border-apple-green/30 bg-apple-green/5"
+            : "border border-apple-gray4"
+        }`}>
+          <div>
+            <p className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider mb-0.5">
+              Current Plan
+            </p>
+            <p className="text-[16px] font-bold text-[var(--label)] capitalize">
+              {subscription.isActive ? subscription.plan : "Free"}
+              {subscription.isActive && (
+                <span className="ml-2 text-[11px] font-normal text-apple-green">Active</span>
+              )}
+            </p>
+            {subscription.isActive && subscription.planExpiry && (
+              <p className="text-[12px] text-apple-gray mt-0.5">
+                Renews {new Date(subscription.planExpiry).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              </p>
+            )}
+            {!subscription.isActive && (
+              <p className="text-[12px] text-apple-gray mt-0.5">
+                {subscription.aiCallsToday}/10 AI explanations used today
+              </p>
+            )}
+          </div>
+          {!subscription.isActive ? (
+            <button
+              className="btn-primary px-4 py-2 text-[13px] whitespace-nowrap"
+              onClick={() => navigate("/pricing")}
+            >
+              Upgrade
+            </button>
+          ) : (
+            <button
+              className="text-[13px] text-apple-blue font-medium whitespace-nowrap"
+              onClick={() => navigate("/pricing")}
+            >
+              Manage
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="card p-6">
         {error && (

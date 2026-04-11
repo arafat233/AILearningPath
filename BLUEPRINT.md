@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: April 2026
+> Last updated: April 2026 — reflects all features built to date.
 
 ---
 
@@ -8,7 +8,7 @@
 
 An AI-powered CBSE Class 10 exam preparation platform. Students practice questions,
 get AI-generated explanations for mistakes, follow a smart study planner, compete
-live against each other, and receive personalized lessons — all driven by a
+live against each other, and receive personalised lessons — all driven by a
 behavioural analysis engine that tracks HOW they think, not just whether they're right.
 
 Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
@@ -21,42 +21,55 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 ┌─────────────────────────────────────────────────────────────┐
 │                   FRONTEND (React + Vite)                    │
 │  Port 5173  │  Zustand auth store  │  Axios API service      │
-│                                                             │
-│  Pages: Dashboard, Lessons, LessonView, Practice,           │
-│         Analytics, Competition, LiveRoom, Planner,          │
-│         ExamReview, Profile, Settings, VoiceTutor,          │
-│         Onboarding, Login, Register, StartOnboarding        │
+│                                                              │
+│  Pages: Dashboard, Lessons, LessonView, Practice,            │
+│         Analytics, Competition, LiveRoom, Planner,           │
+│         ExamReview, VoiceTutor, Profile, Settings,           │
+│         Onboarding, Login, Register, StartOnboarding,        │
+│         Portal                                               │
+│                                                              │
+│  Admin: /admin → AdminLayout, AdminOverview, AdminUsers,     │
+│         AdminQuestions, AdminTopics, AdminCacheStats         │
+│                                                              │
+│  Components: Layout, BadgeToast, DoubtChat                   │
 └────────────────────┬────────────────────────────────────────┘
                      │ REST + WebSocket
 ┌────────────────────▼────────────────────────────────────────┐
 │                  BACKEND (Express + Node)                    │
 │  Port 5001  │  JWT auth middleware  │  Rate limiter (300/15m)│
-│                                                             │
+│             │  adminAuth middleware (role === "admin")       │
+│                                                              │
 │  Routes: /api/auth  /api/practice  /api/analysis            │
 │          /api/exam  /api/planner   /api/ai                  │
 │          /api/user  /api/revision  /api/lessons             │
-│          /api/topics  /api/competition  /api/health         │
-│                                                             │
+│          /api/topics  /api/competition  /api/admin          │
+│          /api/badges  /api/doubt   /api/portal              │
+│          /api/health                                         │
+│                                                              │
 │  Socket.IO: competition room events (join/start/score/end)  │
 └───────┬───────────────┬────────────────────────────────────-┘
         │               │
 ┌───────▼──────┐  ┌─────▼──────────────────────────────────┐
 │   MongoDB    │  │          Claude Haiku 4.5               │
-│  15 collections│  │  Routed through 7-layer cache system    │
+│  20 collections│  │  Routed through 7-layer cache system    │
+│              │  │  Subject-aware system prompts            │
 │              │  │  (free: 10 calls/day, pro: 100/day)     │
 └──────────────┘  └────────────────────────────────────────-┘
 ```
 
 ---
 
-## 3. DATABASE — ALL 15 COLLECTIONS
+## 3. DATABASE — ALL 20 COLLECTIONS
 
 ### 3.1 User
 ```
 _id, name, email, password (bcrypt)
 examDate, subject, grade, goal
 isPaid (bool), plan (free|pro|premium), planExpiry
-aiCallsToday, aiCallsDate  ← daily AI quota tracking
+aiCallsToday, aiCallsDate          ← daily AI quota tracking
+role: student|admin|parent|teacher ← NEW: role-based access
+linkedStudents: [String]           ← NEW: parent/teacher portal
+inviteCode: String (sparse unique) ← NEW: 8-char student invite code
 createdAt
 ```
 
@@ -66,6 +79,8 @@ _id, name, subject, grade
 prerequisites [String]
 examFrequency (0-1), estimatedHours, examMarks
 realWorldUse, whyMatters
+
+Subjects seeded: Math, Science, English, Social Science, Hindi (50+ topics)
 ```
 
 ### 3.3 Question
@@ -90,7 +105,7 @@ isCorrect, selectedType, timeTaken, confidence (low|medium|high)
 difficulty, examId, createdAt
 ```
 
-### 3.5 SeenQuestion  (exposure control — prevents repeat questions)
+### 3.5 SeenQuestion  (exposure control)
 ```
 userId, questionId, topic, seenAt
 Unique index: { userId, questionId }
@@ -102,7 +117,7 @@ userId (unique), currentStreak, longestStreak
 lastActiveDate (YYYY-MM-DD), updatedAt
 ```
 
-### 3.7 UserProfile  (the brain of the system)
+### 3.7 UserProfile  (core analytics brain)
 ```
 userId (unique)
 accuracy, avgTime, totalAttempts
@@ -120,10 +135,9 @@ difficultyLevels: Map<topic, 1-4>
 updatedAt
 ```
 
-### 3.8 QuestionStats  (crowd-sourced difficulty calibration)
+### 3.8 QuestionStats
 ```
-questionId (unique)
-attempts, correct, avgTime
+questionId (unique), attempts, correct, avgTime
 errorDistribution: { concept_error, calculation_error,
                      partial_logic, guessing, misinterpretation }
 computedDifficulty (0-1), isBadQuestion (bool), updatedAt
@@ -164,97 +178,122 @@ Index: { week, score -1 }
 
 ### 3.13 AIResponseCache  (permanent cross-user cache)
 ```
-cacheKey (MD5 hash of questionText+mistakeType) — unique
+cacheKey (MD5 hash of questionText+mistakeType+subject) — unique
 questionSnippet, mistakeType, response (Claude's text)
 hitCount, savedCalls
 createdAt, lastHitAt, expiresAt (90 days, auto-purge via TTL index)
 ```
 
-### 3.14 ErrorMemory  (per-user mistake pattern tracking)
+### 3.14 ErrorMemory
 ```
 userId, topic, mistakeType, count, lastSeen
 questionSnippets [String]
 Unique index: { userId, topic, mistakeType }
 ```
 
-### 3.15 AIUsageStats  (per-user daily AI metrics)
+### 3.15 AIUsageStats
 ```
 userId, date (YYYY-MM-DD), callsMade, callsSaved, tokensUsed
 Unique index: { userId, date }
 ```
 
-### 3.16 Lesson  (in lessonModel.js)
+### 3.16 Lesson  (lessonModel.js)
 ```
 topic, subject, grade, title, tagline
-shortLesson: { summary, keyPoints, estimatedMinutes }
-longLesson:  { introduction, sections [...], summary, practicePrompt }
+shortLesson: { estimatedMinutes, keyIdea, slides [...] }
+longLesson:  { estimatedMinutes, slides [...] }
 prerequisites [String]
 ```
 
-### 3.17 LessonProgress  (in lessonModel.js)
+### 3.17 LessonProgress  (lessonModel.js)
 ```
 userId, topic, completed (bool), completedAt, timeSpent, notes
 ```
 
+### 3.18 Badge  ← NEW
+```
+userId, badgeType, awardedAt, meta (Mixed)
+Unique index: { userId, badgeType } — prevents double-awarding
+
+Badge types:
+  streak_7 | streak_30 | streak_100
+  first_perfect_exam | questions_100 | questions_500
+  top10_leaderboard | concept_master_{topic}
+```
+
+### 3.19 DoubtThread  ← NEW
+```
+userId, questionId, topic, subject
+messages: [{ role (user|assistant), content, createdAt }]
+  ↳ capped at 20 messages (oldest trimmed)
+createdAt, updatedAt
+Index: { userId, questionId }
+```
+
+### 3.20 PushSubscription  ← NEW
+```
+userId, subscription (Mixed — Web Push API object)
+createdAt
+Index: { userId }
+```
+
 ---
 
-## 4. BACKEND SERVICES — WHAT EACH ONE DOES
+## 4. BACKEND SERVICES
 
-### 4.1 aiRouter.js — 7-Layer Cost Minimisation System
+### 4.1 aiService.js — Claude API Calls
+```
+SUBJECT-AWARE SYSTEM PROMPTS (NEW):
+  getSystemPrompt(subject) → subject-specific Claude persona
+  Subjects: Math | Science | English | Social Science | Hindi
+  Each prompt cached by Claude (90% token discount on repeats)
+
+Functions:
+- getAIExplanation(question, mistakeType, correctAnswer, subject) → 320 tokens
+- generateAIQuestion(topic, weakness, subject) → JSON MCQ with 4 options + logicTags
+- generateLesson(topic, subject, grade) → structured lesson object
+- getStudyAdvice(profile, subject) → personalised study tip
+- generateHint(questionText, topic, subject) → 120 tokens, no answer given
+- getChatResponse(history, userMessage, topic, subject) → 400 tokens, multi-turn
+```
+
+### 4.2 aiRouter.js — 7-Layer Cost Minimisation
 ```
 Layer 1: isCorrect answer        → return null (0 cost)
 Layer 2: Has solutionSteps       → return steps + static tip (0 cost)
 Layer 3: Simple mistake pattern  → return STATIC_RESPONSES map (0 cost)
-Layer 4: DB cache hit            → AIResponseCache lookup (0 cost, shared all users)
-Layer 5: In-memory cache hit     → RAM lookup 24h TTL (0 cost, fast)
+Layer 4: In-memory cache hit     → RAM lookup 24h TTL (0 cost, fast)
+Layer 5: DB cache hit            → AIResponseCache lookup (0 cost, all users)
 Layer 6: Daily limit check       → free=10/day, pro=100/day
 Layer 7: Call Claude             → save to DB + RAM for all future users
 
-Key: cacheKey = MD5(questionText.lower() + "::" + mistakeType)
-     Same question + same mistake by ANY user = same key = Claude called ONCE EVER
-```
+Cache key = MD5(questionText.lower() + "::" + mistakeType + "::" + subject)
+Subject included in key so Math/Science don't collide (UPDATED)
 
-### 4.2 aiService.js — Claude API Calls
-```
-SYSTEM_PROMPT: cached CBSE Class 10 Math teacher persona (shared = prompt cache discount)
-
-Functions:
-- getAIExplanation(question, mistakeType, correctAnswer) → 320 tokens
-- generateAIQuestion(topic, weakness) → JSON MCQ with 4 options + logicTags
-- generateLesson(topic, subject, grade) → structured lesson object
-- getStudyAdvice(profile, goal) → personalised study tip
+Exports: smartAIExplanation, smartStudyAdvice, getUsageCount, getCacheStats
+         checkAndIncrementUsage (exported — used by doubtRoutes)
 ```
 
 ### 4.3 adaptiveService.js — Smart Question Selection
 ```
-Algorithm:
-1. Read UserProfile for accuracy + behaviorStats
-2. If accuracy > 0.8 → target difficulty 0.75 (push harder)
-   If accuracy < 0.4 → target difficulty 0.25 (go easier)
-3. If concept_error > 5 total → try to fetch unseen AI-generated question
-   DB-first: find existing AI question user hasn't seen
-   Only call Claude if none exists → save permanently
-4. Filter out SeenQuestion IDs
-5. Find DB question closest to target difficulty
+1. Read UserProfile: accuracy → target difficulty (0.25/0.5/0.75)
+2. If concept_error > 5 → try DB-first AI question
+   Only call Claude if no unseen AI question exists for this topic
+3. Filter seen questions (SeenQuestion collection)
+4. Find DB question closest to target difficulty
 ```
 
 ### 4.4 analysisService.js — Thinking Behaviour Detector
 ```
-Inputs: question, selectedType, timeTaken, confidence
-
-Overrides:
-- Fast + wrong → reclassify as "guessing" regardless of option type
-
+Override: fast + wrong → reclassify as "guessing" regardless of option type
 Speed profiles: mastery | guessing | deep_thinker | concept_unclear | normal
-
 Confidence mismatches:
-- high confidence + wrong → "dangerous_misconception"
-- low confidence + right  → "unstable_knowledge"
-
+  high confidence + wrong → "dangerous_misconception"
+  low confidence + right  → "unstable_knowledge"
 Returns: { isCorrect, behavior, speedProfile, confidenceInsight, message }
 ```
 
-### 4.5 plannerService.js — AI Study Plan Generator
+### 4.5 plannerService.js — Study Plan Generator
 ```
 Goal-based priority weights:
   pass:        freq=0.65, weak=0.25, accuracy=0.10
@@ -262,128 +301,170 @@ Goal-based priority weights:
   top:         freq=0.30, weak=0.30, accuracy=0.40
   scholarship: freq=0.20, weak=0.40, accuracy=0.40
 
-Priority score per topic = examFrequency×w.freq + isWeak×w.weak + (1-accuracy)×w.accuracy
-
-Output: dailyPlan array + priorityTopics + skipSuggestions
+Output: dailyPlan + priorityTopics + skipSuggestions
 ```
 
 ### 4.6 revisionService.js — Spaced Repetition
 ```
-Intervals: [1, 3, 7, 15, 30] days between revision sessions
-Tracks revisionStage per topic in UserProfile.topicProgress
-Topics become "due" when now >= nextRevision date
+Intervals: [1, 3, 7, 15, 30] days
+revisionStage per topic in UserProfile.topicProgress
 Priority = daysSince / expectedInterval
 ```
 
 ### 4.7 scoringService.js — Exam Scoring
 ```
-Per answer:
-  timeFactor = min(1.5, max(0.5, expectedTime/timeTaken))
-  score += difficultyScore × timeFactor   (correct answers only)
-
-normalizeScores: Z-score normalisation across all exam attempts
-→ rank + percentile per student
+timeFactor = min(1.5, max(0.5, expectedTime/timeTaken))
+score += difficultyScore × timeFactor  (correct answers only)
+normalizeScores: Z-score across all exam attempts → rank + percentile
 ```
 
-### 4.8 profileService.js — Thinking Profile Classification
+### 4.8 badgeService.js — Achievement Awards  ← NEW
 ```
-Classifies user into one of 5 thinking profiles based on behaviorStats:
-Guesser | Surface Learner | Overthinker | Pattern Recognizer | Deep Thinker
+checkAndAwardBadges(userId, context) → string[] of newly awarded badge types
+Uses $setOnInsert upsert — unique index prevents double-award
+
+Badge conditions:
+  streak >= 7/30/100           → streak_7 / streak_30 / streak_100
+  examScore === 100            → first_perfect_exam
+  totalAttempts >= 100/500     → questions_100 / questions_500
+  rank <= 10                   → top10_leaderboard
+  topicAccuracy >= 0.9 + 20+   → concept_master_{topic}
+
+Called from: practiceController.submitAnswer (after every submit)
 ```
 
-### 4.9 streakService.js — Daily Activity Streaks
+### 4.9 predictionService.js — Exam Score Prediction  ← NEW
 ```
-Updates Streak collection on any practice/exam attempt
+For each topic in UserProfile.topicProgress:
+  weight = Topic.examMarks × Topic.examFrequency
+  contribution = topic.accuracy × weight
+
+weightedAccuracy = sum(contributions) / sum(weights)
+base = weightedAccuracy × 80 (CBSE written paper marks)
+timeAdjustment: daysLeft > 60 → +5, daysLeft < 7 → -5
+range = [base - 8, base + 8] clamped to [0, 80]
+
+Returns: { predictedMin, predictedMax, predictedGrade (A1-E),
+           predictedGPA, confidence (low/medium/high),
+           daysLeft, pctMin, pctMax, breakdown[], message }
+```
+
+### 4.10 profileService.js — Thinking Profile
+```
+5 profiles: Guesser | Surface Learner | Overthinker |
+            Pattern Recognizer | Deep Thinker
+```
+
+### 4.11 streakService.js — Daily Streaks
+```
+Updates Streak on any practice/exam attempt
 Tracks currentStreak, longestStreak, lastActiveDate
 ```
 
-### 4.10 aiTeacherService.js — Contextual Guidance Engine
+### 4.12 aiTeacherService.js — Contextual Guidance
 ```
-Reads profile state → returns contextual message + action:
 - totalAttempts < 5         → welcome + start_easy
 - guessing > 40% of answers → warning + slow_down
 - concept_error > 35%       → targeted topic drill
 - accuracy > 0.8            → goal-specific push message
-- session performance dip   → encouragement
 ```
 
-### 4.11 selfLearningService.js — Foundation Gap Detector
+### 4.13 selfLearningService.js / autoDoubtService.js / foundationService.js
 ```
-Detects when a student's errors suggest they're missing prerequisite knowledge
-Recommends going back to Topic.prerequisites before continuing
-```
-
-### 4.12 autoDoubtService.js — Auto Doubt Clarifier
-```
-Surfaces recurring error patterns from ErrorMemory
-Generates targeted clarification prompts for the student's specific recurring mistake
-```
-
-### 4.13 foundationService.js — Prerequisite Checker
-```
-Cross-references Topic.prerequisites with UserProfile.weakAreas
-Surfaces gaps before the student hits a harder topic
+selfLearning: detects foundation gaps from error patterns
+autoDoubt: surfaces recurring mistakes from ErrorMemory
+foundation: checks Topic.prerequisites against UserProfile.weakAreas
 ```
 
 ---
 
 ## 5. BACKEND ROUTES — ALL ENDPOINTS
 
+### Existing
 ```
-POST   /api/auth/register           — register + create UserProfile + Streak
-POST   /api/auth/login              — login → JWT token
+POST   /api/auth/register
+POST   /api/auth/login              → JWT now includes { id, name, role }
 
-GET    /api/practice/question       — get next adaptive question (topic param)
-POST   /api/practice/submit         — submit answer → analysis → AI explanation
-GET    /api/practice/streak         — get current streak
+POST   /api/practice/start          → foundation check → AI teacher msg → first question
+POST   /api/practice/submit         → analysis → AI explanation → badge check → next question
+                                      response includes: newBadges[]  ← NEW
 
-GET    /api/analysis/profile        — full UserProfile
-GET    /api/analysis/thinking       — thinkingProfile + behaviorStats
-GET    /api/analysis/weak-areas     — weakAreas with topic detail
-GET    /api/analysis/strong-areas
+GET    /api/analysis/report
+GET    /api/analysis/errors
+GET    /api/analysis/weekly-leaderboard
+GET    /api/analysis/predict        ← NEW: exam score prediction
 
-GET    /api/lessons                 — list all lessons
-GET    /api/lessons/:topic          — get lesson (DB-first, AI generates if missing)
-POST   /api/lessons/:topic/progress — mark lesson progress/completed
+GET    /api/lessons
+GET    /api/lessons/:topic          → DB-first, AI generates if missing
+POST   /api/lessons/progress
 
-GET    /api/topics                  — all topics from DB
-GET    /api/topics/:subject/:grade  — topics filtered by subject + grade
+GET    /api/topics
+GET    /api/topics/meta             → unique subjects + grades
 
-GET    /api/exam/list               — available exams
-POST   /api/exam/start              — start exam → get questions
-POST   /api/exam/submit             — submit all answers → score + percentile
-GET    /api/exam/history            — past ExamAttempts
-GET    /api/exam/review/:attemptId  — detailed review with AI explanations
+GET    /api/exam/list
+POST   /api/exam/start
+POST   /api/exam/submit
+GET    /api/exam/history
+GET    /api/exam/review/:attemptId
 
-GET    /api/planner/plan            — get current StudyPlan
-POST   /api/planner/generate        — generate new plan (examDate + goal)
-PATCH  /api/planner/complete-day    — mark a day's plan complete
+GET    /api/planner
+POST   /api/planner/generate
+POST   /api/planner/complete
 
-GET    /api/revision/due            — topics due for revision today
-POST   /api/revision/complete       — mark revision done → advance revisionStage
+GET    /api/revision/due
+POST   /api/revision/mark
+GET    /api/revision/last-day
 
-POST   /api/ai/explain              — get AI explanation (routed through 7-layer system)
-GET    /api/ai/cache-stats          — cache hit rate + calls saved
-POST   /api/ai/study-advice         — get personalised study tip
-POST   /api/ai/teacher-message      — contextual AI teacher guidance
+GET    /api/ai/advice
+GET    /api/ai/usage
+GET    /api/ai/cache-stats
+POST   /api/ai/chat                 → multi-turn tutor chat
+POST   /api/ai/evaluate-explanation
+POST   /api/ai/hint
+POST   /api/ai/voice-answer         ← NEW: VoiceTutor dedicated endpoint
 
-GET    /api/user/profile            — user info + subscription
-PATCH  /api/user/profile            — update examDate/goal/subject/grade
-GET    /api/user/ai-usage           — daily AI call usage
+GET    /api/user/me
+PUT    /api/user/me
 
-GET    /api/competition/leaderboard — weekly leaderboard
-POST   /api/competition/room/create — create live room
-GET    /api/competition/room/:id    — get room info
+GET    /api/competition/leaderboard
+POST   /api/competition/room-questions
 ```
 
-### Socket.IO Events (port 5001 alongside REST)
+### New routes
+```
+GET    /api/badges                  ← all badges for logged-in user
+
+GET    /api/doubt/:questionId       ← get/create doubt thread
+POST   /api/doubt/:questionId/message ← send message (counts AI quota)
+DELETE /api/doubt/:questionId       ← clear thread
+
+POST   /api/portal/generate-invite  ← student generates 8-char code
+POST   /api/portal/link             ← parent/teacher links by code
+GET    /api/portal/students         ← list linked students
+GET    /api/portal/students/:id/analytics ← read-only student view
+
+GET    /api/admin/stats             ← requires admin role
+GET    /api/admin/users             ← paginated, searchable
+PUT    /api/admin/users/:id/role
+GET    /api/admin/questions         ← paginated, filterable
+GET    /api/admin/questions/flagged
+POST   /api/admin/questions
+PUT    /api/admin/questions/:id
+DELETE /api/admin/questions/:id
+PUT    /api/admin/questions/:id/unflag
+GET    /api/admin/topics
+POST   /api/admin/topics
+PUT    /api/admin/topics/:id
+DELETE /api/admin/topics/:id
+```
+
+### Socket.IO Events (port 5001)
 ```
 Client → Server:
   join_room    { roomId, userId, userName }
   start_room   { roomId, questions }
   submit_score { roomId, userId, score }
   end_game     { roomId }
-  disconnect
 
 Server → Client:
   room_update  { players, status, questions }
@@ -394,140 +475,108 @@ Server → Client:
 
 ---
 
-## 6. FRONTEND — ALL PAGES
+## 6. FRONTEND — ALL PAGES + COMPONENTS
 
-### 6.1 StartOnboarding
-Landing page for unauthenticated users → CTA to register or login
+### Student Pages (inside Layout, protected)
+```
+/              → Dashboard      — streak, AI teacher msg, revision due, quick links
+/lessons       → Lessons        — topic list with subject filter
+/lessons/:t    → LessonView     — short/long lesson, mark complete
+/practice      → Practice       — adaptive quiz, confidence, AI explain, DoubtChat
+/analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
+/competition   → Competition    — weekly leaderboard, create/join room
+/live          → LiveRoom       — real-time Socket.IO quiz
+/planner       → Planner        — calendar, priority topics, skip suggestions
+/exam-review   → ExamReview     — past exams, per-question AI review
+/voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
+/profile       → Profile        — user info, badges grid, invite code generator
+/settings      → Settings       — update subject/grade/goal/examDate
+/portal        → Portal         — student: generate invite code
+                                  parent/teacher: link students, view analytics
+```
 
-### 6.2 Register / Login
-JWT stored in Zustand authStore (persisted to localStorage)
+### Admin Pages (inside AdminLayout, admin role required)
+```
+/admin              → AdminOverview   — user counts, plan breakdown, AI cache stats
+/admin/questions    → AdminQuestions  — CRUD + flag/unflag, filter by topic/subject
+/admin/topics       → AdminTopics     — CRUD for all topics
+/admin/users        → AdminUsers      — paginated user list, role management
+/admin/cache        → AdminCacheStats — cache hit rates, Claude calls saved, cost estimate
+```
 
-### 6.3 Onboarding
-Collects: subject, grade, goal (pass/distinction/top/scholarship), examDate
-Saves to User model → generates initial StudyPlan
-
-### 6.4 Dashboard
-- Today's revision topics (due from spaced repetition)
-- AI Teacher message (contextual guidance)
-- Streak display
-- Quick-start links to Practice / Planner / Competition
-
-### 6.5 Lessons
-- Lists all topics with lesson availability status
-- Subject/grade filter (dynamic from DB Topics)
-- Shows estimated read time
-
-### 6.6 LessonView
-- Short lesson (summary + key points, ~5 min)
-- Long lesson (full structured content with sections)
-- DB-first: if lesson doesn't exist → Claude generates it once → saved permanently
-- Mark as complete + notes field
-
-### 6.7 Practice
-- Topic picker (dynamic from DB)
-- Adaptive question delivery (adaptiveService selects difficulty)
-- Confidence selector before each answer (low/medium/high)
-- Timer per question
-- Answer reveals: correct option + error type tag + solution steps
-- AI explanation button (routed through 7-layer cache)
-- AI Teacher message shown after session
-
-### 6.8 Analytics
-- Thinking profile card (Guesser/Surface Learner/etc.)
-- Accuracy gauge + avgTime
-- BehaviorStats bar chart (5 mistake types)
-- Confidence accuracy (highConfidenceWrong / lowConfidenceRight)
-- Topic progress table (accuracy + last attempted + revision stage)
-- Weak vs Strong areas
-- AI usage stats (calls today + cache savings)
-
-### 6.9 Planner
-- Visual calendar of dailyPlan
-- Today's topics highlighted
-- Priority topics with reason
-- Skip suggestions (effort vs marks tradeoff)
-- Regenerate plan button (takes examDate + goal)
-
-### 6.10 ExamReview
-- List of past ExamAttempts with score + percentile
-- Per-attempt drill-down: each question with correct/wrong + AI explanation
-- normalizedScore vs peers
-
-### 6.11 Competition
-- Weekly leaderboard table (rank/accuracy/score by week)
-- Create or join a live room
-- Shows current week stats for logged-in user
-
-### 6.12 LiveRoom
-- Real-time multiplayer quiz via Socket.IO
-- Scoreboard updates live as players submit
-- Host controls: start game, select questions
-- Winner announcement at end
-
-### 6.13 VoiceTutor
-- Page exists, UI scaffolded
-- Intended: voice-based Q&A with AI teacher (NOT yet functional)
-
-### 6.14 Profile
-- User info (name, email, subject, grade, goal, examDate)
-- Subscription plan badge (free/pro/premium)
-- Edit profile inline
-
-### 6.15 Settings
-- Update subject/grade/goal/examDate
-- AI usage quota display
+### Components
+```
+Layout.jsx      — sidebar nav + outlet
+BadgeToast.jsx  — floating toast when newBadges[] returned from practice submit ← NEW
+DoubtChat.jsx   — expandable multi-turn chat below wrong answer in Practice ← NEW
+```
 
 ---
 
 ## 7. AUTH + MIDDLEWARE
 
 ```
-JWT: signed with JWT_SECRET, 7-day expiry
-Middleware: auth.js extracts + verifies token → attaches req.user.id
-Rate limit: 300 requests per 15 minutes (global)
+JWT payload: { id, name, role }   ← role added
+JWT expiry: 7 days
+
+middleware/auth.js      — verifies token, attaches req.user
+middleware/adminAuth.js — requires role === "admin" in JWT  ← NEW
+
+Rate limit: 300 req / 15 min (global)
+
+To make first admin:
+  db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
+  then re-login to get new JWT with role: "admin"
 ```
 
 ---
 
-## 8. FRONTEND STATE MANAGEMENT
+## 8. FRONTEND STATE + API
 
 ```
 authStore (Zustand + persist):
-  token, user → { id, name, email, subject, grade, goal, examDate, isPaid, plan }
+  token, user → { id, name, email, subject, grade, goal,
+                  examDate, isPaid, plan, role }  ← role added
   login(token, user), logout()
 
-API service (axios):
-  baseURL = http://localhost:5001/api
-  interceptor: auto-attaches Authorization: Bearer <token>
-  interceptor: on 401 → logout()
+api.js (axios, baseURL: http://localhost:5001/api):
+  Auto-attaches Bearer token. On 401 → logout().
+
+New functions added to api.js:
+  getPrediction()
+  getBadges()
+  getDoubtThread(questionId)
+  sendDoubtMessage(questionId, message, topic, subject)
+  clearDoubtThread(questionId)
+  voiceAnswer(transcript, subject, topic)
+  generateInvite()
+  linkStudent(inviteCode)
+  getLinkedStudents()
+  getStudentAnalytics(studentId)
+  adminGet* / adminCreate* / adminUpdate* / adminDelete* (8 admin functions)
 ```
 
 ---
 
-## 9. AI COST ARCHITECTURE (THE CLEVER BIT)
-
-The AI system is designed so Claude is called as rarely as possible:
+## 9. AI COST ARCHITECTURE
 
 ```
-Student gets question wrong
-         ↓
-Layer 1: Was it correct?          → No AI needed
-Layer 2: Has solution steps?      → Show steps (free)
-Layer 3: Simple mistake pattern?  → Static message (free)
-Layer 4: DB cache hit?            → Return stored response (free, shared all users)
-Layer 5: RAM cache hit (24h)?     → Return from memory (free, fast)
-Layer 6: Under daily quota?       → Check free (10/day) or pro (100/day)
-Layer 7: Call Claude              → Cache in DB forever for next user
+Subject is now part of the cache key:
+  cacheKey = MD5(questionText.lower() + "::" + mistakeType + "::" + subject)
 
-Result: After the first student triggers a question+mistake combo,
-        every future student gets the response for free.
-        Cache hit rate grows as more students use the platform.
+5 subject-specific system prompts — each cached by Claude:
+  Math          → CBSE Math teacher
+  Science       → Physics/Chemistry/Biology teacher
+  English       → First Flight + grammar teacher
+  Social Science → History/Geography/Civics/Economics teacher
+  Hindi         → Hindi grammar + prose teacher (prompt in Hindi)
 
-Claude model: claude-haiku-4-5-20251001
-System prompt: shared + cached (90% token discount on Anthropic's end)
-Max tokens per explanation: 320
-Max tokens per lesson: ~800
-Max tokens per AI question: ~400
+Voice Tutor lang:
+  Hindi subject → SpeechRecognition.lang = "hi-IN"
+  all others    → "en-IN"
+
+Daily limits unchanged: free=10/day, pro=100/day
+DoubtChat messages count against the same daily quota
 ```
 
 ---
@@ -535,26 +584,98 @@ Max tokens per AI question: ~400
 ## 10. SEED DATA
 
 ```
-config/seed.js      — seeds Topics + Questions into MongoDB
-config/seedLessons.js — seeds initial Lesson content
+config/seed.js          — Math topics + questions
+config/seedLessons.js   — initial lesson content
+config/seedSubjects.js  — Science, English, Social Science, Hindi topics ← NEW (50+ topics)
 ```
 
-Topics are fully dynamic (read from DB), not hardcoded in frontend.
-Questions can be seeded manually or AI-generated on demand.
+Run order:
+```bash
+npm run seed
+npm run seed:lessons
+npm run seed:subjects   ← NEW
+```
 
 ---
 
-## 11. CURRENT STATE — WHAT WORKS ✅
+## 11. TEST SUITE  ← NEW
+
+```
+Location: backend/__tests__/
+Runner:   node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js
+Command:  npm test
+
+__tests__/analysisService.test.js   — 7 tests (all pass)
+  ✅ fast+wrong → guessing override
+  ✅ correct answer → isCorrect true
+  ✅ slow+correct → deep_thinker
+  ✅ fast+correct → mastery
+  ✅ high confidence+wrong → dangerous_misconception
+  ✅ low confidence+right → unstable_knowledge
+  ✅ normal time+partial_logic → keeps classification
+
+__tests__/scoringService.test.js    — 6 tests (all pass)
+  ✅ all wrong → score 0
+  ✅ correct answers → positive score
+  ✅ fast correct > slow correct
+  ✅ hard correct > easy correct
+  ✅ identical scores normalize to 0
+  ✅ returns one entry per attempt
+
+__tests__/plannerService.test.js    — 4 tests (mocked Mongoose)
+  ✅ dailyPlan length respects daysLeft
+  ✅ scholarship goal → minimal skipSuggestions
+  ✅ pass goal → has skipSuggestions
+  ✅ priorityTopics always present
+
+__tests__/aiRouter.test.js          — 5 tests (mocked Mongoose + aiService)
+  ✅ correct answer → null immediately
+  ✅ solutionSteps present → no Claude call
+  ✅ guessing → static message, no Claude
+  ✅ misinterpretation → static message
+  ✅ novel concept_error → Claude called once
+```
+
+---
+
+## 12. PWA  ← NEW
+
+```
+public/manifest.json   — name, icons, theme_color (#007AFF), display: standalone
+public/sw.js           — service worker:
+  - caches /index.html for offline fallback
+  - handles push events → showNotification
+  - handles notificationclick → focus/open app
+
+index.html             — <link rel="manifest">, theme-color meta tag
+
+Push notification triggers (backend shell ready, VAPID keys needed):
+  - Revision due today
+  - Streak at risk (no activity by 8pm)
+  - Competition starting
+
+To activate push (not yet wired):
+  1. Generate VAPID keys: npx web-push generate-vapid-keys
+  2. Add to .env: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL
+  3. Install: npm install web-push
+  4. Register sw.js from frontend + POST /api/notifications/subscribe
+```
+
+---
+
+## 13. CURRENT STATE — WHAT IS BUILT ✅
 
 | Feature | Status |
 |---|---|
-| Auth (register/login/JWT) | ✅ Complete |
+| Auth (register/login/JWT + role) | ✅ Complete |
 | Onboarding flow | ✅ Complete |
-| Dynamic topics + subjects from DB | ✅ Complete |
+| Dynamic topics from DB | ✅ Complete |
+| Multi-subject: Math/Science/English/Social Science/Hindi | ✅ Complete |
 | Adaptive practice engine | ✅ Complete |
 | Thinking behaviour analysis | ✅ Complete |
 | Spaced repetition revision | ✅ Complete |
 | 7-layer AI cost minimisation | ✅ Complete |
+| Subject-aware AI cache keys | ✅ Complete |
 | AI-generated questions (DB-first) | ✅ Complete |
 | AI-generated lessons (DB-first) | ✅ Complete |
 | AI explanations for mistakes | ✅ Complete |
@@ -572,115 +693,67 @@ Questions can be seeded manually or AI-generated on demand.
 | Apple design system on all pages | ✅ Complete |
 | Error memory tracking | ✅ Complete |
 | Foundation gap detection | ✅ Complete |
+| VoiceTutor (mic + TTS + subject-aware) | ✅ Complete |
+| Admin dashboard (/admin route) | ✅ Complete |
+| Admin question/topic/user CRUD | ✅ Complete |
+| Achievement badge system | ✅ Complete |
+| BadgeToast component | ✅ Complete |
+| PWA manifest + service worker | ✅ Complete |
+| Parent/Teacher portal | ✅ Complete |
+| Student invite code system | ✅ Complete |
+| Multi-turn DoubtChat per question | ✅ Complete |
+| Exam score prediction (weighted) | ✅ Complete |
+| CBSE grade prediction (A1–E) | ✅ Complete |
+| Test suite (Jest ESM, 22 tests) | ✅ Complete |
 
 ---
 
-## 12. WHAT NEEDS TO BE BUILT NEXT 🔨
+## 14. WHAT STILL NEEDS TO BE BUILT 🔨
 
-### Priority 1 — Core Gaps (build these first)
-
-**12.1 Payment / Subscription System**
+### Priority 1 — Payment
+**Payment / Subscription System**
 - User model already has: isPaid, plan (free|pro|premium), planExpiry
 - Need: Razorpay or Stripe integration
-- Need: /api/payment/create-order, /api/payment/verify-payment routes
-- Need: plan upgrade flow in Settings page
-- Need: paywall UI when free quota (10 AI calls/day) is hit
+- Routes: POST /api/payment/create-order, POST /api/payment/verify-payment
+- Frontend: paywall UI when free quota (10 AI calls/day) is hit
+- Frontend: Settings page upgrade flow
 
-**12.2 VoiceTutor (page is scaffolded — needs implementation)**
-- Intended flow: student speaks question → speech-to-text → Claude answers → text-to-speech
-- Options: Web Speech API (free, browser native) for STT + TTS
-- Or: Whisper API for STT + Claude for answer + ElevenLabs/browser TTS
-- Backend: POST /api/ai/voice-answer { transcript } → Claude response
-- Design: microphone button, live waveform, playback controls
+### Priority 2 — Engagement
+**Push Notifications (backend shell exists)**
+- VAPID keys needed: `npx web-push generate-vapid-keys`
+- Install: `npm install web-push`
+- Wire: POST /api/notifications/subscribe (save PushSubscription to DB)
+- Wire: cron trigger: POST /api/cron/daily (check revision due + streak at risk)
 
-**12.3 Admin Dashboard (separate route, admin-only)**
-- Question bank management: add/edit/delete/flag questions
-- Topic CRUD
-- AI cache stats (hitRate, callsSaved, savedCost in $)
-- User overview (total users, active today, plan breakdown)
-- Seed trigger buttons (run seed.js from UI)
+**Personalised Daily Brief**
+- Morning AI summary for each student on Dashboard first load
+- "Focus on X today, exam in Y days, your weak area is Z"
+- Cache per user per day in AIResponseCache
 
-**12.4 More Subjects**
-- Currently hardcoded to: CBSE Class 10 Math
-- User model has subject + grade fields — DB is ready
-- Need: seed data for Science, English, Social Science, Hindi
-- Need: subject-specific system prompts in aiService.js
-- Need: subject picker to be fully wired on Dashboard
+**Offline Mode**
+- IndexedDB queue for attempts when offline
+- Service worker pre-caches today's questions + study plan
 
-### Priority 2 — Engagement & Retention
-
-**12.5 Achievement / Badge System**
-- New collection: Achievement { userId, type, unlockedAt, metadata }
-- Badge types: "7-day streak", "First perfect exam", "Concept master",
-               "100 questions", "Top 10 this week", etc.
-- Show on Profile page + toast notification on unlock
-
-**12.6 Push Notifications (PWA)**
-- Add manifest.json + service worker → install as PWA
-- Notification triggers: revision due today, streak at risk, competition starting
-- Backend: schedule daily cron to check nextRevision dates + send push
-
-**12.7 Parent / Teacher Portal**
-- New role: "parent" or "teacher" in User model
-- Can view linked students' analytics read-only
-- Weekly progress email digest
-- Invite student by email → link accounts
-
-**12.8 Offline Mode**
-- Service worker caches: lessons, study plan, today's questions
-- Practice works offline, syncs attempts when back online
-- IndexedDB for local attempt queue
-
-### Priority 3 — AI Enhancements
-
-**12.9 Multi-turn Doubt Chat**
-- Currently: one-shot AI explanation per mistake
-- Proposed: chat thread per question — student can ask follow-ups
-- New collection: DoubtThread { userId, questionId, messages: [{role, content}] }
-- Backend: POST /api/ai/doubt/message { threadId, message }
-- Frontend: expandable chat panel below each question
-
-**12.10 Personalised Daily Brief**
-- Morning summary generated by Claude for each student:
-  "Today you should focus on X (due for revision), your weak area is Y, exam in Z days"
-- Triggered: on first Dashboard load of the day
-- Cached per-user per-day in AIResponseCache
-
-**12.11 Exam Prediction**
-- Based on: topicProgress accuracy + examFrequency + daysLeft
-- Predict expected score range on actual board exam
-- Show confidence interval: "You're likely to score 68-74 / 100"
-- Update daily as student practices
-
-### Priority 4 — Quality & Scale
-
-**12.12 Question Flagging + Review Queue**
-- Students can flag bad/incorrect questions (isFlagged already in schema)
-- Admin sees flagged queue, reviews, edits or deletes
-- QuestionStats.isBadQuestion auto-set when error rate > 80% + attempts > 20
-
-**12.13 API Rate Limit Per User (not just global)**
-- Current: 300 req/15min global rate limit
-- Add: per-user rate limit using userId from JWT
-- Prevent one user from hammering the AI endpoints
-
-**12.14 Refresh Token System**
+### Priority 3 — Scale + Quality
+**Refresh Token System**
 - Current: 7-day JWT, no refresh
-- Add: refreshToken stored in httpOnly cookie
-- Auto-refresh before expiry → seamless session
+- Add: httpOnly cookie refresh token, /api/auth/refresh endpoint
 
-**12.15 Test Suite**
-- Currently: no tests
-- Priority areas:
-  - adaptiveService question selection logic
-  - analysisService behaviour classification
-  - scoringService raw + normalised scores
-  - aiRouter 7-layer cache hit/miss logic
-  - plannerService priority scoring
+**Per-user API Rate Limit**
+- Current: 300 req/15min global
+- Need: per-userId rate limit on AI endpoints
+
+**Email Notifications (nodemailer)**
+- Weekly digest to parents/teachers (linked students' progress)
+- Revision reminder email fallback when push not available
+
+**Question Flagging UI**
+- Student-facing "Report this question" button in Practice
+- Routes already exist (adminGetFlagged, adminUnflagQuestion)
 
 ---
 
-## 13. ENV VARIABLES NEEDED
+## 15. ENV VARIABLES
 
 ```
 MONGO_URI=
@@ -688,94 +761,168 @@ JWT_SECRET=
 ANTHROPIC_API_KEY=
 CLAUDE_MODEL=claude-haiku-4-5-20251001
 PORT=5001
+
+# Optional — for PWA push notifications (not yet active)
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_EMAIL=
 ```
 
 ---
 
-## 14. HOW TO RUN LOCALLY
+## 16. HOW TO RUN LOCALLY
 
 ```bash
 # Backend
 cd ai-learning-backend/backend
 npm install
-node server.js          # runs on port 5001
+node server.js               # port 5001
 
 # Frontend
 cd ai-learning-frontend/frontend
 npm install
-npm run dev             # runs on port 5173
+npm run dev                  # port 5173
 
-# Seed DB (run once)
+# Seed DB (run once in order)
 cd ai-learning-backend/backend
-node config/seed.js
-node config/seedLessons.js
+npm run seed                 # Math topics + questions
+npm run seed:lessons         # initial lessons
+npm run seed:subjects        # Science/English/Social Science/Hindi topics (NEW)
+
+# Tests
+cd ai-learning-backend/backend
+npm test
+
+# Make yourself admin (run in MongoDB shell or Compass)
+db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
+# Then re-login in the app to get updated JWT
 ```
 
 ---
 
-## 15. FILE STRUCTURE SUMMARY
+## 17. COMPLETE FILE STRUCTURE
 
 ```
 AILearningPath/
+├── BLUEPRINT.md               ← this file — always up to date
+│
 ├── ai-learning-backend/backend/
-│   ├── server.js                  ← Express + Socket.IO setup
+│   ├── server.js              ← Express + Socket.IO + all routes mounted
+│   │
 │   ├── models/
-│   │   ├── index.js               ← all 15 Mongoose schemas
-│   │   └── lessonModel.js         ← Lesson + LessonProgress schemas
+│   │   ├── index.js           ← 20 Mongoose schemas (all collections)
+│   │   └── lessonModel.js     ← Lesson + LessonProgress
+│   │
 │   ├── controllers/
+│   │   ├── adminController.js    ← NEW: users/questions/topics CRUD + stats
 │   │   ├── aiController.js
 │   │   ├── analysisController.js
-│   │   ├── authController.js
+│   │   ├── authController.js     ← UPDATED: role in JWT
 │   │   ├── examController.js
 │   │   ├── lessonController.js
 │   │   ├── plannerController.js
-│   │   └── practiceController.js
+│   │   ├── portalController.js   ← NEW: invite, link, student analytics
+│   │   └── practiceController.js ← UPDATED: badge check + subject in AI call
+│   │
 │   ├── services/
-│   │   ├── aiService.js           ← Claude API calls (explain/question/lesson)
-│   │   ├── aiRouter.js            ← 7-layer cache system
-│   │   ├── aiTeacherService.js    ← contextual guidance
-│   │   ├── adaptiveService.js     ← question selection
-│   │   ├── analysisService.js     ← behaviour detection
-│   │   ├── plannerService.js      ← study plan generator
-│   │   ├── revisionService.js     ← spaced repetition
-│   │   ├── scoringService.js      ← exam scoring + Z-score
-│   │   ├── profileService.js      ← thinking profile
-│   │   ├── streakService.js       ← daily streaks
-│   │   ├── selfLearningService.js ← foundation gaps
-│   │   ├── autoDoubtService.js    ← recurring mistake clarifier
-│   │   └── foundationService.js   ← prerequisite checker
-│   ├── routes/                    ← 11 route files
-│   ├── middleware/auth.js          ← JWT verification
+│   │   ├── aiService.js          ← UPDATED: getSystemPrompt(subject), 5 prompts
+│   │   ├── aiRouter.js           ← UPDATED: subject in cache key, exported checkAndIncrementUsage
+│   │   ├── adaptiveService.js
+│   │   ├── analysisService.js
+│   │   ├── aiTeacherService.js
+│   │   ├── autoDoubtService.js
+│   │   ├── badgeService.js       ← NEW: checkAndAwardBadges, getUserBadges
+│   │   ├── foundationService.js
+│   │   ├── plannerService.js
+│   │   ├── predictionService.js  ← NEW: predictExamScore (weighted by marks×freq)
+│   │   ├── profileService.js
+│   │   ├── revisionService.js
+│   │   ├── scoringService.js
+│   │   ├── selfLearningService.js
+│   │   └── streakService.js
+│   │
+│   ├── routes/
+│   │   ├── adminRoutes.js        ← NEW: /api/admin/* (adminAuth protected)
+│   │   ├── aiRoutes.js           ← UPDATED: + /voice-answer
+│   │   ├── analysisRoutes.js     ← UPDATED: + /predict
+│   │   ├── authRoutes.js
+│   │   ├── badgeRoutes.js        ← NEW: GET /api/badges
+│   │   ├── competitionRoutes.js
+│   │   ├── doubtRoutes.js        ← NEW: /api/doubt/:questionId (GET/POST/DELETE)
+│   │   ├── examRoutes.js
+│   │   ├── lessonRoutes.js
+│   │   ├── plannerRoutes.js
+│   │   ├── portalRoutes.js       ← NEW: /api/portal/*
+│   │   ├── practiceRoutes.js
+│   │   ├── revisionRoutes.js
+│   │   ├── topicRoutes.js
+│   │   └── userRoutes.js
+│   │
+│   ├── middleware/
+│   │   ├── auth.js              ← JWT verify → req.user
+│   │   └── adminAuth.js         ← NEW: requires role === "admin"
+│   │
 │   ├── utils/
-│   │   ├── socket.js              ← Socket.IO competition rooms
-│   │   ├── cache.js               ← in-memory LRU cache
+│   │   ├── cache.js             ← in-memory LRU (24h TTL)
+│   │   ├── socket.js            ← Socket.IO competition rooms
 │   │   └── questionGenerator.js
-│   └── config/
-│       ├── seed.js
-│       └── seedLessons.js
+│   │
+│   ├── config/
+│   │   ├── seed.js
+│   │   ├── seedLessons.js
+│   │   └── seedSubjects.js      ← NEW: 50+ Science/English/SocSci/Hindi topics
+│   │
+│   ├── __tests__/               ← NEW: Jest ESM test suite
+│   │   ├── analysisService.test.js   (7 tests)
+│   │   ├── scoringService.test.js    (6 tests)
+│   │   ├── plannerService.test.js    (4 tests, mocked)
+│   │   └── aiRouter.test.js          (5 tests, mocked)
+│   │
+│   └── package.json             ← UPDATED: jest config + npm test script
 │
-└── ai-learning-frontend/frontend/src/
-    ├── App.jsx                    ← routing (16 pages)
-    ├── main.jsx
-    ├── index.css
-    ├── store/authStore.js         ← Zustand auth
-    ├── services/api.js            ← axios instance
-    ├── components/Layout.jsx      ← sidebar + nav shell
-    └── pages/                     ← 16 page components
-        ├── Dashboard.jsx
-        ├── Lessons.jsx
-        ├── LessonView.jsx
-        ├── Practice.jsx
-        ├── Analytics.jsx
-        ├── Competition.jsx
-        ├── LiveRoom.jsx
-        ├── Planner.jsx
-        ├── ExamReview.jsx
-        ├── VoiceTutor.jsx         ← scaffolded, NOT functional yet
-        ├── Profile.jsx
-        ├── Settings.jsx
-        ├── Onboarding.jsx
-        ├── StartOnboarding.jsx
-        ├── Login.jsx
-        └── Register.jsx
+└── ai-learning-frontend/frontend/
+    ├── index.html               ← UPDATED: manifest link + theme-color meta
+    ├── public/
+    │   ├── manifest.json        ← NEW: PWA manifest
+    │   ├── sw.js                ← NEW: service worker (offline + push)
+    │   ├── icon-192.png         ← needed: add manually
+    │   └── icon-512.png         ← needed: add manually
+    │
+    └── src/
+        ├── App.jsx              ← UPDATED: admin routes + Portal route
+        ├── main.jsx
+        ├── index.css
+        ├── store/authStore.js   ← user now has role field
+        ├── services/api.js      ← UPDATED: port 5001, all new functions
+        │
+        ├── components/
+        │   ├── Layout.jsx
+        │   ├── BadgeToast.jsx   ← NEW: toast when badge awarded
+        │   └── DoubtChat.jsx    ← NEW: multi-turn chat below wrong answers
+        │
+        └── pages/
+            ├── Dashboard.jsx
+            ├── Lessons.jsx
+            ├── LessonView.jsx
+            ├── Practice.jsx
+            ├── Analytics.jsx
+            ├── Competition.jsx
+            ├── LiveRoom.jsx
+            ├── Planner.jsx
+            ├── ExamReview.jsx
+            ├── VoiceTutor.jsx   ← UPDATED: fully functional, subject-aware
+            ├── Profile.jsx
+            ├── Settings.jsx
+            ├── Onboarding.jsx
+            ├── StartOnboarding.jsx
+            ├── Login.jsx
+            ├── Register.jsx
+            ├── Portal.jsx       ← NEW: invite code + parent/teacher view
+            └── admin/
+                ├── AdminLayout.jsx      ← NEW: sidebar nav, role guard
+                ├── AdminOverview.jsx    ← NEW: stats dashboard
+                ├── AdminUsers.jsx       ← NEW: user list + role editor
+                ├── AdminQuestions.jsx   ← NEW: question CRUD + flag queue
+                ├── AdminTopics.jsx      ← NEW: topic CRUD
+                └── AdminCacheStats.jsx  ← NEW: AI cache breakdown
 ```

@@ -1,3 +1,67 @@
+<!-- ============================================================ -->
+<!-- ARCHITECTURE STANDARDS — enforced in every session         -->
+<!-- ============================================================ -->
+
+## Architecture Rules — Follow These Strictly
+
+### Folder Structure (do not deviate)
+```
+ai-learning-backend/backend/
+  controllers/   ← HTTP handlers only — no business logic
+  services/      ← all business logic lives here
+  routes/        ← route definitions + middleware wiring only
+  models/        ← Mongoose schemas only
+  middleware/    ← auth, adminAuth, validate, errorHandler
+  utils/         ← stateless helpers (cache, socket, etc.)
+  config/        ← seed scripts only
+  __tests__/     ← Jest test files
+
+ai-learning-frontend/frontend/src/
+  pages/         ← one file per route
+  pages/admin/   ← admin-only pages (role guarded in AdminLayout)
+  components/    ← reusable UI
+  services/      ← api.js only (axios calls)
+  store/         ← Zustand stores only
+```
+
+Admin routes/controllers STAY in the backend folder. They are
+role-protected API routes, not a separate service. This is correct.
+
+### Rules for Every New Feature
+
+1. **Always validate inputs** — use the `validate` middleware with Joi
+   before any controller runs. Never trust raw req.body.
+   ```js
+   r.post("/route", auth, validate(schema), controller);
+   ```
+
+2. **Never put business logic in controllers** — controllers call
+   services and return res.json(). Services do the work.
+
+3. **Always use standardised error responses**:
+   ```js
+   // success
+   res.json({ data: result })
+   // error — use the global error handler
+   next(new AppError("message", 404))
+   ```
+
+4. **Sessions must not use in-memory object** — practiceController
+   `sessions = {}` must be replaced with DB or Redis before any
+   multi-instance deployment. Flag this risk when touching practiceController.
+
+5. **Never hardcode origins** — use `process.env.FRONTEND_URL`.
+
+6. **New routes must have a test** — add to __tests__/ when adding
+   a new service function.
+
+7. **Update BLUEPRINT.md before committing** — every new feature,
+   route, schema, or page must be reflected in BLUEPRINT.md in the
+   same commit.
+
+8. **API versioning** — all new route groups use /api/v1/ prefix
+   going forward. Existing routes keep /api/ to avoid breaking changes.
+
 <!-- code-review-graph MCP tools -->
 ## MCP Tools: code-review-graph
 

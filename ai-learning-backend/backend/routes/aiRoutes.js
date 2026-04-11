@@ -12,7 +12,17 @@ const EVAL_CACHE_TTL = 24 * 60 * 60 * 1000;
 r.get("/advice",      auth, studyAdvice);
 r.get("/usage",       auth, usageInfo);
 r.get("/cache-stats", auth, cacheStats);
-r.post("/chat",       auth, tutorChat);
+r.post("/chat",         auth, tutorChat);
+
+// VoiceTutor endpoint — accepts speech transcript, returns Claude answer
+r.post("/voice-answer", auth, async (req, res) => {
+  try {
+    const { transcript, topic, subject } = req.body;
+    if (!transcript?.trim()) return res.status(400).json({ error: "transcript is required" });
+    const reply = await getChatResponse([], transcript, topic || `General ${subject || "Math"}`, subject || "Math");
+    res.json({ answer: reply || "Could not generate a response. Please try rephrasing your question." });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 // Evaluate a student's written explanation of a concept.
 // Cache key: concept + first 80 chars of explanation (normalised).

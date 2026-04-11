@@ -2,10 +2,18 @@ import express from "express";
 import { getReport } from "../controllers/analysisController.js";
 import { ErrorMemory, WeeklyLeaderboard } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
+import { predictExamScore } from "../services/predictionService.js";
 
 const r = express.Router();
 
 r.get("/report", auth, getReport);
+
+r.get("/predict", auth, async (req, res) => {
+  try {
+    const prediction = await predictExamScore(req.user.id);
+    res.json(prediction);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 r.get("/errors", auth, async (req, res) => {
   try {

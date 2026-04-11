@@ -16,6 +16,7 @@
 import crypto from "crypto";
 import { getCached, setCache } from "../utils/cache.js";
 import { getAIExplanation, getStudyAdvice } from "./aiService.js";
+
 import { User, AIResponseCache, AIUsageStats } from "../models/index.js";
 
 const FREE_DAILY_LIMIT = 10;
@@ -25,10 +26,10 @@ const CACHE_TTL_MS     = 24 * 60 * 60 * 1000; // 24h in-memory TTL
 // ── Helpers ───────────────────────────────────────────────────────
 const todayStr = () => new Date().toISOString().split("T")[0];
 
-// Deterministic cache key: hash of question text + mistake type
-// Same question answered wrong the same way by any user → same key
-const makeCacheKey = (questionText, mistakeType) => {
-  const raw = `${questionText.toLowerCase().trim()}::${mistakeType}`;
+// Deterministic cache key: hash of question text + mistake type + subject
+// Same question answered wrong the same way in the same subject → same key
+const makeCacheKey = (questionText, mistakeType, subject = "Math") => {
+  const raw = `${questionText.toLowerCase().trim()}::${mistakeType}::${subject}`;
   return crypto.createHash("md5").update(raw).digest("hex");
 };
 
@@ -42,7 +43,7 @@ const STATIC_RESPONSES = {
 };
 
 // ── Daily usage check + increment ────────────────────────────────
-async function checkAndIncrementUsage(userId) {
+export async function checkAndIncrementUsage(userId) {
   const user = await User.findById(userId).select("isPaid plan aiCallsToday aiCallsDate");
   if (!user) return false;
 
@@ -104,7 +105,7 @@ async function storeCacheResult(cacheKey, questionSnippet, mistakeType, response
 
 // ── MAIN: Smart explanation router ───────────────────────────────
 export const smartAIExplanation = async (
-  userId, questionText, selectedType, correctAnswer, solutionSteps = []
+  userId, questionText, selectedType, correctAnswer, solutionSteps = [], subject = "Math"
 ) => {
   // Layer 1: Correct answer — nothing to explain
   if (selectedType === "correct") return null;
@@ -121,7 +122,7 @@ export const smartAIExplanation = async (
   if (STATIC_RESPONSES[selectedType]) return STATIC_RESPONSES[selectedType];
 
   // Layer 4 & 5: Check caches before hitting Claude
-  const cacheKey = makeCacheKey(questionText, selectedType);
+  const cacheKey = makeCacheKey(questionText, selectedType, subject);
 
   // Layer 4: In-memory cache (fastest — microseconds)
   const memCached = getCached(cacheKey);
@@ -150,7 +151,7 @@ export const smartAIExplanation = async (
   }
 
   // Layer 7: Call Claude — this only happens for brand-new question+mistake combos
-  const response = await getAIExplanation(questionText, selectedType, correctAnswer);
+  const response = await getAIExplanation(questionText, selectedType, correctAnswer, subject);
 
   if (response) {
     // Store permanently — next student who gets this wrong pays nothing
@@ -170,10 +171,9 @@ export const smartAIExplanation = async (
 
 // ── Study advice (cached per profile state, not per user) ─────────
 // Key is based on profile state — same profile = same advice = no repeat call
-export const smartStudyAdvice = async (userId, profile) => {
+export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
   // Key based on what matters in the profile — not userId
-  // Two users with same accuracy/weakAreas get the same cached advice
-  const profileKey = `advice::${profile.thinkingProfile}::${Math.round((profile.accuracy || 0) * 10)}::${(profile.weakAreas || []).slice(0, 2).join(",")}`;
+  const profileKey = `advice::${subject}::${profile.thinkingProfile}::${Math.round((profile.accuracy || 0) * 10)}::${(profile.weakAreas || []).slice(0, 2).join(",")}`;
   const cacheKey = crypto.createHash("md5").update(profileKey).digest("hex");
 
   // Check memory cache first (30-min TTL for advice)
@@ -193,7 +193,7 @@ export const smartStudyAdvice = async (userId, profile) => {
   const allowed = await checkAndIncrementUsage(userId);
   if (!allowed) return "Focus on your weak areas with 30 minutes of practice daily. Consistency beats cramming.";
 
-  const advice = await getStudyAdvice(profile);
+  const advice = await getStudyAdvice(profile, subject);
   if (advice) {
     storeCacheResult(`adv:${cacheKey}`, profileKey, "study_advice", advice);
     setCache(`adv:${cacheKey}`, advice, 30 * 60 * 1000);

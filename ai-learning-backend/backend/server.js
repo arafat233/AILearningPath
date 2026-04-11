@@ -17,6 +17,10 @@ import revisionRoutes    from "./routes/revisionRoutes.js";
 import lessonRoutes      from "./routes/lessonRoutes.js";
 import topicRoutes       from "./routes/topicRoutes.js";
 import competitionRoutes from "./routes/competitionRoutes.js";
+import adminRoutes       from "./routes/adminRoutes.js";
+import badgeRoutes       from "./routes/badgeRoutes.js";
+import doubtRoutes       from "./routes/doubtRoutes.js";
+import portalRoutes      from "./routes/portalRoutes.js";
 
 dotenv.config();
 
@@ -47,6 +51,10 @@ app.use("/api/revision",    revisionRoutes);
 app.use("/api/lessons",     lessonRoutes);
 app.use("/api/topics",      topicRoutes);
 app.use("/api/competition", competitionRoutes);
+app.use("/api/admin",       adminRoutes);
+app.use("/api/badges",      badgeRoutes);
+app.use("/api/doubt",       doubtRoutes);
+app.use("/api/portal",      portalRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));

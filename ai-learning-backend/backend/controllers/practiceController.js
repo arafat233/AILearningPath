@@ -8,7 +8,8 @@ import { updateStreak } from "../services/streakService.js";
 import { smartAIExplanation, getUsageCount } from "../services/aiRouter.js";
 import { resolveDoubt } from "../services/autoDoubtService.js";
 import { generateTeacherMessage } from "../services/aiTeacherService.js";
-import { UserProfile } from "../models/index.js";
+import { checkAndAwardBadges } from "../services/badgeService.js";
+import { UserProfile, Streak } from "../models/index.js";
 
 // In-memory session store (use Redis in production)
 const sessions = {};
@@ -83,7 +84,7 @@ export const submitAnswer = async (req, res) => {
     // Non-blocking background updates
     if (question._id) updateQuestionStats(question._id, result.isCorrect, safeTime, selectedType).catch(() => {});
     updateUserProfile(userId).catch(() => {});
-    updateStreak(userId).catch(() => {});
+    await updateStreak(userId).catch(() => {});
 
     // Log to ErrorMemory on wrong answers
     if (!result.isCorrect) {
@@ -118,10 +119,12 @@ export const submitAnswer = async (req, res) => {
       ).catch(() => null);
 
       // Smart AI explanation — checks DB cache before calling Claude
+      const userDoc2 = await User.findById(userId).select("subject").catch(() => null);
       aiExplanation = doubtResolution?.aiHelp ||
         await smartAIExplanation(
           userId, question.questionText, selectedType,
-          correct?.text, question.solutionSteps || []
+          correct?.text, question.solutionSteps || [],
+          userDoc2?.subject || "Math"
         ).catch(() => null);
     }
 
@@ -142,6 +145,16 @@ export const submitAnswer = async (req, res) => {
 
     // AI usage remaining (awaited properly)
     const aiUsage = await getUsageCount(userId).catch(() => null);
+
+    // Badge check (non-blocking, fires after all updates settle)
+    const streakDoc = await Streak.findOne({ userId }).lean().catch(() => null);
+    const newBadges = await checkAndAwardBadges(userId, {
+      streak:       streakDoc?.currentStreak || 0,
+      totalAttempts: (profileBefore?.totalAttempts || 0) + 1,
+      topic:        session.topic,
+      topicAccuracy: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.accuracy,
+      topicAttempts: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.attempts,
+    }).catch(() => []);
 
     // Preload next question
     const nextQuestion = await getNextQuestion(userId, session.topic).catch(() => null);
@@ -167,6 +180,8 @@ export const submitAnswer = async (req, res) => {
       // AI usage info
       aiUsage,
       aiFromCache: !!(aiExplanation && question.solutionSteps?.length === 0),
+      // Badges awarded this submit
+      newBadges,
       // Next question
       nextQuestion,
       // Difficulty level for this topic

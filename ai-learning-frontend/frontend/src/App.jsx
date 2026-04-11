@@ -17,6 +17,13 @@ import Profile     from "./pages/Profile";
 import Settings    from "./pages/Settings";
 import VoiceTutor  from "./pages/VoiceTutor";
 import ExamReview  from "./pages/ExamReview";
+import Portal      from "./pages/Portal";
+import AdminLayout     from "./pages/admin/AdminLayout";
+import AdminOverview   from "./pages/admin/AdminOverview";
+import AdminUsers      from "./pages/admin/AdminUsers";
+import AdminQuestions  from "./pages/admin/AdminQuestions";
+import AdminTopics     from "./pages/admin/AdminTopics";
+import AdminCacheStats from "./pages/admin/AdminCacheStats";
 
 const Protected = ({ children }) => {
   const token = useAuthStore((s) => s.token);
@@ -31,6 +38,16 @@ export default function App() {
         <Route path="/login"      element={<Login />} />
         <Route path="/register"   element={<Register />} />
         <Route path="/onboarding" element={<Protected><Onboarding /></Protected>} />
+
+        {/* Admin panel — AdminLayout handles role guard internally */}
+        <Route path="/admin" element={<Protected><AdminLayout /></Protected>}>
+          <Route index             element={<AdminOverview />} />
+          <Route path="users"      element={<AdminUsers />} />
+          <Route path="questions"  element={<AdminQuestions />} />
+          <Route path="topics"     element={<AdminTopics />} />
+          <Route path="cache"      element={<AdminCacheStats />} />
+        </Route>
+
         <Route path="/" element={<Protected><Layout /></Protected>}>
           <Route index                    element={<Dashboard />} />
           <Route path="lessons"           element={<Lessons />} />
@@ -43,7 +60,8 @@ export default function App() {
           <Route path="voice-tutor"       element={<VoiceTutor />} />
           <Route path="profile"           element={<Profile />} />
           <Route path="settings"          element={<Settings />} />
-          <Route path="exam-review"        element={<ExamReview />} />
+          <Route path="exam-review"       element={<ExamReview />} />
+          <Route path="portal"            element={<Portal />} />
         </Route>
       </Routes>
     </BrowserRouter>

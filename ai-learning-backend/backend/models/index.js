@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
   planExpiry: Date,
   aiCallsToday: { type: Number, default: 0 },
   aiCallsDate:  { type: String, default: "" }, // YYYY-MM-DD
+  // Role-based access
+  role: { type: String, enum: ["student", "admin", "parent", "teacher"], default: "student" },
+  // Parent/teacher portal
+  linkedStudents: [{ type: String }], // student userIds
+  inviteCode:     { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);
@@ -272,3 +277,41 @@ const aiUsageStatsSchema = new mongoose.Schema({
 });
 aiUsageStatsSchema.index({ userId: 1, date: 1 }, { unique: true });
 export const AIUsageStats = mongoose.model("AIUsageStats", aiUsageStatsSchema);
+
+// ==================== Badge (achievements) ====================
+const badgeSchema = new mongoose.Schema({
+  userId:    { type: String, required: true },
+  badgeType: { type: String, required: true },
+  // streak_7 | streak_30 | streak_100 | first_perfect_exam | questions_100 | questions_500
+  // top10_leaderboard | concept_master_{topic}
+  awardedAt: { type: Date, default: Date.now },
+  meta:      { type: mongoose.Schema.Types.Mixed, default: {} }, // e.g. { topic: "Trigonometry" }
+});
+badgeSchema.index({ userId: 1, badgeType: 1 }, { unique: true });
+export const Badge = mongoose.model("Badge", badgeSchema);
+
+// ==================== DoubtThread (multi-turn chat per question) ====================
+const doubtThreadSchema = new mongoose.Schema({
+  userId:     { type: String, required: true },
+  questionId: { type: String, required: true },
+  topic:      { type: String },
+  subject:    { type: String, default: "Math" },
+  messages: [{
+    role:      { type: String, enum: ["user", "assistant"], required: true },
+    content:   { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+  }],
+  createdAt:  { type: Date, default: Date.now },
+  updatedAt:  { type: Date, default: Date.now },
+});
+doubtThreadSchema.index({ userId: 1, questionId: 1 });
+export const DoubtThread = mongoose.model("DoubtThread", doubtThreadSchema);
+
+// ==================== PushSubscription (PWA push) ====================
+const pushSubscriptionSchema = new mongoose.Schema({
+  userId:       { type: String, required: true },
+  subscription: { type: mongoose.Schema.Types.Mixed, required: true },
+  createdAt:    { type: Date, default: Date.now },
+});
+pushSubscriptionSchema.index({ userId: 1 });
+export const PushSubscription = mongoose.model("PushSubscription", pushSubscriptionSchema);

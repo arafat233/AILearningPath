@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const api = axios.create({ baseURL: "http://localhost:5000/api" });
+const api = axios.create({ baseURL: "http://localhost:5001/api" });
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
@@ -26,9 +26,8 @@ export const getMe    = ()     => api.get("/user/me");
 export const updateMe = (data) => api.put("/user/me", data);
 
 // Topics (loaded from DB — public, no auth needed)
-// Optional filters: getTopics({ grade: "10", subject: "Math" })
 export const getTopics     = (params) => api.get("/topics", { params });
-export const getTopicsMeta = ()       => api.get("/topics/meta"); // unique subjects + grades
+export const getTopicsMeta = ()       => api.get("/topics/meta");
 
 // Lessons
 export const listLessons  = ()       => api.get("/lessons");
@@ -45,6 +44,7 @@ export const flagQuestion       = (questionId) => api.post("/practice/flag", { q
 export const getReport            = ()  => api.get("/analysis/report");
 export const getErrorMemory       = ()  => api.get("/analysis/errors");
 export const getWeeklyLeaderboard = ()  => api.get("/analysis/weekly-leaderboard");
+export const getPrediction        = ()  => api.get("/analysis/predict");
 
 // Revision
 export const getRevisionDue     = ()       => api.get("/revision/due");
@@ -68,7 +68,38 @@ export const getAICacheStats     = ()                           => api.get("/ai/
 export const askTutor            = (message, history, topic)   => api.post("/ai/chat", { message, history, topic });
 export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
 export const getHint             = (questionText, topic)       => api.post("/ai/hint", { questionText, topic });
+export const voiceAnswer         = (transcript, subject, topic) => api.post("/ai/voice-answer", { transcript, subject, topic });
 
-// ── Live Room ─────────────────────────────────────────────
+// Badges
+export const getBadges = () => api.get("/badges");
+
+// Doubt Chat (multi-turn per question)
+export const getDoubtThread   = (questionId)          => api.get(`/doubt/${questionId}`);
+export const sendDoubtMessage = (questionId, message, topic, subject) =>
+  api.post(`/doubt/${questionId}/message`, { message, topic, subject });
+export const clearDoubtThread = (questionId)          => api.delete(`/doubt/${questionId}`);
+
+// Admin
+export const adminGetStats         = ()                    => api.get("/admin/stats");
+export const adminGetUsers         = (params)              => api.get("/admin/users", { params });
+export const adminUpdateRole       = (id, role)            => api.put(`/admin/users/${id}/role`, { role });
+export const adminGetQuestions     = (params)              => api.get("/admin/questions", { params });
+export const adminGetFlagged       = ()                    => api.get("/admin/questions/flagged");
+export const adminCreateQuestion   = (data)                => api.post("/admin/questions", data);
+export const adminUpdateQuestion   = (id, data)            => api.put(`/admin/questions/${id}`, data);
+export const adminDeleteQuestion   = (id)                  => api.delete(`/admin/questions/${id}`);
+export const adminUnflagQuestion   = (id)                  => api.put(`/admin/questions/${id}/unflag`);
+export const adminGetTopics        = ()                    => api.get("/admin/topics");
+export const adminCreateTopic      = (data)                => api.post("/admin/topics", data);
+export const adminUpdateTopic      = (id, data)            => api.put(`/admin/topics/${id}`, data);
+export const adminDeleteTopic      = (id)                  => api.delete(`/admin/topics/${id}`);
+
+// Portal (parent/teacher)
+export const generateInvite        = ()                    => api.post("/portal/generate-invite");
+export const linkStudent           = (inviteCode)          => api.post("/portal/link", { inviteCode });
+export const getLinkedStudents     = ()                    => api.get("/portal/students");
+export const getStudentAnalytics   = (studentId)           => api.get(`/portal/students/${studentId}/analytics`);
+
+// Live Room
 export const getRoomQuestions = (topic, count) =>
   api.post("/competition/room-questions", { topic, count });

@@ -528,7 +528,10 @@ middleware/validate.js   — Joi schema validation; 422 on invalid input ← NEW
 middleware/errorHandler.js — centralised error handler (AppError,
                               Mongoose validation, duplicate key, JWT) ← NEW
 
-utils/AppError.js        — operational error class with statusCode ← NEW
+utils/AppError.js        — operational error class with statusCode
+utils/logger.js          — structured logger (pretty dev / JSON prod)
+utils/validateEnv.js     — crashes on startup if required env vars missing
+utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
 
 Security hardening:
   helmet      — HTTP security headers (CSP, HSTS, etc.)
@@ -537,8 +540,17 @@ Security hardening:
 
 Rate limit: 300 req / 15 min (global)
 
+Session stores (Redis, TTL-backed):
+  practice:userId  — 2h TTL  (replaces in-memory sessions = {})
+  exam:userId      — 3h TTL  (replaces in-memory activeExams = {})
+  Set REDIS_URL in .env; falls back to in-memory Map in dev if absent
+
 All controllers use: next(new AppError("msg", statusCode)) for 4xx
                      next(err) in catch blocks for 5xx (errorHandler logs)
+
+Required env vars (server exits on startup if missing):
+  MONGO_URI, JWT_SECRET, ANTHROPIC_API_KEY
+  See backend/.env.example for full list
 
 To make first admin:
   db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
@@ -547,7 +559,38 @@ To make first admin:
 
 ---
 
-## 8. FRONTEND STATE + API
+## 8. DEPLOYMENT
+
+```
+Docker (full stack):
+  docker-compose.yml at repo root spins up:
+    mongo:5000  — MongoDB 7 with persistent volume
+    redis:6379  — Redis 7 with AOF persistence
+    api:5000    — Backend (node:20-alpine, non-root user)
+
+  docker compose up -d
+  Secrets: set JWT_SECRET + ANTHROPIC_API_KEY in environment or .env
+
+PM2 (single VM, no Docker):
+  cd ai-learning-backend
+  pm2 start ecosystem.config.cjs --env production
+  pm2 save && pm2 startup
+
+  Cluster mode: one worker per CPU core (OS load-balances)
+  Requires REDIS_URL so all workers share session state
+  max_memory_restart: 500M, graceful shutdown: 30s kill_timeout
+
+Files:
+  ai-learning-backend/Dockerfile
+  ai-learning-backend/.dockerignore
+  ai-learning-backend/ecosystem.config.cjs
+  docker-compose.yml
+  backend/.env.example
+```
+
+---
+
+## 9. FRONTEND STATE + API
 
 ```
 authStore (Zustand + persist):
@@ -574,7 +617,7 @@ New functions added to api.js:
 
 ---
 
-## 9. AI COST ARCHITECTURE
+## 10. AI COST ARCHITECTURE
 
 ```
 Subject is now part of the cache key:
@@ -597,7 +640,7 @@ DoubtChat messages count against the same daily quota
 
 ---
 
-## 10. SEED DATA
+## 11. SEED DATA
 
 ```
 config/seed.js          — Math topics + questions
@@ -614,7 +657,7 @@ npm run seed:subjects   ← NEW
 
 ---
 
-## 11. TEST SUITE  ← NEW
+## 12. TEST SUITE  ← NEW
 
 ```
 Location: backend/__tests__/
@@ -654,7 +697,7 @@ __tests__/aiRouter.test.js          — 5 tests (mocked Mongoose + aiService)
 
 ---
 
-## 12. PWA  ← NEW
+## 13. PWA  ← NEW
 
 ```
 public/manifest.json   — name, icons, theme_color (#007AFF), display: standalone
@@ -679,7 +722,7 @@ To activate push (not yet wired):
 
 ---
 
-## 13. CURRENT STATE — WHAT IS BUILT ✅
+## 14. CURRENT STATE — WHAT IS BUILT ✅
 
 | Feature | Status |
 |---|---|
@@ -724,7 +767,7 @@ To activate push (not yet wired):
 
 ---
 
-## 14. WHAT STILL NEEDS TO BE BUILT 🔨
+## 15. WHAT STILL NEEDS TO BE BUILT 🔨
 
 ### Priority 1 — Payment
 **Payment / Subscription System**

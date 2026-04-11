@@ -9,6 +9,8 @@ import http from "http";
 import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import logger from "./utils/logger.js";
+import { validateEnv } from "./utils/validateEnv.js";
+import { connectRedis } from "./utils/redisClient.js";
 
 import authRoutes        from "./routes/authRoutes.js";
 import practiceRoutes    from "./routes/practiceRoutes.js";
@@ -27,6 +29,7 @@ import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 
 dotenv.config();
+validateEnv(); // crash fast if required env vars are missing
 
 const app    = express();
 const server = http.createServer(app);
@@ -41,6 +44,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => logger.info("MongoDB connected"))
   .catch((err) => { logger.error("MongoDB connection failed", { err: err.message }); process.exit(1); });
+
+connectRedis();
 
 initSocket(server);
 

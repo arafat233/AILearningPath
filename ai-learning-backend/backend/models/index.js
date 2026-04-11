@@ -36,6 +36,9 @@ const topicSchema = new mongoose.Schema({
   realWorldUse:   { type: String, default: "" },
   whyMatters:     { type: String, default: "" },
 });
+// Filtering by subject+grade (onboarding, settings dropdowns) and sorting by frequency
+topicSchema.index({ subject: 1, grade: 1 });
+topicSchema.index({ examFrequency: -1 });
 export const Topic = mongoose.model("Topic", topicSchema);
 
 // ==================== Question ====================
@@ -65,6 +68,10 @@ const questionSchema = new mongoose.Schema({
   negativeMarks: { type: Number, default: 0 },
   createdAt:     { type: Date, default: Date.now },
 });
+// Practice adapter queries: find un-flagged questions by topic near a target difficulty
+questionSchema.index({ topic: 1, difficultyScore: 1, isFlagged: 1 });
+// AI-generated question lookup by topic
+questionSchema.index({ topic: 1, isAIGenerated: 1 });
 export const Question = mongoose.model("Question", questionSchema);
 
 // ==================== Attempt ====================
@@ -80,6 +87,9 @@ const attemptSchema = new mongoose.Schema({
   examId:       String,
   createdAt:    { type: Date, default: Date.now },
 });
+// Most common queries: user's history sorted by date, and per-topic breakdown
+attemptSchema.index({ userId: 1, createdAt: -1 });
+attemptSchema.index({ userId: 1, topic: 1 });
 export const Attempt = mongoose.model("Attempt", attemptSchema);
 
 // ==================== SeenQuestion (exposure control) ====================
@@ -203,6 +213,10 @@ const examAttemptSchema = new mongoose.Schema({
   percentile: Number,
   createdAt: { type: Date, default: Date.now },
 });
+// Leaderboard query (all attempts for an exam, sorted by rank)
+// and exam history per user
+examAttemptSchema.index({ examId: 1, rank: 1 });
+examAttemptSchema.index({ userId: 1, createdAt: -1 });
 export const ExamAttempt = mongoose.model("ExamAttempt", examAttemptSchema);
 
 // ==================== StudyPlan ====================
@@ -221,6 +235,8 @@ const studyPlanSchema = new mongoose.Schema({
   skipSuggestions: [{ topic: String, effort: String, marksLost: Number, reason: String }],
   createdAt: { type: Date, default: Date.now },
 });
+// One plan per user — fast lookup
+studyPlanSchema.index({ userId: 1 });
 export const StudyPlan = mongoose.model("StudyPlan", studyPlanSchema);
 
 // ==================== WeeklyLeaderboard ====================
@@ -235,6 +251,8 @@ const weeklyLeaderboardSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 weeklyLeaderboardSchema.index({ week: 1, score: -1 });
+// Fast upsert lookup when updating a user's weekly best score
+weeklyLeaderboardSchema.index({ userId: 1, week: 1 }, { unique: true });
 export const WeeklyLeaderboard = mongoose.model("WeeklyLeaderboard", weeklyLeaderboardSchema);
 
 // ==================== AIResponseCache (permanent DB cache) ====================

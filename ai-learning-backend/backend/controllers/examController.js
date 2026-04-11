@@ -1,6 +1,10 @@
 import { Exam, ExamAttempt, Question, WeeklyLeaderboard } from "../models/index.js";
 import { calculateExamScore, normalizeScores, assignRanks } from "../services/scoringService.js";
 import { AppError } from "../utils/AppError.js";
+import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
+
+const EXAM_TTL  = 10800; // 3 hours — max exam duration with buffer
+const examKey   = (userId) => `exam:${userId}`;
 
 function currentWeekStr() {
   const now = new Date();
@@ -8,8 +12,6 @@ function currentWeekStr() {
   const week = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
   return `${now.getFullYear()}-W${String(week).padStart(2, "0")}`;
 }
-
-const activeExams = {};
 
 export const listExams = async (req, res, next) => {
   try {
@@ -40,13 +42,13 @@ export const startExam = async (req, res, next) => {
       marks: q.marks || 1,
     }));
 
-    activeExams[userId] = {
+    await sessionSet(examKey(userId), {
       examId,
       topic: exam.topic,
       negativeMarking: exam.negativeMarking,
       negativeValue: exam.negativeValue || 0.25,
       questions: [...easy, ...medium, ...hard],
-    };
+    }, EXAM_TTL);
 
     res.json({ questions, duration: exam.duration, title: exam.title, total: questions.length, negativeMarking: exam.negativeMarking });
   } catch (err) { next(err); }
@@ -56,7 +58,7 @@ export const submitExam = async (req, res, next) => {
   try {
     const { answers } = req.body;
     const userId = req.user.id;
-    const session = activeExams[userId];
+    const session = await sessionGet(examKey(userId));
     if (!session) return next(new AppError("No active exam session", 400));
 
     const evaluated = answers.map((a) => {
@@ -120,7 +122,7 @@ export const submitExam = async (req, res, next) => {
       ).catch(() => {});
     }
 
-    delete activeExams[userId];
+    await sessionDel(examKey(userId));
 
     res.json({
       rawScore,

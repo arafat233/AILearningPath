@@ -11,9 +11,10 @@ import { generateTeacherMessage } from "../services/aiTeacherService.js";
 import { checkAndAwardBadges } from "../services/badgeService.js";
 import { UserProfile, Streak } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
+import { sessionGet, sessionSet } from "../utils/redisClient.js";
 
-// In-memory session store (use Redis in production)
-const sessions = {};
+const SESSION_TTL = 7200; // 2 hours — max length of a practice session
+const sessionKey  = (userId) => `practice:${userId}`;
 
 export const startTopic = async (req, res, next) => {
   try {
@@ -23,7 +24,7 @@ export const startTopic = async (req, res, next) => {
     // Foundation check
     const foundationCheck = await checkFoundation(userId, topicId);
     if (foundationCheck.redirect) {
-      sessions[userId] = { topic: foundationCheck.foundationTopic };
+      await sessionSet(sessionKey(userId), { topic: foundationCheck.foundationTopic }, SESSION_TTL);
       return res.json({
         foundationRedirect: true,
         message: foundationCheck.message,
@@ -32,11 +33,15 @@ export const startTopic = async (req, res, next) => {
       });
     }
 
-    sessions[userId] = { topic: topicId, sessionCorrect: 0, sessionTotal: 0 };
     const question = await getNextQuestion(userId, topicId);
     if (!question) return next(new AppError("No questions found for this topic yet.", 404));
 
-    sessions[userId].currentQuestion = question;
+    await sessionSet(sessionKey(userId), {
+      topic: topicId,
+      sessionCorrect: 0,
+      sessionTotal: 0,
+      currentQuestion: question.toObject?.() ?? question,
+    }, SESSION_TTL);
 
     const profile = await UserProfile.findOne({ userId });
     const teacherMsg = profile
@@ -54,7 +59,7 @@ export const submitAnswer = async (req, res, next) => {
     const { selectedType, timeTaken, confidence } = req.body;
 
     const userId = req.user.id;
-    const session = sessions[userId];
+    const session = await sessionGet(sessionKey(userId));
     if (!session?.currentQuestion) {
       return next(new AppError("No active question. Call /practice/start first.", 400));
     }
@@ -63,7 +68,7 @@ export const submitAnswer = async (req, res, next) => {
     const safeTime = Math.max(1, Math.min(Number(timeTaken) || 15, 600));
     const result = analyzeAnswer(question, selectedType, safeTime, confidence);
 
-    session.sessionTotal = (session.sessionTotal || 0) + 1;
+    session.sessionTotal  = (session.sessionTotal  || 0) + 1;
     if (result.isCorrect) session.sessionCorrect = (session.sessionCorrect || 0) + 1;
 
     await Attempt.create({
@@ -144,7 +149,10 @@ export const submitAnswer = async (req, res, next) => {
     }).catch(() => []);
 
     const nextQuestion = await getNextQuestion(userId, session.topic).catch(() => null);
-    sessions[userId].currentQuestion = nextQuestion;
+    await sessionSet(sessionKey(userId), {
+      ...session,
+      currentQuestion: nextQuestion?.toObject?.() ?? nextQuestion ?? null,
+    }, SESSION_TTL);
 
     res.json({
       isCorrect: result.isCorrect,

@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const BEHAVIOR_COLOR = {
-  correct:           "border-green-300 bg-green-50",
-  concept_error:     "border-red-300 bg-red-50",
-  calculation_error: "border-yellow-300 bg-yellow-50",
-  partial_logic:     "border-purple-300 bg-purple-50",
-  guessing:          "border-orange-300 bg-orange-50",
-  misinterpretation: "border-blue-300 bg-blue-50",
+const BEHAVIOR_BORDER = {
+  correct:           "border-apple-green/25",
+  concept_error:     "border-apple-red/25",
+  calculation_error: "border-apple-yellow/25",
+  partial_logic:     "border-apple-purple/25",
+  guessing:          "border-apple-orange/25",
+  misinterpretation: "border-apple-blue/25",
 };
 
 const BEHAVIOR_LABEL = {
-  correct:           { text: "Correct",                color: "bg-green-100 text-green-800" },
-  concept_error:     { text: "Concept error",          color: "bg-red-100 text-red-800" },
-  calculation_error: { text: "Calculation mistake",    color: "bg-yellow-100 text-yellow-800" },
-  partial_logic:     { text: "Incomplete logic",       color: "bg-purple-100 text-purple-800" },
-  guessing:          { text: "Guessing",               color: "bg-orange-100 text-orange-800" },
-  misinterpretation: { text: "Misread question",       color: "bg-blue-100 text-blue-800" },
+  correct:           { text: "Correct",            bg: "bg-apple-green/10",  text_c: "text-apple-green"  },
+  concept_error:     { text: "Concept error",       bg: "bg-apple-red/10",    text_c: "text-apple-red"    },
+  calculation_error: { text: "Calculation mistake", bg: "bg-apple-yellow/10", text_c: "text-apple-yellow" },
+  partial_logic:     { text: "Incomplete logic",    bg: "bg-apple-purple/10", text_c: "text-apple-purple" },
+  guessing:          { text: "Guessing",            bg: "bg-apple-orange/10", text_c: "text-apple-orange" },
+  misinterpretation: { text: "Misread question",    bg: "bg-apple-blue/10",   text_c: "text-apple-blue"   },
 };
 
 export default function ExamReview() {
@@ -36,62 +36,80 @@ export default function ExamReview() {
   const displayed = showAll ? review : review.slice(0, 5);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto space-y-5">
       {/* Summary */}
-      <div className="card p-6 mb-6">
-        <h1 className="text-xl font-semibold mb-4">Exam Review — Full Solutions</h1>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Stat label="Score"      value={score?.toFixed ? score.toFixed(2) : score} />
-          <Stat label="Accuracy"   value={`${accuracy}%`} />
-          {rank    && <Stat label="Rank"       value={`#${rank} / ${total}`} />}
-          {pct     && <Stat label="Percentile" value={`${pct}%`} />}
+      <div>
+        <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Exam Review</h1>
+        <p className="text-[14px] text-apple-gray mt-0.5">Full solutions and breakdown</p>
+      </div>
+
+      <div className="card p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard label="Score"      value={score?.toFixed ? score.toFixed(2) : score} accent="blue"   />
+          <StatCard label="Accuracy"   value={`${accuracy}%`}                             accent="green"  />
+          {rank && <StatCard label="Rank"       value={`#${rank} / ${total}`}             accent="purple" />}
+          {pct  && <StatCard label="Percentile" value={`${pct}%`}                         accent="orange" />}
         </div>
       </div>
 
       {/* Per-question review */}
-      <div className="flex flex-col gap-4 mb-6">
+      <div className="flex flex-col gap-3">
         {displayed.map((q, i) => {
           const bInfo = BEHAVIOR_LABEL[q.selectedType] || BEHAVIOR_LABEL.concept_error;
           return (
-            <div key={i} className={`card p-5 border ${BEHAVIOR_COLOR[q.selectedType] || "border-surface-border"}`}>
-              {/* Question header */}
+            <div
+              key={i}
+              className={`card p-5 border ${BEHAVIOR_BORDER[q.selectedType] || "border-apple-gray5"}`}
+            >
+              {/* Header */}
               <div className="flex items-start justify-between mb-3">
-                <p className="text-xs text-gray-400">Q{i + 1}</p>
+                <p className="text-[12px] text-apple-gray">Q{i + 1}</p>
                 <div className="flex items-center gap-2">
-                  <span className={`badge text-xs ${bInfo.color}`}>{bInfo.text}</span>
-                  <span className={`text-sm font-semibold ${q.isCorrect ? "text-green-700" : "text-red-600"}`}>
+                  <span className={`badge ${bInfo.bg} ${bInfo.text_c}`}>{bInfo.text}</span>
+                  <span className={`text-[13px] font-semibold ${q.isCorrect ? "text-apple-green" : "text-apple-red"}`}>
                     {q.isCorrect ? "✓ Correct" : "✗ Wrong"}
                     {q.marksAwarded !== undefined && (
-                      <span className="ml-1 text-xs font-normal">({q.marksAwarded > 0 ? `+${q.marksAwarded}` : q.marksAwarded})</span>
+                      <span className="ml-1 text-[11px] font-normal">
+                        ({q.marksAwarded > 0 ? `+${q.marksAwarded}` : q.marksAwarded})
+                      </span>
                     )}
                   </span>
                 </div>
               </div>
 
-              <p className="text-sm font-medium text-gray-900 mb-3">{q.questionText}</p>
+              <p className="text-[14px] font-semibold text-[var(--label)] mb-3">{q.questionText}</p>
 
               {/* Your answer vs correct */}
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className={`p-2.5 rounded-lg text-xs ${q.isCorrect ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
-                  <p className="font-medium mb-0.5 text-gray-600">Your answer</p>
-                  <p className={q.isCorrect ? "text-green-800" : "text-red-800"}>{q.selectedText || "Not answered"}</p>
+                <div className={`p-3 rounded-apple-lg text-[12px] ${
+                  q.isCorrect
+                    ? "bg-apple-green/8 border border-apple-green/20"
+                    : "bg-apple-red/8 border border-apple-red/20"
+                }`}>
+                  <p className="font-semibold text-apple-gray mb-0.5">Your answer</p>
+                  <p className={q.isCorrect ? "text-apple-green" : "text-apple-red"}>
+                    {q.selectedText || "Not answered"}
+                  </p>
                 </div>
                 {!q.isCorrect && (
-                  <div className="p-2.5 rounded-lg bg-green-50 border border-green-200 text-xs">
-                    <p className="font-medium mb-0.5 text-gray-600">Correct answer</p>
-                    <p className="text-green-800">{q.correctText}</p>
+                  <div className="p-3 rounded-apple-lg bg-apple-green/8 border border-apple-green/20 text-[12px]">
+                    <p className="font-semibold text-apple-gray mb-0.5">Correct answer</p>
+                    <p className="text-apple-green">{q.correctText}</p>
                   </div>
                 )}
               </div>
 
               {/* Solution steps */}
               {q.solutionSteps?.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-2">
-                  <p className="text-xs font-medium text-gray-500 mb-1.5">Step-by-step solution</p>
-                  <ol className="flex flex-col gap-1">
+                <div className="bg-apple-gray6 rounded-apple-lg p-4 mb-3">
+                  <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wider mb-2">
+                    Step-by-step solution
+                  </p>
+                  <ol className="flex flex-col gap-1.5">
                     {q.solutionSteps.map((s, si) => (
-                      <li key={si} className="text-xs text-gray-700 flex gap-1.5">
-                        <span className="text-gray-400 shrink-0">{si + 1}.</span>{s}
+                      <li key={si} className="text-[13px] text-[var(--label2)] flex gap-2">
+                        <span className="text-apple-gray shrink-0 font-mono">{si + 1}.</span>
+                        {s}
                       </li>
                     ))}
                   </ol>
@@ -100,7 +118,7 @@ export default function ExamReview() {
 
               {/* Shortcut */}
               {q.shortcut && (
-                <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-900">
+                <div className="bg-apple-orange/6 border border-apple-orange/15 rounded-apple-lg px-4 py-2.5 text-[13px] text-apple-orange">
                   ⚡ {q.shortcut}
                 </div>
               )}
@@ -110,7 +128,7 @@ export default function ExamReview() {
       </div>
 
       {review.length > 5 && (
-        <button onClick={() => setShowAll((s) => !s)} className="btn-secondary w-full mb-6">
+        <button onClick={() => setShowAll((s) => !s)} className="btn-secondary w-full">
           {showAll ? "Show fewer" : `Show all ${review.length} questions`}
         </button>
       )}
@@ -127,11 +145,18 @@ export default function ExamReview() {
   );
 }
 
-function Stat({ label, value }) {
+function StatCard({ label, value, accent }) {
+  const accents = {
+    blue:   { ring: "ring-apple-blue/20",   text: "text-apple-blue"   },
+    green:  { ring: "ring-apple-green/20",  text: "text-apple-green"  },
+    purple: { ring: "ring-apple-purple/20", text: "text-apple-purple" },
+    orange: { ring: "ring-apple-orange/20", text: "text-apple-orange" },
+  };
+  const a = accents[accent] || accents.blue;
   return (
-    <div className="stat-card">
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="text-lg font-semibold text-gray-900">{value}</p>
+    <div className={`card p-4 ring-1 ${a.ring} shadow-none`}>
+      <p className="text-[11px] text-apple-gray mb-1">{label}</p>
+      <p className={`text-[20px] font-bold ${a.text}`}>{value}</p>
     </div>
   );
 }

@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { getMe, updateMe, getTopicsMeta } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
+const GOALS = [
+  { value: "pass",        label: "Pass the exam"           },
+  { value: "distinction", label: "Score 75%+ (Distinction)" },
+  { value: "top",         label: "Top 90%+"                 },
+  { value: "scholarship", label: "Scholarship rank"         },
+];
+
 export default function Settings() {
   const { user, setAuth } = useAuthStore();
   const token = useAuthStore((s) => s.token);
@@ -35,12 +42,9 @@ export default function Settings() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
-    setSaving(true);
+    setError(""); setSuccess(false); setSaving(true);
     try {
       const { data } = await updateMe(form);
-      // Update the auth store so the sidebar name updates instantly
       setAuth(token, { ...user, name: data.user.name });
       setSuccess(true);
     } catch (err) {
@@ -50,85 +54,112 @@ export default function Settings() {
     }
   };
 
-  if (loading) return <div className="text-gray-400 text-sm">Loading profile…</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
+        <p className="text-[13px] text-apple-gray">Loading settings…</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-semibold mb-1">Settings</h1>
-      <p className="text-sm text-gray-500 mb-6">Update your profile and exam details</p>
+    <div className="max-w-lg mx-auto space-y-5">
+      <div>
+        <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Settings</h1>
+        <p className="text-[14px] text-apple-gray mt-0.5">Update your profile and exam details</p>
+      </div>
 
       <div className="card p-6">
-        {error   && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl mb-4">Profile updated successfully.</div>}
+        {error && (
+          <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg mb-4">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-apple-green/8 border border-apple-green/20 text-apple-green text-[13px] px-4 py-3 rounded-apple-lg mb-4">
+            ✅ Profile updated successfully.
+          </div>
+        )}
 
-        <form onSubmit={handleSave} className="flex flex-col gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Full name</label>
+        <form onSubmit={handleSave} className="flex flex-col gap-5">
+          <Field label="Full Name">
             <input
               className="input"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
+              placeholder="Your full name"
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Exam date</label>
+          <Field label="Exam Date" hint="Used to build your study plan and countdown">
             <input
               className="input"
               type="date"
               value={form.examDate}
               onChange={(e) => setForm({ ...form, examDate: e.target.value })}
             />
-            <p className="text-xs text-gray-400 mt-1">Used to build your study plan and countdown</p>
+          </Field>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Grade">
+              <select
+                className="input"
+                value={form.grade}
+                onChange={(e) => setForm({ ...form, grade: e.target.value })}
+              >
+                {meta.grades.map((g) => (
+                  <option key={g} value={g}>Class {g}</option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Subject">
+              <select
+                className="input"
+                value={form.subject}
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+              >
+                {meta.subjects.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </Field>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Grade / Class</label>
-            <select
-              className="input"
-              value={form.grade}
-              onChange={(e) => setForm({ ...form, grade: e.target.value })}
-            >
-              {meta.grades.map((g) => (
-                <option key={g} value={g}>Class {g}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Subject</label>
-            <select
-              className="input"
-              value={form.subject}
-              onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            >
-              {meta.subjects.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">My target</label>
+          <Field label="Study Goal" hint="Used to calibrate difficulty and study priorities">
             <select
               className="input"
               value={form.goal}
               onChange={(e) => setForm({ ...form, goal: e.target.value })}
             >
-              <option value="pass">Pass the exam</option>
-              <option value="distinction">Score 75%+ (Distinction)</option>
-              <option value="top">Top 90%+</option>
-              <option value="scholarship">Scholarship rank</option>
+              {GOALS.map((g) => (
+                <option key={g.value} value={g.value}>{g.label}</option>
+              ))}
             </select>
-            <p className="text-xs text-gray-400 mt-1">Used to calibrate difficulty and study priorities</p>
-          </div>
+          </Field>
 
-          <button className="btn-primary mt-2" disabled={saving}>
-            {saving ? "Saving…" : "Save changes"}
+          <button className="btn-primary py-3 mt-1" disabled={saving}>
+            {saving ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Saving…
+              </span>
+            ) : "Save changes"}
           </button>
         </form>
       </div>
+    </div>
+  );
+}
+
+function Field({ label, hint, children }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">{label}</label>
+      {children}
+      {hint && <p className="text-[11px] text-apple-gray3">{hint}</p>}
     </div>
   );
 }

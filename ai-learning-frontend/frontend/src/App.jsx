@@ -18,7 +18,9 @@ import Settings    from "./pages/Settings";
 import VoiceTutor  from "./pages/VoiceTutor";
 import ExamReview  from "./pages/ExamReview";
 import Portal      from "./pages/Portal";
-import ChapterView from "./pages/ChapterView";
+import ChapterView    from "./pages/ChapterView";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword  from "./pages/ResetPassword";
 import AdminLayout     from "./pages/admin/AdminLayout";
 import AdminOverview   from "./pages/admin/AdminOverview";
 import AdminUsers      from "./pages/admin/AdminUsers";
@@ -35,10 +37,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/start"      element={<StartOnboarding />} />
-        <Route path="/login"      element={<Login />} />
-        <Route path="/register"   element={<Register />} />
-        <Route path="/onboarding" element={<Protected><Onboarding /></Protected>} />
+        <Route path="/start"           element={<StartOnboarding />} />
+        <Route path="/login"           element={<Login />} />
+        <Route path="/register"        element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/onboarding"      element={<Protected><Onboarding /></Protected>} />
 
         {/* Admin panel — AdminLayout handles role guard internally */}
         <Route path="/admin" element={<Protected><AdminLayout /></Protected>}>

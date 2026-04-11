@@ -233,6 +233,13 @@ createdAt, updatedAt
 Index: { userId, questionId }
 ```
 
+### 3.1 User (updated)
+```
+Added fields:
+  passwordResetToken:   String (SHA-256 hashed, null when not active)
+  passwordResetExpires: Date   (1h from request, null when not active)
+```
+
 ### 3.20 PushSubscription  ← NEW
 ```
 userId, subscription (Mixed — Web Push API object)
@@ -398,8 +405,10 @@ foundation: checks Topic.prerequisites against UserProfile.weakAreas
 
 ### Existing
 ```
-POST   /api/auth/register
-POST   /api/auth/login              → JWT now includes { id, name, role }
+POST   /api/auth/register             → 409 if email already exists
+POST   /api/auth/login               → 404 if email not found, 401 if wrong password
+POST   /api/auth/forgot-password     → sends reset link by email (1h expiry); console-logs in dev
+POST   /api/auth/reset-password/:token → verifies hashed token, updates password
 
 POST   /api/practice/start          → foundation check → AI teacher msg → first question
 POST   /api/practice/submit         → analysis → AI explanation → badge check → next question
@@ -500,6 +509,8 @@ Server → Client:
 ### Student Pages (inside Layout, protected)
 ```
 /              → Dashboard      — streak, AI teacher msg, revision due, quick links
+/forgot-password → ForgotPassword — email input → "check your email" success state ← NEW
+/reset-password/:token → ResetPassword — new password + confirm + strength bar ← NEW
 /lessons       → Lessons        — Textbook Chapters tab (CBSE curriculum) + AI Lessons tab
 /lessons/:t    → LessonView     — short/long lesson, mark complete
 /chapters/:n   → ChapterView    — full chapter: sections, formulas, theorems, tips, exercises ← NEW
@@ -547,6 +558,7 @@ middleware/errorHandler.js — centralised error handler (AppError,
                               Mongoose validation, duplicate key, JWT) ← NEW
 
 utils/AppError.js        — operational error class with statusCode
+utils/email.js           — nodemailer wrapper; logs to console when SMTP not set ← NEW
 utils/logger.js          — structured logger (pretty dev / JSON prod)
 utils/validateEnv.js     — crashes on startup if required env vars missing
 utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
@@ -788,6 +800,9 @@ To activate push (not yet wired):
 | Exam score prediction (weighted) | ✅ Complete |
 | CBSE grade prediction (A1–E) | ✅ Complete |
 | Test suite (Jest ESM, 22 tests) | ✅ Complete |
+| Forgot password (email reset link, 1h expiry, console fallback in dev) | ✅ Complete |
+| Password show/hide toggle on Login + Register | ✅ Complete |
+| Password strength indicator on Register + ResetPassword | ✅ Complete |
 | CBSE Class 10 Math textbook curriculum (14 chapters, Chapter model, seed, API) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |

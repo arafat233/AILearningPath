@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
   // Parent/teacher portal
   linkedStudents: [{ type: String }], // student userIds
   inviteCode:     { type: String, unique: true, sparse: true },
+  // Password reset
+  passwordResetToken:   { type: String, default: null },
+  passwordResetExpires: { type: Date,   default: null },
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);

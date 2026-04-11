@@ -1,8 +1,9 @@
 import { Lesson, LessonProgress } from "../models/lessonModel.js";
 import { generateLesson } from "../services/aiService.js";
 import { Topic } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
 
-export const getLesson = async (req, res) => {
+export const getLesson = async (req, res, next) => {
   try {
     const { topic } = req.params;
     const userId = req.user.id;
@@ -10,15 +11,12 @@ export const getLesson = async (req, res) => {
     let lesson = await Lesson.findOne({ topic });
 
     if (!lesson) {
-      // DB-first: generate once with AI, save permanently
       const topicDoc = await Topic.findOne({ name: topic }).lean();
       const subject  = topicDoc?.subject || "Math";
       const grade    = topicDoc?.grade   || "10";
 
       const generated = await generateLesson(topic, subject, grade);
-      if (!generated) {
-        return res.status(404).json({ error: "Lesson not available for this topic yet." });
-      }
+      if (!generated) return next(new AppError("Lesson not available for this topic yet.", 404));
 
       lesson = await Lesson.create({
         topic,
@@ -35,20 +33,20 @@ export const getLesson = async (req, res) => {
     const progress = await LessonProgress.findOne({ userId, topic });
     res.json({ lesson, progress: progress || null });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const listLessons = async (req, res) => {
+export const listLessons = async (req, res, next) => {
   try {
     const lessons = await Lesson.find({}, "topic title tagline subject grade shortLesson.estimatedMinutes");
     res.json(lessons);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const saveProgress = async (req, res) => {
+export const saveProgress = async (req, res, next) => {
   try {
     const { topic, mode, slideIndex, completed } = req.body;
     const userId = req.user.id;
@@ -64,6 +62,6 @@ export const saveProgress = async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };

@@ -5,7 +5,7 @@ const r = express.Router();
 
 // Public — no auth required so onboarding (pre-login) can call it too.
 // Supports ?grade=10&subject=Math query filters.
-r.get("/", async (req, res) => {
+r.get("/", async (req, res, next) => {
   try {
     const filter = {};
     if (req.query.grade)   filter.grade   = req.query.grade;
@@ -14,13 +14,12 @@ r.get("/", async (req, res) => {
     const topics = await Topic.find(filter).sort({ examFrequency: -1 });
     res.json(topics);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // Public — returns unique subjects and grades present in the DB.
-// Used by Settings/Profile to build dropdowns from real data.
-r.get("/meta", async (req, res) => {
+r.get("/meta", async (req, res, next) => {
   try {
     const [subjects, grades] = await Promise.all([
       Topic.distinct("subject"),
@@ -31,7 +30,7 @@ r.get("/meta", async (req, res) => {
       grades:   grades.filter(Boolean).sort(),
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

@@ -1,13 +1,13 @@
-// ===================== AUTH =====================
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password, examDate, grade } = req.body;
     const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ error: "Email already registered" });
+    if (existing) return next(new AppError("Email already registered", 409));
 
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashed, examDate, grade });
@@ -17,28 +17,28 @@ export const register = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role || "student" } });
+    res.json({ data: { token, user: { id: user._id, name: user.name, email: user.email, role: user.role || "student" } } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "Invalid credentials" });
+    if (!user) return next(new AppError("Invalid credentials", 401));
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ error: "Invalid credentials" });
+    if (!match) return next(new AppError("Invalid credentials", 401));
 
     const token = jwt.sign(
       { id: user._id, name: user.name, role: user.role || "student" },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role || "student" } });
+    res.json({ data: { token, user: { id: user._id, name: user.name, email: user.email, role: user.role || "student" } } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };

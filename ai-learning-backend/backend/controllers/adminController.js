@@ -1,8 +1,9 @@
 import { User, Question, Topic, AIResponseCache, Attempt, Badge } from "../models/index.js";
 import { getCacheStats } from "../services/aiRouter.js";
+import { AppError } from "../utils/AppError.js";
 
 // ── Users ──────────────────────────────────────────────────────────
-export const listUsers = async (req, res) => {
+export const listUsers = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, search = "" } = req.query;
     const filter = search
@@ -18,22 +19,20 @@ export const listUsers = async (req, res) => {
       User.countDocuments(filter),
     ]);
     res.json({ users, total, page: Number(page), pages: Math.ceil(total / limit) });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const updateUserRole = async (req, res) => {
+export const updateUserRole = async (req, res, next) => {
   try {
     const { role } = req.body;
-    if (!["student", "admin", "parent", "teacher"].includes(role))
-      return res.status(400).json({ error: "Invalid role" });
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select("-password");
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return next(new AppError("User not found", 404));
     res.json(user);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
 // ── Questions ──────────────────────────────────────────────────────
-export const listQuestions = async (req, res) => {
+export const listQuestions = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, topic, subject, flagged } = req.query;
     const filter = {};
@@ -45,78 +44,78 @@ export const listQuestions = async (req, res) => {
       Question.countDocuments(filter),
     ]);
     res.json({ questions, total, page: Number(page), pages: Math.ceil(total / limit) });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const createQuestion = async (req, res) => {
+export const createQuestion = async (req, res, next) => {
   try {
     const q = await Question.create(req.body);
     res.status(201).json(q);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const updateQuestion = async (req, res) => {
+export const updateQuestion = async (req, res, next) => {
   try {
     const q = await Question.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!q) return res.status(404).json({ error: "Question not found" });
+    if (!q) return next(new AppError("Question not found", 404));
     res.json(q);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const deleteQuestion = async (req, res) => {
+export const deleteQuestion = async (req, res, next) => {
   try {
     await Question.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const unflagQuestion = async (req, res) => {
+export const unflagQuestion = async (req, res, next) => {
   try {
     const q = await Question.findByIdAndUpdate(req.params.id, { isFlagged: false }, { new: true });
-    if (!q) return res.status(404).json({ error: "Question not found" });
+    if (!q) return next(new AppError("Question not found", 404));
     res.json(q);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const getFlaggedQuestions = async (req, res) => {
+export const getFlaggedQuestions = async (req, res, next) => {
   try {
     const questions = await Question.find({ isFlagged: true }).sort({ createdAt: -1 }).lean();
     res.json(questions);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
 // ── Topics ─────────────────────────────────────────────────────────
-export const listTopics = async (req, res) => {
+export const listTopics = async (req, res, next) => {
   try {
     const topics = await Topic.find().sort({ subject: 1, name: 1 }).lean();
     res.json(topics);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const createTopic = async (req, res) => {
+export const createTopic = async (req, res, next) => {
   try {
     const t = await Topic.create(req.body);
     res.status(201).json(t);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const updateTopic = async (req, res) => {
+export const updateTopic = async (req, res, next) => {
   try {
     const t = await Topic.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!t) return res.status(404).json({ error: "Topic not found" });
+    if (!t) return next(new AppError("Topic not found", 404));
     res.json(t);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
-export const deleteTopic = async (req, res) => {
+export const deleteTopic = async (req, res, next) => {
   try {
     await Topic.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
 // ── Stats ──────────────────────────────────────────────────────────
-export const getAdminStats = async (req, res) => {
+export const getAdminStats = async (req, res, next) => {
   try {
     const [totalUsers, totalQuestions, totalAttempts, aiStats, planBreakdown] = await Promise.all([
       User.countDocuments(),
@@ -126,7 +125,6 @@ export const getAdminStats = async (req, res) => {
       User.aggregate([{ $group: { _id: "$plan", count: { $sum: 1 } } }]),
     ]);
 
-    // Active today = users who have aiCallsDate === today
     const today = new Date().toISOString().split("T")[0];
     const activeToday = await User.countDocuments({ aiCallsDate: today, aiCallsToday: { $gt: 0 } });
 
@@ -138,5 +136,5 @@ export const getAdminStats = async (req, res) => {
       planBreakdown: planBreakdown.reduce((acc, p) => { acc[p._id || "free"] = p.count; return acc; }, {}),
       aiCache: aiStats,
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };

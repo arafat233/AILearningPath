@@ -8,14 +8,14 @@ const r = express.Router();
 
 r.get("/report", auth, getReport);
 
-r.get("/predict", auth, async (req, res) => {
+r.get("/predict", auth, async (req, res, next) => {
   try {
     const prediction = await predictExamScore(req.user.id);
     res.json(prediction);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 });
 
-r.get("/errors", auth, async (req, res) => {
+r.get("/errors", auth, async (req, res, next) => {
   try {
     const errors = await ErrorMemory.find({ userId: req.user.id })
       .sort({ count: -1 })
@@ -23,11 +23,11 @@ r.get("/errors", auth, async (req, res) => {
       .lean();
     res.json(errors);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-r.get("/weekly-leaderboard", auth, async (req, res) => {
+r.get("/weekly-leaderboard", auth, async (req, res, next) => {
   try {
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -42,7 +42,7 @@ r.get("/weekly-leaderboard", auth, async (req, res) => {
     const userEntry = board.find((b) => b.userId === req.user.id);
     res.json({ board, userEntry, week: weekStr });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

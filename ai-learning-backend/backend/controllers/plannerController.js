@@ -1,7 +1,7 @@
 import { generateStudyPlan } from "../services/plannerService.js";
 import { StudyPlan, User } from "../models/index.js";
 
-export const getPlan = async (req, res) => {
+export const getPlan = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -10,11 +10,11 @@ export const getPlan = async (req, res) => {
     const plan = await generateStudyPlan(userId, examDate, user?.goal || "distinction");
     res.json(plan);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const markDayComplete = async (req, res) => {
+export const markDayComplete = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { day } = req.body;
@@ -25,6 +25,6 @@ export const markDayComplete = async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };

@@ -10,14 +10,14 @@ import { resolveDoubt } from "../services/autoDoubtService.js";
 import { generateTeacherMessage } from "../services/aiTeacherService.js";
 import { checkAndAwardBadges } from "../services/badgeService.js";
 import { UserProfile, Streak } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
 
 // In-memory session store (use Redis in production)
 const sessions = {};
 
-export const startTopic = async (req, res) => {
+export const startTopic = async (req, res, next) => {
   try {
     const { topicId } = req.body;
-    if (!topicId) return res.status(400).json({ error: "topicId is required" });
     const userId = req.user.id;
 
     // Foundation check
@@ -34,11 +34,10 @@ export const startTopic = async (req, res) => {
 
     sessions[userId] = { topic: topicId, sessionCorrect: 0, sessionTotal: 0 };
     const question = await getNextQuestion(userId, topicId);
-    if (!question) return res.status(404).json({ error: "No questions found for this topic yet." });
+    if (!question) return next(new AppError("No questions found for this topic yet.", 404));
 
     sessions[userId].currentQuestion = question;
 
-    // Get AI teacher guidance for this session start
     const profile = await UserProfile.findOne({ userId });
     const teacherMsg = profile
       ? generateTeacherMessage(profile, { questionsAnswered: 0, sessionCorrect: 0 })
@@ -46,30 +45,27 @@ export const startTopic = async (req, res) => {
 
     res.json({ ...question.toObject?.() ?? question, teacherMessage: teacherMsg });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const submitAnswer = async (req, res) => {
+export const submitAnswer = async (req, res, next) => {
   try {
     const { selectedType, timeTaken, confidence } = req.body;
-    if (!selectedType) return res.status(400).json({ error: "selectedType is required" });
 
     const userId = req.user.id;
     const session = sessions[userId];
     if (!session?.currentQuestion) {
-      return res.status(400).json({ error: "No active question. Call /practice/start first." });
+      return next(new AppError("No active question. Call /practice/start first.", 400));
     }
 
     const question = session.currentQuestion;
     const safeTime = Math.max(1, Math.min(Number(timeTaken) || 15, 600));
     const result = analyzeAnswer(question, selectedType, safeTime, confidence);
 
-    // Update session stats
     session.sessionTotal = (session.sessionTotal || 0) + 1;
     if (result.isCorrect) session.sessionCorrect = (session.sessionCorrect || 0) + 1;
 
-    // Persist attempt
     await Attempt.create({
       userId,
       questionId: question._id?.toString() || "ai-generated",
@@ -81,12 +77,10 @@ export const submitAnswer = async (req, res) => {
       difficulty: question.difficultyScore || 0.5,
     });
 
-    // Non-blocking background updates
     if (question._id) updateQuestionStats(question._id, result.isCorrect, safeTime, selectedType).catch(() => {});
     updateUserProfile(userId).catch(() => {});
     await updateStreak(userId).catch(() => {});
 
-    // Log to ErrorMemory on wrong answers
     if (!result.isCorrect) {
       ErrorMemory.findOneAndUpdate(
         { userId, topic: session.topic, mistakeType: selectedType },
@@ -99,14 +93,12 @@ export const submitAnswer = async (req, res) => {
       ).catch(() => {});
     }
 
-    // ── SMART AI ROUTER (cost-optimized) ──────────────────────────
     let aiExplanation = null;
     let doubtResolution = null;
 
     if (!result.isCorrect) {
       const correct = question.options?.find((o) => o.type === "correct");
 
-      // Auto doubt detection runs first (classifies the mistake)
       doubtResolution = await resolveDoubt(
         userId,
         question.questionText,
@@ -118,7 +110,6 @@ export const submitAnswer = async (req, res) => {
         session.topic
       ).catch(() => null);
 
-      // Smart AI explanation — checks DB cache before calling Claude
       const userDoc2 = await User.findById(userId).select("subject").catch(() => null);
       aiExplanation = doubtResolution?.aiHelp ||
         await smartAIExplanation(
@@ -128,11 +119,9 @@ export const submitAnswer = async (req, res) => {
         ).catch(() => null);
     }
 
-    // Capture difficulty level before background update settles
     const profileBefore = await UserProfile.findOne({ userId }).catch(() => null);
     const prevLevel = profileBefore?.difficultyLevels?.get?.(session.topic) || 1;
 
-    // AI teacher message based on session progress
     const profile = profileBefore;
     const userDoc = await User.findById(userId).select("goal").catch(() => null);
     const teacherMessage = profile
@@ -143,10 +132,8 @@ export const submitAnswer = async (req, res) => {
         )
       : null;
 
-    // AI usage remaining (awaited properly)
     const aiUsage = await getUsageCount(userId).catch(() => null);
 
-    // Badge check (non-blocking, fires after all updates settle)
     const streakDoc = await Streak.findOne({ userId }).lean().catch(() => null);
     const newBadges = await checkAndAwardBadges(userId, {
       streak:       streakDoc?.currentStreak || 0,
@@ -156,7 +143,6 @@ export const submitAnswer = async (req, res) => {
       topicAttempts: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.attempts,
     }).catch(() => []);
 
-    // Preload next question
     const nextQuestion = await getNextQuestion(userId, session.topic).catch(() => null);
     sessions[userId].currentQuestion = nextQuestion;
 
@@ -166,34 +152,25 @@ export const submitAnswer = async (req, res) => {
       speedProfile: result.speedProfile,
       confidenceInsight: result.confidenceInsight,
       message: result.message,
-      // Auto doubt detection
       doubtType: doubtResolution?.doubtType || null,
       doubtInsight: doubtResolution?.insight || null,
       suggestedAction: doubtResolution?.suggestedAction || null,
-      // AI explanation (cost-optimized)
       aiExplanation,
-      // Question details
       shortcut: question.shortcut || null,
       solutionSteps: question.solutionSteps || [],
-      // Teacher guidance
       teacherMessage,
-      // AI usage info
       aiUsage,
       aiFromCache: !!(aiExplanation && question.solutionSteps?.length === 0),
-      // Badges awarded this submit
       newBadges,
-      // Next question
       nextQuestion,
-      // Difficulty level for this topic
       difficultyLevel: prevLevel,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-// ── Teacher message endpoint (for dashboard) ─────────────────────
-export const getTeacherMessage = async (req, res) => {
+export const getTeacherMessage = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const profile = await UserProfile.findOne({ userId });
@@ -202,6 +179,6 @@ export const getTeacherMessage = async (req, res) => {
     const msg = generateTeacherMessage(profile);
     res.json(msg);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };

@@ -2,7 +2,7 @@ import { Attempt, UserProfile } from "../models/index.js";
 import { smartStudyAdvice } from "../services/aiRouter.js";
 import { getStreak } from "../services/streakService.js";
 
-export const getReport = async (req, res) => {
+export const getReport = async (req, res, next) => {
   try {
     const userId  = req.user.id;
     const profile = await UserProfile.findOne({ userId });
@@ -15,10 +15,7 @@ export const getReport = async (req, res) => {
     }));
     const weakness = buildWeaknessMap(profile);
 
-    // Cost-optimised AI advice (uses cache)
     const aiAdvice = profile ? await smartStudyAdvice(userId, profile).catch(() => null) : null;
-
-    // Persistent streak from DB
     const { streak, longestStreak } = await getStreak(userId);
 
     res.json({
@@ -36,7 +33,7 @@ export const getReport = async (req, res) => {
       streak,
       longestStreak,
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { next(err); }
 };
 
 function buildAccuracyHistory(attempts) {

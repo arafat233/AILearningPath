@@ -1,31 +1,37 @@
 import express from "express";
+import Joi from "joi";
 import { getRevisionTopics, markRevised } from "../services/revisionService.js";
 import { Attempt, UserProfile } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
+import { validate } from "../middleware/validate.js";
+import { AppError } from "../utils/AppError.js";
 
 const r = express.Router();
 
-r.get("/due", auth, async (req, res) => {
+const markSchema = Joi.object({
+  topic: Joi.string().required(),
+});
+
+r.get("/due", auth, async (req, res, next) => {
   try {
     const topics = await getRevisionTopics(req.user.id);
     res.json(topics);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-r.post("/mark", auth, async (req, res) => {
+r.post("/mark", auth, validate(markSchema), async (req, res, next) => {
   try {
     const { topic } = req.body;
-    if (!topic) return res.status(400).json({ error: "topic is required" });
     const result = await markRevised(req.user.id, topic);
     res.json({ success: true, ...result });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-r.get("/last-day", auth, async (req, res) => {
+r.get("/last-day", auth, async (req, res, next) => {
   try {
     const userId = req.user.id;
     const profile = await UserProfile.findOne({ userId });
@@ -44,7 +50,7 @@ r.get("/last-day", auth, async (req, res) => {
 
     res.json({ topMistakes, weakTopics, recentWrong, mode: "last_day" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

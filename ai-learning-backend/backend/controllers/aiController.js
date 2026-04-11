@@ -3,11 +3,11 @@ import { getChatResponse } from "../services/aiService.js";
 import { smartStudyAdvice, getUsageCount, getCacheStats } from "../services/aiRouter.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { UserProfile, AIResponseCache } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
 
-const CHAT_CACHE_TTL = 24 * 60 * 60 * 1000; // 24h in RAM
+const CHAT_CACHE_TTL = 24 * 60 * 60 * 1000;
 
-// ── Personalised study advice (cached) ────────────────────────────
-export const studyAdvice = async (req, res) => {
+export const studyAdvice = async (req, res, next) => {
   try {
     const userId  = req.user.id;
     const profile = await UserProfile.findOne({ userId });
@@ -18,28 +18,22 @@ export const studyAdvice = async (req, res) => {
     const usage  = await getUsageCount(userId);
     res.json({ advice, usage });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-// ── AI usage info for current user ────────────────────────────────
-export const usageInfo = async (req, res) => {
+export const usageInfo = async (req, res, next) => {
   try {
     const usage = await getUsageCount(req.user.id);
     res.json(usage);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-// ── Multi-turn tutor chat ─────────────────────────────────────────
-// Single-turn questions (no prior history) are cached by topic+message hash.
-// Multi-turn conversations are unique — passed straight to Claude, no cache.
-export const tutorChat = async (req, res) => {
+export const tutorChat = async (req, res, next) => {
   try {
     const { message, history = [], topic } = req.body;
-    if (!message?.trim()) return res.status(400).json({ error: "message is required" });
-
     const cleanHistory = history.map((m) => ({ role: m.role, content: m.content }));
     const isFirstTurn  = cleanHistory.length === 0;
 
@@ -48,13 +42,9 @@ export const tutorChat = async (req, res) => {
         .update(`${topic || "general"}::${message.toLowerCase().trim()}`)
         .digest("hex")}`;
 
-      // RAM cache (fastest)
       const memHit = getCached(cacheKey);
-      if (memHit) {
-        return res.json({ reply: memHit, fromCache: true });
-      }
+      if (memHit) return res.json({ reply: memHit, fromCache: true });
 
-      // DB cache (persists across restarts, shared across all users)
       const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
       if (dbHit?.response) {
         setCache(cacheKey, dbHit.response, CHAT_CACHE_TTL);
@@ -65,7 +55,6 @@ export const tutorChat = async (req, res) => {
         return res.json({ reply: dbHit.response, fromCache: true });
       }
 
-      // Not cached — call Claude and store permanently
       const reply = await getChatResponse([], message, topic);
       if (reply) {
         const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
@@ -79,20 +68,18 @@ export const tutorChat = async (req, res) => {
       return res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
     }
 
-    // Multi-turn — unique context, no caching possible
     const reply = await getChatResponse(cleanHistory, message, topic);
     res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-// ── Cache stats (shows how much Claude spending is being saved) ───
-export const cacheStats = async (req, res) => {
+export const cacheStats = async (req, res, next) => {
   try {
     const stats = await getCacheStats();
     res.json(stats);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };

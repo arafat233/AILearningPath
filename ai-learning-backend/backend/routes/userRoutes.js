@@ -1,29 +1,40 @@
 import express from "express";
+import Joi from "joi";
 import { Topic, User, UserProfile } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
+import { validate } from "../middleware/validate.js";
 
 const r = express.Router();
 
-r.get("/topics", async (req, res) => {
+const updateMeSchema = Joi.object({
+  name:       Joi.string().trim().min(2).max(80).optional(),
+  examDate:   Joi.date().iso().optional(),
+  grade:      Joi.string().optional(),
+  subject:    Joi.string().optional(),
+  goal:       Joi.string().optional(),
+  weakTopics: Joi.array().items(Joi.string()).optional(),
+});
+
+r.get("/topics", async (req, res, next) => {
   try {
     const topics = await Topic.find().sort({ examFrequency: -1 });
     res.json(topics);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-r.get("/me", auth, async (req, res) => {
+r.get("/me", auth, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     const profile = await UserProfile.findOne({ userId: req.user.id });
     res.json({ user, profile });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-r.put("/me", auth, async (req, res) => {
+r.put("/me", auth, validate(updateMeSchema), async (req, res, next) => {
   try {
     const { name, examDate, grade, subject, goal, weakTopics } = req.body;
     const updates = {};
@@ -34,7 +45,6 @@ r.put("/me", auth, async (req, res) => {
     if (goal)     updates.goal     = goal;
     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
 
-    // Persist weak topics into UserProfile so the planner and AI can use them
     if (Array.isArray(weakTopics)) {
       await UserProfile.findOneAndUpdate(
         { userId: req.user.id },
@@ -45,7 +55,7 @@ r.put("/me", auth, async (req, res) => {
 
     res.json({ user });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

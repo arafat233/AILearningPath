@@ -38,6 +38,9 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 │                  BACKEND (Express + Node)                    │
 │  Port 5001  │  JWT auth middleware  │  Rate limiter (300/15m)│
 │             │  adminAuth middleware (role === "admin")       │
+│             │  validate middleware (Joi, 422 on fail)        │
+│             │  errorHandler (AppError + Mongoose + JWT)      │
+│             │  helmet (security headers) + morgan (logging)  │
 │                                                              │
 │  Routes: /api/auth  /api/practice  /api/analysis            │
 │          /api/exam  /api/planner   /api/ai                  │
@@ -519,10 +522,23 @@ DoubtChat.jsx   — expandable multi-turn chat below wrong answer in Practice �
 JWT payload: { id, name, role }   ← role added
 JWT expiry: 7 days
 
-middleware/auth.js      — verifies token, attaches req.user
-middleware/adminAuth.js — requires role === "admin" in JWT  ← NEW
+middleware/auth.js       — verifies token, attaches req.user
+middleware/adminAuth.js  — requires role === "admin" in JWT
+middleware/validate.js   — Joi schema validation; 422 on invalid input ← NEW
+middleware/errorHandler.js — centralised error handler (AppError,
+                              Mongoose validation, duplicate key, JWT) ← NEW
+
+utils/AppError.js        — operational error class with statusCode ← NEW
+
+Security hardening:
+  helmet      — HTTP security headers (CSP, HSTS, etc.)
+  morgan      — HTTP request logging (dev format)
+  CORS origin — read from process.env.FRONTEND_URL (never hardcoded)
 
 Rate limit: 300 req / 15 min (global)
+
+All controllers use: next(new AppError("msg", statusCode)) for 4xx
+                     next(err) in catch blocks for 5xx (errorHandler logs)
 
 To make first admin:
   db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })

@@ -9,6 +9,7 @@
     "seed:lessons": "node config/seedLessons.js",
     "seed:subjects": "node config/seedSubjects.js",
     "seed:curriculum": "node config/seedMathCurriculum.js",
+    "seed:science-curriculum": "node config/seedScienceCurriculum.js",
     "generate:questions": "node utils/questionGenerator.js",
     "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__"
   },

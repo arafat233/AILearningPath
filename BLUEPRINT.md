@@ -250,7 +250,7 @@ Index: { userId }
 ### 3.21 Chapter  ← NEW (CBSE Textbook Curriculum)
 ```
 chapterNumber, title, subject, grade, board
-unit (e.g. "Algebra", "Geometry")
+unit (e.g. "Algebra", "Geometry", "Chemistry", "Physics", "Biology")
 examMarks, estimatedWeeks, overview
 sections: [{ sectionNumber, title, microConcepts: [{ title, explanation }] }]
 theorems:    [{ name, statement }]
@@ -258,6 +258,10 @@ keyFormulas: [String]
 examTips:    [String]
 exercises:   [{ exerciseNumber, questionCount, types [String] }]
 Unique index: { subject, grade, board, chapterNumber }
+
+Seeded subjects:
+  Mathematics : 14 chapters (unit = Algebra/Geometry/Trigonometry/etc.)
+  Science     : 13 chapters (unit = Chemistry [1-4] / Biology [5-8,13] / Physics [9-12])
 ```
 
 ---
@@ -677,18 +681,25 @@ DoubtChat messages count against the same daily quota
 ## 11. SEED DATA
 
 ```
-config/seed.js              — Math topics + questions
-config/seedLessons.js       — initial lesson content
-config/seedSubjects.js      — Science, English, Social Science, Hindi topics ← NEW (50+ topics)
-config/seedMathCurriculum.js ← NEW: CBSE Class 10 Math — 14 chapters, all sections, formulas, theorems, tips
+config/seed.js                  — Math topics + questions
+config/seedLessons.js           — initial lesson content
+config/seedSubjects.js          — Science, English, Social Science, Hindi topics (50+ topics)
+config/seedMathCurriculum.js    — CBSE Class 10 Math — 14 chapters, all sections, formulas, theorems, tips
+config/seedScienceCurriculum.js ← NEW: CBSE Class 10 Science — 13 chapters
+                                   Chemistry (Ch 1-4), Biology (Ch 5-8, 13), Physics (Ch 9-12)
+                                   Source: C:\Users\LENOVO\Downloads\CBSE_10_Science
+                                     ├── Chemistry\ (jesc101–104)
+                                     ├── Biology\   (jesc105–108, jesc113)
+                                     └── Physics\   (jesc109–112)
 ```
 
 Run order:
 ```bash
 npm run seed
 npm run seed:lessons
-npm run seed:subjects       ← Science/English/SocSci/Hindi topics
-npm run seed:curriculum     ← NEW: CBSE Class 10 Math textbook chapters
+npm run seed:subjects               ← Science/English/SocSci/Hindi topics
+npm run seed:curriculum             ← CBSE Class 10 Math textbook chapters
+npm run seed:science-curriculum     ← NEW: CBSE Class 10 Science textbook chapters
 ```
 
 ---
@@ -804,6 +815,7 @@ To activate push (not yet wired):
 | Password show/hide toggle on Login + Register | ✅ Complete |
 | Password strength indicator on Register + ResetPassword | ✅ Complete |
 | CBSE Class 10 Math textbook curriculum (14 chapters, Chapter model, seed, API) | ✅ Complete |
+| CBSE Class 10 Science curriculum (13 chapters — Chemistry/Biology/Physics, seed, API) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
 

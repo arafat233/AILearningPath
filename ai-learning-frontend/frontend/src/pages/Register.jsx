@@ -1,25 +1,32 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { register } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", grade: "10", examDate: "" });
-  const [error, setError]     = useState("");
-  const [loading, setLoading] = useState(false);
+  const [searchParams]  = useSearchParams();
+  const prefillEmail    = searchParams.get("email") || "";
+  const [form, setForm] = useState({ name: "", email: prefillEmail, password: "", grade: "10", examDate: "" });
+  const [error, setError]         = useState("");
+  const [emailExists, setEmailExists] = useState(false);
+  const [loading, setLoading]     = useState(false);
   const setAuth  = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setEmailExists(false);
     setLoading(true);
     try {
       const { data } = await register(form);
       setAuth(data.token, data.user);
       navigate("/onboarding");
     } catch (err) {
-      setError(err.response?.data?.error || "Registration failed");
+      const status  = err.response?.status;
+      const message = err.response?.data?.error || "Registration failed";
+      setEmailExists(status === 409);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -44,6 +51,16 @@ export default function Register() {
           {error && (
             <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple mb-5">
               {error}
+              {emailExists && (
+                <div className="mt-2">
+                  <Link
+                    to={`/login`}
+                    className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+                  >
+                    Sign in instead →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 

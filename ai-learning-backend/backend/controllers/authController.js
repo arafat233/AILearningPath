@@ -27,10 +27,10 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return next(new AppError("Invalid credentials", 401));
+    if (!user) return next(new AppError("No account found with this email. Please create an account first.", 404));
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return next(new AppError("Invalid credentials", 401));
+    if (!match) return next(new AppError("Incorrect password. Please try again.", 401));
 
     const token = jwt.sign(
       { id: user._id, name: user.name, role: user.role || "student" },

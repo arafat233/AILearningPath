@@ -4,22 +4,27 @@ import { login } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [form, setForm]         = useState({ email: "", password: "" });
+  const [error, setError]       = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [loading, setLoading]   = useState(false);
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsNewUser(false);
     setLoading(true);
     try {
       const { data } = await login(form);
       setAuth(data.token, data.user);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed");
+      const status  = err.response?.status;
+      const message = err.response?.data?.error || "Login failed";
+      setIsNewUser(status === 404);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -42,6 +47,16 @@ export default function Login() {
           {error && (
             <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple mb-5">
               {error}
+              {isNewUser && (
+                <div className="mt-2">
+                  <Link
+                    to={`/register?email=${encodeURIComponent(form.email)}`}
+                    className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+                  >
+                    Create an account →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 

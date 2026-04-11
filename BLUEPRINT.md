@@ -830,15 +830,19 @@ AILearningPath/
 │   │   └── lessonModel.js     ← Lesson + LessonProgress
 │   │
 │   ├── controllers/
-│   │   ├── adminController.js    ← NEW: users/questions/topics CRUD + stats
+│   │   ├── admin/                ← split by domain (never grows into a monolith)
+│   │   │   ├── adminStatsController.js
+│   │   │   ├── adminUserController.js
+│   │   │   ├── adminQuestionController.js
+│   │   │   └── adminTopicController.js
 │   │   ├── aiController.js
 │   │   ├── analysisController.js
-│   │   ├── authController.js     ← UPDATED: role in JWT
+│   │   ├── authController.js
 │   │   ├── examController.js
 │   │   ├── lessonController.js
 │   │   ├── plannerController.js
-│   │   ├── portalController.js   ← NEW: invite, link, student analytics
-│   │   └── practiceController.js ← UPDATED: badge check + subject in AI call
+│   │   ├── portalController.js
+│   │   └── practiceController.js
 │   │
 │   ├── services/
 │   │   ├── aiService.js          ← UPDATED: getSystemPrompt(subject), 5 prompts

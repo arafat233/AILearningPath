@@ -10,6 +10,9 @@
     "seed:subjects": "node config/seedSubjects.js",
     "seed:curriculum": "node config/seedMathCurriculum.js",
     "seed:science-curriculum": "node config/seedScienceCurriculum.js",
+    "seed:english-curriculum": "node config/seedEnglishCurriculum.js",
+    "seed:hindi-curriculum": "node config/seedHindiCurriculum.js",
+    "seed:social-science-curriculum": "node config/seedSocialScienceCurriculum.js",
     "generate:questions": "node utils/questionGenerator.js",
     "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__"
   },

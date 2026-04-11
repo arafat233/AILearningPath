@@ -36,7 +36,7 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await register(form);
-      setAuth(data.token, data.user);
+      setAuth(data.data.token, data.data.user);
       navigate("/onboarding");
     } catch (err) {
       const status  = err.response?.status;

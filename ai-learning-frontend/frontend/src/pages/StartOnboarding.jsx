@@ -91,7 +91,7 @@ export default function StartOnboarding() {
     setSaving(true);
     try {
       const { data } = await register({ ...form, grade, examDate });
-      setAuth(data.token, data.user);
+      setAuth(data.data.token, data.data.user);
       // Save onboarding data to profile
       await updateMe({ grade, examDate, goal, weakTopics }).catch(() => {});
       navigate("/", { replace: true });

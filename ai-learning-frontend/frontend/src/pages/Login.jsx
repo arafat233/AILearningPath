@@ -19,7 +19,7 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await login(form);
-      setAuth(data.token, data.user);
+      setAuth(data.data.token, data.data.user);
       navigate("/");
     } catch (err) {
       const status  = err.response?.status;

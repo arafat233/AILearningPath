@@ -33,13 +33,18 @@ const Protected = ({ children }) => {
   return token ? children : <Navigate to="/start" replace />;
 };
 
+const PublicOnly = ({ children }) => {
+  const token = useAuthStore((s) => s.token);
+  return token ? <Navigate to="/" replace /> : children;
+};
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/start"           element={<StartOnboarding />} />
-        <Route path="/login"           element={<Login />} />
-        <Route path="/register"        element={<Register />} />
+        <Route path="/start"           element={<PublicOnly><StartOnboarding /></PublicOnly>} />
+        <Route path="/login"           element={<PublicOnly><Login /></PublicOnly>} />
+        <Route path="/register"        element={<PublicOnly><Register /></PublicOnly>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/onboarding"      element={<Protected><Onboarding /></Protected>} />

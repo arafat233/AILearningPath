@@ -57,9 +57,10 @@ body {
   /* Inputs */
   .input {
     @apply w-full bg-apple-gray6 border border-apple-gray4 rounded-apple px-4 py-3 text-sm
-           text-apple-gray2 placeholder:text-apple-gray3
+           placeholder:text-apple-gray3
            focus:outline-none focus:ring-2 focus:ring-apple-blue/30 focus:border-apple-blue
            transition-all duration-150;
+    color: var(--label);
   }
 
   /* Nav */

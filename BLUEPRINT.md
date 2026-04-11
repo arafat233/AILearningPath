@@ -685,21 +685,50 @@ config/seed.js                  — Math topics + questions
 config/seedLessons.js           — initial lesson content
 config/seedSubjects.js          — Science, English, Social Science, Hindi topics (50+ topics)
 config/seedMathCurriculum.js    — CBSE Class 10 Math — 14 chapters, all sections, formulas, theorems, tips
-config/seedScienceCurriculum.js ← NEW: CBSE Class 10 Science — 13 chapters
-                                   Chemistry (Ch 1-4), Biology (Ch 5-8, 13), Physics (Ch 9-12)
-                                   Source: C:\Users\LENOVO\Downloads\CBSE_10_Science
-                                     ├── Chemistry\ (jesc101–104)
-                                     ├── Biology\   (jesc105–108, jesc113)
-                                     └── Physics\   (jesc109–112)
+config/seedScienceCurriculum.js  — CBSE Class 10 Science — 13 chapters
+                                    Chemistry (Ch 1-4), Biology (Ch 5-8, 13), Physics (Ch 9-12)
+                                    Source: C:\Users\LENOVO\Downloads\CBSE_10_Science
+                                      ├── Chemistry\ (jesc101–104)
+                                      ├── Biology\   (jesc105–108, jesc113)
+                                      └── Physics\   (jesc109–112)
+config/seedEnglishCurriculum.js  ← NEW: CBSE Class 10 English — 23 chapters
+                                    First Flight (Ch 1-9), Footprints Without Feet (Ch 10-18),
+                                    Words and Expressions 2 (Ch 19-23)
+                                    Source: C:\Users\LENOVO\Downloads\CBSE_10_English
+                                      ├── First_Flight\           (jeff101–109)
+                                      ├── Footprints_Without_Feet\ (jefp101–109)
+                                      └── Words_and_Expressions_2\ (jewe201–209)
+config/seedHindiCurriculum.js    ← NEW: CBSE Class 10 Hindi — 32 chapters
+                                    Kshitij Bhaag 2 (Ch 1-12), Sparsh Bhaag 2 (Ch 13-26),
+                                    Kritika Bhaag 2 (Ch 27-29), Sanchayan Bhaag 2 (Ch 30-32)
+                                    Source: C:\Users\LENOVO\Downloads\CBSE_10_Hindi
+                                      ├── Kshitij_Bhaag_2\  (jhks101–112)
+                                      ├── Sparsh_Bhaag_2\   (jhsp101–114)
+                                      ├── Kritika_Bhaag_2\  (jhkr101–103)
+                                      └── Sanchayan_Bhaag_2\ (jhsy101–103)
+config/seedSocialScienceCurriculum.js ← NEW: CBSE Class 10 Social Science — 22 chapters
+                                    History (Ch 1-5), Geography (Ch 6-12),
+                                    Economics (Ch 13-17), Political Science (Ch 18-22)
+                                    Source: C:\Users\LENOVO\Downloads\CBSE_10_Social_Science
+                                      ├── History\           (jess301–305)
+                                      ├── Geography\         (jess101–107)
+                                      ├── Economics\         (jess201–205)
+                                      └── Political_Science\ (jess401–405)
+
+Total DB chapters: 104
+  Math: 14 | Science: 13 | English: 23 | Hindi: 32 | Social Science: 22
 ```
 
 Run order:
 ```bash
 npm run seed
 npm run seed:lessons
-npm run seed:subjects               ← Science/English/SocSci/Hindi topics
-npm run seed:curriculum             ← CBSE Class 10 Math textbook chapters
-npm run seed:science-curriculum     ← NEW: CBSE Class 10 Science textbook chapters
+npm run seed:subjects                    ← Science/English/SocSci/Hindi topics
+npm run seed:curriculum                  ← CBSE Class 10 Math textbook chapters
+npm run seed:science-curriculum          ← CBSE Class 10 Science textbook chapters
+npm run seed:english-curriculum          ← NEW: CBSE Class 10 English textbook chapters
+npm run seed:hindi-curriculum            ← NEW: CBSE Class 10 Hindi textbook chapters
+npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science textbook chapters
 ```
 
 ---
@@ -816,6 +845,9 @@ To activate push (not yet wired):
 | Password strength indicator on Register + ResetPassword | ✅ Complete |
 | CBSE Class 10 Math textbook curriculum (14 chapters, Chapter model, seed, API) | ✅ Complete |
 | CBSE Class 10 Science curriculum (13 chapters — Chemistry/Biology/Physics, seed, API) | ✅ Complete |
+| CBSE Class 10 English curriculum (23 chapters — First Flight/Footprints/Words & Expr, seed) | ✅ Complete |
+| CBSE Class 10 Hindi curriculum (32 chapters — Kshitij/Sparsh/Kritika/Sanchayan, seed) | ✅ Complete |
+| CBSE Class 10 Social Science curriculum (22 chapters — History/Geo/Eco/PolSci, seed) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
 
@@ -898,10 +930,14 @@ npm run dev                  # port 5173
 
 # Seed DB (run once in order)
 cd ai-learning-backend/backend
-npm run seed                 # Math topics + questions
-npm run seed:lessons         # initial lessons
-npm run seed:subjects        # Science/English/Social Science/Hindi topics (NEW)
-npm run seed:curriculum      # CBSE Class 10 Math — 14 chapters (NEW)
+npm run seed                          # Math topics + questions
+npm run seed:lessons                  # initial lessons
+npm run seed:subjects                 # Science/English/Social Science/Hindi topics
+npm run seed:curriculum               # CBSE Class 10 Math — 14 chapters
+npm run seed:science-curriculum       # CBSE Class 10 Science — 13 chapters
+npm run seed:english-curriculum       # CBSE Class 10 English — 23 chapters
+npm run seed:hindi-curriculum         # CBSE Class 10 Hindi — 32 chapters
+npm run seed:social-science-curriculum # CBSE Class 10 Social Science — 22 chapters
 
 # Tests
 cd ai-learning-backend/backend

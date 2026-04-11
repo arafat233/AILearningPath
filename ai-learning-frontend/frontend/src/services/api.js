@@ -103,3 +103,9 @@ export const getStudentAnalytics   = (studentId)           => api.get(`/portal/s
 // Live Room
 export const getRoomQuestions = (topic, count) =>
   api.post("/competition/room-questions", { topic, count });
+
+// Curriculum (CBSE Textbook Chapters)
+export const getCurriculumSubjects  = ()                                       => api.get("/v1/curriculum/subjects");
+export const listCurriculumChapters = (subject = "Mathematics", grade = "10") => api.get("/v1/curriculum", { params: { subject, grade } });
+export const getCurriculumChapter   = (chapterNumber, subject = "Mathematics", grade = "10") =>
+  api.get(`/v1/curriculum/${chapterNumber}`, { params: { subject, grade } });

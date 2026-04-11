@@ -18,6 +18,7 @@ import Settings    from "./pages/Settings";
 import VoiceTutor  from "./pages/VoiceTutor";
 import ExamReview  from "./pages/ExamReview";
 import Portal      from "./pages/Portal";
+import ChapterView from "./pages/ChapterView";
 import AdminLayout     from "./pages/admin/AdminLayout";
 import AdminOverview   from "./pages/admin/AdminOverview";
 import AdminUsers      from "./pages/admin/AdminUsers";
@@ -62,6 +63,7 @@ export default function App() {
           <Route path="settings"          element={<Settings />} />
           <Route path="exam-review"       element={<ExamReview />} />
           <Route path="portal"            element={<Portal />} />
+          <Route path="chapters/:chapterNumber" element={<ChapterView />} />
         </Route>
       </Routes>
     </BrowserRouter>

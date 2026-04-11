@@ -240,6 +240,19 @@ createdAt
 Index: { userId }
 ```
 
+### 3.21 Chapter  ← NEW (CBSE Textbook Curriculum)
+```
+chapterNumber, title, subject, grade, board
+unit (e.g. "Algebra", "Geometry")
+examMarks, estimatedWeeks, overview
+sections: [{ sectionNumber, title, microConcepts: [{ title, explanation }] }]
+theorems:    [{ name, statement }]
+keyFormulas: [String]
+examTips:    [String]
+exercises:   [{ exerciseNumber, questionCount, types [String] }]
+Unique index: { subject, grade, board, chapterNumber }
+```
+
 ---
 
 ## 4. BACKEND SERVICES
@@ -459,6 +472,10 @@ GET    /api/admin/topics
 POST   /api/admin/topics
 PUT    /api/admin/topics/:id
 DELETE /api/admin/topics/:id
+
+GET    /api/v1/curriculum/subjects     ← distinct subject+grade combos in DB
+GET    /api/v1/curriculum              ← all chapters (?subject=&grade=&board=)
+GET    /api/v1/curriculum/:chapterNumber ← full chapter detail + sections + formulas
 ```
 
 ### Socket.IO Events (port 5001)
@@ -483,8 +500,9 @@ Server → Client:
 ### Student Pages (inside Layout, protected)
 ```
 /              → Dashboard      — streak, AI teacher msg, revision due, quick links
-/lessons       → Lessons        — topic list with subject filter
+/lessons       → Lessons        — Textbook Chapters tab (CBSE curriculum) + AI Lessons tab
 /lessons/:t    → LessonView     — short/long lesson, mark complete
+/chapters/:n   → ChapterView    — full chapter: sections, formulas, theorems, tips, exercises ← NEW
 /practice      → Practice       — adaptive quiz, confidence, AI explain, DoubtChat
 /analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
 /competition   → Competition    — weekly leaderboard, create/join room
@@ -613,6 +631,10 @@ New functions added to api.js:
   getLinkedStudents()
   getStudentAnalytics(studentId)
   adminGet* / adminCreate* / adminUpdate* / adminDelete* (8 admin functions)
+
+  getCurriculumSubjects()
+  listCurriculumChapters(subject, grade)
+  getCurriculumChapter(chapterNumber, subject, grade)
 ```
 
 ---
@@ -643,16 +665,18 @@ DoubtChat messages count against the same daily quota
 ## 11. SEED DATA
 
 ```
-config/seed.js          — Math topics + questions
-config/seedLessons.js   — initial lesson content
-config/seedSubjects.js  — Science, English, Social Science, Hindi topics ← NEW (50+ topics)
+config/seed.js              — Math topics + questions
+config/seedLessons.js       — initial lesson content
+config/seedSubjects.js      — Science, English, Social Science, Hindi topics ← NEW (50+ topics)
+config/seedMathCurriculum.js ← NEW: CBSE Class 10 Math — 14 chapters, all sections, formulas, theorems, tips
 ```
 
 Run order:
 ```bash
 npm run seed
 npm run seed:lessons
-npm run seed:subjects   ← NEW
+npm run seed:subjects       ← Science/English/SocSci/Hindi topics
+npm run seed:curriculum     ← NEW: CBSE Class 10 Math textbook chapters
 ```
 
 ---
@@ -764,6 +788,9 @@ To activate push (not yet wired):
 | Exam score prediction (weighted) | ✅ Complete |
 | CBSE grade prediction (A1–E) | ✅ Complete |
 | Test suite (Jest ESM, 22 tests) | ✅ Complete |
+| CBSE Class 10 Math textbook curriculum (14 chapters, Chapter model, seed, API) | ✅ Complete |
+| ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
+| Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
 
 ---
 
@@ -847,6 +874,7 @@ cd ai-learning-backend/backend
 npm run seed                 # Math topics + questions
 npm run seed:lessons         # initial lessons
 npm run seed:subjects        # Science/English/Social Science/Hindi topics (NEW)
+npm run seed:curriculum      # CBSE Class 10 Math — 14 chapters (NEW)
 
 # Tests
 cd ai-learning-backend/backend
@@ -870,7 +898,8 @@ AILearningPath/
 │   │
 │   ├── models/
 │   │   ├── index.js           ← 20 Mongoose schemas (all collections)
-│   │   └── lessonModel.js     ← Lesson + LessonProgress
+│   │   ├── lessonModel.js     ← Lesson + LessonProgress
+│   │   └── chapterModel.js    ← NEW: Chapter (textbook curriculum, subject-agnostic)
 │   │
 │   ├── controllers/
 │   │   ├── admin/                ← split by domain (never grows into a monolith)
@@ -882,6 +911,7 @@ AILearningPath/
 │   │   ├── analysisController.js
 │   │   ├── authController.js
 │   │   ├── examController.js
+│   │   ├── curriculumController.js ← NEW: listChapters, getChapter, listSubjects
 │   │   ├── lessonController.js
 │   │   ├── plannerController.js
 │   │   ├── portalController.js
@@ -906,6 +936,7 @@ AILearningPath/
 │   │
 │   ├── routes/
 │   │   ├── adminRoutes.js        ← NEW: /api/admin/* (adminAuth protected)
+│   │   ├── curriculumRoutes.js   ← NEW: /api/v1/curriculum/*
 │   │   ├── aiRoutes.js           ← UPDATED: + /voice-answer
 │   │   ├── analysisRoutes.js     ← UPDATED: + /predict
 │   │   ├── authRoutes.js
@@ -923,9 +954,15 @@ AILearningPath/
 │   │
 │   ├── middleware/
 │   │   ├── auth.js              ← JWT verify → req.user
-│   │   └── adminAuth.js         ← NEW: requires role === "admin"
+│   │   ├── adminAuth.js         ← NEW: requires role === "admin"
+│   │   ├── validate.js          ← NEW: Joi schema validation, 422 on fail
+│   │   └── errorHandler.js      ← NEW: centralised error handler
 │   │
 │   ├── utils/
+│   │   ├── AppError.js          ← NEW: operational error class
+│   │   ├── logger.js            ← NEW: structured logger (pretty dev / JSON prod)
+│   │   ├── validateEnv.js       ← NEW: startup crash if required env vars missing
+│   │   ├── redisClient.js       ← NEW: ioredis singleton + in-memory fallback
 │   │   ├── cache.js             ← in-memory LRU (24h TTL)
 │   │   ├── socket.js            ← Socket.IO competition rooms
 │   │   └── questionGenerator.js
@@ -933,7 +970,8 @@ AILearningPath/
 │   ├── config/
 │   │   ├── seed.js
 │   │   ├── seedLessons.js
-│   │   └── seedSubjects.js      ← NEW: 50+ Science/English/SocSci/Hindi topics
+│   │   ├── seedSubjects.js      ← NEW: 50+ Science/English/SocSci/Hindi topics
+│   │   └── seedMathCurriculum.js ← NEW: 14 CBSE Class 10 Math chapters
 │   │
 │   ├── __tests__/               ← NEW: Jest ESM test suite
 │   │   ├── analysisService.test.js   (7 tests)
@@ -981,6 +1019,7 @@ AILearningPath/
             ├── Login.jsx
             ├── Register.jsx
             ├── Portal.jsx       ← NEW: invite code + parent/teacher view
+            ├── ChapterView.jsx  ← NEW: chapter detail (sections/formulas/theorems/tips/exercises)
             └── admin/
                 ├── AdminLayout.jsx      ← NEW: sidebar nav, role guard
                 ├── AdminOverview.jsx    ← NEW: stats dashboard

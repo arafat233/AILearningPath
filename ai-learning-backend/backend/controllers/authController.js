@@ -8,12 +8,40 @@ import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
+const isProd = () => process.env.NODE_ENV === "production";
+
 const COOKIE_OPTS = {
   httpOnly: true,
-  secure:   process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge:   24 * 60 * 60 * 1000, // 1 day
+  get secure()   { return isProd(); },
+  get sameSite() { return isProd() ? "none" : "lax"; },
+  maxAge:   24 * 60 * 60 * 1000, // 1 day (access token)
 };
+
+const REFRESH_COOKIE_OPTS = {
+  httpOnly: true,
+  get secure()   { return isProd(); },
+  get sameSite() { return isProd() ? "none" : "lax"; },
+  maxAge:   30 * 24 * 60 * 60 * 1000, // 30 days
+  path:     "/api/auth", // only sent to auth routes — not every request
+};
+
+const REFRESH_TTL = 30 * 24 * 60 * 60; // 30 days in seconds
+
+function makeRefreshToken() {
+  const raw  = crypto.randomBytes(40).toString("hex");
+  const hash = crypto.createHash("sha256").update(raw).digest("hex");
+  return { raw, hash };
+}
+
+async function issueTokens(user, res) {
+  const accessToken = signToken(user);
+
+  const { raw, hash } = makeRefreshToken();
+  await sessionSet(`refresh:${hash}`, user._id.toString(), REFRESH_TTL);
+
+  res.cookie("token",        accessToken, COOKIE_OPTS);
+  res.cookie("refreshToken", raw,         REFRESH_COOKIE_OPTS);
+}
 
 function signToken(user) {
   return jwt.sign(
@@ -45,9 +73,7 @@ export const register = async (req, res, next) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const user   = await User.create({ name, email, password: hashed, examDate, grade });
-    const token  = signToken(user);
-
-    res.cookie("token", token, COOKIE_OPTS);
+    await issueTokens(user, res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
@@ -89,8 +115,30 @@ export const login = async (req, res, next) => {
     // Reset lockout on successful login
     await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: 0, lockUntil: null } });
 
-    const token = signToken(user);
-    res.cookie("token", token, COOKIE_OPTS);
+    await issueTokens(user, res);
+    res.json({ data: { user: safeUser(user) } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ── refresh ───────────────────────────────────────────────────────────────────
+
+export const refresh = async (req, res, next) => {
+  try {
+    const raw = req.cookies?.refreshToken;
+    if (!raw) return res.status(401).json({ error: "No refresh token" });
+
+    const hash   = crypto.createHash("sha256").update(raw).digest("hex");
+    const userId = await sessionGet(`refresh:${hash}`);
+    if (!userId) return res.status(401).json({ error: "Refresh token invalid or expired" });
+
+    const user = await User.findById(userId).select("_id name email role").lean();
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    // Rotate refresh token — old one is invalidated
+    await sessionDel(`refresh:${hash}`);
+    await issueTokens(user, res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
@@ -101,14 +149,21 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    // Blacklist the current token's JTI until it would have expired
+    // Blacklist the current access token's JTI
     if (req.user?.jti && req.user?.exp) {
       const ttl = req.user.exp - Math.floor(Date.now() / 1000);
-      if (ttl > 0) {
-        await sessionSet(`token_blacklist:${req.user.jti}`, "1", ttl);
-      }
+      if (ttl > 0) await sessionSet(`token_blacklist:${req.user.jti}`, "1", ttl);
     }
-    res.clearCookie("token", { httpOnly: true, sameSite: COOKIE_OPTS.sameSite, secure: COOKIE_OPTS.secure });
+
+    // Invalidate refresh token
+    const rawRefresh = req.cookies?.refreshToken;
+    if (rawRefresh) {
+      const hash = crypto.createHash("sha256").update(rawRefresh).digest("hex");
+      await sessionDel(`refresh:${hash}`);
+    }
+
+    res.clearCookie("token",        { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd() });
+    res.clearCookie("refreshToken", { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd(), path: "/api/auth" });
     res.json({ data: { message: "Logged out successfully." } });
   } catch (err) {
     next(err);

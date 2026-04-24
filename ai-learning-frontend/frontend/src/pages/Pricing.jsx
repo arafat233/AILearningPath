@@ -219,7 +219,7 @@ export default function Pricing() {
               </ul>
 
               <button
-                className={`w-full py-3 rounded-apple font-semibold text-[14px] transition-all ${
+                className={`w-full py-3 rounded-apple font-semibold text-[14px] transition-[background-color,border-color,opacity,transform] active:scale-[0.97] ${
                   isCurrent
                     ? "bg-apple-gray5 text-apple-gray cursor-default"
                     : isPremium

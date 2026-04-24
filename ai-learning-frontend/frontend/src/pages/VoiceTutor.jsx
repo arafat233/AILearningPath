@@ -162,7 +162,7 @@ export default function VoiceTutor() {
           <button
             onClick={listening ? stopListening : startListening}
             disabled={loading}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all shrink-0 shadow-apple
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-[background-color,opacity,transform] active:scale-[0.93] shrink-0 shadow-apple
               ${listening
                 ? "bg-apple-red text-white animate-pulse"
                 : "bg-apple-blue text-white hover:opacity-90 disabled:opacity-50"

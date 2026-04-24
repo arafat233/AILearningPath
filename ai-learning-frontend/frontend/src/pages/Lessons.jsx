@@ -74,7 +74,7 @@ export default function Lessons() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-all
+            className={`px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-[background-color,color,box-shadow]
               ${tab === t.id
                 ? "bg-white text-[var(--label)] shadow-apple-sm"
                 : "text-apple-gray hover:text-[var(--label)]"
@@ -113,7 +113,7 @@ export default function Lessons() {
                     <div
                       key={ch._id}
                       onClick={() => navigate(`/chapters/${ch.chapterNumber}`)}
-                      className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-all group"
+                      className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-[box-shadow,transform] active:scale-[0.99] group"
                     >
                       {/* Chapter number bubble */}
                       <div className="w-10 h-10 rounded-full bg-apple-blue/10 text-apple-blue text-[14px] font-bold flex items-center justify-center shrink-0">
@@ -195,7 +195,7 @@ export default function Lessons() {
                 return (
                   <div
                     key={lesson._id}
-                    className={`card p-5 flex items-center justify-between gap-4 transition-all
+                    className={`card p-5 flex items-center justify-between gap-4 transition-[box-shadow,background-color,border-color]
                       ${isDue ? "ring-1 ring-apple-orange/30 bg-apple-orange/4" : "hover:shadow-apple-md"}`}
                   >
                     <div className="flex-1 min-w-0">

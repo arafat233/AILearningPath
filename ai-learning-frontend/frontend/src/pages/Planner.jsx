@@ -137,7 +137,7 @@ export default function Planner() {
             {plan.dailyPlan.map((d) => (
               <div
                 key={d.day}
-                className={`flex items-center justify-between p-4 rounded-apple-lg border transition-all duration-150 ${
+                className={`flex items-center justify-between p-4 rounded-apple-lg border transition-[background-color,border-color] duration-150 ${
                   d.completed
                     ? "border-apple-green/25 bg-apple-green/6"
                     : "border-apple-gray5 hover:border-apple-blue/25 hover:bg-apple-blue/4"

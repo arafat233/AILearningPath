@@ -166,7 +166,7 @@ export default function LiveRoom() {
           </div>
         </div>
         <div className="w-full h-1.5 bg-gray-100 rounded-full mb-5">
-          <div className="h-1.5 bg-brand-500 rounded-full transition-all" style={{ width: `${(timeLeft / 15) * 100}%` }} />
+          <div className="h-1.5 bg-brand-500 rounded-full transition-[width]" style={{ width: `${(timeLeft / 15) * 100}%` }} />
         </div>
 
         {/* Question */}
@@ -182,7 +182,7 @@ export default function LiveRoom() {
               }
               return (
                 <button key={i} onClick={() => handleAnswer(opt)} disabled={!!selected}
-                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${style}`}>
+                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-[background-color,border-color,color,transform] active:scale-[0.99] ${style}`}>
                   <span className="mr-2 text-gray-400">{String.fromCharCode(65 + i)}.</span>{opt.text}
                 </button>
               );

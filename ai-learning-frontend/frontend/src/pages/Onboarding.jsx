@@ -47,7 +47,7 @@ export default function Onboarding() {
         {/* Progress dots */}
         <div className="flex items-center gap-2 mb-7">
           {STEPS.slice(0, -1).map((_, i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "bg-brand-500" : "bg-gray-200"}`} />
+            <div key={i} className={`h-1.5 flex-1 rounded-full transition-[background-color] duration-300 ${i <= step ? "bg-brand-500" : "bg-gray-200"}`} />
           ))}
         </div>
 
@@ -59,7 +59,7 @@ export default function Onboarding() {
             <div className="grid grid-cols-3 gap-3 mb-6">
               {grades.map((g) => (
                 <button key={g} onClick={() => setGrade(g)}
-                  className={`py-3 rounded-xl border font-medium transition-all ${grade === g ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-700"}`}>
+                  className={`py-3 rounded-xl border font-medium transition-[background-color,border-color,color,transform] active:scale-[0.97] ${grade === g ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-700"}`}>
                   Class {g}
                 </button>
               ))}
@@ -89,7 +89,7 @@ export default function Onboarding() {
             <div className="flex flex-wrap gap-2 mb-6">
               {topicList.map((t) => (
                 <button key={t} onClick={() => toggleTopic(t)}
-                  className={`text-sm px-3 py-1.5 rounded-full border transition-all ${weakTopics.includes(t) ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-600"}`}>
+                  className={`text-sm px-3 py-1.5 rounded-full border transition-[background-color,border-color,color,transform] active:scale-[0.97] ${weakTopics.includes(t) ? "border-brand-500 bg-brand-50 text-brand-600" : "border-surface-border text-gray-600"}`}>
                   {t}
                 </button>
               ))}

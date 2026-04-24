@@ -149,7 +149,7 @@ export default function StartOnboarding() {
           {/* Progress bar */}
           <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
             <div
-              className="h-full bg-apple-blue rounded-full transition-all duration-100"
+              className="h-full bg-apple-blue rounded-full transition-[width] duration-100"
               style={{ width: `${analyzeProgress}%` }}
             />
           </div>
@@ -169,7 +169,7 @@ export default function StartOnboarding() {
         <div className="fixed top-0 left-0 right-0 z-10">
           <div className="h-1 bg-apple-gray5">
             <div
-              className="h-1 bg-apple-blue transition-all duration-500"
+              className="h-1 bg-apple-blue transition-[width] duration-500"
               style={{ width: `${(progressStep / TOTAL_STEPS) * 100}%` }}
             />
           </div>
@@ -187,7 +187,7 @@ export default function StartOnboarding() {
             <div className="grid grid-cols-5 gap-2 mb-8">
               {grades.map((g) => (
                 <button key={g} onClick={() => setGrade(g)}
-                  className={`py-4 rounded-apple-lg font-bold text-[15px] transition-all
+                  className={`py-4 rounded-apple-lg font-bold text-[15px] transition-[background-color,color,box-shadow,transform] active:scale-[0.97]
                     ${grade === g
                       ? "bg-apple-blue text-white shadow-apple"
                       : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
@@ -209,7 +209,7 @@ export default function StartOnboarding() {
             <div className="flex flex-col gap-2.5 mb-8">
               {GOALS.map((g) => (
                 <button key={g.value} onClick={() => setGoal(g.value)}
-                  className={`flex items-center gap-4 px-5 py-4 rounded-apple-lg border text-left transition-all
+                  className={`flex items-center gap-4 px-5 py-4 rounded-apple-lg border text-left transition-[background-color,border-color,box-shadow,transform] active:scale-[0.98]
                     ${goal === g.value
                       ? "border-apple-blue bg-apple-blue/8 shadow-apple"
                       : "border-apple-gray5 bg-white hover:border-apple-gray4"
@@ -263,7 +263,7 @@ export default function StartOnboarding() {
             <div className="flex flex-wrap gap-2 mb-8">
               {topicList.map((t) => (
                 <button key={t} onClick={() => toggleTopic(t)}
-                  className={`text-[13px] font-medium px-4 py-2 rounded-full border transition-all
+                  className={`text-[13px] font-medium px-4 py-2 rounded-full border transition-[background-color,border-color,color,transform] active:scale-[0.97]
                     ${weakTopics.includes(t)
                       ? "bg-apple-blue text-white border-apple-blue shadow-apple"
                       : "bg-apple-gray6 border-apple-gray5 text-[var(--label2)] hover:border-apple-gray4"

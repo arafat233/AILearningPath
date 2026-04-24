@@ -173,7 +173,7 @@ export default function Competition() {
         {/* Progress bar */}
         <div className="w-full h-1 bg-apple-gray5 rounded-full overflow-hidden">
           <div
-            className="h-full bg-apple-blue rounded-full transition-all duration-300"
+            className="h-full bg-apple-blue rounded-full transition-[width] duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -197,7 +197,7 @@ export default function Competition() {
               <button
                 key={i}
                 onClick={() => setSelected(opt.type)}
-                className={`w-full text-left px-4 py-3.5 rounded-apple-lg border text-[14px] font-medium transition-all duration-150 ${
+                className={`w-full text-left px-4 py-3.5 rounded-apple-lg border text-[14px] font-medium transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.99] ${
                   selected === opt.type
                     ? "border-apple-blue bg-apple-blue/8 text-apple-blue"
                     : "border-apple-gray5 bg-apple-gray6 hover:border-apple-blue/30 text-[var(--label)]"

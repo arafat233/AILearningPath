@@ -194,7 +194,7 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-2">
               {GOALS.map((g) => (
                 <button key={g.value} type="button" onClick={() => setForm({ ...form, goal: g.value })}
-                  className={`flex items-center gap-2 px-3 py-3 rounded-apple-lg border text-[13px] text-left transition-all
+                  className={`flex items-center gap-2 px-3 py-3 rounded-apple-lg border text-[13px] text-left transition-[background-color,border-color,color,transform] active:scale-[0.97]
                     ${form.goal === g.value
                       ? "border-apple-blue bg-apple-blue/8 text-apple-blue font-semibold"
                       : "border-apple-gray5 bg-apple-gray6 text-[var(--label2)] hover:border-apple-gray4"

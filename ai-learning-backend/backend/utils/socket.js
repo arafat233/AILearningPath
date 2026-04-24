@@ -1,24 +1,41 @@
 import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import logger from "./logger.js";
 
 let io;
 
 export const initSocket = (server) => {
-  io = new Server(server, { cors: { origin: "http://localhost:5173", credentials: true } });
+  io = new Server(server, {
+    cors: { origin: process.env.FRONTEND_URL || "http://localhost:5173", credentials: true },
+  });
 
-  // In-memory room state
+  // JWT auth on every handshake — anonymous connections are rejected
+  io.use((socket, next) => {
+    const token =
+      socket.handshake.auth?.token ||
+      socket.handshake.headers?.authorization?.split(" ")[1];
+    if (!token) return next(new Error("Authentication required"));
+    try {
+      socket.user = jwt.verify(token, process.env.JWT_SECRET);
+      next();
+    } catch {
+      next(new Error("Invalid or expired token"));
+    }
+  });
+
+  // In-memory room state (single-instance only — move to Redis adapter for multi-node)
   const rooms = {};
 
   io.on("connection", (socket) => {
+    const userId = socket.user.id;
 
-    // ── Join a competition room ──────────────────────────────────
-    socket.on("join_room", ({ roomId, userId, userName }) => {
+    socket.on("join_room", ({ roomId, userName }) => {
       socket.join(roomId);
       if (!rooms[roomId]) rooms[roomId] = { players: {}, status: "waiting", questions: [] };
       rooms[roomId].players[userId] = { userId, userName, score: 0, answered: 0 };
       io.to(roomId).emit("room_update", rooms[roomId]);
     });
 
-    // ── Host starts the game ─────────────────────────────────────
     socket.on("start_room", ({ roomId, questions }) => {
       if (!rooms[roomId]) return;
       rooms[roomId].status = "live";
@@ -26,15 +43,14 @@ export const initSocket = (server) => {
       io.to(roomId).emit("game_started", { questions });
     });
 
-    // ── Player submits an answer ─────────────────────────────────
-    socket.on("submit_score", ({ roomId, userId, score }) => {
+    // userId comes from JWT — client cannot forge another user's score
+    socket.on("submit_score", ({ roomId, score }) => {
       if (!rooms[roomId]?.players[userId]) return;
       rooms[roomId].players[userId].score += score;
       rooms[roomId].players[userId].answered += 1;
       io.to(roomId).emit("score_update", rooms[roomId].players);
     });
 
-    // ── End game ─────────────────────────────────────────────────
     socket.on("end_game", ({ roomId }) => {
       if (!rooms[roomId]) return;
       rooms[roomId].status = "finished";
@@ -45,7 +61,9 @@ export const initSocket = (server) => {
       delete rooms[roomId];
     });
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      logger.debug("Socket disconnected", { userId });
+    });
   });
 };
 

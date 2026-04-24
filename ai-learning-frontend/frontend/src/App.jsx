@@ -1,5 +1,27 @@
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err, info) { console.error("Uncaught render error:", err, info); }
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div className="min-h-screen bg-apple-gray6 flex items-center justify-center px-4">
+        <div className="card p-10 max-w-sm w-full text-center">
+          <div className="w-12 h-12 rounded-full bg-apple-red/10 flex items-center justify-center mx-auto mb-4">
+            <span className="text-apple-red text-xl font-bold">!</span>
+          </div>
+          <h2 className="text-[17px] font-bold text-[var(--label)] mb-2">Something went wrong</h2>
+          <p className="text-[13px] text-apple-gray mb-6">An unexpected error occurred. Reload to continue.</p>
+          <button onClick={() => window.location.reload()} className="btn-primary w-full">Reload page</button>
+        </div>
+      </div>
+    );
+  }
+}
 import Layout           from "./components/Layout";
 import Login            from "./pages/Login";
 import Register         from "./pages/Register";
@@ -41,6 +63,7 @@ const PublicOnly = ({ children }) => {
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Routes>
         <Route path="/start"           element={<PublicOnly><StartOnboarding /></PublicOnly>} />
@@ -78,5 +101,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }

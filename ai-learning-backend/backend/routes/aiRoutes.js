@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import Joi from "joi";
 import { studyAdvice, usageInfo, cacheStats, tutorChat } from "../controllers/aiController.js";
 import { getChatResponse, generateHint } from "../services/aiService.js";
@@ -8,9 +9,22 @@ import { AIResponseCache } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
+import logger from "../utils/logger.js";
 
 const r = express.Router();
 const EVAL_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+// Per-user rate limit for endpoints that call Claude — 50 calls/hour
+// Separate from the global 300/15min — stops one user exhausting quota
+const perUserAILimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 50,
+  keyGenerator: (req) => req.user?.id || req.ip,
+  handler: (_req, res) =>
+    res.status(429).json({ error: "AI rate limit exceeded — try again in an hour" }),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const chatSchema = Joi.object({
   message: Joi.string().trim().min(1).required(),
@@ -37,19 +51,20 @@ const hintSchema = Joi.object({
 r.get("/advice",      auth, studyAdvice);
 r.get("/usage",       auth, usageInfo);
 r.get("/cache-stats", auth, cacheStats);
-r.post("/chat",       auth, validate(chatSchema), tutorChat);
+r.post("/chat",       auth, perUserAILimit, validate(chatSchema), tutorChat);
 
-// VoiceTutor endpoint — accepts speech transcript, returns Claude answer
-r.post("/voice-answer", auth, validate(voiceSchema), async (req, res, next) => {
+// VoiceTutor endpoint
+r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), async (req, res, next) => {
   try {
     const { transcript, topic, subject } = req.body;
+    logger.info("AI voice call", { userId: req.user.id, topic, subject });
     const reply = await getChatResponse([], transcript, topic || `General ${subject || "Math"}`, subject || "Math");
     res.json({ answer: reply || "Could not generate a response. Please try rephrasing your question." });
   } catch (err) { next(err); }
 });
 
-// Evaluate a student's written explanation of a concept.
-r.post("/evaluate-explanation", auth, validate(evalSchema), async (req, res, next) => {
+// Evaluate a student's written explanation — DB-cached by concept+explanation hash
+r.post("/evaluate-explanation", auth, perUserAILimit, validate(evalSchema), async (req, res, next) => {
   try {
     const { concept, userExplanation } = req.body;
 
@@ -59,7 +74,10 @@ r.post("/evaluate-explanation", auth, validate(evalSchema), async (req, res, nex
       .digest("hex")}`;
 
     const memHit = getCached(cacheKey);
-    if (memHit) return res.json({ feedback: memHit, fromCache: true });
+    if (memHit) {
+      logger.info("AI eval cache hit (memory)", { userId: req.user.id, concept });
+      return res.json({ feedback: memHit, fromCache: true });
+    }
 
     const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
     if (dbHit?.response) {
@@ -68,9 +86,11 @@ r.post("/evaluate-explanation", auth, validate(evalSchema), async (req, res, nex
         { cacheKey },
         { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
       ).catch(() => {});
+      logger.info("AI eval cache hit (DB)", { userId: req.user.id, concept });
       return res.json({ feedback: dbHit.response, fromCache: true });
     }
 
+    logger.info("AI eval — calling Claude", { userId: req.user.id, concept });
     const prompt = `A student is explaining "${concept}" in their own words. Evaluate if they understood it correctly.
 Their explanation: "${userExplanation}"
 
@@ -94,10 +114,10 @@ Be encouraging but honest.`;
   }
 });
 
-// Hint for a stuck student — DB-first cache by question text hash.
+// Hint for a stuck student — DB-cached by question text hash
 const HINT_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 
-r.post("/hint", auth, validate(hintSchema), async (req, res, next) => {
+r.post("/hint", auth, perUserAILimit, validate(hintSchema), async (req, res, next) => {
   try {
     const { questionText, topic } = req.body;
 
@@ -106,7 +126,10 @@ r.post("/hint", auth, validate(hintSchema), async (req, res, next) => {
       .digest("hex")}`;
 
     const memHit = getCached(cacheKey);
-    if (memHit) return res.json({ hint: memHit, fromCache: true });
+    if (memHit) {
+      logger.info("AI hint cache hit (memory)", { userId: req.user.id });
+      return res.json({ hint: memHit, fromCache: true });
+    }
 
     const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
     if (dbHit?.response) {
@@ -115,9 +138,11 @@ r.post("/hint", auth, validate(hintSchema), async (req, res, next) => {
         { cacheKey },
         { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
       ).catch(() => {});
+      logger.info("AI hint cache hit (DB)", { userId: req.user.id });
       return res.json({ hint: dbHit.response, fromCache: true });
     }
 
+    logger.info("AI hint — calling Claude", { userId: req.user.id, topic });
     const hint = await generateHint(questionText, topic || "Math");
     if (hint) {
       const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);

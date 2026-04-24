@@ -10,7 +10,7 @@ import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
-import { connectRedis } from "./utils/redisClient.js";
+import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
 
 import authRoutes        from "./routes/authRoutes.js";
 import practiceRoutes    from "./routes/practiceRoutes.js";
@@ -70,7 +70,22 @@ app.use("/api/portal",      portalRoutes);
 app.use("/api/v1/curriculum", curriculumRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
 
-app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+app.get("/api/health", async (_req, res) => {
+  const health = { status: "ok", checks: { mongodb: "unknown", redis: "unknown", anthropic: "unknown" } };
+
+  try {
+    await mongoose.connection.db.admin().ping();
+    health.checks.mongodb = "ok";
+  } catch {
+    health.checks.mongodb = "error";
+    health.status = "degraded";
+  }
+
+  health.checks.redis = isUsingFallback() ? "fallback (in-memory)" : "ok";
+  health.checks.anthropic = process.env.ANTHROPIC_API_KEY ? "key-set" : "missing";
+
+  res.status(health.status === "ok" ? 200 : 503).json(health);
+});
 app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));
 
 // Centralised error handler — must be last

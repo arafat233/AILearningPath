@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   name:      { type: String, required: true },
   email:     { type: String, required: true, unique: true },
   password:  { type: String, required: true },
+  clerkId:   { type: String, default: null, sparse: true }, // Clerk userId — set when Clerk auth is live
   examDate:  Date,
   subject:   { type: String, default: "Math" },
   grade:     { type: String, default: "10" },

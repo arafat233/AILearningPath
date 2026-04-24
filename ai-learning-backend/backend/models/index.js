@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
   // Password reset
   passwordResetToken:   { type: String, default: null },
   passwordResetExpires: { type: Date,   default: null },
+  // Session invalidation — tokens issued before this date are rejected (SEC-05)
+  pwdChangedAt:         { type: Date,   default: null },
+  // Login lockout (SEC-23)
+  loginAttempts:        { type: Number, default: 0 },
+  lockUntil:            { type: Date,   default: null },
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);

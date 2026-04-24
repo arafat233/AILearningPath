@@ -19,12 +19,10 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await login(form);
-      setAuth(data.data.token, data.data.user);
+      setAuth(null, data.data.user);
       navigate("/");
     } catch (err) {
-      const status  = err.response?.status;
       const message = err.response?.data?.error || "Login failed";
-      setIsNewUser(status === 404);
       setError(message);
     } finally {
       setLoading(false);

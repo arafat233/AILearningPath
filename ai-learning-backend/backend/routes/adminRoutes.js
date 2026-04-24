@@ -16,6 +16,7 @@ const roleSchema = Joi.object({
   role: Joi.string().valid("student", "admin", "parent", "teacher").required(),
 });
 
+// SEC-10: No .unknown(true) — only explicitly listed fields are allowed through
 const questionSchema = Joi.object({
   questionText:    Joi.string().required(),
   topic:           Joi.string().required(),
@@ -24,16 +25,18 @@ const questionSchema = Joi.object({
   solutionSteps:   Joi.array().optional(),
   shortcut:        Joi.string().optional().allow(""),
   difficultyScore: Joi.number().min(0).max(1).optional(),
-  expectedTime:    Joi.number().optional(),
-  marks:           Joi.number().optional(),
-}).unknown(true);
+  expectedTime:    Joi.number().positive().optional(),
+  marks:           Joi.number().min(0).optional(),
+});
 
 const topicSchema = Joi.object({
   name:          Joi.string().required(),
   subject:       Joi.string().required(),
   grade:         Joi.string().optional(),
-  examFrequency: Joi.number().optional(),
-}).unknown(true);
+  examFrequency: Joi.number().min(0).max(1).optional(),
+  estimatedHours: Joi.number().positive().optional(),
+  examMarks:     Joi.number().min(0).optional(),
+});
 
 // Stats
 r.get("/stats",                      getAdminStats);
@@ -42,18 +45,18 @@ r.get("/stats",                      getAdminStats);
 r.get("/users",                      listUsers);
 r.put("/users/:id/role",             validate(roleSchema),     updateUserRole);
 
-// Questions
+// Questions — SEC-09: validate() added to PUT route
 r.get("/questions",                  listQuestions);
 r.get("/questions/flagged",          getFlaggedQuestions);
 r.post("/questions",                 validate(questionSchema), createQuestion);
-r.put("/questions/:id",              updateQuestion);
+r.put("/questions/:id",              validate(questionSchema), updateQuestion);
 r.delete("/questions/:id",           deleteQuestion);
 r.put("/questions/:id/unflag",       unflagQuestion);
 
-// Topics
+// Topics — SEC-09: validate() added to PUT route
 r.get("/topics",                     listTopics);
 r.post("/topics",                    validate(topicSchema),    createTopic);
-r.put("/topics/:id",                 updateTopic);
+r.put("/topics/:id",                 validate(topicSchema),    updateTopic);
 r.delete("/topics/:id",              deleteTopic);
 
 export default r;

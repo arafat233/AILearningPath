@@ -82,9 +82,9 @@ export const submitAnswer = async (req, res, next) => {
       difficulty: question.difficultyScore || 0.5,
     });
 
-    if (question._id) updateQuestionStats(question._id, result.isCorrect, safeTime, selectedType).catch(() => {});
-    updateUserProfile(userId).catch(() => {});
-    await updateStreak(userId).catch(() => {});
+    if (question._id) updateQuestionStats(question._id, result.isCorrect, safeTime, selectedType).catch((err) => logger.warn("updateQuestionStats failed", { err: err.message, questionId: question._id }));
+    updateUserProfile(userId).catch((err) => logger.warn("updateUserProfile failed", { err: err.message, userId }));
+    await updateStreak(userId).catch((err) => logger.warn("updateStreak failed", { err: err.message, userId }));
 
     if (!result.isCorrect) {
       ErrorMemory.findOneAndUpdate(
@@ -95,7 +95,7 @@ export const submitAnswer = async (req, res, next) => {
           $push: { questionSnippets: { $each: [question.questionText.slice(0, 60)], $slice: -5 } },
         },
         { upsert: true }
-      ).catch(() => {});
+      ).catch((err) => logger.warn("ErrorMemory update failed", { err: err.message, userId }));
     }
 
     let aiExplanation = null;

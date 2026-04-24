@@ -10,10 +10,20 @@ export const initSocket = (server) => {
   });
 
   // JWT auth on every handshake — anonymous connections are rejected
+  // Reads token from: httpOnly cookie (browser), auth.token field, or Authorization header
   io.use((socket, next) => {
+    const cookieHeader = socket.handshake.headers?.cookie || "";
+    const cookieToken  = cookieHeader
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith("token="))
+      ?.split("=")?.[1];
+
     const token =
+      cookieToken ||
       socket.handshake.auth?.token ||
       socket.handshake.headers?.authorization?.split(" ")[1];
+
     if (!token) return next(new Error("Authentication required"));
     try {
       socket.user = jwt.verify(token, process.env.JWT_SECRET);

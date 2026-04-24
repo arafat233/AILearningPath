@@ -12,7 +12,6 @@ const GOALS = [
 
 export default function Settings() {
   const { user, setAuth } = useAuthStore();
-  const token    = useAuthStore((s) => s.token);
   const navigate = useNavigate();
 
   const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction" });
@@ -49,7 +48,7 @@ export default function Settings() {
     setError(""); setSuccess(false); setSaving(true);
     try {
       const { data } = await updateMe(form);
-      setAuth(token, { ...user, name: data.user.name });
+      setAuth(null, { ...user, name: data.user.name });
       setSuccess(true);
     } catch (err) {
       setError(err.response?.data?.error || "Save failed.");

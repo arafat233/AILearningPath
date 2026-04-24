@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { logoutApi } from "../services/api";
 
 function Icon({ id }) {
   const paths = {
@@ -108,7 +109,7 @@ export default function Layout() {
           <div className="flex-1 min-w-0">
             <p className="text-[12px] font-semibold text-[var(--label)] truncate">{user?.name}</p>
             <button
-              onClick={() => { logout(); navigate("/login"); }}
+              onClick={async () => { await logoutApi().catch(() => {}); logout(); navigate("/login"); }}
               className="btn-destructive text-[11px]"
             >
               Sign out

@@ -1,0 +1,204 @@
+{
+  "main": {
+    "id": "96ba2fcf0114ee75",
+    "type": "split",
+    "children": [
+      {
+        "id": "8dbc8aad7991ad15",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "61711062100d531b",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "246b5bbabf83eff1",
+    "type": "split",
+    "children": [
+      {
+        "id": "95c48b5889ef7c8f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "24aff8e877fcd378",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "6b7afca033b2cdf7",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "b79e17e508d3df46",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "fc54c324ceaf3389",
+    "type": "split",
+    "children": [
+      {
+        "id": "a9ae60ba13ca7170",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "293a08660e7d0ebc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "9869ea82c353f491",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "edc1267ac29fd49f",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "f08755469f0ae2d2",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "61711062100d531b",
+  "lastOpenFiles": [
+    "ai-learning-frontend/frontend/src/graphify-out/graph.html",
+    "ai-learning-frontend/frontend/src/graphify-out/graph.json",
+    "ai-learning-frontend/frontend/src/graphify-out/GRAPH_REPORT.md",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/90f303ac63249e0cd85e55b84e67dd59360bb8121eee1dc5ef9fb4cc1c105a03.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/d6425f216c76df587b44d6d7036e7e0ec5fa0cc8a549cb2185cf9edde7604957.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/e3defe1798eb47a474a08b968d323b4e13a61aee5be23414b56013f99ca1baed.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/8dd47708cbcb94787e1339967c77f4d68fc940ad67b1835dc8f3295a00b73856.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/3fc064d1474397fa3b71a14bf36b22a49ff5e5e5bd3bbdd31f6e9819bb3c3899.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/94e2308bb16b3658e96d98dd62e9fb9a19a748217a44a6c333f611c4c53ba9b4.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/044fd764f3a692d7f05a9b2d63b805993af047fbadc68060e0e959ee3fb5565c.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/1a1970118c1e1d14166477f4c18875b36e8de266bf0aafebf69666e441fbc405.json",
+    "ai-learning-frontend/frontend/src/graphify-out/cache/f1ee18d07e3eda77ceb6c57a4812503c0889771508dbb83685494459bd7fbacc.json",
+    "graphify-out/obsidian/_COMMUNITY_Community 42.md",
+    "graphify-out/obsidian/_COMMUNITY_Community 41.md",
+    "graphify-out/obsidian/_COMMUNITY_Community 71.md",
+    "graphify-out/obsidian/_COMMUNITY_Community 70.md",
+    "graphify-out/obsidian/Behavior Page Remains on Login After Failed Auth.md",
+    "graphify-out/obsidian/Bug No Error Message Shown After Invalid Login.md",
+    "graphify-out/obsidian/Login Form — ShowHide Password Toggle.md",
+    "graphify-out/obsidian/Login Form — Create Account Link.md",
+    "graphify-out/obsidian/Auth Error Context Invalid Credentials Stay on Login.md",
+    "graphify-out/obsidian/index.html — PWA manifest + theme-color meta.md",
+    "graphify-out/obsidian/MCP Tool code-review-graph (AGENTS.md instruction).md",
+    "graphify-out/obsidian/Graphify Knowledge Graph Instruction (CLAUDE.md).md",
+    "graphify-out/obsidian/MCP Tool code-review-graph (CLAUDE.md instruction).md",
+    "graphify-out/obsidian/Rule New route groups use apiv1 prefix.md",
+    "graphify-out/obsidian/Practice Routes (apipractice).md",
+    "graphify-out/obsidian/Auth Routes (apiauth).md",
+    "graphify-out/obsidian/DoubtThread Collection (MongoDB schema).md",
+    "graphify-out/obsidian/Chapter Collection — CBSE Textbook Curriculum.md",
+    "graphify-out/obsidian/Badge Collection (MongoDB schema).md",
+    "graphify-out/obsidian/AIResponseCache Collection — Permanent Cross-User Cache.md",
+    "graphify-out/obsidian/connectRedis().md",
+    "graphify-out/obsidian/createClient().md",
+    "graphify-out/obsidian/redisClient.js.md",
+    "graphify-out/obsidian/areasCircles().md",
+    "graphify-out/obsidian/graph.canvas"
+  ]
+}

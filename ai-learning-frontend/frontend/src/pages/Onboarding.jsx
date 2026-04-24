@@ -13,7 +13,7 @@ export default function Onboarding() {
   const [saving, setSaving]     = useState(false);
   const [grades, setGrades]     = useState(["8","9","10","11","12"]);
   const [topicList, setTopicList] = useState([]);
-  const { setAuth, token, user } = useAuthStore();
+  const { setAuth, user } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Onboarding() {
     setSaving(true);
     try {
       const { data } = await updateMe({ grade, examDate });
-      setAuth(token, { ...user, name: data.user.name });
+      setAuth(null, { ...user, name: data.user.name });
     } catch {}
     setSaving(false);
     navigate("/");

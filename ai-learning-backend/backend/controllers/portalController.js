@@ -1,10 +1,21 @@
 import crypto from "crypto";
+import mongoose from "mongoose";
 import { User, UserProfile, Streak, Badge } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
+// SEC-14: Retry loop to guarantee uniqueness
+async function generateUniqueCode(maxRetries = 5) {
+  for (let i = 0; i < maxRetries; i++) {
+    const code = crypto.randomBytes(6).toString("hex").toUpperCase().slice(0, 8);
+    const exists = await User.exists({ inviteCode: code });
+    if (!exists) return code;
+  }
+  throw new AppError("Could not generate a unique invite code. Please try again.", 500);
+}
+
 export const generateInvite = async (req, res, next) => {
   try {
-    const code = crypto.randomBytes(4).toString("hex").toUpperCase();
+    const code = await generateUniqueCode();
     await User.findByIdAndUpdate(req.user.id, { inviteCode: code });
     res.json({ inviteCode: code });
   } catch (err) { next(err); }
@@ -45,6 +56,12 @@ const verifyOwnership = async (requesterId, studentId) => {
 export const getStudentAnalytics = async (req, res, next) => {
   try {
     const { studentId } = req.params;
+
+    // SEC-11: Validate studentId before hitting the DB
+    if (!mongoose.isValidObjectId(studentId)) {
+      return next(new AppError("Invalid student ID", 400));
+    }
+
     if (!(await verifyOwnership(req.user.id, studentId)))
       return next(new AppError("Student not linked to your account", 403));
 

@@ -1,0 +1,80 @@
+---
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
+type: "code"
+community: "Community 0"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_0
+---
+
+# api.js
+
+## Connections
+- [[adminCreateQuestion()]] - `contains` [EXTRACTED]
+- [[adminCreateTopic()]] - `contains` [EXTRACTED]
+- [[adminDeleteQuestion()]] - `contains` [EXTRACTED]
+- [[adminDeleteTopic()]] - `contains` [EXTRACTED]
+- [[adminGetFlagged()]] - `contains` [EXTRACTED]
+- [[adminGetQuestions()]] - `contains` [EXTRACTED]
+- [[adminGetStats()]] - `contains` [EXTRACTED]
+- [[adminGetTopics()]] - `contains` [EXTRACTED]
+- [[adminGetUsers()]] - `contains` [EXTRACTED]
+- [[adminUnflagQuestion()]] - `contains` [EXTRACTED]
+- [[adminUpdateQuestion()]] - `contains` [EXTRACTED]
+- [[adminUpdateRole()]] - `contains` [EXTRACTED]
+- [[adminUpdateTopic()]] - `contains` [EXTRACTED]
+- [[askTutor()]] - `contains` [EXTRACTED]
+- [[clearDoubtThread()]] - `contains` [EXTRACTED]
+- [[createOrder()_2]] - `contains` [EXTRACTED]
+- [[evaluateExplanation()]] - `contains` [EXTRACTED]
+- [[flagQuestion()]] - `contains` [EXTRACTED]
+- [[forgotPassword()_1]] - `contains` [EXTRACTED]
+- [[generateInvite()_1]] - `contains` [EXTRACTED]
+- [[getAIAdvice()]] - `contains` [EXTRACTED]
+- [[getAICacheStats()]] - `contains` [EXTRACTED]
+- [[getAIUsage()]] - `contains` [EXTRACTED]
+- [[getBadges()]] - `contains` [EXTRACTED]
+- [[getCurriculumChapter()]] - `contains` [EXTRACTED]
+- [[getCurriculumSubjects()]] - `contains` [EXTRACTED]
+- [[getDoubtThread()]] - `contains` [EXTRACTED]
+- [[getErrorMemory()]] - `contains` [EXTRACTED]
+- [[getHint()]] - `contains` [EXTRACTED]
+- [[getLastDayRevision()]] - `contains` [EXTRACTED]
+- [[getLeaderboard()_1]] - `contains` [EXTRACTED]
+- [[getLesson()_1]] - `contains` [EXTRACTED]
+- [[getLinkedStudents()_1]] - `contains` [EXTRACTED]
+- [[getMe()]] - `contains` [EXTRACTED]
+- [[getPlan()_1]] - `contains` [EXTRACTED]
+- [[getPlans()_1]] - `contains` [EXTRACTED]
+- [[getPrediction()]] - `contains` [EXTRACTED]
+- [[getReport()_1]] - `contains` [EXTRACTED]
+- [[getRevisionDue()]] - `contains` [EXTRACTED]
+- [[getRoomQuestions()]] - `contains` [EXTRACTED]
+- [[getStudentAnalytics()_1]] - `contains` [EXTRACTED]
+- [[getSubscription()_2]] - `contains` [EXTRACTED]
+- [[getTopics()]] - `contains` [EXTRACTED]
+- [[getTopicsMeta()]] - `contains` [EXTRACTED]
+- [[getWeeklyLeaderboard()]] - `contains` [EXTRACTED]
+- [[linkStudent()_1]] - `contains` [EXTRACTED]
+- [[listCurriculumChapters()]] - `contains` [EXTRACTED]
+- [[listExams()_1]] - `contains` [EXTRACTED]
+- [[listLessons()_1]] - `contains` [EXTRACTED]
+- [[login()_1]] - `contains` [EXTRACTED]
+- [[markDayComplete()_1]] - `contains` [EXTRACTED]
+- [[markRevised()_1]] - `contains` [EXTRACTED]
+- [[register()_1]] - `contains` [EXTRACTED]
+- [[resetPassword()_1]] - `contains` [EXTRACTED]
+- [[saveProgress()_1]] - `contains` [EXTRACTED]
+- [[sendDoubtMessage()]] - `contains` [EXTRACTED]
+- [[startExam()_1]] - `contains` [EXTRACTED]
+- [[startMixedPractice()]] - `contains` [EXTRACTED]
+- [[startTopic()_1]] - `contains` [EXTRACTED]
+- [[submitAnswer()_1]] - `contains` [EXTRACTED]
+- [[submitExam()_1]] - `contains` [EXTRACTED]
+- [[updateMe()]] - `contains` [EXTRACTED]
+- [[verifyPayment()_2]] - `contains` [EXTRACTED]
+- [[voiceAnswer()]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_0

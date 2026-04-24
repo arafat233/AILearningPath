@@ -51,14 +51,15 @@ import AdminQuestions  from "./pages/admin/AdminQuestions";
 import AdminTopics     from "./pages/admin/AdminTopics";
 import AdminCacheStats from "./pages/admin/AdminCacheStats";
 
+// SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
-  const token = useAuthStore((s) => s.token);
-  return token ? children : <Navigate to="/start" replace />;
+  const user = useAuthStore((s) => s.user);
+  return user ? children : <Navigate to="/start" replace />;
 };
 
 const PublicOnly = ({ children }) => {
-  const token = useAuthStore((s) => s.token);
-  return token ? <Navigate to="/" replace /> : children;
+  const user = useAuthStore((s) => s.user);
+  return user ? <Navigate to="/" replace /> : children;
 };
 
 export default function App() {

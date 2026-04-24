@@ -20,6 +20,12 @@ export function validateEnv() {
     process.exit(1);
   }
 
+  // SEC-25: Enforce minimum JWT_SECRET length
+  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+    logger.error("JWT_SECRET must be at least 32 characters — server cannot start safely");
+    process.exit(1);
+  }
+
   for (const [key, fallback] of Object.entries(OPTIONAL_WITH_DEFAULTS)) {
     if (!process.env[key]) {
       logger.warn(`Env var ${key} not set — using default: ${fallback}`);

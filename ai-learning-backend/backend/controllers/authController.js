@@ -4,20 +4,36 @@ import jwt       from "jsonwebtoken";
 import { User }  from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
+import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure:   process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge:   24 * 60 * 60 * 1000, // 1 day
+};
+
 function signToken(user) {
   return jwt.sign(
-    { id: user._id, name: user.name, role: user.role || "student" },
+    { id: user._id, jti: crypto.randomUUID() },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "1d" }
   );
 }
 
 function safeUser(user) {
   return { id: user._id, name: user.name, email: user.email, role: user.role || "student" };
 }
+
+const escHtml = (s) =>
+  String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 // ── register ──────────────────────────────────────────────────────────────────
 
@@ -29,7 +45,10 @@ export const register = async (req, res, next) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const user   = await User.create({ name, email, password: hashed, examDate, grade });
-    res.json({ data: { token: signToken(user), user: safeUser(user) } });
+    const token  = signToken(user);
+
+    res.cookie("token", token, COOKIE_OPTS);
+    res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
   }
@@ -37,16 +56,60 @@ export const register = async (req, res, next) => {
 
 // ── login ─────────────────────────────────────────────────────────────────────
 
+const MAX_LOGIN_ATTEMPTS = 10;
+const LOCK_DURATION_MS   = 15 * 60 * 1000; // 15 min
+
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return next(new AppError("No account found with this email. Please create an account first.", 404));
+    const user = await User.findOne({ email }).select("+loginAttempts +lockUntil");
+
+    // Generic message for both wrong email and wrong password — prevents user enumeration (SEC-01)
+    const GENERIC = "Invalid email or password.";
+
+    if (!user) return next(new AppError(GENERIC, 401));
+
+    // Account lockout check (SEC-23)
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const mins = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return next(new AppError(`Account locked. Try again in ${mins} minute(s).`, 429));
+    }
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return next(new AppError("Incorrect password. Please try again.", 401));
+    if (!match) {
+      const attempts = (user.loginAttempts || 0) + 1;
+      const update   = { loginAttempts: attempts };
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        update.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+      }
+      await User.findByIdAndUpdate(user._id, { $set: update });
+      return next(new AppError(GENERIC, 401));
+    }
 
-    res.json({ data: { token: signToken(user), user: safeUser(user) } });
+    // Reset lockout on successful login
+    await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: 0, lockUntil: null } });
+
+    const token = signToken(user);
+    res.cookie("token", token, COOKIE_OPTS);
+    res.json({ data: { user: safeUser(user) } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ── logout ────────────────────────────────────────────────────────────────────
+
+export const logout = async (req, res, next) => {
+  try {
+    // Blacklist the current token's JTI until it would have expired
+    if (req.user?.jti && req.user?.exp) {
+      const ttl = req.user.exp - Math.floor(Date.now() / 1000);
+      if (ttl > 0) {
+        await sessionSet(`token_blacklist:${req.user.jti}`, "1", ttl);
+      }
+    }
+    res.clearCookie("token", { httpOnly: true, sameSite: COOKIE_OPTS.sameSite, secure: COOKIE_OPTS.secure });
+    res.json({ data: { message: "Logged out successfully." } });
   } catch (err) {
     next(err);
   }
@@ -64,7 +127,6 @@ export const forgotPassword = async (req, res, next) => {
       return res.json({ data: { message: "If that email is registered, a reset link has been sent." } });
     }
 
-    // Generate a random token, hash it for storage
     const rawToken    = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
 
@@ -81,7 +143,7 @@ export const forgotPassword = async (req, res, next) => {
       html: `
         <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
           <h2 style="color:#007AFF">Reset your password</h2>
-          <p>Hi ${user.name},</p>
+          <p>Hi ${escHtml(user.name)},</p>
           <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
           <a href="${resetUrl}"
              style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
@@ -91,7 +153,6 @@ export const forgotPassword = async (req, res, next) => {
           <p style="color:#888;font-size:13px">
             If you didn't request this, you can safely ignore this email.
           </p>
-          <p style="color:#bbb;font-size:11px">Link: ${resetUrl}</p>
         </div>
       `,
     });
@@ -112,7 +173,7 @@ export const resetPassword = async (req, res, next) => {
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const user = await User.findOne({
       passwordResetToken:   hashedToken,
-      passwordResetExpires: { $gt: new Date() }, // not expired
+      passwordResetExpires: { $gt: new Date() },
     });
 
     if (!user) return next(new AppError("Reset link is invalid or has expired. Please request a new one.", 400));
@@ -120,6 +181,9 @@ export const resetPassword = async (req, res, next) => {
     user.password             = await bcrypt.hash(password, 10);
     user.passwordResetToken   = null;
     user.passwordResetExpires = null;
+    user.pwdChangedAt         = new Date(); // invalidates all existing sessions (SEC-05)
+    user.loginAttempts        = 0;
+    user.lockUntil            = null;
     await user.save();
 
     res.json({ data: { message: "Password updated successfully. You can now sign in." } });

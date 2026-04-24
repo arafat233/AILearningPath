@@ -1,14 +1,13 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const api = axios.create({ baseURL: "http://localhost:5001/api" });
-
-api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
+// SEC-03: withCredentials sends the httpOnly cookie on every request — no token in JS memory
+const api = axios.create({
+  baseURL:         "http://localhost:5001/api",
+  withCredentials: true,
 });
 
+// No Authorization header needed — cookie is sent automatically
 api.interceptors.response.use(
   (r) => r,
   (err) => {
@@ -18,9 +17,10 @@ api.interceptors.response.use(
 );
 
 // Auth
-export const register       = (data)  => api.post("/auth/register", data);
-export const login          = (data)  => api.post("/auth/login", data);
-export const forgotPassword = (email) => api.post("/auth/forgot-password", { email });
+export const register       = (data)     => api.post("/auth/register", data);
+export const login          = (data)     => api.post("/auth/login", data);
+export const logoutApi      = ()         => api.post("/auth/logout");
+export const forgotPassword = (email)    => api.post("/auth/forgot-password", { email });
 export const resetPassword  = (token, password) => api.post(`/auth/reset-password/${token}`, { password });
 
 // User / Profile

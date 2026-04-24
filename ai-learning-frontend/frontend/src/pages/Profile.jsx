@@ -39,7 +39,7 @@ function PlanBadge({ plan }) {
 }
 
 export default function Profile() {
-  const { user, setAuth, token } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const [profile, setProfile]   = useState(null);
   const [form, setForm]         = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "pass" });
   const [loading, setLoading]   = useState(true);
@@ -71,7 +71,7 @@ export default function Profile() {
     setError(""); setSuccess(false); setSaving(true);
     try {
       const { data } = await updateMe(form);
-      setAuth(token, { ...user, name: data.user.name });
+      setAuth(null, { ...user, name: data.user.name });
       setSuccess(true);
       setEditMode(false);
       timerRef.current = setTimeout(() => setSuccess(false), 3500);

@@ -1,0 +1,19 @@
+---
+type: community
+members: 2
+---
+
+# Community 61
+
+**Members:** 2 nodes
+
+## Members
+- [[AdminLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
+- [[AdminLayout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_61
+SORT file.name ASC
+```

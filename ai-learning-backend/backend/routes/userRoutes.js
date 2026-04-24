@@ -15,7 +15,8 @@ const updateMeSchema = Joi.object({
   weakTopics: Joi.array().items(Joi.string()).optional(),
 });
 
-r.get("/topics", async (req, res, next) => {
+// SEC-16: requires auth — topics list is product IP, not public data
+r.get("/topics", auth, async (req, res, next) => {
   try {
     const topics = await Topic.find().sort({ examFrequency: -1 });
     res.json(topics);

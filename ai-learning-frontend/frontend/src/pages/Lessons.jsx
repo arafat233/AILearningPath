@@ -32,7 +32,7 @@ export default function Lessons() {
     ]).then(([l, r, c]) => {
       setLessons(l.data);
       setRevisionDue(r.data);
-      setChapters(c.data);
+      setChapters(c.data?.data ?? []);
     }).finally(() => setLoading(false));
   }, []);
 

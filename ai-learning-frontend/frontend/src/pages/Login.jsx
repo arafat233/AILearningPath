@@ -106,7 +106,7 @@ export default function Login() {
               </div>
             </div>
 
-            <button className="btn-primary w-full mt-2 py-3" disabled={loading}>
+            <button type="submit" className="btn-primary w-full mt-2 py-3" disabled={loading}>
               {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>

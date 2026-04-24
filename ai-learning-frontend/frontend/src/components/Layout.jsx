@@ -1,16 +1,39 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
+function Icon({ id }) {
+  const paths = {
+    dashboard:   <><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></>,
+    lessons:     <><path d="M3 2h9a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 2v12M5 6h3M5 9h3"/></>,
+    practice:    <><path d="M11 3l2 2L5 13H3v-2L11 3z"/><path d="M9 5l2 2"/></>,
+    analytics:   <><path d="M3 13V9M7 13V5M11 13V2M13 13V7"/><path d="M1 13h14"/></>,
+    competition: <><path d="M5 2h6l-1 5H6L5 2z"/><path d="M3 2v2.5c0 1.5 1 2.5 2.5 2.5M13 2v2.5c0 1.5-1 2.5-2.5 2.5"/><path d="M8 7v4M5.5 11h5"/></>,
+    live:        <><rect x="5.5" y="1.5" width="5" height="7" rx="2.5"/><path d="M3.5 8a4.5 4.5 0 009 0M8 12.5v2M5.5 14.5h5"/></>,
+    planner:     <><rect x="2" y="3.5" width="12" height="11" rx="1.5"/><path d="M2 7.5h12M5.5 2v3M10.5 2v3"/></>,
+    voiceTutor:  <><path d="M3 8.5a5 5 0 0010 0"/><rect x="1.5" y="8" width="3" height="4.5" rx="1.5"/><rect x="11.5" y="8" width="3" height="4.5" rx="1.5"/></>,
+    profile:     <><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
+    upgrade:     <><path d="M10 2L6 8.5h4L8 14l6-7.5h-4L10 2z"/></>,
+    settings:    <><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.6 3.6l1.5 1.5M10.9 10.9l1.5 1.5M3.6 12.4l1.5-1.5M10.9 5.1l1.5-1.5"/></>,
+  };
+  return (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+         strokeLinecap="round" strokeLinejoin="round"
+         className="w-3.5 h-3.5 shrink-0" aria-hidden="true">
+      {paths[id]}
+    </svg>
+  );
+}
+
 const NAV = [
-  { to: "/",            label: "Dashboard",    icon: "⊞",  end: true },
-  { to: "/lessons",     label: "Learn",        icon: "📖" },
-  { to: "/practice",    label: "Practice",     icon: "✏️" },
-  { to: "/analytics",   label: "Analytics",    icon: "📊" },
-  { to: "/competition", label: "Competition",  icon: "🏆" },
-  { to: "/live",        label: "Live Room",    icon: "🎙" },
-  { to: "/planner",     label: "Study Planner",icon: "📅" },
-  { to: "/voice-tutor", label: "Voice Tutor",  icon: "🎧" },
-  { to: "/profile",     label: "Profile",      icon: "👤" },
+  { to: "/",            label: "Dashboard",    icon: "dashboard",   end: true },
+  { to: "/lessons",     label: "Learn",        icon: "lessons"               },
+  { to: "/practice",    label: "Practice",     icon: "practice"              },
+  { to: "/analytics",   label: "Analytics",    icon: "analytics"             },
+  { to: "/competition", label: "Competition",  icon: "competition"           },
+  { to: "/live",        label: "Live Room",    icon: "live"                  },
+  { to: "/planner",     label: "Study Planner",icon: "planner"               },
+  { to: "/voice-tutor", label: "Voice Tutor",  icon: "voiceTutor"            },
+  { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];
 
 export default function Layout() {
@@ -51,7 +74,7 @@ export default function Layout() {
               end={n.end}
               className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
             >
-              <span className="w-4 text-center text-sm leading-none">{n.icon}</span>
+              <Icon id={n.icon} />
               {n.label}
             </NavLink>
           ))}
@@ -65,14 +88,14 @@ export default function Layout() {
             to="/pricing"
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
           >
-            <span className="w-4 text-center text-sm leading-none">⚡</span>
+            <Icon id="upgrade" />
             Upgrade
           </NavLink>
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
           >
-            <span className="w-4 text-center text-sm leading-none">⚙️</span>
+            <Icon id="settings" />
             Settings
           </NavLink>
         </div>

@@ -190,7 +190,7 @@ export default function Dashboard() {
                   onClick={() => navigate("/practice", { state: { topic: t.name }, replace: false })}
                   className="group flex items-start justify-between p-4 rounded-apple-lg bg-apple-gray6
                              hover:bg-apple-blue/8 border border-transparent hover:border-apple-blue/20
-                             transition-all duration-150 text-left"
+                             transition-[background-color,border-color,transform] duration-150 active:scale-[0.97] text-left"
                 >
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-[var(--label)] group-hover:text-apple-blue truncate">
@@ -221,7 +221,7 @@ function StatCard({ label, value, sub, accent }) {
   };
   const a = accents[accent] || accents.blue;
   return (
-    <div className={`card p-5 ring-1 ${a.ring}`}>
+    <div className={`card p-5 ring-1 ${a.ring} transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-apple-lg`}>
       <p className="text-[11px] font-medium text-apple-gray mb-2">{label}</p>
       <p className={`text-[26px] font-bold tracking-tight ${a.text}`}>{value}</p>
       <p className="text-[11px] text-apple-gray mt-1">{sub}</p>

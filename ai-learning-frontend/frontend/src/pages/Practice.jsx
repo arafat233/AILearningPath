@@ -210,7 +210,7 @@ export default function Practice() {
                 <button
                   key={t}
                   onClick={() => setSelectedTopic(t)}
-                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150
+                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.97]
                     ${selectedTopic === t
                       ? "bg-apple-blue text-white shadow-apple"
                       : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
@@ -324,7 +324,7 @@ export default function Practice() {
                 onClick={() => !feedback && handleAnswer(opt.type)}
                 disabled={!!feedback || answering}
                 className={`w-full text-left px-4 py-3.5 rounded-apple-lg border text-[14px] font-medium
-                            transition-all duration-150 ${cls}`}
+                            transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.99] ${cls}`}
               >
                 <span className="mr-3 text-apple-gray text-[13px]">{String.fromCharCode(65 + i)}.</span>
                 {opt.text}
@@ -342,7 +342,7 @@ export default function Practice() {
                 <button
                   key={c}
                   onClick={() => setConfidence(c)}
-                  className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-all capitalize
+                  className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-[background-color,border-color,color] capitalize
                     ${confidence === c
                       ? "bg-apple-blue text-white border-apple-blue"
                       : "bg-apple-gray6 border-apple-gray5 text-apple-gray hover:border-apple-gray3"
@@ -360,7 +360,7 @@ export default function Practice() {
               </button>
             </div>
             {hint && (
-              <div className="bg-apple-orange/6 border border-apple-orange/20 rounded-apple-lg px-4 py-3">
+              <div className="bg-apple-orange/6 border border-apple-orange/20 rounded-apple-lg px-4 py-3 animate-enter">
                 <p className="text-[11px] font-semibold text-apple-orange uppercase tracking-wider mb-1">Hint</p>
                 <p className="text-[13px] text-[var(--label2)] leading-relaxed">{hint}</p>
               </div>
@@ -371,7 +371,7 @@ export default function Practice() {
 
       {/* Feedback card */}
       {feedback && (
-        <div className="card p-6 space-y-4">
+        <div className="card p-6 space-y-4 animate-enter">
           {/* Result header */}
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center

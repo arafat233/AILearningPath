@@ -1,4 +1,18 @@
 <!-- ============================================================ -->
+<!-- BEHAVIOUR RULES — enforced in every session                -->
+<!-- ============================================================ -->
+
+## Behaviour Rules (from claude-doctor audit)
+
+1. **Read before editing** — read the full file before making any changes. Plan all edits mentally first, then make ONE complete edit per file. If you've touched the same file 3+ times in a turn, stop and re-read the original requirements.
+
+2. **Confirm when corrected** — when the user corrects you, stop immediately. Quote back what they asked for and confirm your understanding before doing anything.
+
+3. **Stay on target** — every few turns, re-read the original request to check you haven't drifted from the goal.
+
+4. **Ask when stuck** — if the same approach has failed twice, stop retrying. Summarise what you've tried and ask the user for direction.
+
+<!-- ============================================================ -->
 <!-- ARCHITECTURE STANDARDS — enforced in every session         -->
 <!-- ============================================================ -->
 
@@ -100,3 +114,12 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 2. Use `detect_changes` for code review.
 3. Use `get_affected_flows` to understand impact.
 4. Use `query_graph` pattern="tests_for" to check coverage.
+
+## graphify
+
+This project has a graphify knowledge graph at graphify-out/.
+
+Rules:
+- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
+- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
+- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)

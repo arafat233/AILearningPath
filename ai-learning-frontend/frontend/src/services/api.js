@@ -22,6 +22,7 @@ export const login          = (data)     => api.post("/auth/login", data);
 export const logoutApi      = ()         => api.post("/auth/logout");
 export const forgotPassword = (email)    => api.post("/auth/forgot-password", { email });
 export const resetPassword  = (token, password) => api.post(`/auth/reset-password/${token}`, { password });
+export const clerkLogin     = (sessionToken) => api.post("/auth/clerk", { sessionToken });
 
 // User / Profile
 export const getMe    = ()     => api.get("/user/me");

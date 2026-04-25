@@ -1,6 +1,7 @@
 import crypto    from "crypto";
 import bcrypt    from "bcryptjs";
 import jwt       from "jsonwebtoken";
+import { createClerkClient } from "@clerk/backend";
 import { User }  from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
@@ -266,6 +267,75 @@ export const resetPassword = async (req, res, next) => {
 
     res.json({ data: { message: "Password updated successfully. You can now sign in." } });
   } catch (err) {
+    next(err);
+  }
+};
+
+// ── clerk social login ────────────────────────────────────────────────────────
+// Called after frontend completes Google OAuth via Clerk.
+// Verifies the Clerk session token, finds or creates a User, issues our JWT cookie.
+
+export const clerkAuth = async (req, res, next) => {
+  try {
+    const { sessionToken } = req.body;
+    if (!sessionToken) return next(new AppError("Missing Clerk session token", 400));
+
+    if (!process.env.CLERK_SECRET_KEY || process.env.CLERK_SECRET_KEY.startsWith("YOUR_")) {
+      return next(new AppError("Clerk is not configured on this server", 503));
+    }
+
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+
+    // Verify the token Clerk issued — throws if tampered or expired
+    const payload = await clerk.verifyToken(sessionToken);
+    const clerkUserId = payload.sub;
+
+    // Fetch the full Clerk user so we have name + email
+    const clerkUser = await clerk.users.getUser(clerkUserId);
+    const primaryEmail = clerkUser.emailAddresses.find(
+      (e) => e.id === clerkUser.primaryEmailAddressId
+    )?.emailAddress;
+
+    if (!primaryEmail) return next(new AppError("Clerk account has no verified email", 400));
+
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || "Student";
+
+    // Find existing user by clerkId, fall back to email match (links existing accounts)
+    let user = await User.findOne({ $or: [{ clerkId: clerkUserId }, { email: primaryEmail }] });
+
+    if (!user) {
+      // New user — create account (no password needed for social login)
+      user = await User.create({ name, email: primaryEmail, clerkId: clerkUserId, password: crypto.randomBytes(32).toString("hex") });
+      logger.info("New user created via Clerk social login", { email: primaryEmail });
+
+      // Welcome email
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+      sendEmail({
+        to:      user.email,
+        subject: "Welcome to AILearn 🎉",
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
+            <h2 style="color:#007AFF">Welcome, ${escHtml(name)}!</h2>
+            <p>Your account is ready. You signed in with Google — no password needed.</p>
+            <a href="${frontendUrl}/dashboard"
+               style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
+                      border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
+              Go to Dashboard
+            </a>
+          </div>
+        `,
+      }).catch(err => logger.warn("Clerk welcome email failed", { to: user.email, error: err.message }));
+    } else if (!user.clerkId) {
+      // Existing email/password user — link their Clerk ID going forward
+      await User.findByIdAndUpdate(user._id, { clerkId: clerkUserId });
+    }
+
+    await issueTokens(user, res);
+    res.json({ data: { user: safeUser(user) } });
+  } catch (err) {
+    if (err.message?.includes("expired") || err.message?.includes("invalid")) {
+      return next(new AppError("Clerk session expired. Please sign in again.", 401));
+    }
     next(err);
   }
 };

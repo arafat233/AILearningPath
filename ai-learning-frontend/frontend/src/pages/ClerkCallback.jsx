@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClerk, useSession } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
@@ -9,6 +9,8 @@ export default function ClerkCallback() {
   const { session, isLoaded }      = useSession();
   const setAuth  = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
+  const [searchParams]                  = useSearchParams();
+  const redirectTo                      = searchParams.get("to") || "/dashboard";
   const [callbackDone, setCallbackDone] = useState(false);
   const [error, setError]               = useState("");
 
@@ -35,7 +37,7 @@ export default function ClerkCallback() {
       if (!token) { setError("No session token — please try again"); return; }
       const { data } = await clerkLogin(token);
       setAuth(null, data.data.user);
-      navigate("/dashboard");
+      navigate(redirectTo);
     }).catch((err) => {
       setError(err.response?.data?.error || err.message || "Sign-in failed");
     });

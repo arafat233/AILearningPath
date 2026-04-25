@@ -19,10 +19,13 @@ function GoogleButton({ redirectTo }) {
     try {
       // Clear any stale Clerk session before starting a new OAuth flow
       if (isSignedIn) await signOut();
+      // Pass destination as a query param — ClerkCallback reads it and navigates
+      // after the backend token exchange. Do NOT set redirectUrlComplete here
+      // because Clerk would auto-navigate before our backend call can finish.
+      const callbackUrl = `${window.location.origin}/clerk-callback?to=${encodeURIComponent(redirectTo)}`;
       await signIn.authenticateWithRedirect({
-        strategy:            "oauth_google",
-        redirectUrl:         `${window.location.origin}/clerk-callback`,
-        redirectUrlComplete: `${window.location.origin}${redirectTo}`,
+        strategy:    "oauth_google",
+        redirectUrl: callbackUrl,
       });
     } catch (err) {
       setError(err.errors?.[0]?.message || "Google sign-in failed");

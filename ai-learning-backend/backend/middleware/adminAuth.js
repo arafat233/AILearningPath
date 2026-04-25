@@ -6,7 +6,10 @@ import logger from "../utils/logger.js";
 const ROLE_CACHE_TTL = 300; // 5 min — invalidate manually on role change
 
 export const adminAuth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  // Mirror auth.js — cookie first (SEC-03), Authorization header as fallback
+  const token =
+    req.cookies?.token ||
+    req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token provided" });
 
   let decoded;

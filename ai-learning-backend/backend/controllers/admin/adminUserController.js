@@ -1,5 +1,6 @@
 import { User } from "../../models/index.js";
 import { AppError } from "../../utils/AppError.js";
+import { sessionDel } from "../../utils/redisClient.js";
 
 export const listUsers = async (req, res, next) => {
   try {
@@ -25,6 +26,10 @@ export const updateUserRole = async (req, res, next) => {
     const { role } = req.body;
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select("-password");
     if (!user) return next(new AppError("User not found", 404));
+
+    // Immediately bust the role cache so demotion takes effect on the next request
+    await sessionDel(`admin_role:${req.params.id}`).catch(() => {});
+
     res.json(user);
   } catch (err) { next(err); }
 };

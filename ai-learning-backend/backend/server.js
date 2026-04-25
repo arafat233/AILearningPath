@@ -30,6 +30,7 @@ import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 import curriculumRoutes  from "./routes/curriculumRoutes.js";
 import paymentRoutes    from "./routes/paymentRoutes.js";
+import webhookRoutes    from "./routes/webhookRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
@@ -54,6 +55,10 @@ app.use(helmet({
 app.use(morgan("dev"));
 app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
+
+// Webhooks need raw body for signature verification — mount BEFORE express.json()
+app.use("/api/webhooks", webhookRoutes);
+
 app.use(express.json());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 

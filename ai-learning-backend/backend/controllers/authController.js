@@ -1,7 +1,7 @@
 import crypto    from "crypto";
 import bcrypt    from "bcryptjs";
 import jwt       from "jsonwebtoken";
-import { createClerkClient } from "@clerk/backend";
+import { createClerkClient, verifyToken } from "@clerk/backend";
 import { User }  from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
@@ -284,13 +284,14 @@ export const clerkAuth = async (req, res, next) => {
       return next(new AppError("Clerk is not configured on this server", 503));
     }
 
-    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-
-    // Verify the token Clerk issued — throws if tampered or expired
-    const payload = await clerk.verifyToken(sessionToken);
+    // verifyToken is a top-level export — it's NOT a method on the clerk client
+    const payload = await verifyToken(sessionToken, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
     const clerkUserId = payload.sub;
 
     // Fetch the full Clerk user so we have name + email
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
     const clerkUser = await clerk.users.getUser(clerkUserId);
     const primaryEmail = clerkUser.emailAddresses.find(
       (e) => e.id === clerkUser.primaryEmailAddressId

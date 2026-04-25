@@ -1,4 +1,4 @@
-import { useSignIn } from "@clerk/clerk-react";
+import { useSignIn, useClerk, useAuth } from "@clerk/clerk-react";
 import { useState } from "react";
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -6,6 +6,8 @@ const clerkReady = CLERK_KEY && !CLERK_KEY.startsWith("YOUR_");
 
 function GoogleButton({ redirectTo }) {
   const { signIn, isLoaded } = useSignIn();
+  const { signOut }          = useClerk();
+  const { isSignedIn }       = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
@@ -15,6 +17,8 @@ function GoogleButton({ redirectTo }) {
     setError("");
     setLoading(true);
     try {
+      // Clear any stale Clerk session before starting a new OAuth flow
+      if (isSignedIn) await signOut();
       await signIn.authenticateWithRedirect({
         strategy:            "oauth_google",
         redirectUrl:         `${window.location.origin}/clerk-callback`,

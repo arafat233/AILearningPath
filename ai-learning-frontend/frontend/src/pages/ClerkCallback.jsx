@@ -16,7 +16,15 @@ export default function ClerkCallback() {
   useEffect(() => {
     handleRedirectCallback()
       .then(() => setCallbackDone(true))
-      .catch((err) => setError(err.errors?.[0]?.message || err.message || "Sign-in failed"));
+      .catch((err) => {
+        const code = err.errors?.[0]?.code || "";
+        // "session_exists" means Clerk already has a valid session — just proceed
+        if (code === "session_exists" || err.message?.toLowerCase().includes("session")) {
+          setCallbackDone(true);
+        } else {
+          setError(err.errors?.[0]?.message || err.message || "Sign-in failed");
+        }
+      });
   }, []);
 
   // Step 2 — once session is loaded and callback is done, exchange with backend

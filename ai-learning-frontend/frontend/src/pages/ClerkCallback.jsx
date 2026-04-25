@@ -1,35 +1,37 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk, useSession } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
 
 export default function ClerkCallback() {
-  const { handleRedirectCallback, session } = useClerk();
+  const { handleRedirectCallback } = useClerk();
+  const { session, isLoaded }      = useSession();
   const setAuth  = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [callbackDone, setCallbackDone] = useState(false);
+  const [error, setError]               = useState("");
 
+  // Step 1 — complete the OAuth redirect
   useEffect(() => {
-    async function finish() {
-      try {
-        // Complete the OAuth redirect
-        await handleRedirectCallback();
-
-        // Get the active session token and exchange it with our backend
-        const token = await session?.getToken();
-        if (!token) throw new Error("No session token after Clerk callback");
-
-        const { data } = await clerkLogin(token);
-        setAuth(null, data.data.user);
-
-        navigate("/dashboard");
-      } catch (err) {
-        setError(err.response?.data?.error || err.message || "Sign-in failed");
-      }
-    }
-    finish();
+    handleRedirectCallback()
+      .then(() => setCallbackDone(true))
+      .catch((err) => setError(err.errors?.[0]?.message || err.message || "Sign-in failed"));
   }, []);
+
+  // Step 2 — once session is loaded and callback is done, exchange with backend
+  useEffect(() => {
+    if (!callbackDone || !isLoaded || !session) return;
+
+    session.getToken().then(async (token) => {
+      if (!token) { setError("No session token — please try again"); return; }
+      const { data } = await clerkLogin(token);
+      setAuth(null, data.data.user);
+      navigate("/dashboard");
+    }).catch((err) => {
+      setError(err.response?.data?.error || err.message || "Sign-in failed");
+    });
+  }, [callbackDone, isLoaded, session]);
 
   if (error) {
     return (

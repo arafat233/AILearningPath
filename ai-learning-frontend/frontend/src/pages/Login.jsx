@@ -116,7 +116,7 @@ export default function Login() {
             <div className="flex-1 h-px bg-[var(--separator)]" />
           </div>
 
-          <GoogleSignInButton redirectTo="/dashboard" />
+          <GoogleSignInButton redirectTo="/" />
 
           <div className="divider my-5" />
 

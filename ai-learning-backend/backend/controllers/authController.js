@@ -5,6 +5,7 @@ import { User }  from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
+import logger from "../utils/logger.js";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,28 @@ export const register = async (req, res, next) => {
     const hashed = await bcrypt.hash(password, 10);
     const user   = await User.create({ name, email, password: hashed, examDate, grade });
     await issueTokens(user, res);
+
+    // Welcome email — fire-and-forget so a delivery hiccup never blocks login
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    sendEmail({
+      to:      user.email,
+      subject: "Welcome to AILearn 🎉",
+      html: `
+        <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
+          <h2 style="color:#007AFF">Welcome, ${escHtml(user.name)}!</h2>
+          <p>Your account is ready. Start your learning journey now.</p>
+          <a href="${frontendUrl}/dashboard"
+             style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
+                    border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
+            Go to Dashboard
+          </a>
+          <p style="color:#888;font-size:13px">
+            If you didn't create this account, please ignore this email.
+          </p>
+        </div>
+      `,
+    }).catch(err => logger.warn("Welcome email failed", { to: user.email, error: err.message }));
+
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { register } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 function passwordStrength(pw) {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -141,6 +142,14 @@ export default function Register() {
               {loading ? "Creating…" : "Create Account"}
             </button>
           </form>
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-[var(--separator)]" />
+            <span className="text-[11px] text-apple-gray uppercase tracking-wide">or</span>
+            <div className="flex-1 h-px bg-[var(--separator)]" />
+          </div>
+
+          <GoogleSignInButton redirectTo="/onboarding" />
 
           <div className="divider my-5" />
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
-- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
+- [[playwright.config.js]] - code - E:\AILearningPath\e2e-bot\playwright.config.js
 
 ## Live Query (requires Dataview plugin)
 

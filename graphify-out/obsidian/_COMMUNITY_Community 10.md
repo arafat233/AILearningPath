@@ -1,22 +1,32 @@
 ---
 type: community
-members: 9
+members: 19
 ---
 
 # Community 10
 
-**Members:** 9 nodes
+**Members:** 19 nodes
 
 ## Members
-- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,3 +34,9 @@ members: 9
 TABLE source_file, type FROM #community/Community_10
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 8]]
+
+## Top bridge nodes
+- [[questionGenerator.js]] - degree 19, connects to 1 community

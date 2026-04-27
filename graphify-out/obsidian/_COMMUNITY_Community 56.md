@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Onboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
-- [[Onboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
+- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
 ## Live Query (requires Dataview plugin)
 

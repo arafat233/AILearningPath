@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 1"
+community: "Community 2"
 location: "section 7"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # adminAuth.js Middleware — Role Guard
@@ -15,4 +15,4 @@ tags:
 - [[Admin Routes (apiadmin)]] - `references` [EXTRACTED]
 - [[Backend (Express + Node, port 5001)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_1
+#graphify/document #graphify/EXTRACTED #community/Community_2

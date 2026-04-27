@@ -1,0 +1,433 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "global-setup.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\global-setup.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_global_setup_js",
+      "community": 3,
+      "norm_label": "global-setup.js"
+    },
+    {
+      "label": "globalSetup()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\global-setup.js",
+      "source_location": "L16",
+      "id": "global_setup_globalsetup",
+      "community": 3,
+      "norm_label": "globalsetup()"
+    },
+    {
+      "label": "playwright.config.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\playwright.config.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_playwright_config_js",
+      "community": 5,
+      "norm_label": "playwright.config.js"
+    },
+    {
+      "label": "auth.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\auth.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_helpers_auth_js",
+      "community": 1,
+      "norm_label": "auth.js"
+    },
+    {
+      "label": "injectAuth()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\auth.js",
+      "source_location": "L13",
+      "id": "auth_injectauth",
+      "community": 1,
+      "norm_label": "injectauth()"
+    },
+    {
+      "label": "waitForPage()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\auth.js",
+      "source_location": "L38",
+      "id": "auth_waitforpage",
+      "community": 1,
+      "norm_label": "waitforpage()"
+    },
+    {
+      "label": "fixtures.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\fixtures.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_helpers_fixtures_js",
+      "community": 4,
+      "norm_label": "fixtures.js"
+    },
+    {
+      "label": "loadToken()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\fixtures.js",
+      "source_location": "L11",
+      "id": "fixtures_loadtoken",
+      "community": 4,
+      "norm_label": "loadtoken()"
+    },
+    {
+      "label": "issue-reporter.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_reporter_issue_reporter_js",
+      "community": 0,
+      "norm_label": "issue-reporter.js"
+    },
+    {
+      "label": "IssueReporter",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L9",
+      "id": "issue_reporter_issuereporter",
+      "community": 0,
+      "norm_label": "issuereporter"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L10",
+      "id": "issue_reporter_issuereporter_constructor",
+      "community": 0,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".onBegin()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L18",
+      "id": "issue_reporter_issuereporter_onbegin",
+      "community": 0,
+      "norm_label": ".onbegin()"
+    },
+    {
+      "label": ".onTestEnd()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L29",
+      "id": "issue_reporter_issuereporter_ontestend",
+      "community": 0,
+      "norm_label": ".ontestend()"
+    },
+    {
+      "label": ".onEnd()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L46",
+      "id": "issue_reporter_issuereporter_onend",
+      "community": 2,
+      "norm_label": ".onend()"
+    },
+    {
+      "label": "._name()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L78",
+      "id": "issue_reporter_issuereporter_name",
+      "community": 0,
+      "norm_label": "._name()"
+    },
+    {
+      "label": "._componentReport()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L82",
+      "id": "issue_reporter_issuereporter_componentreport",
+      "community": 2,
+      "norm_label": "._componentreport()"
+    },
+    {
+      "label": "._summary()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L121",
+      "id": "issue_reporter_issuereporter_summary",
+      "community": 2,
+      "norm_label": "._summary()"
+    },
+    {
+      "label": "01_auth.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\01_auth.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_01_auth_spec_js",
+      "community": 6,
+      "norm_label": "01_auth.spec.js"
+    },
+    {
+      "label": "02_dashboard.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\02_dashboard.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_02_dashboard_spec_js",
+      "community": 7,
+      "norm_label": "02_dashboard.spec.js"
+    },
+    {
+      "label": "03_lessons.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\03_lessons.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_03_lessons_spec_js",
+      "community": 8,
+      "norm_label": "03_lessons.spec.js"
+    },
+    {
+      "label": "04_practice.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\04_practice.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_04_practice_spec_js",
+      "community": 9,
+      "norm_label": "04_practice.spec.js"
+    },
+    {
+      "label": "05_analytics.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\05_analytics.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_05_analytics_spec_js",
+      "community": 10,
+      "norm_label": "05_analytics.spec.js"
+    },
+    {
+      "label": "06_planner.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\06_planner.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_06_planner_spec_js",
+      "community": 11,
+      "norm_label": "06_planner.spec.js"
+    },
+    {
+      "label": "07_profile.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\07_profile.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_07_profile_spec_js",
+      "community": 12,
+      "norm_label": "07_profile.spec.js"
+    },
+    {
+      "label": "08_settings.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\08_settings.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_08_settings_spec_js",
+      "community": 13,
+      "norm_label": "08_settings.spec.js"
+    },
+    {
+      "label": "09_competition.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\09_competition.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_09_competition_spec_js",
+      "community": 14,
+      "norm_label": "09_competition.spec.js"
+    },
+    {
+      "label": "10_navigation.spec.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\tests\\10_navigation.spec.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_e2e_bot_tests_10_navigation_spec_js",
+      "community": 15,
+      "norm_label": "10_navigation.spec.js"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\global-setup.js",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_e2e_bot_global_setup_js",
+      "_tgt": "global_setup_globalsetup",
+      "source": "e_ailearningpath_e2e_bot_global_setup_js",
+      "target": "global_setup_globalsetup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\auth.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_e2e_bot_helpers_auth_js",
+      "_tgt": "auth_injectauth",
+      "source": "e_ailearningpath_e2e_bot_helpers_auth_js",
+      "target": "auth_injectauth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\auth.js",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_e2e_bot_helpers_auth_js",
+      "_tgt": "auth_waitforpage",
+      "source": "e_ailearningpath_e2e_bot_helpers_auth_js",
+      "target": "auth_waitforpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\helpers\\fixtures.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_e2e_bot_helpers_fixtures_js",
+      "_tgt": "fixtures_loadtoken",
+      "source": "e_ailearningpath_e2e_bot_helpers_fixtures_js",
+      "target": "fixtures_loadtoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_e2e_bot_reporter_issue_reporter_js",
+      "_tgt": "issue_reporter_issuereporter",
+      "source": "e_ailearningpath_e2e_bot_reporter_issue_reporter_js",
+      "target": "issue_reporter_issuereporter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_constructor",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_onbegin",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_onbegin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_ontestend",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_ontestend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L46",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_onend",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_onend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L78",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_name",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_name",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_componentreport",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_componentreport",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter",
+      "_tgt": "issue_reporter_issuereporter_summary",
+      "source": "issue_reporter_issuereporter",
+      "target": "issue_reporter_issuereporter_summary",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter_ontestend",
+      "_tgt": "issue_reporter_issuereporter_name",
+      "source": "issue_reporter_issuereporter_ontestend",
+      "target": "issue_reporter_issuereporter_name",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter_onend",
+      "_tgt": "issue_reporter_issuereporter_componentreport",
+      "source": "issue_reporter_issuereporter_onend",
+      "target": "issue_reporter_issuereporter_componentreport",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_src": "issue_reporter_issuereporter_onend",
+      "_tgt": "issue_reporter_issuereporter_summary",
+      "source": "issue_reporter_issuereporter_onend",
+      "target": "issue_reporter_issuereporter_summary",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}

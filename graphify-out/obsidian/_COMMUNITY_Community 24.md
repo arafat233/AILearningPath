@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[Dashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[Dashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[getGreeting()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[BadgeToast()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[BadgeToast.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[defaultIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[labelFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
 
 ## Live Query (requires Dataview plugin)
 

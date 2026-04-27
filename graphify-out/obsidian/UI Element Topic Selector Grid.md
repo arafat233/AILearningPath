@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 6"
+community: "Community 7"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_7
 ---
 
 # UI Element: Topic Selector Grid
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[UI Element Start Practice Button]] - `conceptually_related_to` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_6
+#graphify/document #graphify/INFERRED #community/Community_7

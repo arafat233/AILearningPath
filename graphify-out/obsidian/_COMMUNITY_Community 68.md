@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 68
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[Onboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
+- [[Onboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
 
 ## Live Query (requires Dataview plugin)
 

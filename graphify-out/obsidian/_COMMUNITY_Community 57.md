@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[validateEnv()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
+- [[validateEnv.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
-- [[AdminTopics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
+- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
 
 ## Live Query (requires Dataview plugin)
 

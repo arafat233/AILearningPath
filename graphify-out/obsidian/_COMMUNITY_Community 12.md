@@ -1,20 +1,22 @@
 ---
 type: community
-members: 7
+members: 9
 ---
 
 # Community 12
 
-**Members:** 7 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[adminQuestionController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[createQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[deleteQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[getFlaggedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[listQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[unflagQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[updateQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
 
 ## Live Query (requires Dataview plugin)
 

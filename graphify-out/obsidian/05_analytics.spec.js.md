@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\tests\05_analytics.spec.js"
 type: "code"
-community: "Community 109"
+community: "Community 126"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_109
+  - community/Community_126
 ---
 
 # 05_analytics.spec.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_109
+#graphify/code #graphify/EXTRACTED #community/Community_126

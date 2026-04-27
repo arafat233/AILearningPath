@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
-- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[unitBadgeClass()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[auth.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[makeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[mockReqRes()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
 
 ## Live Query (requires Dataview plugin)
 

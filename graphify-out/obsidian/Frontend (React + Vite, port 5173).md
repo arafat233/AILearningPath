@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 5"
+community: "Community 4"
 location: "section 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_4
 ---
 
 # Frontend (React + Vite, port 5173)
@@ -31,4 +31,4 @@ tags:
 - [[api.js — Axios API Service]] - `references` [EXTRACTED]
 - [[authStore — Zustand Auth State]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_5
+#graphify/document #graphify/EXTRACTED #community/Community_4

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js"
 type: "code"
-community: "Community 18"
-location: "L126"
+community: "Community 1"
+location: "L130"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_18
+  - community/Community_1
 ---
 
 # getSubscription()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[paymentService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_18
+#graphify/code #graphify/EXTRACTED #community/Community_1

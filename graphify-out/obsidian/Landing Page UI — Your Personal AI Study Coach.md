@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png"
 type: "image"
-community: "Community 8"
+community: "Community 9"
 tags:
   - graphify/image
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_9
 ---
 
 # Landing Page UI — Your Personal AI Study Coach
@@ -17,4 +17,4 @@ tags:
 - [[Landing Page — Start My Learning Journey CTA Button]] - `references` [EXTRACTED]
 - [[Login Page UI]] - `conceptually_related_to` [INFERRED]
 
-#graphify/image #graphify/EXTRACTED #community/Community_8
+#graphify/image #graphify/EXTRACTED #community/Community_9

@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 6"
+community: "Community 7"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_7
 ---
 
 # Practice Feature
@@ -14,4 +14,4 @@ tags:
 - [[E2E Bot Summary Report]] - `references` [EXTRACTED]
 - [[Practice E2E Report]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_6
+#graphify/document #graphify/EXTRACTED #community/Community_7

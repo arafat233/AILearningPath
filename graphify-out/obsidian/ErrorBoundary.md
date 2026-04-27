@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx"
 type: "code"
-community: "Community 11"
+community: "Community 13"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_13
 ---
 
 # ErrorBoundary
@@ -17,4 +17,4 @@ tags:
 - [[.render()]] - `method` [EXTRACTED]
 - [[App.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_13

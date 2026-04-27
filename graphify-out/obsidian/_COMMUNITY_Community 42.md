@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 42
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
-- [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[unitBadgeClass()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
 
 ## Live Query (requires Dataview plugin)
 

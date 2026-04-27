@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 6"
+community: "Community 7"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_7
 ---
 
 # Error: toBeDisabled() failed - element not found
@@ -14,4 +14,4 @@ tags:
 - [[Root Issue Auth state not injected - practice page shows landing page instead]] - `rationale_for` [INFERRED]
 - [[Test Practice Start Practice disabled when no topic selected]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_6
+#graphify/document #graphify/EXTRACTED #community/Community_7

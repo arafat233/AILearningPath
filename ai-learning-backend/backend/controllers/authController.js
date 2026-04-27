@@ -79,7 +79,7 @@ export const register = async (req, res, next) => {
 
     // Welcome email — fire-and-forget so a delivery hiccup never blocks login
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    sendEmail({
+    Promise.resolve(sendEmail({
       to:      user.email,
       subject: "Welcome to AILearn 🎉",
       html: `
@@ -96,7 +96,7 @@ export const register = async (req, res, next) => {
           </p>
         </div>
       `,
-    }).catch(err => logger.warn("Welcome email failed", { to: user.email, error: err.message }));
+    })).catch(err => logger.warn("Welcome email failed", { to: user.email, error: err.message }));
 
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
@@ -334,9 +334,8 @@ export const clerkAuth = async (req, res, next) => {
     await issueTokens(user, res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
-    if (err.message?.includes("expired") || err.message?.includes("invalid")) {
-      return next(new AppError("Clerk session expired. Please sign in again.", 401));
-    }
-    next(err);
+    logger.warn("clerkAuth error", { message: err.message, code: err.code });
+    // Any error from verifyToken or the Clerk API means the session is bad
+    return next(new AppError("Google sign-in failed — please try again.", 401));
   }
 };

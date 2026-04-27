@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
+- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
 
 ## Live Query (requires Dataview plugin)
 

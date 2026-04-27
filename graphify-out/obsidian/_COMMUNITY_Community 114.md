@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[10_navigation.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\10_navigation.spec.js
+- [[vite.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\vite.config.js
 
 ## Live Query (requires Dataview plugin)
 

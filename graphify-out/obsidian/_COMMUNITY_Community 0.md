@@ -1,11 +1,11 @@
 ---
 type: community
-members: 65
+members: 67
 ---
 
 # Community 0
 
-**Members:** 65 nodes
+**Members:** 67 nodes
 
 ## Members
 - [[adminCreateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -24,6 +24,7 @@ members: 65
 - [[api.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[askTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[clearDoubtThread()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[clerkLogin()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[createOrder()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[evaluateExplanation()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[flagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -59,6 +60,7 @@ members: 65
 - [[listExams()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listLessons()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[logoutApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[markDayComplete()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[markRevised()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js

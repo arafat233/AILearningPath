@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[GoogleButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
+- [[GoogleSignInButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
+- [[GoogleSignInButton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
 
 ## Live Query (requires Dataview plugin)
 

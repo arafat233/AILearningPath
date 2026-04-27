@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 78
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[badgeRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\badgeRoutes.js
+- [[AdminUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
+- [[AdminUsers.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
 
 ## Live Query (requires Dataview plugin)
 

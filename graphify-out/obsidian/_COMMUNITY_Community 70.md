@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 70
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[seedLessons.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedLessons.js
+- [[Portal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Portal.jsx
+- [[Portal.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Portal.jsx
 
 ## Live Query (requires Dataview plugin)
 

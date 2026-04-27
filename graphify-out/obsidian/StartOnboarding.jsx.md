@@ -1,21 +1,17 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx"
 type: "code"
-community: "Community 14"
+community: "Community 71"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_14
+  - community/Community_71
 ---
 
 # StartOnboarding.jsx
 
 ## Connections
-- [[NavRow()]] - `contains` [EXTRACTED]
-- [[PlanItem()]] - `contains` [EXTRACTED]
-- [[Screen()]] - `contains` [EXTRACTED]
 - [[StartOnboarding()]] - `contains` [EXTRACTED]
-- [[StepLabel()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_14
+#graphify/code #graphify/EXTRACTED #community/Community_71

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js"
 type: "code"
-community: "Community 21"
+community: "Community 22"
 location: "L19"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_22
 ---
 
 # getChapter()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[curriculumController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_22

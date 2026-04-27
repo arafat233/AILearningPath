@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[vite.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\vite.config.js
+- [[paymentRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\paymentRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

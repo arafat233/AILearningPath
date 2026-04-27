@@ -1,42 +1,46 @@
 ---
 type: community
-members: 29
+members: 33
 ---
 
 # Community 5
 
-**Members:** 29 nodes
+**Members:** 33 nodes
 
 ## Members
-- [[AdminOverview Page (admin)]] - document - BLUEPRINT.md
-- [[Analytics Page (analytics)]] - document - BLUEPRINT.md
-- [[BadgeToast.jsx Component]] - document - BLUEPRINT.md
-- [[ChapterView Page (chaptersn)]] - document - BLUEPRINT.md
-- [[Competition Page (competition)]] - document - BLUEPRINT.md
-- [[Dashboard Page ()]] - document - BLUEPRINT.md
-- [[Doubt Routes (apidoubtquestionId)]] - document - BLUEPRINT.md
-- [[DoubtChat.jsx Component — Multi-Turn Chat]] - document - BLUEPRINT.md
-- [[DoubtThread Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[E2E Issue Analytics accuracy stat not visible]] - document - e2e-bot/reports/analytics.md
-- [[E2E Issue Lessons page redirects to start instead of lessons]] - document - e2e-bot/reports/lessons.md
-- [[E2E Report Analytics (1 issue — Accuracy stat not visible)]] - document - e2e-bot/reports/analytics.md
-- [[E2E Report Competition (all 6 checks passed)]] - document - e2e-bot/reports/competition.md
-- [[E2E Report Dashboard (all 9 checks passed)]] - document - e2e-bot/reports/dashboard.md
-- [[E2E Report Lessons (1 issue — URL redirected to start instead of lessons)]] - document - e2e-bot/reports/lessons.md
-- [[E2E Report Navigation (all 15 checks passed)]] - document - e2e-bot/reports/navigation.md
-- [[Frontend (React + Vite, port 5173)]] - document - BLUEPRINT.md
-- [[Frontend Stack (README) React 18 + Vite + Tailwind + Zustand + Recharts]] - document - ai-learning-frontend/frontend/README.md
-- [[Layout.jsx Component — Sidebar Nav]] - document - BLUEPRINT.md
-- [[Lessons Page (lessons)]] - document - BLUEPRINT.md
-- [[PWA — Service Worker + Push Notifications]] - document - BLUEPRINT.md
-- [[Portal Page (portal) — ParentTeacher]] - document - BLUEPRINT.md
-- [[Portal Routes (apiportal)]] - document - BLUEPRINT.md
-- [[Practice Page (practice)]] - document - BLUEPRINT.md
-- [[User Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[VoiceTutor Page (voice-tutor)]] - document - BLUEPRINT.md
-- [[api.js — Axios API Service]] - document - BLUEPRINT.md
-- [[authStore — Zustand Auth State]] - document - BLUEPRINT.md
-- [[index.html — PWA manifest + theme-color meta]] - document - ai-learning-frontend/frontend/index.html
+- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -47,9 +51,11 @@ SORT file.name ASC
 
 ## Connections to other communities
 - 4 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
-- [[Frontend (React + Vite, port 5173)]] - degree 18, connects to 1 community
-- [[ChapterView Page (chaptersn)]] - degree 2, connects to 1 community
-- [[BadgeToast.jsx Component]] - degree 2, connects to 1 community
-- [[api.js — Axios API Service]] - degree 2, connects to 1 community
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community
+- [[generateAIQuestion()]] - degree 3, connects to 1 community

@@ -55,7 +55,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 8 edges to [[_COMMUNITY_Community 6]]
+- 8 edges to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
 - [[Test Outcome Passed]] - degree 18, connects to 1 community

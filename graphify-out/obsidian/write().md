@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\logger.js"
 type: "code"
-community: "Community 49"
+community: "Community 56"
 location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_49
+  - community/Community_56
 ---
 
 # write()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[logger.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_49
+#graphify/code #graphify/EXTRACTED #community/Community_56

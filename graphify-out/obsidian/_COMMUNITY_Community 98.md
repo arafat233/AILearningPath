@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[plannerRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\plannerRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

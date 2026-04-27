@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
+- [[topicRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\topicRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

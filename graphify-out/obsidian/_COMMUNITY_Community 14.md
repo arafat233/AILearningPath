@@ -1,19 +1,20 @@
 ---
 type: community
-members: 6
+members: 7
 ---
 
 # Community 14
 
-**Members:** 6 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[NavRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[PlanItem()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[Screen()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StartOnboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StartOnboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StepLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
+- [[generateInvite()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[generateUniqueCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[linkStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 
 ## Live Query (requires Dataview plugin)
 

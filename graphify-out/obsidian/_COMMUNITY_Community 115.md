@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Question Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

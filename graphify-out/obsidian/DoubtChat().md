@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx"
 type: "code"
-community: "Community 51"
+community: "Community 62"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_51
+  - community/Community_62
 ---
 
 # DoubtChat()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[DoubtChat.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_51
+#graphify/code #graphify/EXTRACTED #community/Community_62

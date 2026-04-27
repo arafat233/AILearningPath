@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js"
 type: "code"
-community: "Community 17"
+community: "Community 19"
 location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_17
+  - community/Community_19
 ---
 
 # updateTopic()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[adminTopicController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_17
+#graphify/code #graphify/EXTRACTED #community/Community_19

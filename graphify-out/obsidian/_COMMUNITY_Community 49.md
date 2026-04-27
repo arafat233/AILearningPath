@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
-- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

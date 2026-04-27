@@ -1,21 +1,28 @@
 ---
 type: community
-members: 8
+members: 15
 ---
 
 # Community 11
 
-**Members:** 8 nodes
+**Members:** 15 nodes
 
 ## Members
-- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -23,3 +30,12 @@ members: 8
 TABLE source_file, type FROM #community/Community_11
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 4 edges to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 8]]
+
+## Top bridge nodes
+- [[updateQuestionStats()]] - degree 4, connects to 2 communities
+- [[submitExam()]] - degree 8, connects to 1 community
+- [[startExam()]] - degree 3, connects to 1 community

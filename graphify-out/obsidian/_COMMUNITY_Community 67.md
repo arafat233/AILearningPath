@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[fixtures.js]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
-- [[loadToken()]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
+- [[Login()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Login.jsx
+- [[Login.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Login.jsx
 
 ## Live Query (requires Dataview plugin)
 

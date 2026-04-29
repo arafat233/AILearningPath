@@ -1,31 +1,73 @@
 import { useSignIn, useClerk, useAuth } from "@clerk/clerk-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const clerkReady = CLERK_KEY && !CLERK_KEY.startsWith("YOUR_");
 
 function GoogleButton({ redirectTo }) {
-  const { signIn, isLoaded } = useSignIn();
-  const { signOut }          = useClerk();
-  const { isSignedIn }       = useAuth();
+  const { signIn, isLoaded }  = useSignIn();
+  const { signOut }           = useClerk();
+  const { isSignedIn }        = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+  // Tracks a pending OAuth request that was blocked by an active Clerk session.
+  // We sign out first, then this effect re-runs with the fresh signIn instance.
+  const pendingOAuth = useRef(false);
 
   if (!isLoaded) return null;
+
+  // When signOut completes, isSignedIn flips to false and this effect fires with
+  // a fresh signIn instance — avoids the "stale signIn after signOut" race.
+  useEffect(() => {
+    if (!isLoaded || !signIn || isSignedIn || !pendingOAuth.current) return;
+    pendingOAuth.current = false;
+
+    const destination     = sessionStorage.getItem("postGoogleRedirect") || redirectTo || "/";
+    const encoded         = encodeURIComponent(destination);
+    const callbackUrl     = `${window.location.origin}/clerk-callback?to=${encoded}`;
+    const exchangeUrl     = `${window.location.origin}/clerk-callback?stage=exchange&to=${encoded}`;
+
+    signIn.authenticateWithRedirect({
+      strategy:            "oauth_google",
+      redirectUrl:         callbackUrl,
+      redirectUrlComplete: exchangeUrl,
+      oidcPrompt:          "select_account",
+    }).catch((err) => {
+      setError(err.errors?.[0]?.message || "Google sign-in failed");
+      setLoading(false);
+    });
+  }, [isLoaded, isSignedIn, signIn, redirectTo]);
 
   const handleGoogle = async () => {
     setError("");
     setLoading(true);
+    const destination = redirectTo || "/";
+    try { sessionStorage.setItem("postGoogleRedirect", destination); } catch { /* ignore */ }
+
+    if (isSignedIn) {
+      // Active Clerk session — sign out first so the OAuth flow can start cleanly.
+      // The useEffect above will fire once isSignedIn flips to false.
+      pendingOAuth.current = true;
+      try {
+        await signOut();
+      } catch {
+        pendingOAuth.current = false;
+        setError("Sign-out failed. Please try again.");
+        setLoading(false);
+      }
+      return;
+    }
+
+    // No active session — start OAuth directly.
+    const encoded     = encodeURIComponent(destination);
+    const callbackUrl = `${window.location.origin}/clerk-callback?to=${encoded}`;
+    const exchangeUrl = `${window.location.origin}/clerk-callback?stage=exchange&to=${encoded}`;
     try {
-      // Clear any stale Clerk session before starting a new OAuth flow
-      if (isSignedIn) await signOut();
-      // Pass destination as a query param — ClerkCallback reads it and navigates
-      // after the backend token exchange. Do NOT set redirectUrlComplete here
-      // because Clerk would auto-navigate before our backend call can finish.
-      const callbackUrl = `${window.location.origin}/clerk-callback?to=${encodeURIComponent(redirectTo)}`;
       await signIn.authenticateWithRedirect({
-        strategy:    "oauth_google",
-        redirectUrl: callbackUrl,
+        strategy:            "oauth_google",
+        redirectUrl:         callbackUrl,
+        redirectUrlComplete: exchangeUrl,
+        oidcPrompt:          "select_account",
       });
     } catch (err) {
       setError(err.errors?.[0]?.message || "Google sign-in failed");

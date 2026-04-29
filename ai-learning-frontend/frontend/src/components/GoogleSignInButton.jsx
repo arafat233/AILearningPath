@@ -25,12 +25,11 @@ function GoogleButton({ redirectTo }) {
     const destination     = sessionStorage.getItem("postGoogleRedirect") || redirectTo || "/";
     const encoded         = encodeURIComponent(destination);
     const callbackUrl     = `${window.location.origin}/clerk-callback?to=${encoded}`;
-    const exchangeUrl     = `${window.location.origin}/clerk-callback?stage=exchange&to=${encoded}`;
 
     signIn.authenticateWithRedirect({
       strategy:            "oauth_google",
       redirectUrl:         callbackUrl,
-      redirectUrlComplete: exchangeUrl,
+      redirectUrlComplete: callbackUrl,
       oidcPrompt:          "select_account",
     }).catch((err) => {
       setError(err.errors?.[0]?.message || "Google sign-in failed");
@@ -61,12 +60,11 @@ function GoogleButton({ redirectTo }) {
     // No active session — start OAuth directly.
     const encoded     = encodeURIComponent(destination);
     const callbackUrl = `${window.location.origin}/clerk-callback?to=${encoded}`;
-    const exchangeUrl = `${window.location.origin}/clerk-callback?stage=exchange&to=${encoded}`;
     try {
       await signIn.authenticateWithRedirect({
         strategy:            "oauth_google",
         redirectUrl:         callbackUrl,
-        redirectUrlComplete: exchangeUrl,
+        redirectUrlComplete: callbackUrl,
         oidcPrompt:          "select_account",
       });
     } catch (err) {

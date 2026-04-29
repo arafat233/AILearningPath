@@ -48,9 +48,11 @@ export default function ClerkCallback() {
   const didExchange = useRef(false);
 
   // Helper: exchange Clerk session token for a backend JWT and redirect.
-  const doExchange = async () => {
-    if (didExchange.current) return false;
-    const token = await getToken().catch(() => null);
+  const doExchange = async (label) => {
+    if (didExchange.current) { console.log(`[CB:${label}] skip — already exchanged`); return false; }
+    console.log(`[CB:${label}] calling getToken()...`);
+    const token = await getToken().catch((e) => { console.log(`[CB:${label}] getToken threw`, e); return null; });
+    console.log(`[CB:${label}] getToken result:`, token ? "GOT TOKEN" : "NULL");
     if (!token) return false;
     didExchange.current = true;
     try {
@@ -58,50 +60,50 @@ export default function ClerkCallback() {
       setAuth(null, data.data.user);
       const finalRedirect = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
       try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
+      console.log(`[CB:${label}] exchange OK, navigating to`, finalRedirect);
       window.location.href = finalRedirect;
       return true;
     } catch (err) {
-      console.error("[ClerkCallback] exchange error:", err);
-      didExchange.current = false; // allow fallback to retry
+      console.error(`[CB:${label}] backend exchange error:`, err);
+      didExchange.current = false;
       setError(err.response?.data?.error || err.message || "Sign-in failed");
       return false;
     }
   };
 
-  // Step 1 (no-stage page only): complete OAuth redirect, then immediately attempt the
-  // backend exchange while the Clerk session is still live in THIS page's memory.
-  // All previous approaches tried to exchange on the stage=exchange page (after Clerk
-  // navigates away), where the session may not yet be readable — this is the root cause
-  // of the "click twice" bug. Exchanging in the .then() of handleRedirectCallback()
-  // runs as a microtask before any browser navigation can take effect.
   useEffect(() => {
     if (stage === "exchange") return;
     if (didHandle.current) return;
     didHandle.current = true;
+    console.log("[CB] Step1: calling handleRedirectCallback()...");
 
     handleRedirectCallback()
       .then(async () => {
-        await doExchange();        // best-effort: session is fresh in memory here
+        console.log("[CB] Step1: handleRedirectCallback resolved. isSignedIn=", isSignedIn, "isLoaded=", isLoaded);
+        await doExchange("then");
       })
       .catch((err) => {
-        console.error("[ClerkCallback] handleRedirectCallback error:", err);
+        console.error("[CB] Step1: handleRedirectCallback ERROR:", err);
         setError(err.errors?.[0]?.longMessage || err.message || "Google sign-in failed");
       })
-      .finally(() => setCallbackDone(true));
+      .finally(() => { console.log("[CB] Step1: finally → callbackDone=true"); setCallbackDone(true); });
   }, [handleRedirectCallback, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Step 2 fallback: if Clerk navigated to stage=exchange before the .then() exchange
-  // could complete, wait for isSignedIn to become true on this page and retry.
+  // Log every render so we can see state transitions
+  console.log("[CB] render — stage:", stage, "callbackDone:", callbackDone, "isLoaded:", isLoaded, "isSignedIn:", isSignedIn, "error:", error);
+
   useEffect(() => {
     if (!callbackDone || !isLoaded || !isSignedIn || didExchange.current || error) return;
-    doExchange();
+    console.log("[CB] Step2 fallback: isSignedIn is now true, attempting exchange...");
+    doExchange("step2");
   }, [callbackDone, isLoaded, isSignedIn, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Timeout fallback: if isSignedIn never becomes true, show error after 15 seconds.
   useEffect(() => {
     if (!callbackDone || !isLoaded || didExchange.current || error) return;
+    console.log("[CB] Timeout: started (", SIGN_IN_TIMEOUT_MS, "ms)");
     const t = setTimeout(() => {
       if (!didExchange.current) {
+        console.log("[CB] Timeout: fired — isSignedIn was never true");
         setError("Google sign-in did not complete. Please try again.");
       }
     }, SIGN_IN_TIMEOUT_MS);

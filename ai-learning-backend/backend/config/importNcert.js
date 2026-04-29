@@ -53,6 +53,22 @@ async function importChapters() {
   return total;
 }
 
+async function upsertTopic(topicId, chapterNumber, topic) {
+  await NcertTopicContent.findOneAndUpdate(
+    { topicId },
+    {
+      topicId,
+      chapterNumber,
+      name:                   topic.name ?? "",
+      prerequisite_knowledge: topic.prerequisite_knowledge ?? [],
+      key_formulas:           topic.key_formulas ?? [],
+      teaching_content:       topic.teaching_content ?? {},
+    },
+    { upsert: true, new: true }
+  );
+  console.log(`  Topic content upserted: ${topicId}`);
+}
+
 async function importTopicContent() {
   const files = (await readdir(TOPICWISE_DIR)).filter((f) => f.endsWith(".json"));
   let total = 0;
@@ -60,27 +76,26 @@ async function importTopicContent() {
   for (const file of files) {
     const raw  = await readFile(path.join(TOPICWISE_DIR, file), "utf-8");
     const data = JSON.parse(raw);
-    const { metadata, topic } = data;
+    const { metadata } = data;
 
-    if (!metadata?.topic_id || !topic) {
-      console.warn(`  Skipping ${file} — missing topic_id or topic`);
+    // Format A: complete chapter file — { metadata: { type: "chapter_complete_teaching_content", chapter }, topics: [] }
+    if (data.topics?.length) {
+      for (const topic of data.topics) {
+        if (!topic.id) { console.warn(`  Skipping topic in ${file} — missing id`); continue; }
+        await upsertTopic(topic.id, metadata?.chapter ?? 0, topic);
+        total++;
+      }
       continue;
     }
 
-    await NcertTopicContent.findOneAndUpdate(
-      { topicId: metadata.topic_id },
-      {
-        topicId:                metadata.topic_id,
-        chapterNumber:          metadata.chapter ?? 0,
-        name:                   topic.name ?? "",
-        prerequisite_knowledge: topic.prerequisite_knowledge ?? [],
-        key_formulas:           topic.key_formulas ?? [],
-        teaching_content:       topic.teaching_content ?? {},
-      },
-      { upsert: true, new: true }
-    );
+    // Format B: individual topic file — { metadata: { topic_id, chapter }, topic: {} }
+    const { topic } = data;
+    if (!metadata?.topic_id || !topic) {
+      console.warn(`  Skipping ${file} — unrecognised format`);
+      continue;
+    }
+    await upsertTopic(metadata.topic_id, metadata.chapter ?? 0, topic);
     total++;
-    console.log(`  Topic content upserted: ${metadata.topic_id}`);
   }
 
   return total;

@@ -44,11 +44,7 @@ export function validateEnv() {
     logger.warn("RESEND_API_KEY not set — emails will fall back to console log (no real delivery)");
   }
 
-  if (!process.env.CLERK_SECRET_KEY) {
-    logger.warn("CLERK_SECRET_KEY not set — Clerk auth integration disabled, using local JWT");
-  }
-
-  if (!process.env.CLERK_WEBHOOK_SECRET) {
-    logger.warn("CLERK_WEBHOOK_SECRET not set — Clerk webhook endpoint will reject all events");
+  if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID.startsWith("YOUR_")) {
+    logger.warn("GOOGLE_CLIENT_ID not set — Google OAuth will be unavailable");
   }
 }

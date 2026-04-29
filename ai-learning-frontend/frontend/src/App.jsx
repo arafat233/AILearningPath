@@ -46,7 +46,6 @@ import ChapterView      from "./pages/ChapterView";
 import Pricing          from "./pages/Pricing";
 import ForgotPassword   from "./pages/ForgotPassword";
 import ResetPassword    from "./pages/ResetPassword";
-import ClerkCallback    from "./pages/ClerkCallback";
 import AdminLayout      from "./pages/admin/AdminLayout";
 import AdminOverview    from "./pages/admin/AdminOverview";
 import AdminUsers       from "./pages/admin/AdminUsers";
@@ -111,7 +110,6 @@ export default function App() {
           <Route path="/register"             element={<PublicOnly><Register /></PublicOnly>} />
           <Route path="/forgot-password"      element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/clerk-callback"       element={<ClerkCallback />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
 
           {/* Admin panel — AdminLayout handles role guard internally */}

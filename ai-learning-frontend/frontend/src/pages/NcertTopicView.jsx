@@ -154,6 +154,25 @@ export default function NcertTopicView() {
         </Section>
       )}
 
+      {/* SVG Diagrams */}
+      {tc.svg_diagrams?.length > 0 && (
+        <Section title="Diagrams">
+          <div className="space-y-5 mt-3">
+            {tc.svg_diagrams.map((d) => (
+              <div key={d.id} className="space-y-2">
+                {d.title && (
+                  <p className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">{d.title}</p>
+                )}
+                <div
+                  className="w-full overflow-x-auto rounded-apple border border-[var(--separator)] bg-white [&>svg]:w-full [&>svg]:h-auto"
+                  dangerouslySetInnerHTML={{ __html: d.svg }}
+                />
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Worked examples */}
       {tc.worked_example && Object.keys(tc.worked_example).length > 0 && (
         <Section title="Worked Examples">

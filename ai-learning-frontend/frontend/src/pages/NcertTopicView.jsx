@@ -2,27 +2,32 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getNcertTopicContent } from "../services/api";
 
-/* Collapsible card — used for text-heavy sections */
+const S = {
+  card:    { background: "#FFFFFF", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" },
+  label:   { fontSize: "12px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase" },
+  body:    { fontSize: "14px", color: "#1D1D1F", lineHeight: 1.7 },
+  mono:    { fontFamily: "ui-monospace, 'SF Mono', monospace" },
+  blue:    { color: "#007AFF" },
+  green:   { color: "#34C759" },
+  orange:  { color: "#FF9500" },
+  red:     { color: "#FF3B30" },
+};
+
 function Section({ title, accent, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-[18px] overflow-hidden"
-      style={{ background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+    <div style={{ ...S.card, overflow: "hidden" }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-9 py-5 text-left"
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 32px", textAlign: "left", cursor: "pointer", background: "none", border: "none" }}
       >
-        <h2 className="text-[17px] font-semibold tracking-[-0.01em]"
-          style={{ color: accent || "#1D1D1F" }}>
+        <h2 style={{ fontSize: "17px", fontWeight: 600, letterSpacing: "-0.01em", color: accent || "#1D1D1F", margin: 0 }}>
           {title}
         </h2>
-        <span className="text-[14px] transition-transform shrink-0"
-          style={{ color: "#86868B", transform: open ? "rotate(90deg)" : "rotate(0deg)" }}>
-          ›
-        </span>
+        <span style={{ color: "#86868B", fontSize: "14px", flexShrink: 0, transform: open ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>›</span>
       </button>
       {open && (
-        <div className="px-9 pb-7 border-t" style={{ borderColor: "#E5E5EA" }}>
+        <div style={{ padding: "0 32px 28px", borderTop: "1px solid #E5E5EA" }}>
           {children}
         </div>
       )}
@@ -30,30 +35,13 @@ function Section({ title, accent, defaultOpen = false, children }) {
   );
 }
 
-/* Exactly mirrors the HTML .diagram card */
 function DiagramCard({ diagram }) {
   return (
-    <div style={{
-      background: "#FFFFFF",
-      padding: "36px",
-      borderRadius: "18px",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-    }}>
-      <h3 style={{
-        margin: "0 0 4px 0",
-        color: "#1D1D1F",
-        fontWeight: 600,
-        fontSize: "19px",
-        letterSpacing: "-0.01em",
-      }}>
+    <div style={{ background: "#FFFFFF", padding: "36px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+      <h3 style={{ margin: "0 0 4px", color: "#1D1D1F", fontWeight: 600, fontSize: "19px", letterSpacing: "-0.01em" }}>
         {diagram.title}
       </h3>
-      <div style={{
-        color: "#86868B",
-        fontSize: "13px",
-        marginBottom: "24px",
-        fontFamily: "'SF Mono', ui-monospace, monospace",
-      }}>
+      <div style={{ color: "#86868B", fontSize: "13px", marginBottom: "24px", fontFamily: "'SF Mono', ui-monospace, monospace" }}>
         id: {diagram.id}
       </div>
       <div
@@ -66,20 +54,181 @@ function DiagramCard({ diagram }) {
   );
 }
 
-function BulletList({ items, color }) {
+function BulletList({ items, color = "#007AFF" }) {
   if (!items?.length) return null;
   return (
-    <ul className="space-y-2 mt-4">
+    <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
       {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-3">
-          <div className="w-1.5 h-1.5 rounded-full mt-[7px] shrink-0"
-            style={{ background: color || "#007AFF" }} />
-          <p className="text-[14px] leading-relaxed" style={{ color: "#1D1D1F" }}>
+        <li key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, marginTop: "7px" }} />
+          <p style={{ ...S.body, margin: 0 }}>
             {typeof item === "string" ? item : item.text || JSON.stringify(item)}
           </p>
         </li>
       ))}
     </ul>
+  );
+}
+
+/* Worked example — handles both steps[] (objects) and steps_compressed[] (strings) */
+function WorkedExample({ ex, index }) {
+  return (
+    <div style={{ background: "#F5F5F7", borderRadius: "14px", padding: "20px 24px" }}>
+      <p style={{ ...S.label, marginBottom: "8px" }}>Example {index + 1}</p>
+
+      {ex.problem && (
+        <p style={{ fontSize: "15px", fontWeight: 600, color: "#1D1D1F", lineHeight: 1.5, marginBottom: "14px" }}>
+          {ex.problem}
+        </p>
+      )}
+
+      {/* Approach box */}
+      {ex.thought_process_before_starting && (
+        <div style={{ background: "#EEF4FF", borderRadius: "10px", padding: "12px 16px", marginBottom: "16px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", marginBottom: "4px" }}>How to approach</p>
+          <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.6 }}>{ex.thought_process_before_starting}</p>
+        </div>
+      )}
+
+      {/* Detailed steps (object array) */}
+      {ex.steps?.map((step, si) => (
+        <div key={si} style={{ marginBottom: "14px", paddingLeft: "12px", borderLeft: "2px solid #E5E5EA" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+            <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#007AFF", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              {step.step_number ?? si + 1}
+            </span>
+            <p style={{ fontSize: "13px", color: "#86868B", margin: 0 }}>{step.action}</p>
+          </div>
+          {step.computation && (
+            <p style={{ fontSize: "16px", ...S.mono, color: "#1D1D1F", margin: "6px 0 6px 30px", fontWeight: 500 }}>
+              {step.computation}
+            </p>
+          )}
+          {step.students_internal_voice && (
+            <p style={{ fontSize: "13px", color: "#86868B", fontStyle: "italic", margin: "4px 0 0 30px", lineHeight: 1.5 }}>
+              "{step.students_internal_voice}"
+            </p>
+          )}
+          {step.lemma_validity_check && (
+            <p style={{ fontSize: "12px", color: "#34C759", margin: "4px 0 0 30px" }}>{step.lemma_validity_check}</p>
+          )}
+        </div>
+      ))}
+
+      {/* Compressed steps (string array — example 3 style) */}
+      {!ex.steps && ex.steps_compressed?.map((step, si) => (
+        <div key={si} style={{ marginBottom: "10px", paddingLeft: "12px", borderLeft: "2px solid #E5E5EA" }}>
+          <p style={{ fontSize: "14px", ...S.mono, color: "#1D1D1F", lineHeight: 1.6, margin: 0 }}>{step}</p>
+        </div>
+      ))}
+
+      {/* Verification */}
+      {ex.verification_after && (
+        <div style={{ background: "#F0FFF4", borderRadius: "10px", padding: "10px 14px", marginTop: "12px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#34C759", marginBottom: "4px" }}>Verify</p>
+          <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.5 }}>{ex.verification_after}</p>
+        </div>
+      )}
+
+      {/* Lesson learned */}
+      {ex.lesson_from_this_example && (
+        <div style={{ background: "#EEF4FF", borderRadius: "10px", padding: "10px 14px", marginTop: "10px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", marginBottom: "4px" }}>Lesson</p>
+          <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.5 }}>{ex.lesson_from_this_example}</p>
+        </div>
+      )}
+
+      {/* Answer */}
+      {ex.answer && (
+        <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid #E5E5EA", display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "#34C759", letterSpacing: "1px" }}>ANS</span>
+          <p style={{ fontSize: "15px", fontWeight: 700, color: "#1D1D1F", margin: 0 }}>{ex.answer}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Derivation part — handles both plain strings and {claim, proof_walkthrough, concrete_example, key_insight, why_this_matters} objects */
+function DerivationPart({ label, val }) {
+  if (!val) return null;
+
+  if (typeof val === "string") {
+    return (
+      <div>
+        <p style={{ ...S.label, marginBottom: "6px" }}>{label}</p>
+        <p style={{ ...S.body }}>{val}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ background: "#F5F5F7", borderRadius: "12px", padding: "16px 20px" }}>
+      <p style={{ ...S.label, marginBottom: "12px" }}>{label}</p>
+      {val.claim && (
+        <div style={{ marginBottom: "12px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, ...S.blue, marginBottom: "4px" }}>Claim</p>
+          <p style={{ ...S.body, fontStyle: "italic" }}>{val.claim}</p>
+        </div>
+      )}
+      {val.proof_walkthrough && (
+        <div style={{ marginBottom: "12px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#86868B", marginBottom: "4px" }}>Proof</p>
+          <p style={{ ...S.body }}>{val.proof_walkthrough}</p>
+        </div>
+      )}
+      {val.concrete_example && (
+        <div style={{ background: "#EEF4FF", borderRadius: "8px", padding: "10px 14px", marginBottom: "10px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, ...S.blue, marginBottom: "4px" }}>Concrete Example</p>
+          <p style={{ fontSize: "13px", ...S.mono, color: "#1D1D1F", lineHeight: 1.6 }}>{val.concrete_example}</p>
+        </div>
+      )}
+      {val.key_insight && (
+        <div style={{ borderLeft: "3px solid #007AFF", paddingLeft: "12px", marginBottom: "8px" }}>
+          <p style={{ fontSize: "13px", fontWeight: 600, ...S.blue, margin: 0 }}>{val.key_insight}</p>
+        </div>
+      )}
+      {val.why_this_matters && (
+        <p style={{ fontSize: "13px", color: "#86868B", fontStyle: "italic", margin: 0 }}>{val.why_this_matters}</p>
+      )}
+    </div>
+  );
+}
+
+/* Misconception card — uses actual field names from JSON */
+function MisconceptionCard({ m, index }) {
+  return (
+    <div style={{ background: "#FFF5F5", border: "1px solid #FFD5D5", borderRadius: "12px", padding: "16px 20px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "8px" }}>
+        <span style={{ fontSize: "14px", fontWeight: 700, color: "#FF3B30", flexShrink: 0 }}>✗</span>
+        <p style={{ fontSize: "14px", fontWeight: 600, color: "#FF3B30", margin: 0, lineHeight: 1.5 }}>{m.wrong_idea}</p>
+      </div>
+
+      {m.why_students_fall_for_this && (
+        <p style={{ fontSize: "13px", color: "#86868B", fontStyle: "italic", marginBottom: "10px", paddingLeft: "24px" }}>
+          {m.why_students_fall_for_this}
+        </p>
+      )}
+
+      {m.concrete_wrong_example && (
+        <div style={{ background: "#FFE5E5", borderRadius: "8px", padding: "8px 12px", marginBottom: "10px" }}>
+          <p style={{ fontSize: "11px", fontWeight: 600, color: "#FF3B30", marginBottom: "3px" }}>Wrong example</p>
+          <p style={{ fontSize: "13px", ...S.mono, color: "#1D1D1F" }}>{m.concrete_wrong_example}</p>
+        </div>
+      )}
+
+      {m.correction && (
+        <div style={{ borderLeft: "3px solid #34C759", paddingLeft: "12px", marginBottom: "8px" }}>
+          <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.6, margin: 0 }}>{m.correction}</p>
+        </div>
+      )}
+
+      {m.how_to_spot_mid_problem && (
+        <p style={{ fontSize: "12px", ...S.blue, fontStyle: "italic", margin: 0, paddingLeft: "15px" }}>
+          💡 {m.how_to_spot_mid_problem}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -97,7 +246,7 @@ export default function NcertTopicView() {
   }, [topicId]);
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "256px" }}>
       <div className="w-8 h-8 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
     </div>
   );
@@ -105,11 +254,11 @@ export default function NcertTopicView() {
   if (!topic) return (
     <div className="max-w-3xl mx-auto">
       <div className="card p-10 text-center">
-        <p className="text-[15px] font-semibold mb-2" style={{ color: "#1D1D1F" }}>Teaching content not found</p>
-        <p className="text-[13px] mb-3" style={{ color: "#86868B" }}>
-          Run <code className="font-mono bg-gray-100 px-2 py-0.5 rounded">npm run import:ncert</code> in the backend folder.
+        <p style={{ fontSize: "15px", fontWeight: 600, color: "#1D1D1F", marginBottom: "8px" }}>Teaching content not found</p>
+        <p style={{ fontSize: "13px", color: "#86868B", marginBottom: "12px" }}>
+          Run <code style={{ ...S.mono, background: "#F5F5F7", padding: "2px 8px", borderRadius: "6px" }}>npm run import:ncert</code> in the backend folder.
         </p>
-        <button onClick={() => navigate(-1)} className="btn-secondary text-[13px] mt-4">← Go Back</button>
+        <button onClick={() => navigate(-1)} className="btn-secondary text-[13px]">← Go Back</button>
       </div>
     </div>
   );
@@ -117,60 +266,61 @@ export default function NcertTopicView() {
   const tc        = topic.teaching_content ?? {};
   const intuition = tc.intuition ?? {};
   const derivation = tc.derivation ?? {};
+  const whenToUse = tc.when_to_use_this_method ?? {};
+  const videoHooks = tc.video_script_hooks ?? {};
 
   return (
-    <div className="max-w-3xl mx-auto space-y-7" style={{ fontFamily: "-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
+    <div className="max-w-3xl mx-auto" style={{ fontFamily: "-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif", display: "flex", flexDirection: "column", gap: "20px" }}>
+
       {/* Back */}
-      <button onClick={() => navigate(-1)}
-        className="text-[13px] flex items-center gap-1 transition-colors hover:opacity-70"
-        style={{ color: "#86868B" }}>
+      <button onClick={() => navigate(-1)} style={{ fontSize: "13px", color: "#86868B", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", background: "none", border: "none", padding: 0, alignSelf: "flex-start" }}>
         ‹ Back
       </button>
 
       {/* ── HEADER ─────────────────────────────────────────────── */}
-      <div style={{ background: "#fff", borderRadius: "18px", padding: "36px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-        <p style={{ fontSize: "12px", fontFamily: "ui-monospace, monospace", color: "#86868B", marginBottom: "8px" }}>
-          {topicId}
-        </p>
+      <div style={{ ...S.card, padding: "36px" }}>
+        <p style={{ ...S.mono, fontSize: "12px", color: "#86868B", marginBottom: "8px" }}>{topicId}</p>
         <h1 style={{ fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em", color: "#1D1D1F", lineHeight: 1.2, margin: "0 0 16px" }}>
           {topic.name}
         </h1>
 
-        {/* Key takeaway pill */}
+        {/* Video opening hook — great one-liner to set the stage */}
+        {videoHooks.opening_hook_5_sec && (
+          <div style={{ background: "#1D1D1F", borderRadius: "12px", padding: "14px 18px", marginBottom: "16px" }}>
+            <p style={{ fontSize: "11px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px" }}>Opening Hook</p>
+            <p style={{ fontSize: "14px", color: "#FFFFFF", lineHeight: 1.6, fontStyle: "italic", margin: 0 }}>{videoHooks.opening_hook_5_sec}</p>
+          </div>
+        )}
+
+        {/* Key takeaway */}
         {tc.key_takeaway && (
-          <div style={{ background: "#F5F5F7", borderRadius: "14px", padding: "16px 20px", marginBottom: "16px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px" }}>
-              Key Takeaway
-            </p>
-            <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{tc.key_takeaway}</p>
+          <div style={{ background: "#F5F5F7", borderRadius: "12px", padding: "14px 18px", marginBottom: "16px" }}>
+            <p style={{ ...S.label, marginBottom: "6px" }}>Key Takeaway</p>
+            <p style={{ ...S.body }}>{tc.key_takeaway}</p>
           </div>
         )}
 
         {/* Prerequisites */}
         {topic.prerequisite_knowledge?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center", marginBottom: "12px" }}>
             <span style={{ fontSize: "12px", color: "#86868B" }}>Prerequisites:</span>
             {topic.prerequisite_knowledge.map((p, i) => (
-              <span key={i} style={{ fontSize: "12px", background: "#F5F5F7", color: "#86868B", padding: "2px 10px", borderRadius: "20px" }}>
-                {p}
-              </span>
+              <span key={i} style={{ fontSize: "12px", background: "#F5F5F7", color: "#86868B", padding: "2px 10px", borderRadius: "20px" }}>{p}</span>
             ))}
           </div>
         )}
 
         {/* Key formulas */}
         {topic.key_formulas?.length > 0 && (
-          <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #E5E5EA" }}>
-            <p style={{ fontSize: "12px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "10px" }}>
-              Key Formulas
-            </p>
-            <ul className="space-y-2">
+          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #E5E5EA" }}>
+            <p style={{ ...S.label, marginBottom: "10px" }}>Key Formulas</p>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
               {topic.key_formulas.map((f, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#E5F2FF", color: "#007AFF", fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <li key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#EEF4FF", color: "#007AFF", fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     {i + 1}
                   </span>
-                  <code style={{ fontSize: "13px", fontFamily: "ui-monospace, monospace", color: "#1D1D1F", lineHeight: 1.6 }}>
+                  <code style={{ fontSize: "13px", ...S.mono, color: "#1D1D1F", lineHeight: 1.6 }}>
                     {typeof f === "string" ? f : JSON.stringify(f)}
                   </code>
                 </li>
@@ -182,11 +332,9 @@ export default function NcertTopicView() {
 
       {/* ── HOOK ───────────────────────────────────────────────── */}
       {intuition.hook && (
-        <div style={{ background: "#fff", borderRadius: "18px", padding: "36px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-          <p style={{ fontSize: "11px", fontWeight: 600, color: "#007AFF", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>
-            The Hook
-          </p>
-          <p style={{ fontSize: "17px", color: "#1D1D1F", lineHeight: 1.7, fontWeight: 400 }}>{intuition.hook}</p>
+        <div style={{ ...S.card, padding: "36px" }}>
+          <p style={{ ...S.label, ...S.blue, marginBottom: "12px" }}>The Hook</p>
+          <p style={{ fontSize: "17px", color: "#1D1D1F", lineHeight: 1.7, margin: 0 }}>{intuition.hook}</p>
         </div>
       )}
 
@@ -200,13 +348,13 @@ export default function NcertTopicView() {
       {/* ── REAL-WORLD EXAMPLES ────────────────────────────────── */}
       {intuition.real_world_anchors?.length > 0 && (
         <Section title="Real-World Examples" defaultOpen={true}>
-          <div className="space-y-4 mt-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
             {intuition.real_world_anchors.map((a, i) => (
-              <div key={i} className="flex gap-4">
-                <div style={{ width: "6px", borderRadius: "3px", background: "#007AFF", flexShrink: 0, marginTop: "2px" }} />
+              <div key={i} style={{ display: "flex", gap: "14px" }}>
+                <div style={{ width: "4px", borderRadius: "2px", background: "#007AFF", flexShrink: 0 }} />
                 <div>
                   <p style={{ fontSize: "14px", fontWeight: 600, color: "#1D1D1F", marginBottom: "4px" }}>{a.scenario}</p>
-                  <p style={{ fontSize: "14px", color: "#86868B", lineHeight: 1.6 }}>{a.explanation}</p>
+                  <p style={{ fontSize: "14px", color: "#86868B", lineHeight: 1.6, margin: 0 }}>{a.explanation}</p>
                 </div>
               </div>
             ))}
@@ -214,22 +362,18 @@ export default function NcertTopicView() {
         </Section>
       )}
 
-      {/* ── THE KEY INSIGHT ────────────────────────────────────── */}
+      {/* ── THE CENTRAL IDEA ───────────────────────────────────── */}
       {intuition.the_pivot_idea && (
-        <div style={{ background: "#fff", borderRadius: "18px", padding: "36px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", borderLeft: "4px solid #007AFF" }}>
-          <p style={{ fontSize: "11px", fontWeight: 600, color: "#007AFF", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>
-            The Central Idea
-          </p>
-          <p style={{ fontSize: "15px", color: "#1D1D1F", lineHeight: 1.7 }}>{intuition.the_pivot_idea}</p>
+        <div style={{ ...S.card, padding: "36px", borderLeft: "4px solid #007AFF" }}>
+          <p style={{ ...S.label, ...S.blue, marginBottom: "12px" }}>The Central Idea</p>
+          <p style={{ fontSize: "15px", color: "#1D1D1F", lineHeight: 1.7, margin: 0 }}>{intuition.the_pivot_idea}</p>
         </div>
       )}
 
-      {/* ── DIAGRAMS — styled exactly like the HTML preview ────── */}
+      {/* ── DIAGRAMS ───────────────────────────────────────────── */}
       {tc.svg_diagrams?.length > 0 && (
-        <div className="space-y-7">
-          <p style={{ fontSize: "11px", fontWeight: 600, color: "#86868B", letterSpacing: "2.5px", textTransform: "uppercase" }}>
-            Diagrams
-          </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <p style={{ ...S.label, color: "#86868B" }}>Diagrams</p>
           {tc.svg_diagrams.map((d) => (
             <DiagramCard key={d.id} diagram={d} />
           ))}
@@ -239,66 +383,9 @@ export default function NcertTopicView() {
       {/* ── WORKED EXAMPLES ────────────────────────────────────── */}
       {tc.worked_example && Object.keys(tc.worked_example).length > 0 && (
         <Section title="Worked Examples" defaultOpen={true}>
-          <div className="space-y-6 mt-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "16px" }}>
             {Object.values(tc.worked_example).map((ex, i) => (
-              <div key={i} style={{ background: "#F5F5F7", borderRadius: "14px", padding: "20px 24px" }}>
-                {/* Example number + problem */}
-                <p style={{ fontSize: "11px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px" }}>
-                  Example {i + 1}
-                </p>
-                {ex.problem && (
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#1D1D1F", marginBottom: "12px", lineHeight: 1.5 }}>{ex.problem}</p>
-                )}
-
-                {/* Thought process before starting */}
-                {ex.thought_process_before_starting && (
-                  <div style={{ background: "#EEF4FF", borderRadius: "10px", padding: "12px 16px", marginBottom: "16px" }}>
-                    <p style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", marginBottom: "4px" }}>How to approach this</p>
-                    <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.6 }}>{ex.thought_process_before_starting}</p>
-                  </div>
-                )}
-
-                {/* Steps — actual field name is `steps`, each has action + computation + students_internal_voice */}
-                {ex.steps?.map((step, si) => (
-                  <div key={si} style={{ marginBottom: "14px", paddingLeft: "12px", borderLeft: "2px solid #E5E5EA" }}>
-                    <div className="flex items-center gap-2" style={{ marginBottom: "4px" }}>
-                      <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#007AFF", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {step.step_number ?? si + 1}
-                      </span>
-                      <p style={{ fontSize: "13px", color: "#86868B" }}>{step.action}</p>
-                    </div>
-                    {step.computation && (
-                      <p style={{ fontSize: "16px", fontFamily: "ui-monospace, 'SF Mono', monospace", color: "#1D1D1F", margin: "6px 0 6px 30px", fontWeight: 500 }}>
-                        {step.computation}
-                      </p>
-                    )}
-                    {step.students_internal_voice && (
-                      <p style={{ fontSize: "13px", color: "#86868B", fontStyle: "italic", margin: "4px 0 0 30px", lineHeight: 1.5 }}>
-                        "{step.students_internal_voice}"
-                      </p>
-                    )}
-                    {step.lemma_validity_check && (
-                      <p style={{ fontSize: "12px", color: "#34C759", margin: "4px 0 0 30px" }}>{step.lemma_validity_check}</p>
-                    )}
-                  </div>
-                ))}
-
-                {/* Verification */}
-                {ex.verification_after && (
-                  <div style={{ background: "#F0FFF4", borderRadius: "10px", padding: "10px 14px", marginTop: "10px" }}>
-                    <p style={{ fontSize: "13px", color: "#34C759", fontWeight: 600, marginBottom: "2px" }}>Verify</p>
-                    <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.5 }}>{ex.verification_after}</p>
-                  </div>
-                )}
-
-                {/* Answer */}
-                {ex.answer && (
-                  <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #E5E5EA", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#34C759", letterSpacing: "1px" }}>ANS</span>
-                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#1D1D1F" }}>{ex.answer}</p>
-                  </div>
-                )}
-              </div>
+              <WorkedExample key={i} ex={ex} index={i} />
             ))}
           </div>
         </Section>
@@ -306,19 +393,11 @@ export default function NcertTopicView() {
 
       {/* ── DERIVATION ─────────────────────────────────────────── */}
       {Object.keys(derivation).length > 0 && (
-        <Section title="How It's Derived (Proof Sketch)">
-          <div className="space-y-4 mt-4">
+        <Section title="How It Works (Proof Walkthrough)">
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
             {Object.entries(derivation).map(([key, val], i) => {
-              if (!val || typeof val !== "string") return null;
               const label = key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-              return (
-                <div key={i}>
-                  <p style={{ fontSize: "12px", fontWeight: 600, color: "#86868B", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "4px" }}>
-                    {label}
-                  </p>
-                  <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.7 }}>{val}</p>
-                </div>
-              );
+              return <DerivationPart key={i} label={label} val={val} />;
             })}
           </div>
         </Section>
@@ -326,38 +405,25 @@ export default function NcertTopicView() {
 
       {/* ── COMMON MISTAKES ────────────────────────────────────── */}
       {tc.common_misconceptions?.length > 0 && (
-        <Section title="Common Mistakes" accent="#FF3B30">
-          <div className="space-y-3 mt-4">
+        <Section title={`Common Mistakes (${tc.common_misconceptions.length})`} accent="#FF3B30">
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px" }}>
             {tc.common_misconceptions.map((m, i) => (
-              <div key={i} style={{ background: "#FFF5F5", border: "1px solid #FFD5D5", borderRadius: "12px", padding: "16px 20px" }}>
-                {m.misconception && (
-                  <p style={{ fontSize: "14px", fontWeight: 600, color: "#FF3B30", marginBottom: "6px" }}>{m.misconception}</p>
-                )}
-                {m.correction && (
-                  <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{m.correction}</p>
-                )}
-                {m.example_of_error && (
-                  <p style={{ fontSize: "13px", fontFamily: "ui-monospace, monospace", color: "#86868B", marginTop: "6px" }}>{m.example_of_error}</p>
-                )}
-              </div>
+              <MisconceptionCard key={i} m={m} index={i} />
             ))}
           </div>
         </Section>
       )}
 
-      {/* ── SHORTCUTS ──────────────────────────────────────────── */}
+      {/* ── SHORTCUTS & TRICKS ─────────────────────────────────── */}
       {tc.shortcuts_and_tricks?.length > 0 && (
-        <Section title="Shortcuts & Tricks" accent="#34C759">
-          <div className="space-y-3 mt-4">
+        <Section title={`Shortcuts & Tricks (${tc.shortcuts_and_tricks.length})`} accent="#34C759">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "16px" }}>
             {tc.shortcuts_and_tricks.map((s, i) => (
-              <div key={i} style={{ background: "#F0FFF4", border: "1px solid #C6F0D1", borderRadius: "12px", padding: "16px 20px" }}>
-                {s.shortcut && <p style={{ fontSize: "14px", fontWeight: 600, color: "#34C759", marginBottom: "4px" }}>{s.shortcut}</p>}
-                {s.trick && <p style={{ fontSize: "14px", fontWeight: 600, color: "#34C759", marginBottom: "4px" }}>{s.trick}</p>}
+              <div key={i} style={{ background: "#F0FFF4", border: "1px solid #C6F0D1", borderRadius: "12px", padding: "14px 18px" }}>
+                <p style={{ fontSize: "14px", fontWeight: 600, color: "#34C759", marginBottom: "4px" }}>{s.shortcut}</p>
                 {s.rule && <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6, marginBottom: "4px" }}>{s.rule}</p>}
-                {s.how && <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{s.how}</p>}
-                {s.example && <p style={{ fontSize: "13px", fontFamily: "ui-monospace, monospace", color: "#86868B", marginTop: "6px" }}>{s.example}</p>}
-                {s.when_to_use && <p style={{ fontSize: "12px", color: "#007AFF", marginTop: "6px", fontStyle: "italic" }}>{s.when_to_use}</p>}
-                {typeof s === "string" && <p style={{ fontSize: "14px", color: "#1D1D1F" }}>{s}</p>}
+                {s.example && <p style={{ fontSize: "13px", ...S.mono, color: "#86868B", marginBottom: "4px" }}>{s.example}</p>}
+                {s.when_to_use && <p style={{ fontSize: "12px", ...S.blue, fontStyle: "italic", margin: 0 }}>{s.when_to_use}</p>}
               </div>
             ))}
           </div>
@@ -365,91 +431,68 @@ export default function NcertTopicView() {
       )}
 
       {/* ── WHEN TO USE ────────────────────────────────────────── */}
-      {tc.when_to_use_this_method && (
+      {Object.keys(whenToUse).length > 0 && (
         <Section title="When to Use This Method">
-          <div className="space-y-4 mt-4">
-            {tc.when_to_use_this_method.use_euclids_algorithm_when?.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
+            {whenToUse.use_euclids_algorithm_when?.length > 0 && (
               <div>
-                <p style={{ fontSize: "12px", fontWeight: 600, color: "#34C759", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "8px" }}>
-                  Use this when:
-                </p>
-                <BulletList items={tc.when_to_use_this_method.use_euclids_algorithm_when} color="#34C759" />
+                <p style={{ ...S.label, color: "#34C759", marginBottom: "4px" }}>Use this method when:</p>
+                <BulletList items={whenToUse.use_euclids_algorithm_when} color="#34C759" />
               </div>
             )}
-            {tc.when_to_use_this_method.use_prime_factorisation_instead_when?.length > 0 && (
-              <div style={{ marginTop: "16px" }}>
-                <p style={{ fontSize: "12px", fontWeight: 600, color: "#FF9500", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "8px" }}>
-                  Use prime factorisation instead when:
-                </p>
-                <BulletList items={tc.when_to_use_this_method.use_prime_factorisation_instead_when} color="#FF9500" />
+            {whenToUse.use_prime_factorisation_instead_when?.length > 0 && (
+              <div>
+                <p style={{ ...S.label, color: "#FF9500", marginBottom: "4px" }}>Use prime factorisation instead when:</p>
+                <BulletList items={whenToUse.use_prime_factorisation_instead_when} color="#FF9500" />
               </div>
             )}
-            {/* Fallback: render any plain string lists */}
-            {typeof tc.when_to_use_this_method === "object" &&
-              Object.entries(tc.when_to_use_this_method)
-                .filter(([k]) => !["use_euclids_algorithm_when", "use_prime_factorisation_instead_when"].includes(k))
-                .map(([k, v]) => (
-                  <div key={k} style={{ marginTop: "12px" }}>
-                    <p style={{ fontSize: "12px", fontWeight: 600, color: "#86868B", marginBottom: "6px" }}>
-                      {k.replace(/_/g, " ")}
-                    </p>
-                    {Array.isArray(v)
-                      ? <BulletList items={v} />
-                      : <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{v}</p>}
-                  </div>
-                ))
-            }
+            {whenToUse.key_decision_question && (
+              <div style={{ background: "#EEF4FF", borderRadius: "10px", padding: "12px 16px" }}>
+                <p style={{ fontSize: "12px", fontWeight: 600, ...S.blue, marginBottom: "4px" }}>Key Decision Question</p>
+                <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6, margin: 0 }}>{whenToUse.key_decision_question}</p>
+              </div>
+            )}
+            {whenToUse.speed_intuition && (
+              <div>
+                <p style={{ ...S.label, marginBottom: "4px" }}>Speed Intuition</p>
+                <p style={{ ...S.body }}>{whenToUse.speed_intuition}</p>
+              </div>
+            )}
+            {whenToUse.when_neither_method_alone_is_enough && (
+              <div>
+                <p style={{ ...S.label, marginBottom: "4px" }}>When Neither Method Alone Is Enough</p>
+                <p style={{ ...S.body }}>{whenToUse.when_neither_method_alone_is_enough}</p>
+              </div>
+            )}
           </div>
         </Section>
       )}
 
       {/* ── EDGE CASES ─────────────────────────────────────────── */}
       {tc.edge_cases?.length > 0 && (
-        <Section title="Edge Cases">
-          <div className="space-y-3 mt-4">
+        <Section title={`Edge Cases (${tc.edge_cases.length})`}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "16px" }}>
             {tc.edge_cases.map((e, i) => (
-              <div key={i} style={{ background: "#F5F5F7", borderRadius: "12px", padding: "16px 20px" }}>
+              <div key={i} style={{ background: "#F5F5F7", borderRadius: "12px", padding: "14px 18px" }}>
                 <p style={{ fontSize: "14px", fontWeight: 600, color: "#1D1D1F", marginBottom: "4px" }}>
-                  {e.case} <span style={{ color: "#007AFF" }}>= {e.value}</span>
+                  {e.case} <span style={{ ...S.blue }}>→ {e.value}</span>
                 </p>
-                {e.reasoning && (
-                  <p style={{ fontSize: "13px", color: "#86868B", lineHeight: 1.6 }}>{e.reasoning}</p>
-                )}
-                {e.where_it_appears && (
-                  <p style={{ fontSize: "12px", color: "#007AFF", marginTop: "6px", fontStyle: "italic" }}>{e.where_it_appears}</p>
-                )}
+                {e.reasoning && <p style={{ fontSize: "13px", color: "#86868B", lineHeight: 1.6, marginBottom: "4px" }}>{e.reasoning}</p>}
+                {e.where_it_appears && <p style={{ fontSize: "12px", ...S.blue, fontStyle: "italic", margin: 0 }}>{e.where_it_appears}</p>}
               </div>
             ))}
           </div>
         </Section>
       )}
 
-      {/* ── HISTORICAL CONTEXT ─────────────────────────────────── */}
-      {intuition.historical_context && (
-        <Section title="Historical Context">
-          <p style={{ fontSize: "14px", color: "#86868B", lineHeight: 1.8, marginTop: "12px" }}>
-            {intuition.historical_context}
-          </p>
-        </Section>
-      )}
-
-      {/* ── WHY IT MATTERS ─────────────────────────────────────── */}
-      {intuition.why_it_matters && (
-        <Section title="Why This Matters">
-          <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.8, marginTop: "12px" }}>
-            {intuition.why_it_matters}
-          </p>
-        </Section>
-      )}
-
-      {/* ── WRONG INTUITIONS TO REPLACE ────────────────────────── */}
+      {/* ── WRONG INTUITIONS ───────────────────────────────────── */}
       {intuition.wrong_intuitions_to_replace?.length > 0 && (
         <Section title="Wrong Intuitions to Replace">
-          <div className="space-y-2 mt-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "16px" }}>
             {intuition.wrong_intuitions_to_replace.map((w, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <span style={{ color: "#FF3B30", fontWeight: 700, fontSize: "16px", flexShrink: 0, marginTop: "-2px" }}>×</span>
-                <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{w}</p>
+              <div key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "16px", fontWeight: 700, color: "#FF3B30", flexShrink: 0 }}>×</span>
+                <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6, margin: 0 }}>{w}</p>
               </div>
             ))}
           </div>
@@ -459,9 +502,25 @@ export default function NcertTopicView() {
       {/* ── ANALOGY ────────────────────────────────────────────── */}
       {intuition.analogy_from_other_domain && (
         <Section title="Analogy from Another Domain">
-          <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.8, marginTop: "12px", fontStyle: "italic" }}>
+          <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.8, marginTop: "16px", fontStyle: "italic" }}>
             {intuition.analogy_from_other_domain}
           </p>
+        </Section>
+      )}
+
+      {/* ── HISTORICAL CONTEXT ─────────────────────────────────── */}
+      {intuition.historical_context && (
+        <Section title="Historical Context">
+          <p style={{ fontSize: "14px", color: "#86868B", lineHeight: 1.8, marginTop: "16px" }}>
+            {intuition.historical_context}
+          </p>
+        </Section>
+      )}
+
+      {/* ── WHY IT MATTERS ─────────────────────────────────────── */}
+      {intuition.why_it_matters && (
+        <Section title="Why This Matters">
+          <p style={{ ...S.body, marginTop: "16px" }}>{intuition.why_it_matters}</p>
         </Section>
       )}
 

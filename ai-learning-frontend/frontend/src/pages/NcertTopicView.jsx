@@ -239,30 +239,64 @@ export default function NcertTopicView() {
       {/* ── WORKED EXAMPLES ────────────────────────────────────── */}
       {tc.worked_example && Object.keys(tc.worked_example).length > 0 && (
         <Section title="Worked Examples" defaultOpen={true}>
-          <div className="space-y-5 mt-4">
+          <div className="space-y-6 mt-4">
             {Object.values(tc.worked_example).map((ex, i) => (
               <div key={i} style={{ background: "#F5F5F7", borderRadius: "14px", padding: "20px 24px" }}>
+                {/* Example number + problem */}
+                <p style={{ fontSize: "11px", fontWeight: 600, color: "#86868B", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px" }}>
+                  Example {i + 1}
+                </p>
                 {ex.problem && (
-                  <p style={{ fontSize: "14px", fontWeight: 600, color: "#1D1D1F", marginBottom: "12px" }}>{ex.problem}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#1D1D1F", marginBottom: "12px", lineHeight: 1.5 }}>{ex.problem}</p>
                 )}
-                {ex.solution_steps?.map((step, si) => (
-                  <div key={si} className="flex gap-3 mb-2">
-                    <span style={{ fontSize: "11px", fontFamily: "ui-monospace, monospace", color: "#86868B", marginTop: "2px", flexShrink: 0, minWidth: "44px" }}>
-                      Step {si + 1}
-                    </span>
-                    <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6 }}>{step}</p>
+
+                {/* Thought process before starting */}
+                {ex.thought_process_before_starting && (
+                  <div style={{ background: "#EEF4FF", borderRadius: "10px", padding: "12px 16px", marginBottom: "16px" }}>
+                    <p style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", marginBottom: "4px" }}>How to approach this</p>
+                    <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.6 }}>{ex.thought_process_before_starting}</p>
+                  </div>
+                )}
+
+                {/* Steps — actual field name is `steps`, each has action + computation + students_internal_voice */}
+                {ex.steps?.map((step, si) => (
+                  <div key={si} style={{ marginBottom: "14px", paddingLeft: "12px", borderLeft: "2px solid #E5E5EA" }}>
+                    <div className="flex items-center gap-2" style={{ marginBottom: "4px" }}>
+                      <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#007AFF", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {step.step_number ?? si + 1}
+                      </span>
+                      <p style={{ fontSize: "13px", color: "#86868B" }}>{step.action}</p>
+                    </div>
+                    {step.computation && (
+                      <p style={{ fontSize: "16px", fontFamily: "ui-monospace, 'SF Mono', monospace", color: "#1D1D1F", margin: "6px 0 6px 30px", fontWeight: 500 }}>
+                        {step.computation}
+                      </p>
+                    )}
+                    {step.students_internal_voice && (
+                      <p style={{ fontSize: "13px", color: "#86868B", fontStyle: "italic", margin: "4px 0 0 30px", lineHeight: 1.5 }}>
+                        "{step.students_internal_voice}"
+                      </p>
+                    )}
+                    {step.lemma_validity_check && (
+                      <p style={{ fontSize: "12px", color: "#34C759", margin: "4px 0 0 30px" }}>{step.lemma_validity_check}</p>
+                    )}
                   </div>
                 ))}
-                {ex.solution && !ex.solution_steps && (
-                  <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.7 }}>{ex.solution}</p>
-                )}
-                {ex.answer && (
-                  <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #E5E5EA" }}>
-                    <p style={{ fontSize: "14px", fontWeight: 600, color: "#34C759" }}>{ex.answer}</p>
+
+                {/* Verification */}
+                {ex.verification_after && (
+                  <div style={{ background: "#F0FFF4", borderRadius: "10px", padding: "10px 14px", marginTop: "10px" }}>
+                    <p style={{ fontSize: "13px", color: "#34C759", fontWeight: 600, marginBottom: "2px" }}>Verify</p>
+                    <p style={{ fontSize: "13px", color: "#1D1D1F", lineHeight: 1.5 }}>{ex.verification_after}</p>
                   </div>
                 )}
-                {ex.what_to_notice && (
-                  <p style={{ fontSize: "13px", color: "#007AFF", fontStyle: "italic", marginTop: "8px" }}>{ex.what_to_notice}</p>
+
+                {/* Answer */}
+                {ex.answer && (
+                  <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #E5E5EA", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#34C759", letterSpacing: "1px" }}>ANS</span>
+                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#1D1D1F" }}>{ex.answer}</p>
+                  </div>
                 )}
               </div>
             ))}

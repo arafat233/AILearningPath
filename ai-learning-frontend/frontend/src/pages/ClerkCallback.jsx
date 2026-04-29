@@ -4,6 +4,9 @@ import { useClerk, useAuth } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
 
+// 15 seconds to wait for isSignedIn before giving up
+const SIGN_IN_TIMEOUT_MS = 15_000;
+
 function getStoredRedirect() {
   try {
     return sessionStorage.getItem("postGoogleRedirect");
@@ -26,7 +29,7 @@ function authedRedirectTarget(requestedRedirect, needsOnboarding) {
 
 export default function ClerkCallback() {
   const { handleRedirectCallback } = useClerk();
-  const { isLoaded, getToken } = useAuth();
+  const { isLoaded, isSignedIn, getToken } = useAuth();
   const setAuth  = useAuthStore((s) => s.setAuth);
   const [searchParams]      = useSearchParams();
   const stage               = searchParams.get("stage");
@@ -57,53 +60,42 @@ export default function ClerkCallback() {
       .finally(() => setCallbackDone(true));
   }, [handleRedirectCallback, stage]);
 
-  // Step 2: exchange Clerk session for backend JWT
+  // Step 2: exchange Clerk session for backend JWT.
   //
-  // We poll getToken() instead of waiting for isSignedIn React state, because on the
-  // first-ever sign-in Clerk needs a cold network round-trip to verify the session —
-  // this can take longer than the old 5-second hard timeout, causing a false failure.
-  // getToken() resolves as soon as the session is usable, before isSignedIn updates.
+  // React to isSignedIn becoming true rather than polling getToken() blindly.
+  // Polling returned null for the full 15-second window because Clerk's React state
+  // (isSignedIn) hadn't transitioned yet when getToken() was called; waiting for the
+  // state transition is the correct signal that the session is ready.
+  useEffect(() => {
+    if (!callbackDone || !isLoaded || !isSignedIn || didExchange.current || error) return;
+    didExchange.current = true;
+
+    getToken()
+      .then((token) => {
+        if (!token) throw new Error("No token available after sign-in");
+        return clerkLogin(token);
+      })
+      .then(({ data }) => {
+        setAuth(null, data.data.user);
+        const finalRedirect = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
+        try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
+        window.location.href = finalRedirect;
+      })
+      .catch((err) => {
+        console.error("[ClerkCallback] backend exchange error:", err);
+        setError(err.response?.data?.error || err.message || "Sign-in failed");
+      });
+  }, [callbackDone, isLoaded, isSignedIn, error]);
+
+  // Timeout: if isSignedIn never becomes true within SIGN_IN_TIMEOUT_MS, show error.
   useEffect(() => {
     if (!callbackDone || !isLoaded || didExchange.current || error) return;
-
-    let cancelled = false;
-    let attempts  = 0;
-    const MAX_ATTEMPTS = 30; // 30 × 500 ms = 15 seconds max
-
-    const tryExchange = async () => {
-      if (cancelled || didExchange.current || error) return;
-
-      const token = await getToken().catch(() => null);
-
-      if (token) {
-        if (didExchange.current || cancelled) return;
-        didExchange.current = true;
-        try {
-          const { data } = await clerkLogin(token);
-          setAuth(null, data.data.user);
-          const finalRedirect = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
-          try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
-          window.location.href = finalRedirect;
-        } catch (err) {
-          console.error("[ClerkCallback] backend exchange error:", err);
-          if (!cancelled) setError(err.response?.data?.error || err.message || "Sign-in failed");
-        }
-        return;
+    const t = setTimeout(() => {
+      if (!didExchange.current) {
+        setError("Google sign-in did not complete. Please try again.");
       }
-
-      attempts++;
-      if (attempts >= MAX_ATTEMPTS) {
-        if (!cancelled && !didExchange.current) {
-          setError("Google sign-in did not complete. Please try again.");
-        }
-        return;
-      }
-
-      setTimeout(tryExchange, 500);
-    };
-
-    tryExchange();
-    return () => { cancelled = true; };
+    }, SIGN_IN_TIMEOUT_MS);
+    return () => clearTimeout(t);
   }, [callbackDone, isLoaded, error]);
 
   if (error) {

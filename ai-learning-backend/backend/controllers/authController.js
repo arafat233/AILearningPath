@@ -278,58 +278,61 @@ export const resetPassword = async (req, res, next) => {
 
 // ── Google OAuth (Passport) ───────────────────────────────────────────────────
 
-if (process.env.GOOGLE_CLIENT_ID && !process.env.GOOGLE_CLIENT_ID.startsWith("YOUR_")) {
-passport.use(new GoogleStrategy(
-  {
-    clientID:     process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:  `${process.env.BACKEND_URL || "http://localhost:5001"}/api/auth/google/callback`,
-    passReqToCallback: true,
-  },
-  async (req, _accessToken, _refreshToken, profile, done) => {
-    try {
-      const email    = profile.emails?.[0]?.value;
-      const googleId = profile.id;
-      const name     = profile.displayName || "Student";
+// Called from server.js after dotenv.config() so env vars are available.
+// ES module imports run before dotenv loads, so top-level process.env reads
+// would see undefined — deferred init avoids that timing issue.
+export function initPassport() {
+  passport.use(new GoogleStrategy(
+    {
+      clientID:     process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL:  `${process.env.BACKEND_URL || "http://localhost:5001"}/api/auth/google/callback`,
+      passReqToCallback: true,
+    },
+    async (req, _accessToken, _refreshToken, profile, done) => {
+      try {
+        const email    = profile.emails?.[0]?.value;
+        const googleId = profile.id;
+        const name     = profile.displayName || "Student";
 
-      if (!email) return done(new AppError("Google account has no email", 400));
+        if (!email) return done(new AppError("Google account has no email", 400));
 
-      let user = await User.findOne({ $or: [{ googleId }, { email }] });
-      let isNewUser = false;
+        let user = await User.findOne({ $or: [{ googleId }, { email }] });
+        let isNewUser = false;
 
-      if (!user) {
-        user = await User.create({
-          name,
-          email,
-          googleId,
-          password: crypto.randomBytes(32).toString("hex"),
-        });
-        isNewUser = true;
-        logger.info("Google OAuth: new user created", { email });
-      } else if (!user.googleId) {
-        await User.findByIdAndUpdate(user._id, { googleId });
-        user.googleId = googleId;
-        logger.info("Google OAuth: linked googleId to existing user", { email });
-      } else {
-        logger.info("Google OAuth: existing user signed in", { email });
+        if (!user) {
+          user = await User.create({
+            name,
+            email,
+            googleId,
+            password: crypto.randomBytes(32).toString("hex"),
+          });
+          isNewUser = true;
+          logger.info("Google OAuth: new user created", { email });
+        } else if (!user.googleId) {
+          await User.findByIdAndUpdate(user._id, { googleId });
+          user.googleId = googleId;
+          logger.info("Google OAuth: linked googleId to existing user", { email });
+        } else {
+          logger.info("Google OAuth: existing user signed in", { email });
+        }
+
+        if (!user.welcomeEmailSentAt) {
+          queueWelcomeEmail(user, { social: true });
+        }
+
+        const needsOnboarding = isNewUser || !user.examDate;
+        return done(null, { user, needsOnboarding });
+      } catch (err) {
+        return done(err);
       }
-
-      if (!user.welcomeEmailSentAt) {
-        queueWelcomeEmail(user, { social: true });
-      }
-
-      const needsOnboarding = isNewUser || !user.examDate;
-      return done(null, { user, needsOnboarding });
-    } catch (err) {
-      return done(err);
     }
-  }
-));
-} // end Google strategy guard
+  ));
 
-// Serialize/deserialize are required by Passport even in stateless mode
-passport.serializeUser((obj, done) => done(null, obj));
-passport.deserializeUser((obj, done) => done(null, obj));
+  passport.serializeUser((obj, done) => done(null, obj));
+  passport.deserializeUser((obj, done) => done(null, obj));
+  logger.info("Google OAuth strategy registered");
+}
 
 export const googleAuth = passport.authenticate("google", {
   scope: ["profile", "email"],

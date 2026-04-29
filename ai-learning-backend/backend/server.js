@@ -15,6 +15,7 @@ import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
 
 import authRoutes        from "./routes/authRoutes.js";
+import { initPassport }  from "./controllers/authController.js";
 import practiceRoutes    from "./routes/practiceRoutes.js";
 import analysisRoutes    from "./routes/analysisRoutes.js";
 import examRoutes        from "./routes/examRoutes.js";
@@ -35,6 +36,7 @@ import webhookRoutes    from "./routes/webhookRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
+initPassport(); // register Google strategy after env vars are loaded
 
 const app    = express();
 const server = http.createServer(app);

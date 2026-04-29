@@ -4,8 +4,8 @@ import { useClerk, useAuth } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
 
-// 15 seconds to wait for isSignedIn before giving up
-const SIGN_IN_TIMEOUT_MS = 15_000;
+const POLL_INTERVAL_MS  = 500;
+const POLL_MAX_ATTEMPTS = 90;  // 90 × 500 ms = 45 seconds
 
 function getStoredRedirect() {
   try {
@@ -93,22 +93,37 @@ export default function ClerkCallback() {
   console.log("[CB] render — stage:", stage, "callbackDone:", callbackDone, "isLoaded:", isLoaded, "isSignedIn:", isSignedIn, "error:", error);
 
   useEffect(() => {
-    if (!callbackDone || !isLoaded || !isSignedIn || didExchange.current || error) return;
-    console.log("[CB] Step2 fallback: isSignedIn is now true, attempting exchange...");
-    doExchange("step2");
-  }, [callbackDone, isLoaded, isSignedIn, error]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
     if (!callbackDone || !isLoaded || didExchange.current || error) return;
-    console.log("[CB] Timeout: started (", SIGN_IN_TIMEOUT_MS, "ms)");
-    const t = setTimeout(() => {
-      if (!didExchange.current) {
-        console.log("[CB] Timeout: fired — isSignedIn was never true");
+    let cancelled = false;
+    const poll = async () => {
+      for (let i = 0; i < POLL_MAX_ATTEMPTS && !cancelled && !didExchange.current; i++) {
+        const token = await getToken().catch(() => null);
+        console.log(`[CB] poll attempt ${i + 1}/${POLL_MAX_ATTEMPTS}: ${token ? "GOT TOKEN" : "null"}`);
+        if (token && !cancelled && !didExchange.current) {
+          didExchange.current = true;
+          try {
+            const { data } = await clerkLogin(token);
+            setAuth(null, data.data.user);
+            const dest = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
+            try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
+            console.log("[CB] poll exchange OK, navigating to", dest);
+            window.location.href = dest;
+          } catch (err) {
+            didExchange.current = false;
+            setError(err.response?.data?.error || err.message || "Sign-in failed");
+          }
+          return;
+        }
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+      }
+      if (!cancelled && !didExchange.current) {
+        console.log("[CB] poll exhausted — session never became available");
         setError("Google sign-in did not complete. Please try again.");
       }
-    }, SIGN_IN_TIMEOUT_MS);
-    return () => clearTimeout(t);
-  }, [callbackDone, isLoaded, error]);
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, [callbackDone, isLoaded, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (error) {
     return (

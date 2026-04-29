@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, useNavigate } from "react-router-dom";
 import "./index.css";
@@ -10,18 +10,25 @@ const clerkReady = PUBLISHABLE_KEY && !PUBLISHABLE_KEY.startsWith("YOUR_");
 
 function ClerkWrapper({ children }) {
   const navigate = useNavigate();
+  // Track synchronously — window.location may not update before Clerk fires the
+  // second routerReplace (afterSignInUrl) in the same JS tick.
+  const arrivedAtExchange = useRef(false);
+
   if (!clerkReady) return children;
 
-  // Allow Clerk to SPA-navigate TO stage=exchange, but block any navigation
-  // AWAY from it. Clerk fires a second routerReplace (afterSignInUrl = "/")
-  // immediately after landing on the exchange page, which unmounts the component
-  // before our getToken() polling can complete. Blocking it lets the polling
-  // loop own the final redirect via window.location.href.
   const clerkNavigate = (to, options = {}) => {
-    if (window.location.search.includes("stage=exchange")) return;
+    // Once we've landed on the exchange page, block all further Clerk navigations.
+    // Our getToken() polling loop owns the final redirect via window.location.href.
+    if (arrivedAtExchange.current) return;
+
     const path = to.startsWith("http")
       ? new URL(to).pathname + new URL(to).search + new URL(to).hash
       : to;
+
+    if (path.includes("stage=exchange")) {
+      arrivedAtExchange.current = true;
+    }
+
     navigate(path, options);
   };
 

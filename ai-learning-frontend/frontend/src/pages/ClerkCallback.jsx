@@ -4,8 +4,8 @@ import { useClerk, useAuth } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
 
-const POLL_INTERVAL_MS  = 500;
-const POLL_MAX_ATTEMPTS = 90;  // 90 × 500 ms = 45 seconds
+const POLL_INTERVAL_MS  = 100;
+const POLL_MAX_ATTEMPTS = 300; // 300 × 100 ms = 30 seconds
 
 function getStoredRedirect() {
   try {

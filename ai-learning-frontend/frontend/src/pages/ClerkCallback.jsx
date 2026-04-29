@@ -47,47 +47,57 @@ export default function ClerkCallback() {
   const didHandle   = useRef(false);
   const didExchange = useRef(false);
 
-  // Step 1: complete the OAuth redirect (no-stage page only)
+  // Helper: exchange Clerk session token for a backend JWT and redirect.
+  const doExchange = async () => {
+    if (didExchange.current) return false;
+    const token = await getToken().catch(() => null);
+    if (!token) return false;
+    didExchange.current = true;
+    try {
+      const { data } = await clerkLogin(token);
+      setAuth(null, data.data.user);
+      const finalRedirect = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
+      try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
+      window.location.href = finalRedirect;
+      return true;
+    } catch (err) {
+      console.error("[ClerkCallback] exchange error:", err);
+      didExchange.current = false; // allow fallback to retry
+      setError(err.response?.data?.error || err.message || "Sign-in failed");
+      return false;
+    }
+  };
+
+  // Step 1 (no-stage page only): complete OAuth redirect, then immediately attempt the
+  // backend exchange while the Clerk session is still live in THIS page's memory.
+  // All previous approaches tried to exchange on the stage=exchange page (after Clerk
+  // navigates away), where the session may not yet be readable — this is the root cause
+  // of the "click twice" bug. Exchanging in the .then() of handleRedirectCallback()
+  // runs as a microtask before any browser navigation can take effect.
   useEffect(() => {
     if (stage === "exchange") return;
     if (didHandle.current) return;
     didHandle.current = true;
+
     handleRedirectCallback()
+      .then(async () => {
+        await doExchange();        // best-effort: session is fresh in memory here
+      })
       .catch((err) => {
         console.error("[ClerkCallback] handleRedirectCallback error:", err);
         setError(err.errors?.[0]?.longMessage || err.message || "Google sign-in failed");
       })
       .finally(() => setCallbackDone(true));
-  }, [handleRedirectCallback, stage]);
+  }, [handleRedirectCallback, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Step 2: exchange Clerk session for backend JWT.
-  //
-  // React to isSignedIn becoming true rather than polling getToken() blindly.
-  // Polling returned null for the full 15-second window because Clerk's React state
-  // (isSignedIn) hadn't transitioned yet when getToken() was called; waiting for the
-  // state transition is the correct signal that the session is ready.
+  // Step 2 fallback: if Clerk navigated to stage=exchange before the .then() exchange
+  // could complete, wait for isSignedIn to become true on this page and retry.
   useEffect(() => {
     if (!callbackDone || !isLoaded || !isSignedIn || didExchange.current || error) return;
-    didExchange.current = true;
+    doExchange();
+  }, [callbackDone, isLoaded, isSignedIn, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    getToken()
-      .then((token) => {
-        if (!token) throw new Error("No token available after sign-in");
-        return clerkLogin(token);
-      })
-      .then(({ data }) => {
-        setAuth(null, data.data.user);
-        const finalRedirect = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
-        try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
-        window.location.href = finalRedirect;
-      })
-      .catch((err) => {
-        console.error("[ClerkCallback] backend exchange error:", err);
-        setError(err.response?.data?.error || err.message || "Sign-in failed");
-      });
-  }, [callbackDone, isLoaded, isSignedIn, error]);
-
-  // Timeout: if isSignedIn never becomes true within SIGN_IN_TIMEOUT_MS, show error.
+  // Timeout fallback: if isSignedIn never becomes true, show error after 15 seconds.
   useEffect(() => {
     if (!callbackDone || !isLoaded || didExchange.current || error) return;
     const t = setTimeout(() => {

@@ -94,6 +94,10 @@ export const listCurriculumChapters = (subject = "Mathematics", grade = "10") =>
 export const getCurriculumChapter   = (chapterNumber, subject = "Mathematics", grade = "10") =>
   api.get(`/v1/curriculum/${chapterNumber}`, { params: { subject, grade } });
 
+export const listNcertChapters    = ()           => api.get("/v1/ncert/chapters");
+export const getNcertChapter      = (chapterId)  => api.get(`/v1/ncert/chapters/${chapterId}`);
+export const getNcertTopicContent = (topicId)    => api.get(`/v1/ncert/topics/${topicId}`);
+
 export const getPlans        = ()        => api.get("/v1/payment/plans");
 export const getSubscription = ()        => api.get("/v1/payment/subscription");
 export const createOrder     = (planKey) => api.post("/v1/payment/create-order", { planKey });

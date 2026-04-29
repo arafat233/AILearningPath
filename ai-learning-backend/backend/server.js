@@ -31,6 +31,7 @@ import badgeRoutes       from "./routes/badgeRoutes.js";
 import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 import curriculumRoutes  from "./routes/curriculumRoutes.js";
+import ncertRoutes       from "./routes/ncertRoutes.js";
 import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
 
@@ -114,6 +115,7 @@ app.use("/api/badges",      badgeRoutes);
 app.use("/api/doubt",       doubtRoutes);
 app.use("/api/portal",      portalRoutes);
 app.use("/api/v1/curriculum", curriculumRoutes);
+app.use("/api/v1/ncert",      ncertRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
 
 app.get("/api/health", async (_req, res) => {

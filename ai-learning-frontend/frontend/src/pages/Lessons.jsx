@@ -1,20 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listLessons, getRevisionDue, listCurriculumChapters } from "../services/api";
+import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
 
-const UNIT_COLORS = {
-  "Number Systems":           "bg-blue-50 text-blue-700 border-blue-200",
-  "Algebra":                  "bg-purple-50 text-purple-700 border-purple-200",
-  "Geometry":                 "bg-green-50 text-green-700 border-green-200",
-  "Coordinate Geometry":      "bg-cyan-50 text-cyan-700 border-cyan-200",
-  "Trigonometry":             "bg-orange-50 text-orange-700 border-orange-200",
-  "Mensuration":              "bg-rose-50 text-rose-700 border-rose-200",
-  "Statistics and Probability": "bg-amber-50 text-amber-700 border-amber-200",
-};
-
-function unitBadgeClass(unit) {
-  return UNIT_COLORS[unit] || "bg-apple-gray6 text-apple-gray border-apple-gray5";
-}
 
 export default function Lessons() {
   const [tab, setTab]               = useState("curriculum"); // "curriculum" | "ai-lessons"
@@ -28,7 +15,7 @@ export default function Lessons() {
     Promise.all([
       listLessons().catch(() => ({ data: [] })),
       getRevisionDue().catch(() => ({ data: [] })),
-      listCurriculumChapters().catch(() => ({ data: [] })),
+      listNcertChapters().catch(() => ({ data: [] })),
     ]).then(([l, r, c]) => {
       setLessons(l.data);
       setRevisionDue(r.data);
@@ -46,14 +33,6 @@ export default function Lessons() {
   );
 
   const dueTopic = new Set(revisionDue.map((r) => r.topic));
-
-  // Group chapters by unit
-  const unitGroups = chapters.reduce((acc, ch) => {
-    const u = ch.unit || "Other";
-    if (!acc[u]) acc[u] = [];
-    acc[u].push(ch);
-    return acc;
-  }, {});
 
   return (
     <div className="max-w-3xl mx-auto space-y-5">
@@ -91,60 +70,47 @@ export default function Lessons() {
           {chapters.length === 0 ? (
             <div className="card p-10 text-center">
               <p className="text-[15px] font-semibold text-[var(--label)] mb-2">No chapters found</p>
-              <p className="text-[13px] text-apple-gray mb-3">Run the seed command in your backend folder:</p>
+              <p className="text-[13px] text-apple-gray mb-3">Import NCERT content by running in your backend folder:</p>
               <code className="text-[12px] bg-apple-gray6 text-apple-gray px-3 py-1.5 rounded-apple font-mono">
-                npm run seed:curriculum
+                npm run import:ncert
               </code>
             </div>
           ) : (
-            Object.entries(unitGroups).map(([unit, unitChapters]) => (
-              <div key={unit}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${unitBadgeClass(unit)}`}>
-                    {unit}
-                  </span>
-                  <span className="text-[11px] text-apple-gray3">
-                    {unitChapters.reduce((s, c) => s + (c.examMarks || 0), 0)} marks
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-2.5">
-                  {unitChapters.map((ch) => (
-                    <div
-                      key={ch._id}
-                      onClick={() => navigate(`/chapters/${ch.chapterNumber}`)}
-                      className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-[box-shadow,transform] active:scale-[0.99] group"
-                    >
-                      {/* Chapter number bubble */}
-                      <div className="w-10 h-10 rounded-full bg-apple-blue/10 text-apple-blue text-[14px] font-bold flex items-center justify-center shrink-0">
-                        {ch.chapterNumber}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-semibold text-[var(--label)] truncate group-hover:text-apple-blue transition-colors">
-                          {ch.title}
-                        </p>
-                        <p className="text-[12px] text-apple-gray mt-0.5 line-clamp-1">
-                          {ch.sections?.length ?? 0} sections
-                          {ch.estimatedWeeks ? ` · ~${ch.estimatedWeeks} week${ch.estimatedWeeks > 1 ? "s" : ""}` : ""}
-                          {ch.examMarks ? ` · ${ch.examMarks} marks` : ""}
-                        </p>
-                      </div>
-
-                      <div className="shrink-0 flex items-center gap-2">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: ch.title } }); }}
-                          className="btn-secondary text-[12px] py-1.5 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          Practice
-                        </button>
-                        <span className="text-apple-gray3 text-[18px] group-hover:text-apple-blue transition-colors">›</span>
-                      </div>
+            <div className="flex flex-col gap-2.5">
+              {chapters.map((ch) => {
+                const topicCount = ch.subchapters?.reduce(
+                  (s, sc) => s + sc.concepts?.reduce((cs, c) => cs + (c.topics?.length ?? 0), 0), 0
+                ) ?? 0;
+                return (
+                  <div
+                    key={ch._id}
+                    onClick={() => navigate(`/ncert/chapters/${ch.chapterId}`)}
+                    className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-[box-shadow,transform] active:scale-[0.99] group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-apple-blue/10 text-apple-blue text-[14px] font-bold flex items-center justify-center shrink-0">
+                      {ch.number}
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-semibold text-[var(--label)] truncate group-hover:text-apple-blue transition-colors">
+                        {ch.title}
+                      </p>
+                      <p className="text-[12px] text-apple-gray mt-0.5 line-clamp-1">
+                        {ch.subchapters?.length ?? 0} sections · {topicCount} topics
+                      </p>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: ch.title } }); }}
+                        className="btn-secondary text-[12px] py-1.5 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Practice
+                      </button>
+                      <span className="text-apple-gray3 text-[18px] group-hover:text-apple-blue transition-colors">›</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}

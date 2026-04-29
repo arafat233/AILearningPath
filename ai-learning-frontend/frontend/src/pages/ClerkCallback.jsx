@@ -126,6 +126,14 @@ export default function ClerkCallback() {
       <div className="text-center">
         <div className="w-10 h-10 border-4 border-apple-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-[var(--label2)] text-[14px]">Finishing sign-in…</p>
+        {/* DEBUG — remove after diagnosis */}
+        <p className="text-[10px] text-apple-gray mt-3 font-mono leading-relaxed">
+          stage: {stage ?? "none"}<br/>
+          isLoaded: {String(isLoaded)}<br/>
+          isSignedIn: {String(isSignedIn)}<br/>
+          callbackDone: {String(callbackDone)}<br/>
+          exchanged: {String(didExchange.current)}
+        </p>
       </div>
     </div>
   );

@@ -243,6 +243,7 @@ const studyPlanSchema = new mongoose.Schema({
   }],
   priorityTopics: [{ topic: String, priority: Number, reason: String }],
   skipSuggestions: [{ topic: String, effort: String, marksLost: Number, reason: String }],
+  customTopicOrder: [String], // user-defined topic ordering override
   createdAt: { type: Date, default: Date.now },
 });
 // One plan per user — fast lookup

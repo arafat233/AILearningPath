@@ -12,7 +12,7 @@ const GOAL_WEIGHTS = {
   scholarship: { freq: 0.20, weak: 0.40, accuracy: 0.40 },
 };
 
-export const generateStudyPlan = async (userId, examDate, goal = "distinction") => {
+export const generateStudyPlan = async (userId, examDate, goal = "distinction", customTopicOrder = []) => {
   const profile = await UserProfile.findOne({ userId });
   const topics = await Topic.find();
 
@@ -48,6 +48,17 @@ export const generateStudyPlan = async (userId, examDate, goal = "distinction") 
   });
 
   prioritized.sort((a, b) => b.priority - a.priority);
+
+  // Apply custom topic order if the user has set one
+  if (customTopicOrder.length > 0) {
+    const orderMap = new Map(customTopicOrder.map((t, i) => [t, i]));
+    prioritized.sort((a, b) => {
+      const ai = orderMap.has(a.topic) ? orderMap.get(a.topic) : Infinity;
+      const bi = orderMap.has(b.topic) ? orderMap.get(b.topic) : Infinity;
+      if (ai !== bi) return ai - bi;
+      return b.priority - a.priority; // tie-break by AI score
+    });
+  }
 
   // Skip suggestions — suppressed for top/scholarship goals (cover everything)
   const canSkip = goal === "pass" || goal === "distinction";

@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
   lockUntil:            { type: Date,   default: null },
   // Bookmarked questions
   savedQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
+  // Free trial (7-day Pro trial on first registration)
+  trialExpiry: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);

@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — security batch 1–2, UX features, dark mode, Razorpay webhook, token families.
+> Last updated: May 2026 — security batch 1–2, UX features, dark mode, trial, annual plans, ToS/Privacy.
 
 ---
 

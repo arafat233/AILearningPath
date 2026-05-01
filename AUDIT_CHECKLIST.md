@@ -98,8 +98,8 @@
 - [x] **No Razorpay webhook handler for failed/refunded payments** ✅ Fixed: `POST /api/webhooks/razorpay` verifies HMAC-SHA256 signature; `payment.failed` logs the event; `refund.processed` looks up PaymentRecord by paymentId and downgrades user to free plan. PaymentRecord model stores audit trail.
 - [x] **No invoice or payment receipt** ✅ Fixed: `sendReceiptEmail()` fires after `verifyPayment`; shows plan, ₹ amount, payment ID, expiry date; fire-and-forget so failures don't block the API response.
 - [ ] **No coupon / referral system** — No discount codes or referral tracking.
-- [ ] **No free trial for paid plans** — Users go directly from free to paid with no trial period.
-- [ ] **No annual plan option** — Only monthly plans; annual plans improve LTV and reduce churn.
+- [x] **No free trial for paid plans** ✅ Fixed: 7-day Pro trial granted on registration (`trialExpiry` field); AI quota uses Pro limits during trial; `trialActive` + `trialDaysLeft` exposed from `getSubscription`; trial banner shown in Settings with days remaining.
+- [x] **No annual plan option** ✅ Fixed: `pro_annual` (₹1,799/yr, 25% off) and `premium_annual` (₹4,499/yr) added to PLANS; Joi validation updated; paymentRoutes accepts annual plan keys.
 - [ ] **No admin analytics dashboard** — No DAU/MAU, revenue, conversion rate, or retention charts.
 - [x] **No GDPR / data deletion endpoint** ✅ Fixed: `DELETE /api/user/me` deletes User + all personal data (UserProfile, Attempts, ErrorMemory, Streak, Badges, DoubtThreads, LessonProgress). UI added in Settings.
 - [x] **No Terms of Service or Privacy Policy pages** ✅ Fixed: `/terms` and `/privacy` pages with full content (eligibility, subscriptions, data rights, security, PDPB/GDPR compliance); linked in sidebar footer and cross-referenced from each other.

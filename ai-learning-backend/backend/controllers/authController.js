@@ -76,18 +76,22 @@ function signToken(user) {
 }
 
 function safeUser(user) {
+  const now           = new Date();
+  const trialActive   = user.trialExpiry && user.trialExpiry > now;
   return {
-    id:        user._id,
-    name:      user.name,
-    email:     user.email,
-    role:      user.role      || "student",
-    subject:   user.subject   || null,
-    grade:     user.grade     || null,
-    goal:      user.goal      || null,
-    examDate:  user.examDate  || null,
-    isPaid:    user.isPaid    || false,
-    plan:      user.plan      || "free",
-    planExpiry: user.planExpiry || null,
+    id:          user._id,
+    name:        user.name,
+    email:       user.email,
+    role:        user.role       || "student",
+    subject:     user.subject    || null,
+    grade:       user.grade      || null,
+    goal:        user.goal       || null,
+    examDate:    user.examDate   || null,
+    isPaid:      user.isPaid     || false,
+    plan:        user.plan       || "free",
+    planExpiry:  user.planExpiry || null,
+    trialExpiry: user.trialExpiry || null,
+    trialActive: !!trialActive,
   };
 }
 
@@ -132,8 +136,9 @@ export const register = async (req, res, next) => {
     const existing = await User.findOne({ email });
     if (existing) return next(new AppError("Email already registered", 409));
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user   = await User.create({ name, email, password: hashed, examDate, grade });
+    const hashed     = await bcrypt.hash(password, 10);
+    const trialExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7-day Pro trial
+    const user       = await User.create({ name, email, password: hashed, examDate, grade, trialExpiry });
     await issueTokens(user, res);
     queueWelcomeEmail(user);
 

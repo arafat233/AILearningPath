@@ -82,6 +82,23 @@ export default function Settings() {
         <p className="text-[14px] text-apple-gray mt-0.5">Update your profile and exam details</p>
       </div>
 
+      {/* Trial banner */}
+      {subscription?.trialActive && (
+        <div className="card p-4 flex items-center justify-between gap-4 border border-apple-purple/30 bg-apple-purple/5">
+          <div>
+            <p className="text-[13px] font-semibold text-apple-purple">
+              🎉 Free Trial Active — Pro features unlocked
+            </p>
+            <p className="text-[12px] text-apple-gray mt-0.5">
+              {subscription.trialDaysLeft} day{subscription.trialDaysLeft !== 1 ? "s" : ""} remaining. Upgrade to keep access.
+            </p>
+          </div>
+          <button className="btn-primary px-4 py-2 text-[13px] whitespace-nowrap" onClick={() => navigate("/pricing")}>
+            Upgrade
+          </button>
+        </div>
+      )}
+
       {/* Subscription card */}
       {subscription && (
         <div className={`card p-5 flex items-center justify-between gap-4 ${
@@ -94,7 +111,7 @@ export default function Settings() {
               Current Plan
             </p>
             <p className="text-[16px] font-bold text-[var(--label)] capitalize">
-              {subscription.isActive ? subscription.plan : "Free"}
+              {subscription.isActive ? subscription.plan.replace("_", " ") : "Free"}
               {subscription.isActive && (
                 <span className="ml-2 text-[11px] font-normal text-apple-green">Active</span>
               )}
@@ -104,7 +121,7 @@ export default function Settings() {
                 Renews {new Date(subscription.planExpiry).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             )}
-            {!subscription.isActive && (
+            {!subscription.isActive && !subscription.trialActive && (
               <p className="text-[12px] text-apple-gray mt-0.5">
                 {subscription.aiCallsToday}/10 AI explanations used today
               </p>

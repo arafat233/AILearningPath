@@ -10,10 +10,11 @@ import { sendReceiptEmail } from "../utils/email.js";
 export const PLANS = {
   pro: {
     name:        "Pro",
-    price:       19900,      // paise (₹199)
+    price:       19900,      // paise (₹199/month)
     currency:    "INR",
     aiCalls:     100,
     durationDays: 30,
+    badge:       null,
     features: [
       "100 AI explanations/day",
       "All 5 subjects",
@@ -24,12 +25,26 @@ export const PLANS = {
       "Parent portal",
     ],
   },
+  pro_annual: {
+    name:        "Pro Annual",
+    price:       179900,     // paise (₹1,799/year — 25% off monthly)
+    currency:    "INR",
+    aiCalls:     100,
+    durationDays: 365,
+    badge:       "Save 25%",
+    features: [
+      "Everything in Pro",
+      "2 months free vs monthly",
+      "Priority support",
+    ],
+  },
   premium: {
     name:        "Premium",
-    price:       49900,      // paise (₹499)
+    price:       49900,      // paise (₹499/month)
     currency:    "INR",
     aiCalls:     500,
     durationDays: 30,
+    badge:       null,
     features: [
       "500 AI explanations/day",
       "Everything in Pro",
@@ -37,6 +52,19 @@ export const PLANS = {
       "Exam performance prediction",
       "Personalised daily brief",
       "Download question banks",
+    ],
+  },
+  premium_annual: {
+    name:        "Premium Annual",
+    price:       449900,     // paise (₹4,499/year — 25% off monthly)
+    currency:    "INR",
+    aiCalls:     500,
+    durationDays: 365,
+    badge:       "Save 25%",
+    features: [
+      "Everything in Premium",
+      "2 months free vs monthly",
+      "Priority support",
     ],
   },
 };
@@ -151,19 +179,26 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
 }
 
 export async function getSubscription(userId) {
-  const user = await User.findById(userId).select("name email plan planExpiry isPaid aiCallsToday aiCallsDate");
+  const user = await User.findById(userId).select("name email plan planExpiry isPaid aiCallsToday aiCallsDate trialExpiry");
   if (!user) throw new AppError("User not found", 404);
 
-  const now      = new Date();
-  const isActive = user.isPaid && user.planExpiry && user.planExpiry > now;
-  const planInfo = PLANS[user.plan] || null;
+  const now          = new Date();
+  const isActive     = user.isPaid && user.planExpiry && user.planExpiry > now;
+  const trialActive  = !user.isPaid && user.trialExpiry && user.trialExpiry > now;
+  const planInfo     = PLANS[user.plan] || null;
+  const trialDaysLeft = trialActive
+    ? Math.ceil((user.trialExpiry - now) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return {
-    plan:         user.plan,
-    isPaid:       user.isPaid,
+    plan:          user.plan,
+    isPaid:        user.isPaid,
     isActive,
-    planExpiry:   user.planExpiry,
-    aiCallsToday: user.aiCallsToday,
+    planExpiry:    user.planExpiry,
+    aiCallsToday:  user.aiCallsToday,
     planInfo,
+    trialActive,
+    trialExpiry:   user.trialExpiry,
+    trialDaysLeft,
   };
 }

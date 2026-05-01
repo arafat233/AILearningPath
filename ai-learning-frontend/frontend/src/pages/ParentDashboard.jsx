@@ -19,18 +19,22 @@ const gradeColor = { A1: "#AF52DE", A2: "#AF52DE", B1: "#007AFF", B2: "#007AFF",
 // ── activity icon ──────────────────────────────────────────────────────────
 function ActivityIcon({ type }) {
   const configs = {
-    mastered:   { bg: "#34C759", icon: "✓" },
-    practicing: { bg: "#007AFF", icon: "▶" },
-    practiced:  { bg: "#007AFF", icon: "▶" },
-    struggling: { bg: "#FF3B30", icon: "?" },
+    mastered:   { bg: "#34C759", label: "✓" },
+    practiced:  { bg: "#007AFF", label: "▶" },
+    practicing: { bg: "#007AFF", label: "▶" },
+    struggling: { bg: "#FF3B30", label: "?" },
+    doubt:      { bg: "#FF3B30", label: "?" },
+    lesson:     { bg: "#5856D6", label: "📖" },
+    exam:       { bg: "#AF52DE", label: "★" },
+    competition:{ bg: "#FF9500", label: "⚡" },
   };
   const cfg = configs[type] || configs.practiced;
   return (
     <div
-      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
+      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0"
       style={{ background: cfg.bg }}
     >
-      {cfg.icon}
+      {cfg.label}
     </div>
   );
 }
@@ -233,23 +237,28 @@ function StudentView({ data }) {
         </div>
       </div>
 
-      {/* today's activity */}
-      {data.recentActivity?.length > 0 && (
-        <div className="card p-5">
-          <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Today's Activity</p>
-          <div className="space-y-3">
+      {/* today's activity — always shown */}
+      <div className="card p-5">
+        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Today's Activity</p>
+        {data.recentActivity?.length > 0 ? (
+          <div className="divide-y divide-apple-gray5">
             {data.recentActivity.map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={i} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
                 <ActivityIcon type={item.type} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-[var(--label)]">{item.text}</p>
-                  <p className="text-[11px] text-apple-gray">{item.detail}</p>
+                  <p className="text-[13px] font-medium text-[var(--label)]">{item.text}</p>
+                  <p className="text-[11px] text-apple-gray mt-0.5">{item.detail}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-[13px] text-apple-gray">No activity in the last 48 hours</p>
+            <p className="text-[11px] text-apple-gray mt-1">Activity will appear here once your child starts practicing</p>
+          </div>
+        )}
+      </div>
 
       {/* privacy note */}
       <div className="flex items-center gap-1.5 justify-center py-2">

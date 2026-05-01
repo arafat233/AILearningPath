@@ -240,6 +240,7 @@ export default function Settings() {
       setDeleting(false);
     }
   }
+}
 
 function Field({ label, hint, children }) {
   return (

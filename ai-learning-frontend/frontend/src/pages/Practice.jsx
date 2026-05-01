@@ -62,6 +62,8 @@ export default function Practice() {
   const [flagged, setFlagged]           = useState(false);
   const [hint, setHint]                 = useState(null);
   const [hintLoading, setHintLoading]   = useState(false);
+  const [showSummary, setShowSummary]   = useState(false);
+  const [wrongAnswers, setWrongAnswers] = useState([]);
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);
@@ -132,6 +134,16 @@ export default function Practice() {
         correct: s.correct + (data.isCorrect ? 1 : 0),
         total: s.total + 1,
       }));
+      if (!data.isCorrect) {
+        setWrongAnswers((w) => [...w, {
+          questionText: question.questionText,
+          selectedOptionIndex: optionIndex,
+          correctOptionIndex: data.correctOptionIndex,
+          options: question.options,
+          aiExplanation: data.aiExplanation,
+          topic: selectedTopic,
+        }]);
+      }
     } catch (err) {
       alert(err.response?.data?.error || "Submit failed");
     } finally {
@@ -289,6 +301,107 @@ export default function Practice() {
     );
   }
 
+  // ── Session summary screen ─────────────────────────────────────
+  if (showSummary) {
+    const accuracy = sessionStats.total > 0
+      ? Math.round((sessionStats.correct / sessionStats.total) * 100)
+      : 0;
+    const grade = accuracy >= 80 ? "Excellent" : accuracy >= 60 ? "Good" : accuracy >= 40 ? "Keep Going" : "Needs Work";
+    const gradeColor = accuracy >= 80 ? "text-apple-green" : accuracy >= 60 ? "text-apple-blue" : accuracy >= 40 ? "text-apple-orange" : "text-apple-red";
+
+    return (
+      <div className="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Session Summary</h1>
+          <p className="text-[14px] text-apple-gray mt-0.5">{selectedTopic}</p>
+        </div>
+
+        {/* Score card */}
+        <div className="card p-6 text-center">
+          <div className={`text-[56px] font-bold tracking-tight ${gradeColor}`}>{accuracy}%</div>
+          <p className={`text-[17px] font-semibold mt-1 ${gradeColor}`}>{grade}</p>
+          <p className="text-[14px] text-apple-gray mt-1">
+            {sessionStats.correct} correct out of {sessionStats.total} questions
+          </p>
+          {/* Visual bar */}
+          <div className="mt-4 h-2 bg-apple-gray5 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${accuracy}%`, background: accuracy >= 60 ? "#34C759" : accuracy >= 40 ? "#FF9500" : "#FF3B30" }}
+            />
+          </div>
+        </div>
+
+        {/* Missed questions review */}
+        {wrongAnswers.length > 0 && (
+          <div className="card p-6 space-y-4">
+            <p className="text-[13px] font-semibold text-[var(--label)]">
+              Missed Questions ({wrongAnswers.length})
+            </p>
+            {wrongAnswers.map((w, idx) => (
+              <div key={idx} className="border border-apple-gray5 rounded-apple-lg p-4 space-y-2">
+                <p className="text-[14px] font-medium text-[var(--label)]">{w.questionText}</p>
+                <div className="space-y-1">
+                  {w.options?.map((opt, i) => (
+                    <div key={i} className={`flex items-center gap-2 text-[13px] px-3 py-1.5 rounded-lg ${
+                      i === w.correctOptionIndex
+                        ? "bg-apple-green/10 text-apple-green font-medium"
+                        : i === w.selectedOptionIndex
+                        ? "bg-apple-red/10 text-apple-red line-through opacity-70"
+                        : "text-apple-gray"
+                    }`}>
+                      <span className="text-[11px]">{String.fromCharCode(65 + i)}.</span>
+                      {opt.text}
+                      {i === w.correctOptionIndex && <span className="ml-auto text-[11px]">Correct</span>}
+                      {i === w.selectedOptionIndex && i !== w.correctOptionIndex && <span className="ml-auto text-[11px]">Your answer</span>}
+                    </div>
+                  ))}
+                </div>
+                {w.aiExplanation && (
+                  <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg px-3 py-2 mt-2">
+                    <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider mb-1">Why?</p>
+                    <p className="text-[13px] text-[var(--label2)] leading-relaxed">{w.aiExplanation}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setShowSummary(false);
+              setQuestion(null);
+              setFeedback(null);
+              setSessionStats({ correct: 0, total: 0 });
+              setWrongAnswers([]);
+              setFoundationMsg(null);
+              navigate("/practice", { replace: true });
+            }}
+            className="btn-secondary flex-1 py-3 text-[15px]"
+          >
+            ← Back to Topics
+          </button>
+          <button
+            onClick={() => {
+              setShowSummary(false);
+              setFeedback(null);
+              setSessionStats({ correct: 0, total: 0 });
+              setWrongAnswers([]);
+              setFoundationMsg(null);
+              handleStart();
+            }}
+            className="btn-primary flex-1 py-3 text-[15px]"
+          >
+            New Session →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const diff = diffLevel(question.difficultyScore);
   const behaviorInfo = feedback ? BEHAVIOR[feedback.behavior] || BEHAVIOR.concept_error : null;
 
@@ -310,7 +423,7 @@ export default function Practice() {
             <span className="badge bg-apple-purple/10 text-apple-purple">AI Generated</span>
           )}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className={`flex items-center gap-1.5 text-[13px] ${timeWarning ? "text-apple-red animate-pulse" : "text-apple-gray"}`}>
             <span>⏱</span>
             <span className="font-mono">{elapsed}s{timeLimit ? ` / ${timeLimit}s` : ""}</span>
@@ -321,6 +434,14 @@ export default function Practice() {
             </span>
             <span className="text-[11px] text-apple-gray ml-1">correct</span>
           </div>
+          {sessionStats.total > 0 && (
+            <button
+              onClick={() => { clearInterval(timerRef.current); setShowSummary(true); }}
+              className="text-[12px] font-medium text-apple-red border border-apple-red/30 px-3 py-1.5 rounded-apple hover:bg-apple-red/8 transition-colors"
+            >
+              End Session
+            </button>
+          )}
         </div>
       </div>
 

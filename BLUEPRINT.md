@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — reflects all security audit fixes from AUDIT_CHECKLIST.md batch 1.
+> Last updated: May 2026 — batch 1–2 security fixes + End Session / session summary screen added.
 
 ---
 
@@ -529,7 +529,9 @@ Server → Client:
 /lessons/:t    → LessonView     — short/long lesson, mark complete
 /chapters/:n   → ChapterView    — full chapter: sections, formulas, theorems, tips, exercises ← NEW
 /practice      → Practice       — Subject tabs + Science sub-tabs; adaptive quiz per subject
-                                  confidence, AI explain, DoubtChat
+                                  confidence, AI explain, DoubtChat; End Session button after
+                                  first answer; session summary screen (score, accuracy bar,
+                                  missed-question review with correct option + AI explanation)
 /analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
 /competition   → Competition    — weekly leaderboard, create/join room
 /live          → LiveRoom       — real-time Socket.IO quiz

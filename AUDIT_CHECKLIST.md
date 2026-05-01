@@ -64,9 +64,9 @@
 ## 🟢 STUDENT PERSPECTIVE — Missing Features & UX
 
 - [ ] **No visible countdown timer during practice** — Add per-question timer display.
-- [ ] **No "End Session" button** — Add explicit end/summary button.
-- [ ] **No session summary screen** — No "You got 7/10" screen with missed-question review.
-- [ ] **No question review after practice** — Students cannot revisit explanations for wrong answers.
+- [x] **No "End Session" button** ✅ Fixed: "End Session" button appears in header after first answer; shows session summary screen.
+- [x] **No session summary screen** ✅ Fixed: Summary shows score, accuracy %, accuracy bar, and all missed questions with correct/selected options and AI explanations.
+- [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
 - [ ] **No search bar** — No way to search topics, chapters, or questions by keyword.
 - [ ] **No bookmark / favourite questions** — Students cannot save hard questions for later.
 - [ ] **No dark mode** — No dark theme toggle.

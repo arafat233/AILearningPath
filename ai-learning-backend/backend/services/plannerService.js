@@ -12,9 +12,9 @@ const GOAL_WEIGHTS = {
   scholarship: { freq: 0.20, weak: 0.40, accuracy: 0.40 },
 };
 
-export const generateStudyPlan = async (userId, examDate, goal = "distinction", customTopicOrder = []) => {
+export const generateStudyPlan = async (userId, examDate, goal = "distinction", customTopicOrder = [], subject = "Math", grade = "10") => {
   const profile = await UserProfile.findOne({ userId });
-  const topics = await Topic.find();
+  const topics = await Topic.find({ subject, grade });
 
   const daysLeft = Math.max(
     1,

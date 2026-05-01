@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
+import { useAuthStore } from "../store/authStore";
 
+// NCERT content uses "Mathematics" but the user model stores "Math"
+const ncertSubject = (s) => (s === "Math" ? "Mathematics" : s);
 
 export default function Lessons() {
+  const { user } = useAuthStore();
+  const subject   = user?.subject || "Math";
+  const grade     = user?.grade   || "10";
+
   const [tab, setTab]               = useState("curriculum"); // "curriculum" | "ai-lessons"
   const [lessons, setLessons]       = useState([]);
   const [revisionDue, setRevisionDue] = useState([]);
@@ -15,13 +22,13 @@ export default function Lessons() {
     Promise.all([
       listLessons().catch(() => ({ data: [] })),
       getRevisionDue().catch(() => ({ data: [] })),
-      listNcertChapters().catch(() => ({ data: [] })),
+      listNcertChapters(ncertSubject(subject), grade).catch(() => ({ data: [] })),
     ]).then(([l, r, c]) => {
       setLessons(l.data);
       setRevisionDue(r.data);
       setChapters(c.data?.data ?? []);
     }).finally(() => setLoading(false));
-  }, []);
+  }, [subject, grade]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -40,7 +47,7 @@ export default function Lessons() {
       <div>
         <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Learn</h1>
         <p className="text-[14px] text-apple-gray mt-0.5">
-          CBSE Class 10 Mathematics — complete textbook curriculum.
+          CBSE Class {grade} {subject} — textbook curriculum and AI lessons.
         </p>
       </div>
 
@@ -68,12 +75,12 @@ export default function Lessons() {
       {tab === "curriculum" && (
         <div className="space-y-6">
           {chapters.length === 0 ? (
-            <div className="card p-10 text-center">
-              <p className="text-[15px] font-semibold text-[var(--label)] mb-2">No chapters found</p>
-              <p className="text-[13px] text-apple-gray mb-3">Import NCERT content by running in your backend folder:</p>
-              <code className="text-[12px] bg-apple-gray6 text-apple-gray px-3 py-1.5 rounded-apple font-mono">
-                npm run import:ncert
-              </code>
+            <div className="card p-10 text-center space-y-2">
+              <p className="text-[28px]">📚</p>
+              <p className="text-[15px] font-semibold text-[var(--label)]">{subject} chapters coming soon</p>
+              <p className="text-[13px] text-apple-gray">
+                Textbook chapters for {subject} haven't been imported yet. Use the <strong>AI Lessons</strong> tab to study topics right now.
+              </p>
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">

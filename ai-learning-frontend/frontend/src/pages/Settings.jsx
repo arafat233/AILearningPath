@@ -19,7 +19,7 @@ export default function Settings() {
   const [saving, setSaving]       = useState(false);
   const [success, setSuccess]     = useState(false);
   const [error, setError]         = useState("");
-  const [meta, setMeta]           = useState({ subjects: ["Math"], grades: ["8","9","10","11","12"] });
+  const [meta, setMeta]           = useState({ subjects: ["English","Hindi","Math","Science","Social Science"], grades: ["8","9","10","11","12"] });
   const [subscription, setSub]    = useState(null);
 
   useEffect(() => {

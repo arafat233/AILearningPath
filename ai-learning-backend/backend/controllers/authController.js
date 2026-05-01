@@ -30,16 +30,29 @@ const REFRESH_COOKIE_OPTS = {
 
 const REFRESH_TTL = 30 * 24 * 60 * 60;
 
-function makeRefreshToken() {
-  const raw  = crypto.randomBytes(40).toString("hex");
-  const hash = crypto.createHash("sha256").update(raw).digest("hex");
-  return { raw, hash };
+// Token family tracking — format: "<40-random-hex>:<32-familyId-hex>"
+// The familyId is embedded in the raw token so reuse can be detected after rotation.
+function makeRefreshToken(familyId) {
+  const random   = crypto.randomBytes(40).toString("hex");
+  const fid      = familyId || crypto.randomBytes(16).toString("hex");
+  const raw      = `${random}:${fid}`;
+  const hash     = crypto.createHash("sha256").update(raw).digest("hex");
+  return { raw, hash, familyId: fid };
 }
 
-async function issueTokens(user, res) {
+function parseRefreshToken(raw) {
+  const colon = raw.lastIndexOf(":");
+  if (colon === -1) return { random: raw, familyId: null };
+  return { random: raw.slice(0, colon), familyId: raw.slice(colon + 1) };
+}
+
+async function issueTokens(user, res, familyId) {
   const accessToken = signToken(user);
-  const { raw, hash } = makeRefreshToken();
-  await sessionSet(`refresh:${hash}`, user._id.toString(), REFRESH_TTL);
+  const { raw, hash, familyId: fid } = makeRefreshToken(familyId);
+  await Promise.all([
+    sessionSet(`refresh:${hash}`, JSON.stringify({ userId: user._id.toString(), familyId: fid }), REFRESH_TTL),
+    sessionSet(`family:${fid}`, user._id.toString(), REFRESH_TTL),
+  ]);
   res.cookie("token",        accessToken, COOKIE_OPTS);
   res.cookie("refreshToken", raw,         REFRESH_COOKIE_OPTS);
 
@@ -174,15 +187,38 @@ export const refresh = async (req, res, next) => {
     const raw = req.cookies?.refreshToken;
     if (!raw) return res.status(401).json({ error: "No refresh token" });
 
-    const hash   = crypto.createHash("sha256").update(raw).digest("hex");
-    const userId = await sessionGet(`refresh:${hash}`);
-    if (!userId) return res.status(401).json({ error: "Refresh token invalid or expired" });
+    const { familyId } = parseRefreshToken(raw);
+    const hash         = crypto.createHash("sha256").update(raw).digest("hex");
+    const stored       = await sessionGet(`refresh:${hash}`);
+
+    if (!stored) {
+      // Token hash not found — check if the family is still active (indicates reuse)
+      if (familyId) {
+        const familyUserId = await sessionGet(`family:${familyId}`);
+        if (familyUserId) {
+          // Reuse of a rotated token detected — invalidate the whole family
+          await sessionDel(`family:${familyId}`);
+          logger.warn("Refresh token reuse detected — family invalidated", { familyId, userId: familyUserId });
+        }
+      }
+      return res.status(401).json({ error: "Refresh token invalid or expired" });
+    }
+
+    let userId;
+    let storedFamilyId = familyId;
+    try {
+      const parsed = JSON.parse(stored);
+      userId        = parsed.userId;
+      storedFamilyId = parsed.familyId || familyId;
+    } catch {
+      userId = stored; // backwards compat with old plain-string tokens
+    }
 
     const user = await User.findById(userId).select("_id name email role subject grade goal examDate isPaid plan planExpiry").lean();
     if (!user) return res.status(401).json({ error: "User not found" });
 
     await sessionDel(`refresh:${hash}`);
-    await issueTokens(user, res);
+    await issueTokens(user, res, storedFamilyId);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
@@ -200,8 +236,14 @@ export const logout = async (req, res, next) => {
 
     const rawRefresh = req.cookies?.refreshToken;
     if (rawRefresh) {
-      const hash = crypto.createHash("sha256").update(rawRefresh).digest("hex");
+      const hash   = crypto.createHash("sha256").update(rawRefresh).digest("hex");
+      const stored = await sessionGet(`refresh:${hash}`);
       await sessionDel(`refresh:${hash}`);
+      // Also invalidate the family so all rotated tokens in this session are gone
+      try {
+        const { familyId } = JSON.parse(stored || "{}");
+        if (familyId) await sessionDel(`family:${familyId}`);
+      } catch {}
     }
 
     res.clearCookie("token",        { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd() });

@@ -41,7 +41,7 @@
 - [x] **Admin delete endpoints have no soft-delete** ✅ Fixed: `deletedAt` soft-delete for Questions and Topics; list queries filter `deletedAt: { $exists: false }`.
 - [x] **No output encoding on AI-generated content** ✅ Fixed: `sanitizeSvg()` in NcertTopicView strips `<script>`, `on*` event attributes, `javascript:` from SVG before `dangerouslySetInnerHTML`. LessonView has no `dangerouslySetInnerHTML`.
 - [x] **`questionId` in doubt routes accepts arbitrary strings** ✅ Fixed: validates as valid ObjectId or `"ai-generated"` before DB query.
-- [ ] **Refresh token rotation missing invalidation of old family** — Stolen token reuse not detected. Implement token family tracking.
+- [x] **Refresh token rotation missing invalidation of old family** ✅ Fixed: familyId embedded in raw token (`random:familyId`); on rotation both `refresh:<hash>` and `family:<familyId>` stored in Redis; if a rotated-away hash is presented but family is still active → reuse detected → family invalidated; logout deletes both keys.
 - [ ] **API key visible in frontend** — Razorpay `keyId` (public) returned in `createOrder`. Safe but add comment to prevent accidental secret inclusion.
 
 ---

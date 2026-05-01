@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useAuthStore } from "../store/authStore";
 import axios from "axios";
@@ -7,9 +8,11 @@ const SOCKET_URL = "http://localhost:5000";
 
 export default function LiveRoom() {
   const { user, token } = useAuthStore();
+  const location = useLocation();
+  const prefilledRoom = new URLSearchParams(location.search).get("room") || "";
   const [phase, setPhase]         = useState("lobby");   // lobby | game | result
   const [roomId, setRoomId]       = useState("");
-  const [inputRoom, setInputRoom] = useState("");
+  const [inputRoom, setInputRoom] = useState(prefilledRoom);
   const [players, setPlayers]     = useState({});
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -131,8 +134,9 @@ export default function LiveRoom() {
     <div className="max-w-md mx-auto">
       <div className="card p-6 text-center mb-5">
         <p className="text-xs text-gray-400 mb-1">Room Code</p>
-        <p className="text-4xl font-bold text-brand-500 tracking-widest mb-4">{roomId}</p>
-        <p className="text-sm text-gray-500">Share this code. Players: {Object.keys(players).length}</p>
+        <p className="text-4xl font-bold text-brand-500 tracking-widest mb-3">{roomId}</p>
+        <CopyRoomLink roomId={roomId} />
+        <p className="text-sm text-gray-500 mt-3">Players: {Object.keys(players).length}</p>
       </div>
       <div className="card p-5 mb-5">
         <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Players</p>
@@ -233,4 +237,23 @@ export default function LiveRoom() {
   );
 
   return null;
+}
+
+function CopyRoomLink({ roomId }) {
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}/live?room=${roomId}`;
+  const copy = () => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button
+      onClick={copy}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-600 border border-brand-200 rounded-full px-3 py-1 hover:bg-brand-50 transition-colors"
+    >
+      {copied ? "✓ Copied!" : "⎘ Copy invite link"}
+    </button>
+  );
 }

@@ -455,6 +455,19 @@ export default function Practice() {
         </div>
       </div>
 
+      {/* Timer progress bar — only when there's a time limit and no feedback yet */}
+      {timeLimit && !feedback && (
+        <div className="h-1.5 bg-apple-gray5 rounded-full overflow-hidden -mt-2">
+          <div
+            className="h-full rounded-full transition-all duration-1000"
+            style={{
+              width: `${Math.max(0, ((timeLimit - elapsed) / timeLimit) * 100)}%`,
+              background: timeWarning ? "#FF3B30" : elapsed / timeLimit > 0.5 ? "#FF9500" : "#34C759",
+            }}
+          />
+        </div>
+      )}
+
       {/* Foundation warning */}
       {foundationMsg && (
         <div className="flex items-start gap-3 bg-apple-orange/8 border border-apple-orange/20 rounded-apple-lg px-4 py-3">

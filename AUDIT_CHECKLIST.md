@@ -63,7 +63,7 @@
 
 ## 🟢 STUDENT PERSPECTIVE — Missing Features & UX
 
-- [ ] **No visible countdown timer during practice** — Add per-question timer display.
+- [x] **No visible countdown timer during practice** ✅ Fixed: Timer progress bar below header drains green → orange → red as time runs out; disappears after answer.
 - [x] **No "End Session" button** ✅ Fixed: "End Session" button appears in header after first answer; shows session summary screen.
 - [x] **No session summary screen** ✅ Fixed: Summary shows score, accuracy %, accuracy bar, and all missed questions with correct/selected options and AI explanations.
 - [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
@@ -75,7 +75,7 @@
 - [ ] **No manual weak-topic override UI** — `PUT /user/me` accepts `weakTopics` but no UI exposes it.
 - [ ] **Exam timer doesn't sync on tab switch** — Use server-side start timestamp instead of `Date.now()`.
 - [ ] **No notification when revision is due** — PWA push stubbed but never triggered.
-- [ ] **Competition room has no shareable link** — Add "Copy link" button with room ID.
+- [x] **Competition room has no shareable link** ✅ Fixed: "Copy invite link" button in waiting room copies `?room=<id>` URL; visiting the link pre-fills the room input.
 - [ ] **No progress certificate / achievement download** — No printable proof of completion.
 
 ---

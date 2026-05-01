@@ -1,39 +1,59 @@
-import crypto from "crypto";
 import mongoose from "mongoose";
 import { User, UserProfile, Streak, Badge } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { getStudentDashboard } from "../services/portalService.js";
 
-// SEC-14: Retry loop to guarantee uniqueness
-async function generateUniqueCode(maxRetries = 5) {
-  for (let i = 0; i < maxRetries; i++) {
-    const code = crypto.randomBytes(6).toString("hex").toUpperCase().slice(0, 8);
-    const exists = await User.exists({ inviteCode: code });
-    if (!exists) return code;
-  }
-  throw new AppError("Could not generate a unique invite code. Please try again.", 500);
-}
+// Any authenticated user can view any student they've added to their list.
+const verifyOwnership = async (requesterId, studentId) => {
+  const user = await User.findById(requesterId).select("linkedStudents role").lean();
+  return user?.role === "admin" || user?.linkedStudents?.includes(studentId);
+};
 
-export const generateInvite = async (req, res, next) => {
+// Search students by name (min 2 chars). Returns safe subset of fields only.
+export const searchStudents = async (req, res, next) => {
   try {
-    const code = await generateUniqueCode();
-    await User.findByIdAndUpdate(req.user.id, { inviteCode: code });
-    res.json({ inviteCode: code });
+    const q = (req.query.q || "").trim();
+    if (q.length < 2) return res.json([]);
+
+    const students = await User.find({
+      _id:  { $ne: req.user.id },           // exclude self
+      role: { $in: ["student"] },           // students only
+      name: { $regex: q, $options: "i" },
+    })
+      .select("name grade subject")
+      .limit(10)
+      .lean();
+
+    res.json(students.map((s) => ({ id: s._id, name: s.name, grade: s.grade, subject: s.subject })));
   } catch (err) { next(err); }
 };
 
-export const linkStudent = async (req, res, next) => {
+// Directly add a student to the parent's linked list — no invite code required.
+export const linkStudentDirect = async (req, res, next) => {
   try {
-    const { inviteCode } = req.body;
-    const student = await User.findOne({ inviteCode: inviteCode.toUpperCase() }).select("_id name email grade subject");
-    if (!student) return next(new AppError("No student found with that code", 404));
+    const { studentId } = req.body;
+    if (!mongoose.isValidObjectId(studentId))
+      return next(new AppError("Invalid student ID", 400));
+
+    const student = await User.findById(studentId).select("_id name grade subject role");
+    if (!student) return next(new AppError("Student not found", 404));
     if (student._id.toString() === req.user.id)
-      return next(new AppError("Cannot link yourself", 400));
+      return next(new AppError("Cannot add yourself", 400));
 
     await User.findByIdAndUpdate(req.user.id, {
       $addToSet: { linkedStudents: student._id.toString() },
     });
-    res.json({ student: { id: student._id, name: student.name, email: student.email } });
+    res.json({ student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+  } catch (err) { next(err); }
+};
+
+export const removeLinkedStudent = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { linkedStudents: studentId },
+    });
+    res.json({ success: true });
   } catch (err) { next(err); }
 };
 
@@ -43,28 +63,19 @@ export const getLinkedStudents = async (req, res, next) => {
     if (!user?.linkedStudents?.length) return res.json([]);
 
     const students = await User.find({ _id: { $in: user.linkedStudents } })
-      .select("name email grade subject goal aiCallsToday aiCallsDate")
+      .select("name grade subject goal")
       .lean();
     res.json(students.map((s) => ({ ...s, id: s._id })));
   } catch (err) { next(err); }
 };
 
-const verifyOwnership = async (requesterId, studentId) => {
-  const user = await User.findById(requesterId).select("linkedStudents role").lean();
-  return user?.role === "admin" || user?.linkedStudents?.includes(studentId);
-};
-
 export const getStudentAnalytics = async (req, res, next) => {
   try {
     const { studentId } = req.params;
-
-    // SEC-11: Validate studentId before hitting the DB
-    if (!mongoose.isValidObjectId(studentId)) {
+    if (!mongoose.isValidObjectId(studentId))
       return next(new AppError("Invalid student ID", 400));
-    }
-
     if (!(await verifyOwnership(req.user.id, studentId)))
-      return next(new AppError("Student not linked to your account", 403));
+      return next(new AppError("Not authorized", 403));
 
     const [profile, streak, badges] = await Promise.all([
       UserProfile.findOne({ userId: studentId }).lean(),
@@ -78,12 +89,10 @@ export const getStudentAnalytics = async (req, res, next) => {
 export const getStudentDashboardCtrl = async (req, res, next) => {
   try {
     const { studentId } = req.params;
-
     if (!mongoose.isValidObjectId(studentId))
       return next(new AppError("Invalid student ID", 400));
-
     if (!(await verifyOwnership(req.user.id, studentId)))
-      return next(new AppError("Student not linked to your account", 403));
+      return next(new AppError("Not authorized", 403));
 
     const data = await getStudentDashboard(studentId);
     res.json(data);

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { getLinkedStudents, getStudentDashboard, linkStudent } from "../services/api";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent } from "../services/api";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const daysSince = (iso) => {
@@ -267,28 +267,119 @@ function StudentView({ data }) {
 }
 
 // ── page root ──────────────────────────────────────────────────────────────
-export default function ParentDashboard() {
-  const [students,     setStudents]     = useState([]);
-  const [selectedId,   setSelectedId]   = useState(null);
-  const [dashboard,    setDashboard]    = useState(null);
-  const [loading,      setLoading]      = useState(true);
-  const [dashLoading,  setDashLoading]  = useState(false);
-  const [linkInput,    setLinkInput]    = useState("");
-  const [linkLoading,  setLinkLoading]  = useState(false);
-  const [linkMsg,      setLinkMsg]      = useState("");
+// ── search panel ──────────────────────────────────────────────────────────
+function AddChildPanel({ onAdded }) {
+  const [query,       setQuery]       = useState("");
+  const [results,     setResults]     = useState([]);
+  const [searching,   setSearching]   = useState(false);
+  const [adding,      setAdding]      = useState(null); // id being added
+  const debounceRef = useRef(null);
 
-  // load linked students — any logged-in user can be a parent/guardian
+  const handleSearch = (val) => {
+    setQuery(val);
+    clearTimeout(debounceRef.current);
+    if (val.trim().length < 2) { setResults([]); return; }
+    setSearching(true);
+    debounceRef.current = setTimeout(() => {
+      searchStudents(val.trim())
+        .then(({ data }) => setResults(data))
+        .catch(() => setResults([]))
+        .finally(() => setSearching(false));
+    }, 350);
+  };
+
+  const handleAdd = async (student) => {
+    setAdding(student.id);
+    try {
+      await linkStudentDirect(student.id);
+      onAdded(student);
+      setQuery("");
+      setResults([]);
+    } catch {
+      // already linked or error — still navigate
+      onAdded(student);
+    } finally { setAdding(null); }
+  };
+
+  return (
+    <div className="card p-5 space-y-3">
+      <div>
+        <p className="text-[14px] font-semibold text-[var(--label)]">Find your child</p>
+        <p className="text-[12px] text-apple-gray mt-0.5">Type their name to search — no code needed</p>
+      </div>
+
+      <div className="relative">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+             strokeLinecap="round" strokeLinejoin="round"
+             className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-apple-gray pointer-events-none">
+          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/>
+        </svg>
+        <input
+          autoFocus
+          type="text"
+          placeholder="Search by name…"
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-apple-gray6 border border-apple-gray5 text-[13px] text-[var(--label)] placeholder:text-apple-gray focus:outline-none focus:border-[var(--accent,#007AFF)] transition-colors"
+        />
+        {searching && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-[var(--accent,#007AFF)] border-t-transparent rounded-full animate-spin" />
+        )}
+      </div>
+
+      {/* results */}
+      {results.length > 0 && (
+        <div className="space-y-1.5">
+          {results.map((s) => (
+            <div key={s.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-apple-gray6 border border-apple-gray5">
+              <div className="w-8 h-8 rounded-full bg-[var(--accent,#007AFF)] flex items-center justify-center shrink-0">
+                <span className="text-white text-[12px] font-bold">{s.name?.charAt(0).toUpperCase()}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-[var(--label)]">{s.name}</p>
+                <p className="text-[11px] text-apple-gray">Class {s.grade} · {s.subject}</p>
+              </div>
+              <button
+                onClick={() => handleAdd(s)}
+                disabled={adding === s.id}
+                className="btn-primary text-[12px] px-3 py-1.5"
+              >
+                {adding === s.id ? "Adding…" : "Add"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {query.trim().length >= 2 && !searching && results.length === 0 && (
+        <p className="text-[12px] text-apple-gray text-center py-2">No students found for "{query}"</p>
+      )}
+    </div>
+  );
+}
+
+// ── page root ──────────────────────────────────────────────────────────────
+export default function ParentDashboard() {
+  const [students,    setStudents]    = useState([]);
+  const [selectedId,  setSelectedId]  = useState(null);
+  const [dashboard,   setDashboard]   = useState(null);
+  const [loading,     setLoading]     = useState(true);
+  const [dashLoading, setDashLoading] = useState(false);
+  const [showSearch,  setShowSearch]  = useState(false);
+
+  // load already-linked students on mount
   useEffect(() => {
     getLinkedStudents()
       .then(({ data }) => {
         setStudents(data);
         if (data.length === 1) setSelectedId(data[0]._id || data[0].id);
+        if (data.length === 0) setShowSearch(true);
       })
-      .catch(() => {})
+      .catch(() => { setShowSearch(true); })
       .finally(() => setLoading(false));
   }, []);
 
-  // load dashboard when selection changes
+  // load dashboard whenever selected child changes
   const loadDashboard = useCallback((id) => {
     if (!id) return;
     setDashLoading(true);
@@ -301,146 +392,134 @@ export default function ParentDashboard() {
 
   useEffect(() => { loadDashboard(selectedId); }, [selectedId, loadDashboard]);
 
-  const handleLink = async () => {
-    if (!linkInput.trim()) return;
-    setLinkLoading(true);
-    setLinkMsg("");
-    try {
-      const { data } = await linkStudent(linkInput.trim());
-      const newStudent = data.student;
-      setStudents((prev) => [...prev, newStudent]);
-      setSelectedId(newStudent._id || newStudent.id);
-      setLinkInput("");
-      setLinkMsg(`Linked ${newStudent.name} successfully!`);
-    } catch (err) {
-      setLinkMsg(err.response?.data?.error || "Invalid invite code.");
-    } finally { setLinkLoading(false); }
+  const handleAdded = (student) => {
+    const id = student.id || student._id;
+    setStudents((prev) => {
+      const already = prev.find((s) => (s._id || s.id) === id);
+      return already ? prev : [...prev, student];
+    });
+    setSelectedId(id);
+    setShowSearch(false);
+  };
+
+  const handleRemove = async (sid) => {
+    await removeLinkedStudent(sid).catch(() => {});
+    setStudents((prev) => prev.filter((s) => (s._id || s.id) !== sid));
+    if (selectedId === sid) {
+      const remaining = students.filter((s) => (s._id || s.id) !== sid);
+      setSelectedId(remaining[0]?._id || remaining[0]?.id || null);
+      setDashboard(null);
+    }
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="h-7 w-48 bg-apple-gray5 rounded-xl animate-pulse" />
+        <div className="card h-20 animate-pulse bg-apple-gray5" />
         <div className="grid grid-cols-3 gap-3">
           {[1,2,3].map((i) => <div key={i} className="card h-24 animate-pulse bg-apple-gray5" />)}
         </div>
-        <div className="card h-40 animate-pulse bg-apple-gray5" />
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      {/* page title */}
+
+      {/* header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-[var(--label)]">Parent Dashboard</h1>
           <p className="text-[13px] text-apple-gray mt-0.5">Read-only view of your child's learning progress</p>
         </div>
-        {students.length > 0 && (
-          <button
-            onClick={() => { setLinkInput(""); setLinkMsg(""); }}
-            className="btn-secondary text-[12px]"
-          >
+        {students.length > 0 && !showSearch && (
+          <button onClick={() => setShowSearch(true)} className="btn-secondary text-[12px]">
             + Add child
           </button>
         )}
       </div>
 
-      {/* link a new child */}
-      {(students.length === 0 || linkInput !== "" || linkMsg.includes("success") === false && linkMsg !== "") && (
-        <div className="card p-4 space-y-3">
-          <p className="text-[13px] font-semibold text-[var(--label)]">
-            {students.length === 0 ? "Link your child's account" : "Link another child"}
-          </p>
-          <p className="text-[12px] text-apple-gray">
-            Ask your child to go to <strong>Portal → Share Your Progress</strong> and generate an invite code.
-          </p>
-          <div className="flex gap-2">
-            <input
-              className="input flex-1 uppercase tracking-widest text-[13px]"
-              placeholder="Enter invite code (e.g. A3F2B1C4)"
-              value={linkInput}
-              onChange={(e) => setLinkInput(e.target.value.toUpperCase())}
-              maxLength={8}
-              onKeyDown={(e) => e.key === "Enter" && handleLink()}
-            />
-            <button
-              onClick={handleLink}
-              disabled={linkLoading || !linkInput}
-              className="btn-primary"
-            >
-              {linkLoading ? "Linking…" : "Link"}
-            </button>
-          </div>
-          {linkMsg && (
-            <p className={`text-[12px] ${linkMsg.includes("success") ? "text-[#34C759]" : "text-[#FF3B30]"}`}>
-              {linkMsg}
-            </p>
-          )}
-        </div>
+      {/* search panel */}
+      {showSearch && (
+        <AddChildPanel onAdded={handleAdded} />
+      )}
+      {showSearch && students.length > 0 && (
+        <button onClick={() => setShowSearch(false)} className="text-[12px] text-apple-gray hover:text-[var(--label)] transition-colors">
+          ← Back to dashboard
+        </button>
       )}
 
-      {/* child selector (only shown when >1 child) */}
-      {students.length > 1 && (
+      {/* child tabs — shown when ≥1 child tracked */}
+      {!showSearch && students.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {students.map((s) => {
             const sid = s._id || s.id;
             const isActive = selectedId === sid;
             return (
-              <button
-                key={sid}
-                onClick={() => setSelectedId(sid)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[13px] transition-all ${
-                  isActive
-                    ? "border-[var(--accent,#007AFF)] bg-[var(--accent,#007AFF)]/8 text-[var(--accent,#007AFF)] font-semibold"
-                    : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
-                }`}
-              >
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                  style={{ background: isActive ? "var(--accent,#007AFF)" : "#94A3B8" }}
+              <div key={sid} className="relative group">
+                <button
+                  onClick={() => setSelectedId(sid)}
+                  className={`flex items-center gap-2 pl-3 pr-7 py-2 rounded-xl border text-[13px] transition-all ${
+                    isActive
+                      ? "border-[var(--accent,#007AFF)] bg-[var(--accent,#007AFF)]/8 text-[var(--accent,#007AFF)] font-semibold"
+                      : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
+                  }`}
                 >
-                  {s.name?.charAt(0).toUpperCase()}
-                </div>
-                {s.name}
-                <span className={`text-[11px] ${isActive ? "text-[var(--accent,#007AFF)]/70" : "text-apple-gray"}`}>
-                  Gr.{s.grade}
-                </span>
-              </button>
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                    style={{ background: isActive ? "var(--accent,#007AFF)" : "#94A3B8" }}
+                  >
+                    {s.name?.charAt(0).toUpperCase()}
+                  </div>
+                  {s.name}
+                  <span className={`text-[11px] ${isActive ? "text-[var(--accent,#007AFF)]/70" : "text-apple-gray"}`}>
+                    Gr.{s.grade}
+                  </span>
+                </button>
+                {/* remove × */}
+                <button
+                  onClick={() => handleRemove(sid)}
+                  title="Remove"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center text-apple-gray hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 text-[10px] transition-colors"
+                >
+                  ×
+                </button>
+              </div>
             );
           })}
         </div>
       )}
 
       {/* dashboard content */}
-      {students.length === 0 ? (
-        <div className="card p-10 text-center">
-          <div className="w-12 h-12 rounded-full bg-apple-gray5 flex items-center justify-center mx-auto mb-3">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                 strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-apple-gray">
-              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
+      {!showSearch && (
+        students.length === 0 ? (
+          <div className="card p-12 text-center space-y-3">
+            <div className="w-14 h-14 rounded-full bg-apple-gray6 flex items-center justify-center mx-auto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 text-apple-gray">
+                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+            </div>
+            <p className="text-[15px] font-semibold text-[var(--label)]">No children added yet</p>
+            <p className="text-[13px] text-apple-gray">Search for your child by name to get started.</p>
+            <button onClick={() => setShowSearch(true)} className="btn-primary mx-auto">
+              Find my child
+            </button>
           </div>
-          <p className="text-[14px] font-semibold text-[var(--label)] mb-1">No children linked yet</p>
-          <p className="text-[12px] text-apple-gray">Enter your child's invite code above to get started.</p>
-        </div>
-      ) : dashLoading ? (
-        <div className="space-y-4">
-          <div className="card h-20 animate-pulse bg-apple-gray5" />
-          <div className="grid grid-cols-3 gap-3">
-            {[1,2,3].map((i) => <div key={i} className="card h-24 animate-pulse bg-apple-gray5" />)}
+        ) : dashLoading ? (
+          <div className="space-y-4">
+            <div className="card h-20 animate-pulse bg-apple-gray5" />
+            <div className="grid grid-cols-3 gap-3">
+              {[1,2,3].map((i) => <div key={i} className="card h-24 animate-pulse bg-apple-gray5" />)}
+            </div>
+            <div className="card h-36 animate-pulse bg-apple-gray5" />
+            <div className="card h-48 animate-pulse bg-apple-gray5" />
           </div>
-          <div className="card h-36 animate-pulse bg-apple-gray5" />
-          <div className="card h-48 animate-pulse bg-apple-gray5" />
-        </div>
-      ) : dashboard ? (
-        <StudentView data={dashboard} />
-      ) : selectedId ? (
-        <div className="card p-8 text-center">
-          <p className="text-[13px] text-apple-gray">Unable to load student data. Please try again.</p>
-        </div>
-      ) : null}
+        ) : dashboard ? (
+          <StudentView data={dashboard} />
+        ) : null
+      )}
     </div>
   );
 }

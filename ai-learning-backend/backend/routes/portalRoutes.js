@@ -2,17 +2,21 @@ import { Router } from "express";
 import Joi from "joi";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
-import { generateInvite, linkStudent, getLinkedStudents, getStudentAnalytics, getStudentDashboardCtrl } from "../controllers/portalController.js";
+import {
+  searchStudents, linkStudentDirect, removeLinkedStudent,
+  getLinkedStudents, getStudentAnalytics, getStudentDashboardCtrl,
+} from "../controllers/portalController.js";
 
 const r = Router();
 r.use(auth);
 
-const linkSchema = Joi.object({
-  inviteCode: Joi.string().trim().required(),
+const linkDirectSchema = Joi.object({
+  studentId: Joi.string().length(24).hex().required(),
 });
 
-r.post("/generate-invite",                    generateInvite);
-r.post("/link",                               validate(linkSchema), linkStudent);
+r.get("/search",                              searchStudents);
+r.post("/link-direct",                        validate(linkDirectSchema), linkStudentDirect);
+r.delete("/students/:studentId",              removeLinkedStudent);
 r.get("/students",                            getLinkedStudents);
 r.get("/students/:studentId/analytics",       getStudentAnalytics);
 r.get("/students/:studentId/dashboard",       getStudentDashboardCtrl);

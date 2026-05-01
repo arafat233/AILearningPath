@@ -4,6 +4,7 @@ import { User, PaymentRecord } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
+import { sendReceiptEmail } from "../utils/email.js";
 
 // Plan definitions — single source of truth
 export const PLANS = {
@@ -128,6 +129,18 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
     amount: plan.price,
     status: "captured",
   });
+
+  // Fire-and-forget receipt email — don't block the response if email fails
+  Promise.resolve(
+    sendReceiptEmail({
+      to:        user.email,
+      name:      user.name,
+      planName:  plan.name,
+      amount:    plan.price,
+      paymentId: razorpayPaymentId,
+      expiresAt: expiry,
+    })
+  ).catch((err) => logger.warn("Receipt email failed", { userId, error: err.message }));
 
   logger.info("Payment verified — plan upgraded", {
     userId, planKey, orderId: razorpayOrderId, paymentId: razorpayPaymentId, expiry,

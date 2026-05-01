@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 3"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # Test: Practice Start Practice disabled when no topic selected
@@ -16,4 +16,4 @@ tags:
 - [[Practice Error Context Start Practice Disabled When No Topic Selected]] - `references` [EXTRACTED]
 - [[Test Outcome Failed]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_2

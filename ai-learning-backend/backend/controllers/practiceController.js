@@ -1,4 +1,5 @@
 import { Attempt, ErrorMemory, User } from "../models/index.js";
+import logger from "../utils/logger.js";
 import { analyzeAnswer } from "../services/analysisService.js";
 import { getNextQuestion } from "../services/adaptiveService.js";
 import { updateUserProfile } from "../services/profileService.js";

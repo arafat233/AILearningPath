@@ -1,19 +1,18 @@
 ---
 type: community
-members: 6
+members: 5
 ---
 
 # Community 22
 
-**Members:** 6 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Auth Routes (apiauth)]] - document - BLUEPRINT.md
-- [[Backend API Routes (README listing)]] - document - ai-learning-backend/backend/README.md
-- [[E2E Issue Auth login click timeout (20000ms exceeded)]] - document - e2e-bot/reports/auth.md
-- [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - document - e2e-bot/reports/auth.md
-- [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - document - e2e-bot/reports/auth.md
-- [[Practice Routes (apipractice)]] - document - BLUEPRINT.md
+- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
 
 ## Live Query (requires Dataview plugin)
 

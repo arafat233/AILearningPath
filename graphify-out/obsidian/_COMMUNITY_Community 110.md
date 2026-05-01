@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[paymentRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\paymentRoutes.js
+- [[portalRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\portalRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js"
 type: "code"
-community: "Community 2"
+community: "Community 3"
 location: "L4"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # getNextQuestion()
@@ -18,4 +18,4 @@ tags:
 - [[startTopic()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_3

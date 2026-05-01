@@ -45,6 +45,7 @@ const topicSchema = new mongoose.Schema({
   examMarks:      { type: Number, default: 5 },
   realWorldUse:   { type: String, default: "" },
   whyMatters:     { type: String, default: "" },
+  deletedAt:      { type: Date, default: null }, // soft-delete
 });
 // Filtering by subject+grade (onboarding, settings dropdowns) and sorting by frequency
 topicSchema.index({ subject: 1, grade: 1 });
@@ -80,6 +81,7 @@ const questionSchema = new mongoose.Schema({
   marks:         { type: Number, default: 1 },
   negativeMarks: { type: Number, default: 0 },
   createdAt:     { type: Date, default: Date.now },
+  deletedAt:     { type: Date, default: null }, // soft-delete
 });
 // Practice adapter queries: find un-flagged questions by topic near a target difficulty
 questionSchema.index({ topic: 1, difficultyScore: 1, isFlagged: 1 });

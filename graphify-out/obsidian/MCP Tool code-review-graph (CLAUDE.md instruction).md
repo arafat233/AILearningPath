@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 55"
+community: "Community 53"
 location: "MCP Tools section"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_55
+  - community/Community_53
 ---
 
 # MCP Tool: code-review-graph (CLAUDE.md instruction)
@@ -15,4 +15,4 @@ tags:
 - [[MCP Tool code-review-graph (AGENTS.md instruction)]] - `semantically_similar_to` [EXTRACTED]
 - [[MCP Tool code-review-graph (GEMINI.md instruction)]] - `semantically_similar_to` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_55
+#graphify/document #graphify/EXTRACTED #community/Community_53

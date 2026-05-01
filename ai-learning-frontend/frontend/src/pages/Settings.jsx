@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMe, updateMe, getTopicsMeta, getSubscription } from "../services/api";
+import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const GOALS = [
@@ -19,6 +19,8 @@ export default function Settings() {
   const [saving, setSaving]       = useState(false);
   const [success, setSuccess]     = useState(false);
   const [error, setError]         = useState("");
+  const [deleting, setDeleting]   = useState(false);
+  const { logout } = useAuthStore();
   const [meta, setMeta]           = useState({ subjects: ["English","Hindi","Math","Science","Social Science"], grades: ["8","9","10","11","12"] });
   const [subscription, setSub]    = useState(null);
 
@@ -48,7 +50,14 @@ export default function Settings() {
     setError(""); setSuccess(false); setSaving(true);
     try {
       const { data } = await updateMe(form);
-      setAuth(null, { ...user, name: data.user.name });
+      setAuth(null, {
+        ...user,
+        name:     data.user.name,
+        grade:    data.user.grade    ?? user.grade,
+        subject:  data.user.subject  ?? user.subject,
+        goal:     data.user.goal     ?? user.goal,
+        examDate: data.user.examDate ?? user.examDate,
+      });
       setSuccess(true);
     } catch (err) {
       setError(err.response?.data?.error || "Save failed.");
@@ -199,9 +208,38 @@ export default function Settings() {
           </button>
         </form>
       </div>
+
+      {/* Danger zone */}
+      <div className="card p-6 border border-apple-red/20">
+        <p className="text-[13px] font-semibold text-apple-red mb-1">Danger Zone</p>
+        <p className="text-[12px] text-apple-gray mb-4">
+          Permanently delete your account and all associated data. This cannot be undone.
+        </p>
+        <button
+          className="text-[13px] font-medium text-apple-red border border-apple-red/30 px-4 py-2 rounded-apple hover:bg-apple-red/8 transition-colors disabled:opacity-50"
+          onClick={handleDeleteAccount}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting…" : "Delete my account"}
+        </button>
+      </div>
     </div>
   );
-}
+
+  async function handleDeleteAccount() {
+    if (!window.confirm("This will permanently delete your account and all data. This cannot be undone.")) return;
+    const input = window.prompt("Type DELETE to confirm:");
+    if (input !== "DELETE") return;
+    setDeleting(true);
+    try {
+      await deleteMe();
+      logout();
+      navigate("/login");
+    } catch {
+      setError("Could not delete account. Please try again.");
+      setDeleting(false);
+    }
+  }
 
 function Field({ label, hint, children }) {
   return (

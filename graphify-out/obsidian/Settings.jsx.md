@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
-community: "Community 53"
+community: "Community 5"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_53
+  - community/Community_5
 ---
 
 # Settings.jsx
@@ -14,5 +14,6 @@ tags:
 ## Connections
 - [[Field()_1]] - `contains` [EXTRACTED]
 - [[Settings()]] - `contains` [EXTRACTED]
+- [[handleDeleteAccount()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_53
+#graphify/code #graphify/EXTRACTED #community/Community_5

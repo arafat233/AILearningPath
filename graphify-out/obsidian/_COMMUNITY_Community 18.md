@@ -1,22 +1,21 @@
 ---
 type: community
-members: 9
+members: 8
 ---
 
 # Community 18
 
-**Members:** 9 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 

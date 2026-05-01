@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js"
 type: "code"
-community: "Community 47"
+community: "Community 46"
 location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_47
+  - community/Community_46
 ---
 
 # daysFrom()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[revision.service.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_47
+#graphify/code #graphify/EXTRACTED #community/Community_46

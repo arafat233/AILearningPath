@@ -102,7 +102,8 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 5]]
 - 1 edge to [[_COMMUNITY_Community 12]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 75, connects to 1 community
+- [[api.js]] - degree 76, connects to 2 communities

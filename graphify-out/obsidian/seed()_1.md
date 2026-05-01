@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js"
 type: "code"
-community: "Community 57"
+community: "Community 55"
 location: "L1195"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_57
+  - community/Community_55
 ---
 
 # seed()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[seedHindiCurriculum.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_57
+#graphify/code #graphify/EXTRACTED #community/Community_55

@@ -20,9 +20,16 @@ import { getAIExplanation, getStudyAdvice } from "./aiService.js";
 
 import { User, AIResponseCache, AIUsageStats } from "../models/index.js";
 
-const FREE_DAILY_LIMIT = 10;
-const PRO_DAILY_LIMIT  = 100;
-const CACHE_TTL_MS     = 24 * 60 * 60 * 1000; // 24h in-memory TTL
+const FREE_DAILY_LIMIT    = 10;
+const PRO_DAILY_LIMIT     = 100;
+const PREMIUM_DAILY_LIMIT = 500;
+const CACHE_TTL_MS        = 24 * 60 * 60 * 1000; // 24h in-memory TTL
+
+const PLAN_LIMITS = {
+  free:    FREE_DAILY_LIMIT,
+  pro:     PRO_DAILY_LIMIT,
+  premium: PREMIUM_DAILY_LIMIT,
+};
 
 // ── Helpers ───────────────────────────────────────────────────────
 const todayStr = () => new Date().toISOString().split("T")[0];
@@ -43,23 +50,38 @@ const STATIC_RESPONSES = {
   misinterpretation: "You misread the question. Always read the question twice — once to understand it, once to confirm before solving.",
 };
 
-// ── Daily usage check + increment ────────────────────────────────
+// ── Daily usage check + increment (atomic — no race condition) ────
 export async function checkAndIncrementUsage(userId) {
-  const user = await User.findById(userId).select("isPaid plan aiCallsToday aiCallsDate");
-  if (!user) return false;
-
   const today = todayStr();
-  if (user.aiCallsDate !== today) {
-    user.aiCallsToday = 0;
-    user.aiCallsDate  = today;
-  }
 
-  const limit = user.isPaid ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
-  if (user.aiCallsToday >= limit) return false;
+  // First read plan to determine limit (plan doesn't change mid-session)
+  const planDoc = await User.findById(userId).select("isPaid plan").lean();
+  if (!planDoc) return false;
 
-  user.aiCallsToday += 1;
-  await user.save();
-  return true;
+  const planKey = planDoc.isPaid ? (planDoc.plan || "pro") : "free";
+  const limit   = PLAN_LIMITS[planKey] ?? FREE_DAILY_LIMIT;
+
+  // Atomic conditional increment — only succeeds if currently under the limit
+  const updated = await User.findOneAndUpdate(
+    {
+      _id: userId,
+      $or: [
+        { aiCallsDate: { $ne: today } },
+        { aiCallsToday: { $lt: limit } },
+      ],
+    },
+    [{
+      $set: {
+        aiCallsToday: {
+          $cond: [{ $eq: ["$aiCallsDate", today] }, { $add: ["$aiCallsToday", 1] }, 1],
+        },
+        aiCallsDate: today,
+      },
+    }],
+    { new: true, select: "aiCallsToday" }
+  );
+
+  return !!updated;
 }
 
 // Track cache saves (non-blocking)
@@ -148,7 +170,7 @@ export const smartAIExplanation = async (
   // Layer 6: Daily limit check
   const allowed = await checkAndIncrementUsage(userId);
   if (!allowed) {
-    return `You've used your ${FREE_DAILY_LIMIT} free AI explanations for today. Upgrade to Pro for 100 AI explanations/day.`;
+    return `You've used your daily AI explanation limit. Upgrade to Pro (100/day) or Premium (500/day) for more.`;
   }
 
   // Layer 7: Call Claude — this only happens for brand-new question+mistake combos
@@ -204,11 +226,12 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
 
 // ── Usage info (for frontend display) ─────────────────────────────
 export const getUsageCount = async (userId) => {
-  const user = await User.findById(userId).select("aiCallsToday aiCallsDate isPaid").lean();
+  const user = await User.findById(userId).select("aiCallsToday aiCallsDate isPaid plan").lean();
   if (!user) return { used: 0, limit: FREE_DAILY_LIMIT, remaining: FREE_DAILY_LIMIT };
-  const today = todayStr();
-  const used  = user.aiCallsDate === today ? (user.aiCallsToday || 0) : 0;
-  const limit = user.isPaid ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+  const today   = todayStr();
+  const used    = user.aiCallsDate === today ? (user.aiCallsToday || 0) : 0;
+  const planKey = user.isPaid ? (user.plan || "pro") : "free";
+  const limit   = PLAN_LIMITS[planKey] ?? FREE_DAILY_LIMIT;
   return { used, limit, remaining: limit - used };
 };
 

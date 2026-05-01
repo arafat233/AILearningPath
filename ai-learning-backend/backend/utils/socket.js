@@ -41,13 +41,16 @@ export const initSocket = (server) => {
 
     socket.on("join_room", ({ roomId, userName }) => {
       socket.join(roomId);
-      if (!rooms[roomId]) rooms[roomId] = { players: {}, status: "waiting", questions: [] };
+      if (!rooms[roomId]) {
+        rooms[roomId] = { players: {}, status: "waiting", questions: [], hostId: userId };
+      }
       rooms[roomId].players[userId] = { userId, userName, score: 0, answered: 0 };
       io.to(roomId).emit("room_update", rooms[roomId]);
     });
 
     socket.on("start_room", ({ roomId, questions }) => {
       if (!rooms[roomId]) return;
+      if (rooms[roomId].hostId !== userId) return; // only host can start
       rooms[roomId].status = "live";
       rooms[roomId].questions = questions;
       io.to(roomId).emit("game_started", { questions });
@@ -63,6 +66,7 @@ export const initSocket = (server) => {
 
     socket.on("end_game", ({ roomId }) => {
       if (!rooms[roomId]) return;
+      if (rooms[roomId].hostId !== userId) return; // only host can end
       rooms[roomId].status = "finished";
       const ranked = Object.values(rooms[roomId].players)
         .sort((a, b) => b.score - a.score)

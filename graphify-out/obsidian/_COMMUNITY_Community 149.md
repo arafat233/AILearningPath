@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Seed Math Topics + Questions (seed.js)]] - document - BLUEPRINT.md
+- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
 
 ## Live Query (requires Dataview plugin)
 

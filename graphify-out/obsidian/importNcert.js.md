@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js"
 type: "code"
-community: "Community 23"
+community: "Community 22"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_23
+  - community/Community_22
 ---
 
 # importNcert.js
@@ -17,4 +17,4 @@ tags:
 - [[main()]] - `contains` [EXTRACTED]
 - [[upsertTopic()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_23
+#graphify/code #graphify/EXTRACTED #community/Community_22

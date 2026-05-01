@@ -63,7 +63,19 @@ function signToken(user) {
 }
 
 function safeUser(user) {
-  return { id: user._id, name: user.name, email: user.email, role: user.role || "student" };
+  return {
+    id:        user._id,
+    name:      user.name,
+    email:     user.email,
+    role:      user.role      || "student",
+    subject:   user.subject   || null,
+    grade:     user.grade     || null,
+    goal:      user.goal      || null,
+    examDate:  user.examDate  || null,
+    isPaid:    user.isPaid    || false,
+    plan:      user.plan      || "free",
+    planExpiry: user.planExpiry || null,
+  };
 }
 
 const escHtml = (s) =>
@@ -166,7 +178,7 @@ export const refresh = async (req, res, next) => {
     const userId = await sessionGet(`refresh:${hash}`);
     if (!userId) return res.status(401).json({ error: "Refresh token invalid or expired" });
 
-    const user = await User.findById(userId).select("_id name email role").lean();
+    const user = await User.findById(userId).select("_id name email role subject grade goal examDate isPaid plan planExpiry").lean();
     if (!user) return res.status(401).json({ error: "User not found" });
 
     await sessionDel(`refresh:${hash}`);

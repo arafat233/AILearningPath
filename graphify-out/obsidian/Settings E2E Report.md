@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/settings.md"
 type: "document"
-community: "Community 3"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # Settings E2E Report
@@ -25,4 +25,4 @@ tags:
 - [[Test Settings heading is visible]] - `references` [EXTRACTED]
 - [[Test Settings page loads at settings without crash]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_2

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
-- [[globalSetup()]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[fixtures.js]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
+- [[loadToken()]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
 
 ## Live Query (requires Dataview plugin)
 

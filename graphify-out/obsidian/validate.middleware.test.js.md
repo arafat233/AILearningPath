@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js"
 type: "code"
-community: "Community 33"
+community: "Community 32"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_33
+  - community/Community_32
 ---
 
 # validate.middleware.test.js
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[run()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_33
+#graphify/code #graphify/EXTRACTED #community/Community_32

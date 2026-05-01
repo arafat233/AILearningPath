@@ -2,56 +2,63 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "cursor/**"]
   pull_request:
     branches: [main]
 
 jobs:
   backend-test:
-    name: Backend — lint & test
+    name: Backend Tests
     runs-on: ubuntu-latest
+
     services:
       mongodb:
         image: mongo:7
         ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: ai-learning-backend/backend/package-lock.json
 
-      - name: Install backend deps
+      - name: Install backend dependencies
         working-directory: ai-learning-backend/backend
         run: npm ci
 
       - name: Run backend tests
         working-directory: ai-learning-backend/backend
-        run: npm test --if-present
         env:
-          NODE_ENV: test
           MONGO_URI: mongodb://localhost:27017/ai_learning_test
-          JWT_SECRET: ci_test_secret_not_real
-          ANTHROPIC_API_KEY: sk-ant-ci-placeholder
-          FRONTEND_URL: http://localhost:5173
+          JWT_SECRET: test_secret_for_ci_only
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          NODE_ENV: test
+        run: npm test
 
   frontend-build:
-    name: Frontend — build check
+    name: Frontend Build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: ai-learning-frontend/frontend/package-lock.json
 
-      - name: Install frontend deps
+      - name: Install frontend dependencies
         working-directory: ai-learning-frontend/frontend
         run: npm ci
 
@@ -59,4 +66,4 @@ jobs:
         working-directory: ai-learning-frontend/frontend
         run: npm run build
         env:
-          VITE_API_URL: http://localhost:5000
+          VITE_API_URL: http://localhost:5001/api

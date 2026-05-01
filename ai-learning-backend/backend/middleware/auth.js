@@ -38,13 +38,17 @@ export const auth = async (req, res, next) => {
   }
 
   // SEC-05: Reject tokens issued before a password reset
+  // Also auto-downgrade expired paid plans (fire-and-forget, does not block request)
   if (decoded.iat) {
-    const user = await User.findById(decoded.id).select("pwdChangedAt").lean().catch(() => null);
+    const user = await User.findById(decoded.id).select("pwdChangedAt isPaid planExpiry").lean().catch(() => null);
     if (user?.pwdChangedAt) {
       const changedAt = Math.floor(new Date(user.pwdChangedAt).getTime() / 1000);
       if (decoded.iat < changedAt) {
         return res.status(401).json({ error: "Password changed — please log in again" });
       }
+    }
+    if (user?.isPaid && user?.planExpiry && new Date(user.planExpiry) < new Date()) {
+      User.findByIdAndUpdate(decoded.id, { $set: { isPaid: false, plan: "free" } }).catch(() => {});
     }
   }
 

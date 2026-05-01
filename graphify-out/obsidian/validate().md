@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js"
 type: "code"
-community: "Community 33"
+community: "Community 32"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_33
+  - community/Community_32
 ---
 
 # validate()
@@ -15,4 +15,4 @@ tags:
 - [[run()]] - `calls` [INFERRED]
 - [[validate.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_33
+#graphify/code #graphify/EXTRACTED #community/Community_32

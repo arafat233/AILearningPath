@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\socket.js"
 type: "code"
-community: "Community 41"
-location: "L80"
+community: "Community 40"
+location: "L84"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_41
+  - community/Community_40
 ---
 
 # getIO()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[socket.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_41
+#graphify/code #graphify/EXTRACTED #community/Community_40

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[aiTeacher.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiTeacher.service.test.js
-- [[baseProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiTeacher.service.test.js
+- [[makeSignature()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
+- [[payment.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

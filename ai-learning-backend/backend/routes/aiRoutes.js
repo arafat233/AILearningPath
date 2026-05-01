@@ -7,6 +7,7 @@ import { getChatResponse, generateHint } from "../services/aiService.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { AIResponseCache } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
+import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
 import logger from "../utils/logger.js";
@@ -48,9 +49,9 @@ const hintSchema = Joi.object({
   topic:        Joi.string().optional().allow(""),
 });
 
-r.get("/advice",      auth, studyAdvice);
-r.get("/usage",       auth, usageInfo);
-r.get("/cache-stats", auth, cacheStats);
+r.get("/advice",      auth,      studyAdvice);
+r.get("/usage",       auth,      usageInfo);
+r.get("/cache-stats", adminAuth, cacheStats); // admin only — business metrics
 r.post("/chat",       auth, perUserAILimit, validate(chatSchema), tutorChat);
 
 // VoiceTutor endpoint

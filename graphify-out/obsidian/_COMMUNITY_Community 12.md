@@ -1,13 +1,14 @@
 ---
 type: community
-members: 13
+members: 14
 ---
 
 # Community 12
 
-**Members:** 13 nodes
+**Members:** 14 nodes
 
 ## Members
+- [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js

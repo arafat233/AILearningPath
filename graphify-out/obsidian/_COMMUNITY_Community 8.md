@@ -1,39 +1,46 @@
 ---
 type: community
-members: 26
+members: 33
 ---
 
 # Community 8
 
-**Members:** 26 nodes
+**Members:** 33 nodes
 
 ## Members
-- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[clerkAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[AdaptiveViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[BentoCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[CardHeader()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FAQ()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Features()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FinalCTA()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Footer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[GoalPreviewSimple()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Hero()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[HowItWorks()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LearningGoals()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LiveRoomViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Logo()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Marquee()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Parents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PlannerViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PredictionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Pricing()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[ProfileViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[RevisionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[SectionEyebrow()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[StickyCta()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Subjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Testimonials()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TopBar()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TrustMetric()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[VoiceViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[sampleTopicsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[statsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[subjectsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[useStep()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -41,15 +48,3 @@ members: 26
 TABLE source_file, type FROM #community/Community_8
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 7 edges to [[_COMMUNITY_Community 2]]
-- 2 edges to [[_COMMUNITY_Community 6]]
-- 1 edge to [[_COMMUNITY_Community 11]]
-
-## Top bridge nodes
-- [[save()]] - degree 6, connects to 3 communities
-- [[issueTokens()]] - degree 8, connects to 1 community
-- [[getReport()]] - degree 5, connects to 1 community
-- [[refresh()]] - degree 5, connects to 1 community
-- [[logout()]] - degree 4, connects to 1 community

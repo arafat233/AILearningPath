@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
+- [[Test Outcome Skipped]] - document - e2e-bot/reports/practice.md
 
 ## Live Query (requires Dataview plugin)
 

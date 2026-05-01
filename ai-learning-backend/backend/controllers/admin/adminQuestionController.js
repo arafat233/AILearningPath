@@ -4,9 +4,9 @@ import { AppError } from "../../utils/AppError.js";
 export const listQuestions = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, topic, subject, flagged } = req.query;
-    const filter = {};
-    if (topic)          filter.topic    = new RegExp(topic, "i");
-    if (subject)        filter.subject  = subject;
+    const filter = { deletedAt: { $exists: false } }; // exclude soft-deleted
+    if (topic)              filter.topic    = new RegExp(topic, "i");
+    if (subject)            filter.subject  = subject;
     if (flagged === "true") filter.isFlagged = true;
     const [questions, total] = await Promise.all([
       Question.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(Number(limit)).lean(),
@@ -18,7 +18,7 @@ export const listQuestions = async (req, res, next) => {
 
 export const getFlaggedQuestions = async (req, res, next) => {
   try {
-    const questions = await Question.find({ isFlagged: true }).sort({ createdAt: -1 }).lean();
+    const questions = await Question.find({ isFlagged: true, deletedAt: { $exists: false } }).sort({ createdAt: -1 }).lean();
     res.json(questions);
   } catch (err) { next(err); }
 };
@@ -40,7 +40,13 @@ export const updateQuestion = async (req, res, next) => {
 
 export const deleteQuestion = async (req, res, next) => {
   try {
-    await Question.findByIdAndDelete(req.params.id);
+    // Soft-delete: set deletedAt so records can be recovered
+    const q = await Question.findByIdAndUpdate(
+      req.params.id,
+      { $set: { deletedAt: new Date(), isFlagged: false } },
+      { new: true }
+    );
+    if (!q) return next(new AppError("Question not found", 404));
     res.json({ ok: true });
   } catch (err) { next(err); }
 };

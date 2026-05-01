@@ -51,6 +51,17 @@ r.post("/mixed", auth, validate(mixedSchema), async (req, res, next) => {
     const { topics } = req.body;
     const question = await getInterleavedQuestion(req.user.id, topics);
     if (!question) return next(new AppError("No questions found", 404));
+
+    // Store in session so /practice/submit can find the current question
+    const { sessionSet } = await import("../utils/redisClient.js");
+    const sessionKey = `practice:${req.user.id}`;
+    await sessionSet(sessionKey, {
+      topic: question.topic || topics[0],
+      sessionCorrect: 0,
+      sessionTotal: 0,
+      currentQuestion: question.toObject?.() ?? question,
+    }, 7200);
+
     res.json(question);
   } catch (err) {
     next(err);

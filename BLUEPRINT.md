@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: April 2026 — reflects all features built to date.
+> Last updated: May 2026 — reflects all security audit fixes from AUDIT_CHECKLIST.md batch 1.
 
 ---
 
@@ -448,14 +448,15 @@ GET    /api/revision/last-day
 
 GET    /api/ai/advice
 GET    /api/ai/usage
-GET    /api/ai/cache-stats
+GET    /api/ai/cache-stats     → admin only (adminAuth)
 POST   /api/ai/chat                 → multi-turn tutor chat
 POST   /api/ai/evaluate-explanation
 POST   /api/ai/hint
 POST   /api/ai/voice-answer         ← NEW: VoiceTutor dedicated endpoint
 
 GET    /api/user/me
-PUT    /api/user/me
+PUT    /api/user/me            → rate-limited (20 updates/hour per user)
+DELETE /api/user/me            ← GDPR/PDPB: deletes User + all personal data
 
 GET    /api/competition/leaderboard
 POST   /api/competition/room-questions
@@ -535,6 +536,7 @@ Server → Client:
 /voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
 /profile       → Profile        — user info, badges grid, invite code generator
 /settings      → Settings       — update subject/grade/goal/examDate; all 5 CBSE subjects
+                                  subscription card; Delete Account (GDPR — double-confirm)
 /portal        → Portal         — student: generate invite code
                                   parent/teacher: link students, view analytics
                                   Subject Mastery bars always shown (4 CBSE subjects pre-seeded at 0%)
@@ -580,6 +582,11 @@ Security hardening:
   helmet      — HTTP security headers (CSP, HSTS, etc.)
   morgan      — HTTP request logging (dev format)
   CORS origin — read from process.env.FRONTEND_URL (never hardcoded)
+  planExpiry check in auth.js — fire-and-forget downgrade when plan expires
+  Socket host guard — only room creator (hostId) can start_room/end_game
+  Admin soft-delete — Questions/Topics use deletedAt flag, never hard-delete
+  ReDoS prevention — escapeRegex() on all user-supplied regex inputs
+  safeUser() — login/register returns all fields frontend needs (no extra /me call)
 
 Rate limit: 300 req / 15 min (global)
 
@@ -629,6 +636,10 @@ Files:
   ai-learning-backend/ecosystem.config.cjs
   docker-compose.yml
   backend/.env.example
+
+CI/CD (.github/workflows/ci.yml):
+  Triggers: push to main or cursor/** branches, PRs to main
+  Jobs: backend Jest tests (with MongoDB service) + frontend Vite build
 ```
 
 ---
@@ -681,7 +692,8 @@ Voice Tutor lang:
   Hindi subject → SpeechRecognition.lang = "hi-IN"
   all others    → "en-IN"
 
-Daily limits unchanged: free=10/day, pro=100/day
+Daily limits (per plan): free=10/day, pro=100/day, premium=500/day
+  Enforced via atomic MongoDB $cond pipeline — race-condition safe
 DoubtChat messages count against the same daily quota
 ```
 

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx"
 type: "code"
-community: "Community 27"
+community: "Community 26"
 location: "L25"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_27
+  - community/Community_26
 ---
 
 # ClerkCallback()
@@ -16,4 +16,4 @@ tags:
 - [[getStoredRedirect()]] - `calls` [EXTRACTED]
 - [[normalizeRedirect()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_27
+#graphify/code #graphify/EXTRACTED #community/Community_26

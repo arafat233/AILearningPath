@@ -19,7 +19,10 @@ r.post("/room-questions", auth, validate(roomQuestionsSchema), async (req, res, 
     const questions = await Question.aggregate([
       { $match: filter },
       { $sample: { size: Number(count) } },
-      { $project: { questionText: 1, options: 1, difficultyScore: 1, expectedTime: 1 } },
+      { $project: { questionText: 1, difficultyScore: 1, expectedTime: 1,
+        // Strip `type` from options so clients cannot determine the correct answer
+        options: { $map: { input: "$options", as: "o", in: { text: "$$o.text" } } },
+      }},
     ]);
     res.json(questions);
   } catch (err) {

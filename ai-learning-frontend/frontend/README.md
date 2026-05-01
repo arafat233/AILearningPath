@@ -29,7 +29,7 @@ Open: http://localhost:5173
 | Analytics | /analytics | Accuracy charts, topic bars, mistake breakdown, confidence analysis |
 | Competition | /competition | Join exams, countdown timer, ranked results, leaderboard |
 | Study Planner | /planner | Daily schedule, priority topics, skip suggestions; revision-due section |
-| Settings | /settings | Update name, exam date, grade; all 5 CBSE subjects |
+| Settings | /settings | Update name, exam date, grade, goal; subscription card; Delete Account (GDPR) |
 
 ## Project Structure
 ```

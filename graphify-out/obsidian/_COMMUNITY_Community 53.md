@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
+- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
+- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
 
 ## Live Query (requires Dataview plugin)
 

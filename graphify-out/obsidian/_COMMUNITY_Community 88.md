@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 88
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[fixtures.js]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
-- [[loadToken()]] - code - E:\AILearningPath\e2e-bot\helpers\fixtures.js
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 

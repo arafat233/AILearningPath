@@ -28,6 +28,7 @@ tags:
 - [[askTutor()]] - `contains` [EXTRACTED]
 - [[clearDoubtThread()]] - `contains` [EXTRACTED]
 - [[createOrder()_2]] - `contains` [EXTRACTED]
+- [[deleteMe()]] - `contains` [EXTRACTED]
 - [[evaluateExplanation()]] - `contains` [EXTRACTED]
 - [[flagQuestion()]] - `contains` [EXTRACTED]
 - [[forgotPassword()_1]] - `contains` [EXTRACTED]

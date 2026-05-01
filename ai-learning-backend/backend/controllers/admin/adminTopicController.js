@@ -3,7 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 
 export const listTopics = async (req, res, next) => {
   try {
-    const topics = await Topic.find().sort({ subject: 1, name: 1 }).lean();
+    const topics = await Topic.find({ deletedAt: { $exists: false } }).sort({ subject: 1, name: 1 }).lean();
     res.json(topics);
   } catch (err) { next(err); }
 };
@@ -25,7 +25,12 @@ export const updateTopic = async (req, res, next) => {
 
 export const deleteTopic = async (req, res, next) => {
   try {
-    await Topic.findByIdAndDelete(req.params.id);
+    const t = await Topic.findByIdAndUpdate(
+      req.params.id,
+      { $set: { deletedAt: new Date() } },
+      { new: true }
+    );
+    if (!t) return next(new AppError("Topic not found", 404));
     res.json({ ok: true });
   } catch (err) { next(err); }
 };

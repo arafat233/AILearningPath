@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCacheStats.jsx"
 type: "code"
-community: "Community 81"
+community: "Community 80"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_81
+  - community/Community_80
 ---
 
 # AdminCacheStats.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[AdminCacheStats()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_81
+#graphify/code #graphify/EXTRACTED #community/Community_80

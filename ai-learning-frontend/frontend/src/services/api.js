@@ -22,8 +22,9 @@ export const logoutApi      = ()                => api.post("/auth/logout");
 export const forgotPassword = (email)           => api.post("/auth/forgot-password", { email });
 export const resetPassword  = (token, password) => api.post(`/auth/reset-password/${token}`, { password });
 
-export const getMe    = ()     => api.get("/user/me");
-export const updateMe = (data) => api.put("/user/me", data);
+export const getMe      = ()     => api.get("/user/me");
+export const updateMe   = (data) => api.put("/user/me", data);
+export const deleteMe   = ()     => api.delete("/user/me");
 
 export const getTopics     = (params) => api.get("/topics", { params });
 export const getTopicsMeta = ()       => api.get("/topics/meta");

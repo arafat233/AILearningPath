@@ -9,6 +9,9 @@ const verifyOwnership = async (requesterId, studentId) => {
   return user?.role === "admin" || user?.linkedStudents?.includes(studentId);
 };
 
+// Escape special regex chars to prevent ReDoS / injection
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Search students by name (min 2 chars). Returns safe subset of fields only.
 export const searchStudents = async (req, res, next) => {
   try {
@@ -16,9 +19,9 @@ export const searchStudents = async (req, res, next) => {
     if (q.length < 2) return res.json([]);
 
     const students = await User.find({
-      _id:  { $ne: req.user.id },           // exclude self
-      role: { $in: ["student"] },           // students only
-      name: { $regex: q, $options: "i" },
+      _id:  { $ne: req.user.id },
+      role: { $in: ["student"] },
+      name: { $regex: escapeRegex(q), $options: "i" },
     })
       .select("name grade subject")
       .limit(10)
@@ -31,6 +34,11 @@ export const searchStudents = async (req, res, next) => {
 // Directly add a student to the parent's linked list — no invite code required.
 export const linkStudentDirect = async (req, res, next) => {
   try {
+    const allowedRoles = ["parent", "teacher", "admin"];
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new AppError("Only parents, teachers, or admins can link students", 403));
+    }
+
     const { studentId } = req.body;
     if (!mongoose.isValidObjectId(studentId))
       return next(new AppError("Invalid student ID", 400));

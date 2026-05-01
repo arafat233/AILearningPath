@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js"
 type: "code"
-community: "Community 43"
+community: "Community 42"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_43
+  - community/Community_42
 ---
 
 # adminAuth.middleware.test.js
@@ -15,4 +15,4 @@ tags:
 - [[makeToken()]] - `contains` [EXTRACTED]
 - [[mockReqRes()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_43
+#graphify/code #graphify/EXTRACTED #community/Community_42

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js"
 type: "code"
-community: "Community 42"
+community: "Community 41"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_42
+  - community/Community_41
 ---
 
 # adaptive.service.test.js
@@ -15,4 +15,4 @@ tags:
 - [[leanResult()]] - `contains` [EXTRACTED]
 - [[seenResult()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_42
+#graphify/code #graphify/EXTRACTED #community/Community_41

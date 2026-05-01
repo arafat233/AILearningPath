@@ -36,7 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 8]]
+- 1 edge to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
 - [[questionGenerator.js]] - degree 19, connects to 1 community

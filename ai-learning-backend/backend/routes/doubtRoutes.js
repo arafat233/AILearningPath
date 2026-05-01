@@ -1,10 +1,14 @@
 import { Router } from "express";
 import Joi from "joi";
+import mongoose from "mongoose";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
 import { DoubtThread, User } from "../models/index.js";
 import { getChatResponse } from "../services/aiService.js";
+
+const isValidQuestionId = (id) =>
+  id === "ai-generated" || mongoose.isValidObjectId(id);
 
 const r = Router();
 const MAX_MESSAGES = 20;
@@ -20,6 +24,8 @@ const messageSchema = Joi.object({
 r.get("/:questionId", auth, async (req, res, next) => {
   try {
     const { questionId } = req.params;
+    if (!isValidQuestionId(questionId))
+      return next(new AppError("Invalid question ID", 400));
     let thread = await DoubtThread.findOne({ userId: req.user.id, questionId }).lean();
     if (!thread) thread = { userId: req.user.id, questionId, messages: [] };
     res.json(thread);
@@ -32,6 +38,8 @@ r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, n
     const { questionId } = req.params;
     const { message, topic, subject } = req.body;
 
+    if (!isValidQuestionId(questionId))
+      return next(new AppError("Invalid question ID", 400));
     if (questionId === "ai-generated")
       return next(new AppError("Doubt chat not available for AI-generated questions", 400));
 
@@ -96,8 +104,11 @@ r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, n
 // Clear thread
 r.delete("/:questionId", auth, async (req, res, next) => {
   try {
+    const { questionId } = req.params;
+    if (!isValidQuestionId(questionId))
+      return next(new AppError("Invalid question ID", 400));
     await DoubtThread.findOneAndUpdate(
-      { userId: req.user.id, questionId: req.params.questionId },
+      { userId: req.user.id, questionId },
       { messages: [], updatedAt: new Date() }
     );
     res.json({ ok: true });

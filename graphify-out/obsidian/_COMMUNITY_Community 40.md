@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[.constructor()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
-- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
-- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 
 ## Live Query (requires Dataview plugin)
 

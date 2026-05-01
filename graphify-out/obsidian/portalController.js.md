@@ -12,6 +12,7 @@ tags:
 # portalController.js
 
 ## Connections
+- [[escapeRegex()]] - `contains` [EXTRACTED]
 - [[getLinkedStudents()]] - `contains` [EXTRACTED]
 - [[getStudentAnalytics()]] - `contains` [EXTRACTED]
 - [[getStudentDashboardCtrl()]] - `contains` [EXTRACTED]

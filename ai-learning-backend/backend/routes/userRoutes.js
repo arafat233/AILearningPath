@@ -1,8 +1,19 @@
 import express from "express";
 import Joi from "joi";
-import { Topic, User, UserProfile } from "../models/index.js";
+import rateLimit from "express-rate-limit";
+import { Attempt, Badge, DoubtThread, ErrorMemory, Streak, Topic, User, UserProfile } from "../models/index.js";
+import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+
+const updateMeLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  keyGenerator: (req) => req.user?.id || req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many profile updates. Try again in an hour." },
+});
 
 const r = express.Router();
 
@@ -35,7 +46,7 @@ r.get("/me", auth, async (req, res, next) => {
   }
 });
 
-r.put("/me", auth, validate(updateMeSchema), async (req, res, next) => {
+r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, next) => {
   try {
     const { name, examDate, grade, subject, goal, weakTopics } = req.body;
     const updates = {};
@@ -55,6 +66,28 @@ r.put("/me", auth, validate(updateMeSchema), async (req, res, next) => {
     }
 
     res.json({ user });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GDPR / PDPB: account + all personal data deletion
+r.delete("/me", auth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    await Promise.all([
+      User.findByIdAndDelete(userId),
+      UserProfile.deleteOne({ userId }),
+      Attempt.deleteMany({ userId }),
+      ErrorMemory.deleteMany({ userId }),
+      Streak.deleteOne({ userId }),
+      Badge.deleteMany({ userId }),
+      DoubtThread.deleteMany({ userId }),
+      LessonProgress?.deleteMany({ userId }),
+    ]);
+    res.clearCookie("token");
+    res.clearCookie("refreshToken");
+    res.json({ data: { message: "Account and all personal data deleted." } });
   } catch (err) {
     next(err);
   }

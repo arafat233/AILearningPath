@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/dashboard.md"
 type: "document"
-community: "Community 5"
+community: "Community 6"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_6
 ---
 
 # E2E Report: Dashboard (all 9 checks passed)
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Dashboard Page ()]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_5
+#graphify/document #graphify/EXTRACTED #community/Community_6

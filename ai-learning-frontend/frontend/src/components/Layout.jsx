@@ -13,6 +13,7 @@ function Icon({ id }) {
     planner:     <><rect x="2" y="3.5" width="12" height="11" rx="1.5"/><path d="M2 7.5h12M5.5 2v3M10.5 2v3"/></>,
     voiceTutor:  <><path d="M3 8.5a5 5 0 0010 0"/><rect x="1.5" y="8" width="3" height="4.5" rx="1.5"/><rect x="11.5" y="8" width="3" height="4.5" rx="1.5"/></>,
     pyq:         <><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 5h6M5 8h4M5 11h3"/><path d="M11 9l2 2-2 2"/></>,
+    parent:      <><circle cx="5.5" cy="5" r="2.5"/><path d="M1 13.5a4.5 4.5 0 019 0"/><circle cx="12" cy="6" r="2"/><path d="M10 13.5a3 3 0 016 0"/></>,
     profile:     <><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
     upgrade:     <><path d="M10 2L6 8.5h4L8 14l6-7.5h-4L10 2z"/></>,
     settings:    <><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.6 3.6l1.5 1.5M10.9 10.9l1.5 1.5M3.6 12.4l1.5-1.5M10.9 5.1l1.5-1.5"/></>,
@@ -39,9 +40,16 @@ const NAV = [
   { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];
 
+const PARENT_NAV = [
+  { to: "/parent",  label: "My Children",   icon: "parent",   end: true },
+  { to: "/portal",  label: "Link Student",  icon: "profile"             },
+];
+
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  const isParent = user?.role === "parent" || user?.role === "teacher";
 
   const initials = user?.name
     ?.split(" ")
@@ -69,18 +77,50 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto">
-          <p className="section-label px-2 mb-2">Menu</p>
-          {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.end}
-              className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
-            >
-              <Icon id={n.icon} />
-              {n.label}
-            </NavLink>
-          ))}
+          {isParent ? (
+            <>
+              <p className="section-label px-2 mb-2">Parent Portal</p>
+              {PARENT_NAV.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                >
+                  <Icon id={n.icon} />
+                  {n.label}
+                </NavLink>
+              ))}
+              <div className="divider mx-1 my-2" />
+              <p className="section-label px-2 mb-2">Student View</p>
+              {NAV.filter((n) => ["/", "/analytics", "/planner", "/pyq"].includes(n.to)).map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                >
+                  <Icon id={n.icon} />
+                  {n.label}
+                </NavLink>
+              ))}
+            </>
+          ) : (
+            <>
+              <p className="section-label px-2 mb-2">Menu</p>
+              {NAV.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                >
+                  <Icon id={n.icon} />
+                  {n.label}
+                </NavLink>
+              ))}
+            </>
+          )}
         </nav>
 
         <div className="divider mx-4 mb-3" />

@@ -58,6 +58,7 @@ import Landing          from "./pages/Landing";
 import CompanyLogin     from "./pages/CompanyLogin";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import PYQBank          from "./pages/PYQBank";
+import ParentDashboard  from "./pages/ParentDashboard";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -154,6 +155,7 @@ export default function App() {
             <Route path="settings"                element={<Settings />} />
             <Route path="exam-review"             element={<ExamReview />} />
             <Route path="portal"                  element={<Portal />} />
+            <Route path="parent"                  element={<ParentDashboard />} />
             <Route path="chapters/:chapterNumber"      element={<ChapterView />} />
             <Route path="ncert/chapters/:chapterId"   element={<NcertChapterView />} />
             <Route path="ncert/topics/:topicId"       element={<NcertTopicView />} />

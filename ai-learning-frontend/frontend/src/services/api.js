@@ -86,7 +86,8 @@ export const adminDeleteTopic    = (id)        => api.delete(`/admin/topics/${id
 export const generateInvite      = ()           => api.post("/portal/generate-invite");
 export const linkStudent         = (inviteCode) => api.post("/portal/link", { inviteCode });
 export const getLinkedStudents   = ()           => api.get("/portal/students");
-export const getStudentAnalytics = (studentId)  => api.get(`/portal/students/${studentId}/analytics`);
+export const getStudentAnalytics  = (studentId)  => api.get(`/portal/students/${studentId}/analytics`);
+export const getStudentDashboard  = (studentId)  => api.get(`/portal/students/${studentId}/dashboard`);
 
 export const getRoomQuestions = (topic, count) => api.post("/competition/room-questions", { topic, count });
 

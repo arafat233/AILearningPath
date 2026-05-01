@@ -2,6 +2,7 @@ import crypto from "crypto";
 import mongoose from "mongoose";
 import { User, UserProfile, Streak, Badge } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
+import { getStudentDashboard } from "../services/portalService.js";
 
 // SEC-14: Retry loop to guarantee uniqueness
 async function generateUniqueCode(maxRetries = 5) {
@@ -71,5 +72,20 @@ export const getStudentAnalytics = async (req, res, next) => {
       Badge.find({ userId: studentId }).sort({ awardedAt: -1 }).lean(),
     ]);
     res.json({ profile, streak, badges });
+  } catch (err) { next(err); }
+};
+
+export const getStudentDashboardCtrl = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!mongoose.isValidObjectId(studentId))
+      return next(new AppError("Invalid student ID", 400));
+
+    if (!(await verifyOwnership(req.user.id, studentId)))
+      return next(new AppError("Student not linked to your account", 403));
+
+    const data = await getStudentDashboard(studentId);
+    res.json(data);
   } catch (err) { next(err); }
 };

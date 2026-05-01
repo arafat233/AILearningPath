@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js"
 type: "code"
-community: "Community 8"
+community: "Community 1"
 location: "L15"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_8
+  - community/Community_1
 ---
 
 # generateTeacherMessage()
@@ -17,4 +17,4 @@ tags:
 - [[startTopic()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_8
+#graphify/code #graphify/INFERRED #community/Community_1

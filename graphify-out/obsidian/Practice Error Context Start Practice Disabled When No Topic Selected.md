@@ -1,12 +1,12 @@
 ---
 source_file: "e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md"
 type: "document"
-community: "Community 9"
+community: "Community 8"
 location: "tests/04_practice.spec.js:30:3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_9
+  - community/Community_8
 ---
 
 # Practice Error Context: Start Practice Disabled When No Topic Selected
@@ -19,4 +19,4 @@ tags:
 - [[Test Practice Start Practice disabled when no topic selected]] - `references` [EXTRACTED]
 - [[UI Element Start Practice Button]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_9
+#graphify/document #graphify/EXTRACTED #community/Community_8

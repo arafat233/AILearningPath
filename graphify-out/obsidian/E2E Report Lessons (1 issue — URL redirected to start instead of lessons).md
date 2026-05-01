@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/lessons.md"
 type: "document"
-community: "Community 3"
+community: "Community 5"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_5
 ---
 
 # E2E Report: Lessons (1 issue — URL redirected to /start instead of /lessons)
@@ -14,4 +14,4 @@ tags:
 - [[E2E Issue Lessons page redirects to start instead of lessons]] - `references` [EXTRACTED]
 - [[Lessons Page (lessons)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_5

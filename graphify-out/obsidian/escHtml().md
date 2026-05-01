@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 7"
+community: "Community 9"
 location: "L69"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_9
 ---
 
 # escHtml()
@@ -16,4 +16,4 @@ tags:
 - [[forgotPassword()]] - `calls` [EXTRACTED]
 - [[queueWelcomeEmail()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_9

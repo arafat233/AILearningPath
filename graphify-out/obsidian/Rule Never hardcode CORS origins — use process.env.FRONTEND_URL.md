@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 1"
+community: "Community 2"
 location: "Rules rule 5"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # Rule: Never hardcode CORS origins — use process.env.FRONTEND_URL
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Architecture Rules (CLAUDE.md)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_1
+#graphify/document #graphify/EXTRACTED #community/Community_2

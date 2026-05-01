@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 1"
+community: "Community 2"
 location: "section 4.5"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # plannerService.js — Study Plan Generator
@@ -15,4 +15,4 @@ tags:
 - [[Backend (Express + Node, port 5001)]] - `references` [EXTRACTED]
 - [[Jest ESM Test Suite (__tests__)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_1
+#graphify/document #graphify/EXTRACTED #community/Community_2

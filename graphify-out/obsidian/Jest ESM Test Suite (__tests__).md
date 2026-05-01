@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 1"
+community: "Community 2"
 location: "section 12"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # Jest ESM Test Suite (__tests__/)
@@ -18,4 +18,4 @@ tags:
 - [[plannerService.js — Study Plan Generator]] - `references` [EXTRACTED]
 - [[scoringService.js — Exam Scoring]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_1
+#graphify/document #graphify/EXTRACTED #community/Community_2

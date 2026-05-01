@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/profile.md"
 type: "document"
-community: "Community 2"
+community: "Community 4"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_4
 ---
 
 # Error: Unexpected token in CSS selector with comma-separated locators
@@ -14,4 +14,4 @@ tags:
 - [[Test Profile avataruser name is visible]] - `references` [EXTRACTED]
 - [[Test Profile plan badge or subscription info is visible]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_4

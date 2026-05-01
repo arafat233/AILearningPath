@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 1"
+community: "Community 2"
 location: "Rules rule 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # Rule: No business logic in controllers
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Architecture Rules (CLAUDE.md)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_1
+#graphify/document #graphify/EXTRACTED #community/Community_2

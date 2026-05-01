@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js"
 type: "code"
-community: "Community 6"
+community: "Community 1"
 location: "L8"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_1
 ---
 
 # adminAuth()
@@ -16,4 +16,4 @@ tags:
 - [[sessionGet()]] - `calls` [INFERRED]
 - [[sessionSet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_1

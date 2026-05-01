@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md"
 type: "document"
-community: "Community 9"
+community: "Community 8"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_9
+  - community/Community_8
 ---
 
 # Page: /practice
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Practice E2E Report]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_9
+#graphify/document #graphify/EXTRACTED #community/Community_8

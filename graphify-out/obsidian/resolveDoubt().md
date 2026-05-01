@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js"
 type: "code"
-community: "Community 8"
+community: "Community 1"
 location: "L37"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_1
 ---
 
 # resolveDoubt()
@@ -19,4 +19,4 @@ tags:
 - [[smartAIExplanation()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_1

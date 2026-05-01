@@ -1,17 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx"
 type: "code"
-community: "Community 5"
-location: "L398"
+community: "Community 3"
+location: "L371"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_3
 ---
 
 # LiveRoomViz()
 
 ## Connections
-- [[LandingPage.jsx]] - `contains` [EXTRACTED]
+- [[Landing.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_3

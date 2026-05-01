@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/settings.md"
 type: "document"
-community: "Community 2"
+community: "Community 4"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_4
 ---
 
 # Test: Settings Save changes shows success message
@@ -15,4 +15,4 @@ tags:
 - [[Settings E2E Report]] - `references` [EXTRACTED]
 - [[Test Outcome Failed]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_4

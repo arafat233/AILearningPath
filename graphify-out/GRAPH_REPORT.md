@@ -1,12 +1,12 @@
 # Graph Report - E:\AILearningPath  (2026-05-01)
 
 ## Corpus Check
-- 156 files · ~318,604 words
+- 157 files · ~346,234 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 705 nodes · 766 edges · 145 communities detected
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 114 edges (avg confidence: 0.82)
+- 792 nodes · 882 edges · 145 communities detected
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 114 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -158,15 +158,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `Backend (Express + Node, port 5001)` - 25 edges
-2. `Frontend (React + Vite, port 5173)` - 18 edges
-3. `Test Outcome: Passed` - 18 edges
-4. `submitAnswer()` - 14 edges
-5. `Settings E2E Report` - 13 edges
-6. `smartAIExplanation()` - 11 edges
-7. `Architecture Rules (CLAUDE.md)` - 10 edges
-8. `Profile E2E Report` - 10 edges
-9. `Test Outcome: Failed` - 10 edges
-10. `Login Page UI` - 10 edges
+2. `useStep()` - 18 edges
+3. `Frontend (React + Vite, port 5173)` - 18 edges
+4. `Test Outcome: Passed` - 18 edges
+5. `submitAnswer()` - 14 edges
+6. `Settings E2E Report` - 13 edges
+7. `smartAIExplanation()` - 11 edges
+8. `reveal()` - 10 edges
+9. `Architecture Rules (CLAUDE.md)` - 10 edges
+10. `Profile E2E Report` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `usageInfo()` --calls--> `getUsageCount()`  [INFERRED]
@@ -184,59 +184,59 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.03
-Nodes (0): 
+Nodes (34): easeInOutCubic(), easeOutCubic(), PreviewArithmetic(), PreviewChemistry(), PreviewCivics(), PreviewCoding(), PreviewGeography(), PreviewGovernment() (+26 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.05
-Nodes (47): Backend Stack (README): Node.js + Express + MongoDB + OpenAI, Rationale: 7-Layer AI Cost Minimisation Strategy, adaptiveService.js — Smart Question Selection, AI Learning Platform (CBSE Class 10), aiRouter.js — 7-Layer Cost Minimisation, aiService.js — Claude API Calls, aiTeacherService.js — Contextual Guidance, analysisService.js — Thinking Behaviour Detector (+39 more)
+Cohesion: 0.03
+Nodes (0): 
 
 ### Community 2 - "Community 2"
-Cohesion: 0.09
-Nodes (38): Error: Unexpected token in CSS selector with comma-separated locators, Error: toBeVisible() failed - element not found, Planner Feature, Profile Feature, Settings Feature, Test Outcome: Failed, Test Outcome: Passed, Page: /planner (+30 more)
+Cohesion: 0.05
+Nodes (67): Auth Error Context: Invalid Credentials Stay on Login, Auth Error Context: Page Load Sign In Button Not Found, Error: Unexpected token in CSS selector with comma-separated locators, Error: Practice h1 shows 'Your personal AI study coach' instead of 'Practice', Error: button type submit not found in DOM, Error: TimeoutError page.click exceeded 20000ms, Error: toBeDisabled() failed - element not found, Error: toBeVisible() failed - element not found (+59 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
-Nodes (34): api.js — Axios API Service, authStore — Zustand Auth State, BadgeToast.jsx Component, DoubtChat.jsx Component — Multi-Turn Chat, Layout.jsx Component — Sidebar Nav, Frontend (React + Vite, port 5173), Chapter Collection — CBSE Textbook Curriculum, DoubtThread Collection (MongoDB schema) (+26 more)
+Nodes (30): getInterleavedQuestion(), getNextQuestion(), adminAuth(), updateUserRole(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback() (+22 more)
 
 ### Community 4 - "Community 4"
+Cohesion: 0.05
+Nodes (47): Backend Stack (README): Node.js + Express + MongoDB + OpenAI, Rationale: 7-Layer AI Cost Minimisation Strategy, adaptiveService.js — Smart Question Selection, AI Learning Platform (CBSE Class 10), aiRouter.js — 7-Layer Cost Minimisation, aiService.js — Claude API Calls, aiTeacherService.js — Contextual Guidance, analysisService.js — Thinking Behaviour Detector (+39 more)
+
+### Community 5 - "Community 5"
+Cohesion: 0.06
+Nodes (34): api.js — Axios API Service, authStore — Zustand Auth State, BadgeToast.jsx Component, DoubtChat.jsx Component — Multi-Turn Chat, Layout.jsx Component — Sidebar Nav, Frontend (React + Vite, port 5173), Chapter Collection — CBSE Textbook Curriculum, DoubtThread Collection (MongoDB schema) (+26 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.11
 Nodes (24): getAdminStats(), cacheStats(), studyAdvice(), tutorChat(), usageInfo(), checkAndIncrementUsage(), getCacheStats(), getUsageCount() (+16 more)
 
-### Community 5 - "Community 5"
+### Community 7 - "Community 7"
 Cohesion: 0.07
 Nodes (5): GoalPreviewSimple(), sampleTopicsFor(), statsFor(), Subjects(), useStep()
 
-### Community 6 - "Community 6"
-Cohesion: 0.09
-Nodes (18): adminAuth(), updateUserRole(), auth(), currentWeekStr(), examKey(), startExam(), submitExam(), createOrder() (+10 more)
-
-### Community 7 - "Community 7"
+### Community 8 - "Community 8"
 Cohesion: 0.12
 Nodes (23): buildAccuracyHistory(), buildWeaknessMap(), getReport(), clerkAuth(), escHtml(), forgotPassword(), isProd(), issueTokens() (+15 more)
 
-### Community 8 - "Community 8"
-Cohesion: 0.1
-Nodes (19): getInterleavedQuestion(), getNextQuestion(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), detectDoubtType(), generateDoubtInsight() (+11 more)
-
 ### Community 9 - "Community 9"
-Cohesion: 0.1
-Nodes (29): Auth Error Context: Invalid Credentials Stay on Login, Auth Error Context: Page Load Sign In Button Not Found, Error: Practice h1 shows 'Your personal AI study coach' instead of 'Practice', Error: button type submit not found in DOM, Error: TimeoutError page.click exceeded 20000ms, Error: toBeDisabled() failed - element not found, Error: toContainText() failed - wrong h1 text, Error: No topic buttons and no loading indicator - topics failed to load (+21 more)
-
-### Community 10 - "Community 10"
 Cohesion: 0.14
 Nodes (20): App Branding — Blue Square Logo with Letter A, Auth Guard on Practice Route, Bug: No Error Message Shown After Invalid Login, Behavior: Login Page Loads With All Elements Visible, Behavior: Page Remains on Login After Failed Auth, Bug: Practice Page Redirects Unauthenticated User to Landing Page, E2E Test: Invalid Credentials — Stay on Login Page (Failed), E2E Test: Login Page Load — Sign In Button Visible (Failed) (+12 more)
 
-### Community 11 - "Community 11"
+### Community 10 - "Community 10"
 Cohesion: 0.2
 Nodes (10): ap(), coordinateGeometry(), diff(), ds(), linear(), polynomials(), quadratic(), rand() (+2 more)
 
+### Community 11 - "Community 11"
+Cohesion: 0.24
+Nodes (7): currentWeekStr(), examKey(), startExam(), submitExam(), assignRanks(), calculateExamScore(), normalizeScores()
+
 ### Community 12 - "Community 12"
-Cohesion: 0.31
-Nodes (1): IssueReporter
+Cohesion: 0.22
+Nodes (1): ErrorBoundary
 
 ### Community 13 - "Community 13"
-Cohesion: 0.25
-Nodes (1): ErrorBoundary
+Cohesion: 0.31
+Nodes (1): IssueReporter
 
 ### Community 14 - "Community 14"
 Cohesion: 0.25
@@ -264,11 +264,11 @@ Nodes (0):
 
 ### Community 20 - "Community 20"
 Cohesion: 0.4
-Nodes (0): 
+Nodes (2): getPlan(), generateStudyPlan()
 
 ### Community 21 - "Community 21"
 Cohesion: 0.4
-Nodes (2): getPlan(), generateStudyPlan()
+Nodes (0): 
 
 ### Community 22 - "Community 22"
 Cohesion: 0.5
@@ -963,12 +963,12 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Root Issue: Auth state not injected - practice page shows landing page instead` and `Root Issue: Login Submit button lacks type=submit attribute`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `submitAnswer()` connect `Community 8` to `Community 4`, `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
-- **Why does `save()` connect `Community 7` to `Community 11`, `Community 4`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `sessionSet()` connect `Community 8` to `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `submitAnswer()` connect `Community 3` to `Community 8`, `Community 6`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `save()` connect `Community 8` to `Community 10`, `Community 6`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `sessionSet()` connect `Community 3` to `Community 8`, `Community 11`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `Frontend (React + Vite, port 5173)` (e.g. with `Frontend Stack (README): React 18 + Vite + Tailwind + Zustand + Recharts` and `E2E Report: Navigation (all 15 checks passed)`) actually correct?**
   _`Frontend (React + Vite, port 5173)` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 12 inferred relationships involving `submitAnswer()` (e.g. with `sessionGet()` and `analyzeAnswer()`) actually correct?**

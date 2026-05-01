@@ -1,47 +1,57 @@
 ---
 type: community
-members: 34
+members: 44
 ---
 
 # Community 3
 
-**Members:** 34 nodes
+**Members:** 44 nodes
 
 ## Members
-- [[AdminOverview Page (admin)]] - document - BLUEPRINT.md
-- [[Analytics Page (analytics)]] - document - BLUEPRINT.md
-- [[BadgeToast.jsx Component]] - document - BLUEPRINT.md
-- [[Chapter Collection — CBSE Textbook Curriculum]] - document - BLUEPRINT.md
-- [[ChapterView Page (chaptersn)]] - document - BLUEPRINT.md
-- [[Competition Page (competition)]] - document - BLUEPRINT.md
-- [[Curriculum Routes (apiv1curriculum)]] - document - BLUEPRINT.md
-- [[Dashboard Page ()]] - document - BLUEPRINT.md
-- [[Doubt Routes (apidoubtquestionId)]] - document - BLUEPRINT.md
-- [[DoubtChat.jsx Component — Multi-Turn Chat]] - document - BLUEPRINT.md
-- [[DoubtThread Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[E2E Issue Analytics accuracy stat not visible]] - document - e2e-bot/reports/analytics.md
-- [[E2E Issue Lessons page redirects to start instead of lessons]] - document - e2e-bot/reports/lessons.md
-- [[E2E Report Analytics (1 issue — Accuracy stat not visible)]] - document - e2e-bot/reports/analytics.md
-- [[E2E Report Competition (all 6 checks passed)]] - document - e2e-bot/reports/competition.md
-- [[E2E Report Dashboard (all 9 checks passed)]] - document - e2e-bot/reports/dashboard.md
-- [[E2E Report Lessons (1 issue — URL redirected to start instead of lessons)]] - document - e2e-bot/reports/lessons.md
-- [[E2E Report Navigation (all 15 checks passed)]] - document - e2e-bot/reports/navigation.md
-- [[Frontend (React + Vite, port 5173)]] - document - BLUEPRINT.md
-- [[Frontend Stack (README) React 18 + Vite + Tailwind + Zustand + Recharts]] - document - ai-learning-frontend/frontend/README.md
-- [[Layout.jsx Component — Sidebar Nav]] - document - BLUEPRINT.md
-- [[Lessons Page (lessons)]] - document - BLUEPRINT.md
-- [[PWA — Service Worker + Push Notifications]] - document - BLUEPRINT.md
-- [[Portal Page (portal) — ParentTeacher]] - document - BLUEPRINT.md
-- [[Portal Routes (apiportal)]] - document - BLUEPRINT.md
-- [[Practice Page (practice)]] - document - BLUEPRINT.md
-- [[Seed CBSE English Curriculum — 23 Chapters]] - document - BLUEPRINT.md
-- [[Seed CBSE Hindi Curriculum — 32 Chapters]] - document - BLUEPRINT.md
-- [[Seed CBSE Social Science Curriculum — 22 Chapters]] - document - BLUEPRINT.md
-- [[User Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[VoiceTutor Page (voice-tutor)]] - document - BLUEPRINT.md
-- [[api.js — Axios API Service]] - document - BLUEPRINT.md
-- [[authStore — Zustand Auth State]] - document - BLUEPRINT.md
-- [[index.html — PWA manifest + theme-color meta]] - document - ai-learning-frontend/frontend/index.html
+- [[AdaptiveViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[AnimatedStellarMark()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[BentoCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[CardHeader()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[Features()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[Hero()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[HowItWorks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[IntroScene_CTA()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[IntroScene_Classroom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[IntroScene_Promise()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[IntroScene_Reshape()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[IntroScene_Sky()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[Landing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[LiveRoomViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[Logo()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[Manifesto()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[PhoneFrame()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[PlannerViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[PredictionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[ProductTour()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[ProfileViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[RevisionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[SceneLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[SceneUI()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[SectionEyebrow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[TopBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[TrustMetric()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Guess()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_LevelUp()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Parent()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Question()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Retest()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_SignIn()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Simpler()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Teach()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[UI_Voice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[VoiceViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[easeInOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[easeOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[pentPoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[pentPoints()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[reveal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[tourPhase()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[useAmbientMusic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -49,12 +59,3 @@ members: 34
 TABLE source_file, type FROM #community/Community_3
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 1]]
-
-## Top bridge nodes
-- [[Frontend (React + Vite, port 5173)]] - degree 18, connects to 1 community
-- [[Curriculum Routes (apiv1curriculum)]] - degree 3, connects to 1 community
-- [[BadgeToast.jsx Component]] - degree 2, connects to 1 community
-- [[api.js — Axios API Service]] - degree 2, connects to 1 community

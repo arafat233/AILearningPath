@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 23
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Analytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[Analytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[ConfRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[StatCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
+- [[ClerkCallback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[ClerkCallback.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[authedRedirectTarget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[getStoredRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[normalizeRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
 
 ## Live Query (requires Dataview plugin)
 

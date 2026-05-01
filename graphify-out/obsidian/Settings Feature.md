@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/settings.md"
 type: "document"
-community: "Community 3"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # Settings Feature
@@ -15,4 +15,4 @@ tags:
 - [[Settings E2E Report]] - `references` [EXTRACTED]
 - [[SubscriptionPlan Feature]] - `conceptually_related_to` [INFERRED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_2

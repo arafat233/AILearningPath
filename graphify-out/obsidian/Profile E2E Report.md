@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/profile.md"
 type: "document"
-community: "Community 3"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # Profile E2E Report
@@ -22,4 +22,4 @@ tags:
 - [[Test Profile page loads at profile without crash]] - `references` [EXTRACTED]
 - [[Test Profile plan badge or subscription info is visible]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_2

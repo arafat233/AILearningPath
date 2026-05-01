@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
-- [[AdminUsers.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
+- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
 
 ## Live Query (requires Dataview plugin)
 

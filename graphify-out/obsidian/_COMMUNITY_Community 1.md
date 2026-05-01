@@ -1,11 +1,11 @@
 ---
 type: community
-members: 52
+members: 47
 ---
 
 # Community 1
 
-**Members:** 52 nodes
+**Members:** 47 nodes
 
 ## Members
 - [[AI Learning Platform (CBSE Class 10)]] - document - BLUEPRINT.md
@@ -16,9 +16,7 @@ members: 52
 - [[Backend (Express + Node, port 5001)]] - document - BLUEPRINT.md
 - [[Backend Stack (README) Node.js + Express + MongoDB + OpenAI]] - document - ai-learning-backend/backend/README.md
 - [[Badge Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[Chapter Collection — CBSE Textbook Curriculum]] - document - BLUEPRINT.md
 - [[Claude Haiku 4.5 AI Engine]] - document - BLUEPRINT.md
-- [[Curriculum Routes (apiv1curriculum)]] - document - BLUEPRINT.md
 - [[Deployment Docker Compose (mongo + redis + api)]] - document - BLUEPRINT.md
 - [[Deployment PM2 Cluster Mode (ecosystem.config.cjs)]] - document - BLUEPRINT.md
 - [[Enforced Folder Structure]] - document - CLAUDE.md
@@ -36,9 +34,6 @@ members: 52
 - [[Rule Sessions must not use in-memory object (RedisDB required)]] - document - CLAUDE.md
 - [[Rule Standardised error responses via AppError]] - document - CLAUDE.md
 - [[Rule Update BLUEPRINT.md before every commit]] - document - CLAUDE.md
-- [[Seed CBSE English Curriculum — 23 Chapters]] - document - BLUEPRINT.md
-- [[Seed CBSE Hindi Curriculum — 32 Chapters]] - document - BLUEPRINT.md
-- [[Seed CBSE Social Science Curriculum — 22 Chapters]] - document - BLUEPRINT.md
 - [[Socket.IO Competition Rooms]] - document - BLUEPRINT.md
 - [[Topic Collection (MongoDB schema)]] - document - BLUEPRINT.md
 - [[UserProfile Collection — Analytics Brain]] - document - BLUEPRINT.md
@@ -69,10 +64,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 5]]
+- 4 edges to [[_COMMUNITY_Community 3]]
 
 ## Top bridge nodes
 - [[Backend (Express + Node, port 5001)]] - degree 25, connects to 1 community
 - [[AI Learning Platform (CBSE Class 10)]] - degree 7, connects to 1 community
 - [[badgeService.js — Achievement Awards]] - degree 3, connects to 1 community
-- [[Curriculum Routes (apiv1curriculum)]] - degree 3, connects to 1 community
+- [[Rule New route groups use apiv1 prefix]] - degree 3, connects to 1 community

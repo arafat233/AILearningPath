@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
+- [[scoringService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\scoringService.test.js
 
 ## Live Query (requires Dataview plugin)
 

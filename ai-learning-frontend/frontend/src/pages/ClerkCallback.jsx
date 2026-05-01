@@ -1,64 +1,89 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useClerk, useAuth } from "@clerk/clerk-react";
 import { useAuthStore } from "../store/authStore";
 import { clerkLogin } from "../services/api";
 
+const EXCHANGE_TIMEOUT_MS = 30_000;
+
+function getStoredRedirect() {
+  try { return sessionStorage.getItem("postGoogleRedirect"); } catch { return null; }
+}
+
+function normalizeRedirect(value) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
+  return value;
+}
+
+function authedRedirectTarget(requestedRedirect, needsOnboarding) {
+  if (needsOnboarding) return "/onboarding";
+  return ["/login", "/register", "/start", "/clerk-callback"].includes(requestedRedirect)
+    ? "/"
+    : requestedRedirect;
+}
+
 export default function ClerkCallback() {
   const { handleRedirectCallback } = useClerk();
   const { isLoaded, isSignedIn, getToken } = useAuth();
-  const setAuth  = useAuthStore((s) => s.setAuth);
-  const navigate = useNavigate();
-  const [searchParams]  = useSearchParams();
-  const redirectTo      = searchParams.get("to") || "/";
-  const [error, setError]           = useState("");
-  const [callbackDone, setCallbackDone] = useState(false);
-  const didHandle   = useRef(false); // StrictMode: only run handleRedirectCallback once
-  const didExchange = useRef(false); // only run the backend exchange once
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const [searchParams] = useSearchParams();
 
-  // Step 1: complete the OAuth callback (exactly once, even in React StrictMode)
+  const rawToParam = searchParams.get("to");
+  const decodedToParam = rawToParam
+    ? (() => { try { return decodeURIComponent(rawToParam); } catch { return rawToParam; } })()
+    : null;
+  const redirectTo = normalizeRedirect(getStoredRedirect() || decodedToParam);
+
+  const [error, setError] = useState("");
+  const didHandle   = useRef(false);
+  const didExchange = useRef(false);
+
+  // Step 1: Process the OAuth code exactly once.
+  // Clerk is blocked from navigating away (see ClerkWrapper in main.jsx), so
+  // the session is established here and isSignedIn becomes true on this page.
   useEffect(() => {
     if (didHandle.current) return;
     didHandle.current = true;
+    handleRedirectCallback().catch((err) => {
+      const msg = err.errors?.[0]?.longMessage || err.message || "";
+      if (!msg.toLowerCase().includes("already")) {
+        setError(msg || "Google sign-in failed");
+      }
+    });
+  }, [handleRedirectCallback]);
 
-    handleRedirectCallback()
-      .catch((err) => {
-        // Any error here is treated as "maybe the session is already valid"
-        // We rely on isSignedIn (step 2) to determine the real outcome
-        console.error("[ClerkCallback] handleRedirectCallback error:", err);
-      })
-      .finally(() => setCallbackDone(true));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Step 2: once Clerk's reactive state confirms sign-in, exchange for backend JWT
+  // Step 2: Exchange as soon as Clerk marks the session active.
+  // isSignedIn only becomes true after Clerk has fully established the session,
+  // so getToken() is reliable at this point.
   useEffect(() => {
-    if (!callbackDone || !isLoaded || !isSignedIn || didExchange.current) return;
+    if (!isLoaded || !isSignedIn || didExchange.current || error) return;
     didExchange.current = true;
-
     (async () => {
       try {
         const token = await getToken();
-        if (!token) throw new Error("Clerk returned no token — please try again");
+        if (!token) { didExchange.current = false; return; }
         const { data } = await clerkLogin(token);
         setAuth(null, data.data.user);
-        navigate(redirectTo, { replace: true });
+        const dest = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
+        try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
+        window.location.href = dest;
       } catch (err) {
-        console.error("[ClerkCallback] backend exchange error:", err);
+        didExchange.current = false;
         setError(err.response?.data?.error || err.message || "Sign-in failed");
       }
     })();
-  }, [callbackDone, isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Step 2b: if callback is done, Clerk loaded, but NOT signed in — show error
+  // Timeout: show an error if the session never becomes active.
   useEffect(() => {
-    if (!callbackDone || !isLoaded || isSignedIn || error || didExchange.current) return;
+    if (!isLoaded) return;
     const t = setTimeout(() => {
-      if (!isSignedIn && !error) {
+      if (!didExchange.current) {
         setError("Google sign-in did not complete. Please try again.");
       }
-    }, 5000);
+    }, EXCHANGE_TIMEOUT_MS);
     return () => clearTimeout(t);
-  }, [callbackDone, isLoaded, isSignedIn, error]);
+  }, [isLoaded]);
 
   if (error) {
     return (

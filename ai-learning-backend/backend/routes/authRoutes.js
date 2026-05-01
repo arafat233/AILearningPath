@@ -1,7 +1,7 @@
 import { Router } from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
-import { register, login, logout, refresh, forgotPassword, resetPassword, clerkAuth } from "../controllers/authController.js";
+import { register, login, logout, refresh, forgotPassword, resetPassword, googleAuth, googleAuthCallback } from "../controllers/authController.js";
 import { validate } from "../middleware/validate.js";
 import { auth } from "../middleware/auth.js";
 
@@ -52,6 +52,7 @@ r.post("/logout",                auth,                                  logout);
 r.post("/refresh",                                                      refresh); // no auth — access token may be expired
 r.post("/forgot-password",       forgotLimiter, validate(forgotSchema), forgotPassword);
 r.post("/reset-password/:token", validate(resetSchema),                 resetPassword);
-r.post("/clerk",                                                        clerkAuth); // social login via Clerk
+r.get("/google",          googleAuth);
+r.get("/google/callback", googleAuthCallback);
 
 export default r;

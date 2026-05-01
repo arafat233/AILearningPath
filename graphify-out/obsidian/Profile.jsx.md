@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx"
 type: "code"
-community: "Community 20"
+community: "Community 24"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_20
+  - community/Community_24
 ---
 
 # Profile.jsx
@@ -17,4 +17,4 @@ tags:
 - [[PlanBadge()]] - `contains` [EXTRACTED]
 - [[Profile()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_20
+#graphify/code #graphify/EXTRACTED #community/Community_24

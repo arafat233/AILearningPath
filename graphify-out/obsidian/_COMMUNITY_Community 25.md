@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
 
 ## Live Query (requires Dataview plugin)
 

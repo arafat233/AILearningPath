@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 5"
+community: "Community 3"
 location: "section 3.19"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_3
 ---
 
 # DoubtThread Collection (MongoDB schema)
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Doubt Routes (apidoubtquestionId)]] - `shares_data_with` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_5
+#graphify/document #graphify/INFERRED #community/Community_3

@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 6"
+community: "Community 9"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_9
 ---
 
 # UI Element: Start Practice Button
@@ -14,4 +14,4 @@ tags:
 - [[Practice Error Context Start Practice Disabled When No Topic Selected]] - `references` [EXTRACTED]
 - [[UI Element Topic Selector Grid]] - `conceptually_related_to` [INFERRED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_6
+#graphify/document #graphify/EXTRACTED #community/Community_9

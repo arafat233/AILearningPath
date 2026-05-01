@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 6"
+community: "Community 9"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_9
 ---
 
 # Test: Practice selecting a topic enables Start Practice
@@ -14,4 +14,4 @@ tags:
 - [[Practice E2E Report]] - `references` [EXTRACTED]
 - [[Test Outcome Passed]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_6
+#graphify/document #graphify/EXTRACTED #community/Community_9

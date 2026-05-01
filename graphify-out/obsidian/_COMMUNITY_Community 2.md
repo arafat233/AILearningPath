@@ -1,62 +1,51 @@
 ---
 type: community
-members: 49
+members: 38
 ---
 
 # Community 2
 
-**Members:** 49 nodes
+**Members:** 38 nodes
 
 ## Members
-- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[Error Unexpected token in CSS selector with comma-separated locators]] - document - e2e-bot/reports/profile.md
+- [[Error toBeVisible() failed - element not found]] - document - e2e-bot/reports/profile.md
+- [[Page planner]] - document - e2e-bot/reports/planner.md
+- [[Page pricing]] - document - e2e-bot/reports/settings.md
+- [[Page profile]] - document - e2e-bot/reports/profile.md
+- [[Page settings]] - document - e2e-bot/reports/settings.md
+- [[Planner E2E Report]] - document - e2e-bot/reports/planner.md
+- [[Planner Feature]] - document - e2e-bot/reports/planner.md
+- [[Profile E2E Report]] - document - e2e-bot/reports/profile.md
+- [[Profile Feature]] - document - e2e-bot/reports/profile.md
+- [[Settings E2E Report]] - document - e2e-bot/reports/settings.md
+- [[Settings Feature]] - document - e2e-bot/reports/settings.md
+- [[SubscriptionPlan Feature]] - document - e2e-bot/reports/settings.md
+- [[Test Outcome Failed]] - document - e2e-bot/reports/SUMMARY.md
+- [[Test Outcome Passed]] - document - e2e-bot/reports/SUMMARY.md
+- [[Test Planner Complete button works if tasks are shown]] - document - e2e-bot/reports/planner.md
+- [[Test Planner Startpractice button visible and enabled if plan exists]] - document - e2e-bot/reports/planner.md
+- [[Test Planner page heading is visible]] - document - e2e-bot/reports/planner.md
+- [[Test Planner page loads at planner without crash]] - document - e2e-bot/reports/planner.md
+- [[Test Planner plan content or empty state is shown]] - document - e2e-bot/reports/planner.md
+- [[Test Practice Select Topic section is visible]] - document - e2e-bot/reports/practice.md
+- [[Test Profile Save button is present and clickable]] - document - e2e-bot/reports/profile.md
+- [[Test Profile Save button submits and stays on profile]] - document - e2e-bot/reports/profile.md
+- [[Test Profile avataruser name is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Profile input fields are visible and editable]] - document - e2e-bot/reports/profile.md
+- [[Test Profile page heading is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Profile page loads at profile without crash]] - document - e2e-bot/reports/profile.md
+- [[Test Profile plan badge or subscription info is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Settings Exam Date input is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Full Name input is visible and editable]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Grade select dropdown has options]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Save changes button is visible and enabled]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Save changes shows success message]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Study Goal select has 4 goal options]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Subscriptionplan info is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings UpgradeManage button navigates to pricing]] - document - e2e-bot/reports/settings.md
+- [[Test Settings heading is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings page loads at settings without crash]] - document - e2e-bot/reports/settings.md
 
 ## Live Query (requires Dataview plugin)
 
@@ -66,11 +55,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 4]]
-- 3 edges to [[_COMMUNITY_Community 7]]
+- 8 edges to [[_COMMUNITY_Community 9]]
 
 ## Top bridge nodes
-- [[submitAnswer()]] - degree 14, connects to 2 communities
-- [[resolveDoubt()]] - degree 6, connects to 1 community
-- [[getNextQuestion()]] - degree 5, connects to 1 community
-- [[scoringService.js]] - degree 4, connects to 1 community
+- [[Test Outcome Passed]] - degree 18, connects to 1 community
+- [[Settings E2E Report]] - degree 13, connects to 1 community
+- [[Profile E2E Report]] - degree 10, connects to 1 community
+- [[Test Outcome Failed]] - degree 10, connects to 1 community
+- [[Planner E2E Report]] - degree 9, connects to 1 community

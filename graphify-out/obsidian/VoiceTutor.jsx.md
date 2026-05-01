@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx"
 type: "code"
-community: "Community 59"
+community: "Community 76"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_59
+  - community/Community_76
 ---
 
 # VoiceTutor.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[VoiceTutor()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_59
+#graphify/code #graphify/EXTRACTED #community/Community_76

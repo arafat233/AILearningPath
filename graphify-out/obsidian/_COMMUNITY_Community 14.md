@@ -1,19 +1,21 @@
 ---
 type: community
-members: 6
+members: 8
 ---
 
 # Community 14
 
-**Members:** 6 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[NavRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[PlanItem()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[Screen()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StartOnboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StartOnboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StepLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
+- [[BulletList()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[DerivationPart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[DiagramCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MisconceptionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[WorkedExample()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
 
 ## Live Query (requires Dataview plugin)
 

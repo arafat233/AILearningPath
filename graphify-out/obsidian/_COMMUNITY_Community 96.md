@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[tailwind.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\tailwind.config.js
+- [[authRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\authRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

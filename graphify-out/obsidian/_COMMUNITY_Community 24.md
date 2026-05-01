@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 24
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Dashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[Dashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[getGreeting()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
 
 ## Live Query (requires Dataview plugin)
 

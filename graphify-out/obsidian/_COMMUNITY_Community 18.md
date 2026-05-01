@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
 
 ## Live Query (requires Dataview plugin)
 

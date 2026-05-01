@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
+- [[vite.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\vite.config.js
 
 ## Live Query (requires Dataview plugin)
 

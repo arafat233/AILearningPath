@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 40
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
-- [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[auth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
+- [[makeToken()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
+- [[mockReqRes()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
 
 ## Live Query (requires Dataview plugin)
 

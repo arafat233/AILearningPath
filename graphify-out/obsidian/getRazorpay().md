@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js"
 type: "code"
-community: "Community 18"
-location: "L42"
+community: "Community 6"
+location: "L43"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_18
+  - community/Community_6
 ---
 
 # getRazorpay()
@@ -15,4 +15,4 @@ tags:
 - [[createOrder()_1]] - `calls` [EXTRACTED]
 - [[paymentService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_18
+#graphify/code #graphify/EXTRACTED #community/Community_6

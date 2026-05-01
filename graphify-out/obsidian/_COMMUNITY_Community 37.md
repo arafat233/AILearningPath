@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[adaptive.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
+- [[leanResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
+- [[seenResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

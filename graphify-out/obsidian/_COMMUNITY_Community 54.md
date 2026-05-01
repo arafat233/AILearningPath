@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
-- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

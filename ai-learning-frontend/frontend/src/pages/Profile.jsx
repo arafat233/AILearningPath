@@ -52,8 +52,8 @@ export default function Profile() {
   useEffect(() => {
     getMe()
       .then(({ data }) => {
-        const u = data.user;
-        setProfile(data.profile);
+        const u = data.data.user;
+        setProfile(data.data.profile);
         setForm({
           name:     u.name     || "",
           examDate: u.examDate ? u.examDate.split("T")[0] : "",

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js"
 type: "code"
-community: "Community 2"
+community: "Community 8"
 location: "L15"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_8
 ---
 
 # checkFoundation()
@@ -15,4 +15,4 @@ tags:
 - [[foundationService.js]] - `contains` [EXTRACTED]
 - [[startTopic()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_8

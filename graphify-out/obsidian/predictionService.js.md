@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js"
 type: "code"
-community: "Community 27"
+community: "Community 33"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_27
+  - community/Community_33
 ---
 
 # predictionService.js
@@ -15,4 +15,4 @@ tags:
 - [[gradeFor()]] - `contains` [EXTRACTED]
 - [[predictExamScore()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_27
+#graphify/code #graphify/EXTRACTED #community/Community_33

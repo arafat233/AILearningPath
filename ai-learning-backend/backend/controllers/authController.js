@@ -1,7 +1,8 @@
 import crypto    from "crypto";
 import bcrypt    from "bcryptjs";
 import jwt       from "jsonwebtoken";
-import { createClerkClient, verifyToken } from "@clerk/backend";
+import passport  from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User }  from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
@@ -16,18 +17,18 @@ const COOKIE_OPTS = {
   httpOnly: true,
   get secure()   { return isProd(); },
   get sameSite() { return isProd() ? "none" : "lax"; },
-  maxAge:   24 * 60 * 60 * 1000, // 1 day (access token)
+  maxAge:   24 * 60 * 60 * 1000,
 };
 
 const REFRESH_COOKIE_OPTS = {
   httpOnly: true,
   get secure()   { return isProd(); },
   get sameSite() { return isProd() ? "none" : "lax"; },
-  maxAge:   30 * 24 * 60 * 60 * 1000, // 30 days
-  path:     "/api/auth", // only sent to auth routes — not every request
+  maxAge:   30 * 24 * 60 * 60 * 1000,
+  path:     "/api/auth",
 };
 
-const REFRESH_TTL = 30 * 24 * 60 * 60; // 30 days in seconds
+const REFRESH_TTL = 30 * 24 * 60 * 60;
 
 function makeRefreshToken() {
   const raw  = crypto.randomBytes(40).toString("hex");
@@ -37,12 +38,20 @@ function makeRefreshToken() {
 
 async function issueTokens(user, res) {
   const accessToken = signToken(user);
-
   const { raw, hash } = makeRefreshToken();
   await sessionSet(`refresh:${hash}`, user._id.toString(), REFRESH_TTL);
-
   res.cookie("token",        accessToken, COOKIE_OPTS);
   res.cookie("refreshToken", raw,         REFRESH_COOKIE_OPTS);
+
+  try {
+    const setCookie = res.getHeader?.("set-cookie");
+    logger.debug("Issued auth cookies", {
+      hasSetCookieHeader: Boolean(setCookie),
+      setCookieCount: Array.isArray(setCookie) ? setCookie.length : (setCookie ? 1 : 0),
+      sameSite: COOKIE_OPTS.sameSite,
+      secure: COOKIE_OPTS.secure,
+    });
+  } catch { /* ignore */ }
 }
 
 function signToken(user) {
@@ -65,6 +74,31 @@ const escHtml = (s) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
+function queueWelcomeEmail(user, { social = false } = {}) {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const subject = social ? "Welcome to AILearn - Google sign-in confirmed" : "Welcome to AILearn";
+  Promise.resolve(sendEmail({
+    to:      user.email,
+    subject,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
+        <h2 style="color:#007AFF">Welcome, ${escHtml(user.name || "Student")}!</h2>
+        <p>${social ? "Your Google sign-in is connected and your account is ready." : "Your account is ready. Start your learning journey now."}</p>
+        <a href="${frontendUrl}/dashboard"
+           style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
+                  border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
+          Go to Dashboard
+        </a>
+        <p style="color:#888;font-size:13px">
+          If you didn't create this account, please ignore this email.
+        </p>
+      </div>
+    `,
+  }))
+    .then(() => User.findByIdAndUpdate(user._id, { $set: { welcomeEmailSentAt: new Date() } }))
+    .catch(err => logger.warn("Welcome email failed", { to: user.email, error: err.message }));
+}
+
 // ── register ──────────────────────────────────────────────────────────────────
 
 export const register = async (req, res, next) => {
@@ -76,27 +110,7 @@ export const register = async (req, res, next) => {
     const hashed = await bcrypt.hash(password, 10);
     const user   = await User.create({ name, email, password: hashed, examDate, grade });
     await issueTokens(user, res);
-
-    // Welcome email — fire-and-forget so a delivery hiccup never blocks login
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    Promise.resolve(sendEmail({
-      to:      user.email,
-      subject: "Welcome to AILearn 🎉",
-      html: `
-        <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
-          <h2 style="color:#007AFF">Welcome, ${escHtml(user.name)}!</h2>
-          <p>Your account is ready. Start your learning journey now.</p>
-          <a href="${frontendUrl}/dashboard"
-             style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
-                    border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
-            Go to Dashboard
-          </a>
-          <p style="color:#888;font-size:13px">
-            If you didn't create this account, please ignore this email.
-          </p>
-        </div>
-      `,
-    })).catch(err => logger.warn("Welcome email failed", { to: user.email, error: err.message }));
+    queueWelcomeEmail(user);
 
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
@@ -107,19 +121,16 @@ export const register = async (req, res, next) => {
 // ── login ─────────────────────────────────────────────────────────────────────
 
 const MAX_LOGIN_ATTEMPTS = 10;
-const LOCK_DURATION_MS   = 15 * 60 * 1000; // 15 min
+const LOCK_DURATION_MS   = 15 * 60 * 1000;
 
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+loginAttempts +lockUntil");
 
-    // Generic message for both wrong email and wrong password — prevents user enumeration (SEC-01)
     const GENERIC = "Invalid email or password.";
-
     if (!user) return next(new AppError(GENERIC, 401));
 
-    // Account lockout check (SEC-23)
     if (user.lockUntil && user.lockUntil > new Date()) {
       const mins = Math.ceil((user.lockUntil - Date.now()) / 60000);
       return next(new AppError(`Account locked. Try again in ${mins} minute(s).`, 429));
@@ -136,9 +147,7 @@ export const login = async (req, res, next) => {
       return next(new AppError(GENERIC, 401));
     }
 
-    // Reset lockout on successful login
     await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: 0, lockUntil: null } });
-
     await issueTokens(user, res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
@@ -160,7 +169,6 @@ export const refresh = async (req, res, next) => {
     const user = await User.findById(userId).select("_id name email role").lean();
     if (!user) return res.status(401).json({ error: "User not found" });
 
-    // Rotate refresh token — old one is invalidated
     await sessionDel(`refresh:${hash}`);
     await issueTokens(user, res);
     res.json({ data: { user: safeUser(user) } });
@@ -173,13 +181,11 @@ export const refresh = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    // Blacklist the current access token's JTI
     if (req.user?.jti && req.user?.exp) {
       const ttl = req.user.exp - Math.floor(Date.now() / 1000);
       if (ttl > 0) await sessionSet(`token_blacklist:${req.user.jti}`, "1", ttl);
     }
 
-    // Invalidate refresh token
     const rawRefresh = req.cookies?.refreshToken;
     if (rawRefresh) {
       const hash = crypto.createHash("sha256").update(rawRefresh).digest("hex");
@@ -201,7 +207,6 @@ export const forgotPassword = async (req, res, next) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
-    // Always respond 200 — never reveal whether the email exists
     if (!user) {
       return res.json({ data: { message: "If that email is registered, a reset link has been sent." } });
     }
@@ -210,7 +215,7 @@ export const forgotPassword = async (req, res, next) => {
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
 
     user.passwordResetToken   = hashedToken;
-    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
     await user.save();
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -260,7 +265,7 @@ export const resetPassword = async (req, res, next) => {
     user.password             = await bcrypt.hash(password, 10);
     user.passwordResetToken   = null;
     user.passwordResetExpires = null;
-    user.pwdChangedAt         = new Date(); // invalidates all existing sessions (SEC-05)
+    user.pwdChangedAt         = new Date();
     user.loginAttempts        = 0;
     user.lockUntil            = null;
     await user.save();
@@ -271,9 +276,85 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
-// ── clerk social login ────────────────────────────────────────────────────────
-// Called after frontend completes Google OAuth via Clerk.
-// Verifies the Clerk session token, finds or creates a User, issues our JWT cookie.
+// ── Google OAuth (Passport) ───────────────────────────────────────────────────
+
+// Called from server.js after dotenv.config() so env vars are available.
+// ES module imports run before dotenv loads, so top-level process.env reads
+// would see undefined — deferred init avoids that timing issue.
+export function initPassport() {
+  passport.use(new GoogleStrategy(
+    {
+      clientID:     process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL:  `${process.env.BACKEND_URL || "http://localhost:5001"}/api/auth/google/callback`,
+      passReqToCallback: true,
+    },
+    async (req, _accessToken, _refreshToken, profile, done) => {
+      try {
+        const email    = profile.emails?.[0]?.value;
+        const googleId = profile.id;
+        const name     = profile.displayName || "Student";
+
+        if (!email) return done(new AppError("Google account has no email", 400));
+
+        let user = await User.findOne({ $or: [{ googleId }, { email }] });
+        let isNewUser = false;
+
+        if (!user) {
+          user = await User.create({
+            name,
+            email,
+            googleId,
+            password: crypto.randomBytes(32).toString("hex"),
+          });
+          isNewUser = true;
+          logger.info("Google OAuth: new user created", { email });
+        } else if (!user.googleId) {
+          await User.findByIdAndUpdate(user._id, { googleId });
+          user.googleId = googleId;
+          logger.info("Google OAuth: linked googleId to existing user", { email });
+        } else {
+          logger.info("Google OAuth: existing user signed in", { email });
+        }
+
+        if (!user.welcomeEmailSentAt) {
+          queueWelcomeEmail(user, { social: true });
+        }
+
+        const needsOnboarding = isNewUser || !user.examDate;
+        return done(null, { user, needsOnboarding });
+      } catch (err) {
+        return done(err);
+      }
+    }
+  ));
+
+  passport.serializeUser((obj, done) => done(null, obj));
+  passport.deserializeUser((obj, done) => done(null, obj));
+  logger.info("Google OAuth strategy registered");
+}
+
+export const googleAuth = passport.authenticate("google", {
+  scope: ["profile", "email"],
+  prompt: "select_account",
+});
+
+export const googleAuthCallback = [
+  passport.authenticate("google", { session: false, failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login?error=google_failed` }),
+  async (req, res) => {
+    try {
+      const { user, needsOnboarding } = req.user;
+      await issueTokens(user, res);
+      const dest = needsOnboarding ? "/onboarding" : "/";
+      res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}${dest}`);
+    } catch (err) {
+      logger.error("googleAuthCallback error", { message: err.message });
+      res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/login?error=google_failed`);
+    }
+  },
+];
+
+// ── clerk social login (REMOVED — kept as stub to avoid import errors) ────────
 
 export const clerkAuth = async (req, res, next) => {
   try {
@@ -284,15 +365,58 @@ export const clerkAuth = async (req, res, next) => {
       return next(new AppError("Clerk is not configured on this server", 503));
     }
 
-    // verifyToken is a top-level export — it's NOT a method on the clerk client
-    const payload = await verifyToken(sessionToken, {
-      secretKey: process.env.CLERK_SECRET_KEY,
-    });
+    const origin = req.headers?.origin;
+    logger.info("Clerk auth exchange started", { origin });
+
+    const withTimeout = async (label, ms, fn) => {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), ms);
+      try {
+        return await fn(ctrl.signal);
+      } catch (err) {
+        if (err?.name === "AbortError") {
+          throw new AppError(`${label} timed out after ${ms}ms`, 504);
+        }
+        throw err;
+      } finally {
+        clearTimeout(t);
+      }
+    };
+
+    // ── Step 1: verify token ──────────────────────────────────────────────────
+    logger.info("Clerk step 1: verifying token...");
+    let payload;
+    try {
+      payload = await withTimeout("Clerk token verification", 12_000, async (signal) => {
+        return await verifyToken(sessionToken, {
+          secretKey: process.env.CLERK_SECRET_KEY,
+          signal,
+        });
+      });
+      logger.info("Clerk step 1: token verified OK", { sub: payload.sub });
+    } catch (err) {
+      logger.error("Clerk step 1 FAILED", { message: err.message, code: err.code });
+      return next(new AppError("Google sign-in failed — token verification error", 401));
+    }
+
     const clerkUserId = payload.sub;
 
-    // Fetch the full Clerk user so we have name + email
-    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-    const clerkUser = await clerk.users.getUser(clerkUserId);
+    // ── Step 2: fetch Clerk user ──────────────────────────────────────────────
+    logger.info("Clerk step 2: fetching clerk user...");
+    let clerkUser;
+    try {
+      const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+      clerkUser = await withTimeout("Clerk user fetch", 12_000, async (signal) => {
+        return await clerk.users.getUser(clerkUserId, { signal });
+      });
+      logger.info("Clerk step 2: user fetched OK", { email: clerkUser.emailAddresses?.[0]?.emailAddress });
+    } catch (err) {
+      logger.error("Clerk step 2 FAILED", { message: err.message, code: err.code });
+      return next(new AppError("Google sign-in failed — could not fetch user", 401));
+    }
+
+    // ── Step 3: find or create user in DB ────────────────────────────────────
+    logger.info("Clerk step 3: finding/creating user in DB...");
     const primaryEmail = clerkUser.emailAddresses.find(
       (e) => e.id === clerkUser.primaryEmailAddressId
     )?.emailAddress;
@@ -301,41 +425,44 @@ export const clerkAuth = async (req, res, next) => {
 
     const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || "Student";
 
-    // Find existing user by clerkId, fall back to email match (links existing accounts)
     let user = await User.findOne({ $or: [{ clerkId: clerkUserId }, { email: primaryEmail }] });
+    let isNewUser = false;
 
     if (!user) {
-      // New user — create account (no password needed for social login)
-      user = await User.create({ name, email: primaryEmail, clerkId: clerkUserId, password: crypto.randomBytes(32).toString("hex") });
-      logger.info("New user created via Clerk social login", { email: primaryEmail });
-
-      // Welcome email
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-      sendEmail({
-        to:      user.email,
-        subject: "Welcome to AILearn 🎉",
-        html: `
-          <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
-            <h2 style="color:#007AFF">Welcome, ${escHtml(name)}!</h2>
-            <p>Your account is ready. You signed in with Google — no password needed.</p>
-            <a href="${frontendUrl}/dashboard"
-               style="display:inline-block;background:#007AFF;color:#fff;padding:12px 24px;
-                      border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
-              Go to Dashboard
-            </a>
-          </div>
-        `,
-      }).catch(err => logger.warn("Clerk welcome email failed", { to: user.email, error: err.message }));
+      user = await User.create({
+        name,
+        email:    primaryEmail,
+        clerkId:  clerkUserId,
+        password: crypto.randomBytes(32).toString("hex"),
+      });
+      isNewUser = true;
+      logger.info("Clerk step 3: new user created", { email: primaryEmail });
     } else if (!user.clerkId) {
-      // Existing email/password user — link their Clerk ID going forward
       await User.findByIdAndUpdate(user._id, { clerkId: clerkUserId });
+      user.clerkId = clerkUserId;
+      logger.info("Clerk step 3: linked clerkId to existing user", { email: primaryEmail });
+    } else {
+      logger.info("Clerk step 3: existing user found", { email: primaryEmail });
     }
 
+    if (!user.welcomeEmailSentAt) {
+      queueWelcomeEmail(user, { social: true });
+    }
+
+    // ── Step 4: issue tokens ──────────────────────────────────────────────────
+    logger.info("Clerk step 4: issuing tokens...");
     await issueTokens(user, res);
-    res.json({ data: { user: safeUser(user) } });
+
+    logger.info("Clerk auth exchange completed", {
+      userId: user._id?.toString?.() || String(user._id),
+      email:  user.email,
+    });
+
+    const needsOnboarding = isNewUser || !user.examDate;
+    res.json({ data: { user: safeUser(user), isNewUser, needsOnboarding } });
+
   } catch (err) {
-    logger.warn("clerkAuth error", { message: err.message, code: err.code });
-    // Any error from verifyToken or the Clerk API means the session is bad
+    logger.error("clerkAuth unexpected error", { message: err.message, stack: err.stack });
     return next(new AppError("Google sign-in failed — please try again.", 401));
   }
 };

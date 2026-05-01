@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md"
 type: "document"
-community: "Community 6"
+community: "Community 9"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_9
 ---
 
 # Root Issue: Auth state not injected - practice page shows landing page instead
@@ -17,4 +17,4 @@ tags:
 - [[Practice Error Context Start Practice Disabled When No Topic Selected]] - `rationale_for` [EXTRACTED]
 - [[Root Issue Login Submit button lacks type=submit attribute]] - `conceptually_related_to` [AMBIGUOUS]
 
-#graphify/document #graphify/INFERRED #community/Community_6
+#graphify/document #graphify/INFERRED #community/Community_9

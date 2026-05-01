@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 77
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[authRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\authRoutes.js
+- [[AdminCacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCacheStats.jsx
+- [[AdminCacheStats.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCacheStats.jsx
 
 ## Live Query (requires Dataview plugin)
 

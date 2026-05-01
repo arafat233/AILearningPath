@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 80
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[curriculumRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\curriculumRoutes.js
+- [[AdminQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
+- [[AdminQuestions.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
 
 ## Live Query (requires Dataview plugin)
 

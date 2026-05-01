@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[playwright.config.js]] - code - E:\AILearningPath\e2e-bot\playwright.config.js
+- [[paymentRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\paymentRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

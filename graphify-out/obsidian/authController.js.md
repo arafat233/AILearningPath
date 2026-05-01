@@ -12,8 +12,17 @@ tags:
 # authController.js
 
 ## Connections
+- [[clerkAuth()]] - `contains` [EXTRACTED]
+- [[escHtml()]] - `contains` [EXTRACTED]
 - [[forgotPassword()]] - `contains` [EXTRACTED]
+- [[initPassport()]] - `contains` [EXTRACTED]
+- [[isProd()]] - `contains` [EXTRACTED]
+- [[issueTokens()]] - `contains` [EXTRACTED]
 - [[login()]] - `contains` [EXTRACTED]
+- [[logout()]] - `contains` [EXTRACTED]
+- [[makeRefreshToken()]] - `contains` [EXTRACTED]
+- [[queueWelcomeEmail()]] - `contains` [EXTRACTED]
+- [[refresh()]] - `contains` [EXTRACTED]
 - [[register()]] - `contains` [EXTRACTED]
 - [[resetPassword()]] - `contains` [EXTRACTED]
 - [[safeUser()]] - `contains` [EXTRACTED]

@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[adminTopicController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[createTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[deleteTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[listTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[updateTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png"
 type: "image"
-community: "Community 8"
+community: "Community 10"
 tags:
   - graphify/image
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_10
 ---
 
 # Login Form — Create Account Link
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Login Page UI]] - `references` [EXTRACTED]
 
-#graphify/image #graphify/EXTRACTED #community/Community_8
+#graphify/image #graphify/EXTRACTED #community/Community_10

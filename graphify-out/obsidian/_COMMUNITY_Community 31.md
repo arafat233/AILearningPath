@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 31
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[Icon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
-- [[Layout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
-- [[Layout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

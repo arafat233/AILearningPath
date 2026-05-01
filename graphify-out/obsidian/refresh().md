@@ -1,0 +1,21 @@
+---
+source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
+type: "code"
+community: "Community 7"
+location: "L160"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_7
+---
+
+# refresh()
+
+## Connections
+- [[authController.js]] - `contains` [EXTRACTED]
+- [[issueTokens()]] - `calls` [EXTRACTED]
+- [[safeUser()]] - `calls` [EXTRACTED]
+- [[sessionDel()]] - `calls` [INFERRED]
+- [[sessionGet()]] - `calls` [INFERRED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_7

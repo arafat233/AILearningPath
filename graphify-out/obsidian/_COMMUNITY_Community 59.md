@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[VoiceTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
-- [[VoiceTutor.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
+- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
 ## Live Query (requires Dataview plugin)
 

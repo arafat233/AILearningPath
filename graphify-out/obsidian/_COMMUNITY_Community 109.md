@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[05_analytics.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\05_analytics.spec.js
+- [[topicRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\topicRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,19 +1,21 @@
 ---
 type: community
-members: 6
+members: 8
 ---
 
 # Community 13
 
-**Members:** 6 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[generateInvite()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[linkStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
 
 ## Live Query (requires Dataview plugin)
 

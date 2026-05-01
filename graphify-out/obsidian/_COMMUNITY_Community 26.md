@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 26
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[getNcertChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getNcertTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[listNcertChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[ncertController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 
 ## Live Query (requires Dataview plugin)
 

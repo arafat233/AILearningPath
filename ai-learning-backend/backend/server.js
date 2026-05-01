@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import passport from "passport";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
@@ -14,6 +15,7 @@ import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
 
 import authRoutes        from "./routes/authRoutes.js";
+import { initPassport }  from "./controllers/authController.js";
 import practiceRoutes    from "./routes/practiceRoutes.js";
 import analysisRoutes    from "./routes/analysisRoutes.js";
 import examRoutes        from "./routes/examRoutes.js";
@@ -29,11 +31,13 @@ import badgeRoutes       from "./routes/badgeRoutes.js";
 import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 import curriculumRoutes  from "./routes/curriculumRoutes.js";
+import ncertRoutes       from "./routes/ncertRoutes.js";
 import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
+initPassport(); // register Google strategy after env vars are loaded
 
 const app    = express();
 const server = http.createServer(app);
@@ -53,8 +57,31 @@ app.use(helmet({
   },
 }));
 app.use(morgan("dev"));
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173", credentials: true }));
+const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// Dev convenience: allow common local variants (kept permissive only in non-prod)
+if (process.env.NODE_ENV !== "production") {
+  frontendOrigins.push("http://127.0.0.1:5173");
+  // If you open Vite via LAN IP, the origin will be that IP
+  frontendOrigins.push("http://192.168.29.223:5173");
+}
+
+const allowedOrigins = Array.from(new Set(frontendOrigins));
+
+app.use(cors({
+  origin: (origin, cb) => {
+    // Same-origin / server-to-server requests may have no Origin header
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked origin: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(cookieParser());
+app.use(passport.initialize());
 
 // Webhooks need raw body for signature verification — mount BEFORE express.json()
 app.use("/api/webhooks", webhookRoutes);
@@ -88,6 +115,7 @@ app.use("/api/badges",      badgeRoutes);
 app.use("/api/doubt",       doubtRoutes);
 app.use("/api/portal",      portalRoutes);
 app.use("/api/v1/curriculum", curriculumRoutes);
+app.use("/api/v1/ncert",      ncertRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
 
 app.get("/api/health", async (_req, res) => {

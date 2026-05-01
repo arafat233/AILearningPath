@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[adminAuth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
+- [[makeToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
+- [[mockReqRes()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
 
 ## Live Query (requires Dataview plugin)
 

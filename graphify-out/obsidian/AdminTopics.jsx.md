@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx"
 type: "code"
-community: "Community 64"
+community: "Community 81"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_64
+  - community/Community_81
 ---
 
 # AdminTopics.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[AdminTopics()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_64
+#graphify/code #graphify/EXTRACTED #community/Community_81

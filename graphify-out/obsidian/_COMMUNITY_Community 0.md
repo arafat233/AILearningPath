@@ -1,11 +1,11 @@
 ---
 type: community
-members: 65
+members: 69
 ---
 
 # Community 0
 
-**Members:** 65 nodes
+**Members:** 69 nodes
 
 ## Members
 - [[adminCreateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -43,6 +43,8 @@ members: 65
 - [[getLesson()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getLinkedStudents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getNcertChapter()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getNcertTopicContent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlans()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPrediction()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -58,7 +60,9 @@ members: 65
 - [[listCurriculumChapters()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listExams()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listLessons()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[listNcertChapters()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[logoutApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[markDayComplete()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[markRevised()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js

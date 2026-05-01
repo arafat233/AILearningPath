@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Pricing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
-- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
-- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[.constructor()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
 
 ## Live Query (requires Dataview plugin)
 

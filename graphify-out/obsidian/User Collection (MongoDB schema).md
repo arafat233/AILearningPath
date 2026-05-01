@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 5"
+community: "Community 3"
 location: "section 3.1"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_3
 ---
 
 # User Collection (MongoDB schema)
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Portal Routes (apiportal)]] - `shares_data_with` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_5
+#graphify/document #graphify/INFERRED #community/Community_3

@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 73
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[lessonModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\lessonModel.js
+- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 
 ## Live Query (requires Dataview plugin)
 

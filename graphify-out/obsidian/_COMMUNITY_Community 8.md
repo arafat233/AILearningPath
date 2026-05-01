@@ -1,33 +1,42 @@
 ---
 type: community
-members: 20
+members: 29
 ---
 
 # Community 8
 
-**Members:** 20 nodes
+**Members:** 29 nodes
 
 ## Members
-- [[App Branding — Blue Square Logo with Letter A]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Auth Guard on Practice Route]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Behavior Login Page Loads With All Elements Visible]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[Behavior Page Remains on Login After Failed Auth]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug No Error Message Shown After Invalid Login]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug Practice Page Redirects Unauthenticated User to Landing Page]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[E2E Test Invalid Credentials — Stay on Login Page (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[E2E Test Login Page Load — Sign In Button Visible (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[E2E Test Practice — Start Disabled When No Topic Selected (Failed)]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page UI — Your Personal AI Study Coach]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Already Have an Account Sign In Link]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Start My Learning Journey CTA Button]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Login Form — Create Account Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Email Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Forgot Password Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Password Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — ShowHide Password Toggle]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Sign In Button]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page UI]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page — EmptyInitial State (placeholder text visible)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
+- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -35,3 +44,14 @@ members: 20
 TABLE source_file, type FROM #community/Community_8
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 5 edges to [[_COMMUNITY_Community 6]]
+- 4 edges to [[_COMMUNITY_Community 7]]
+- 4 edges to [[_COMMUNITY_Community 4]]
+
+## Top bridge nodes
+- [[submitAnswer()]] - degree 14, connects to 3 communities
+- [[sessionSet()]] - degree 8, connects to 2 communities
+- [[resolveDoubt()]] - degree 6, connects to 1 community
+- [[getNextQuestion()]] - degree 5, connects to 1 community

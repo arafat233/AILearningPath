@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 21
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
 
 ## Live Query (requires Dataview plugin)
 

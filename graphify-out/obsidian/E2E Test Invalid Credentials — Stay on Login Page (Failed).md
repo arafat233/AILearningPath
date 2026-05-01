@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png"
 type: "image"
-community: "Community 8"
+community: "Community 10"
 tags:
   - graphify/image
   - graphify/INFERRED
-  - community/Community_8
+  - community/Community_10
 ---
 
 # E2E Test: Invalid Credentials — Stay on Login Page (Failed)
@@ -16,4 +16,4 @@ tags:
 - [[E2E Test Login Page Load — Sign In Button Visible (Failed)]] - `conceptually_related_to` [INFERRED]
 - [[Login Page UI]] - `references` [EXTRACTED]
 
-#graphify/image #graphify/INFERRED #community/Community_8
+#graphify/image #graphify/INFERRED #community/Community_10

@@ -50,7 +50,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 8]]
 - 2 edges to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes

@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 45
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
-- [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[StatCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
 
 ## Live Query (requires Dataview plugin)
 

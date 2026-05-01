@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[unitBadgeClass()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
 
 ## Live Query (requires Dataview plugin)
 

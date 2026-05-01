@@ -1,23 +1,32 @@
 ---
 type: community
-members: 20
+members: 29
 ---
 
 # Community 7
 
-**Members:** 20 nodes
+**Members:** 29 nodes
 
 ## Members
 - [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
 - [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
 - [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[clerkAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
 - [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
 - [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
@@ -37,13 +46,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 8]]
+- 4 edges to [[_COMMUNITY_Community 6]]
 - 2 edges to [[_COMMUNITY_Community 4]]
-- 1 edge to [[_COMMUNITY_Community 9]]
+- 1 edge to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
 - [[save()]] - degree 6, connects to 2 communities
+- [[logout()]] - degree 4, connects to 2 communities
+- [[issueTokens()]] - degree 8, connects to 1 community
 - [[getReport()]] - degree 5, connects to 1 community
-- [[updateQuestionStats()]] - degree 4, connects to 1 community
-- [[updateStreak()]] - degree 3, connects to 1 community
-- [[computeDynamicDifficulty()]] - degree 2, connects to 1 community
+- [[refresh()]] - degree 5, connects to 1 community

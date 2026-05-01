@@ -12,7 +12,10 @@ tags:
 # sendEmail()
 
 ## Connections
+- [[clerkAuth()]] - `calls` [INFERRED]
 - [[email.js]] - `contains` [EXTRACTED]
 - [[forgotPassword()]] - `calls` [INFERRED]
+- [[queueWelcomeEmail()]] - `calls` [INFERRED]
+- [[register()]] - `calls` [INFERRED]
 
 #graphify/code #graphify/INFERRED #community/Community_7

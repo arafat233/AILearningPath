@@ -21,15 +21,15 @@
 
 ## 🟠 HIGH — Bugs
 
-- [ ] **Subject filter ignored in Dashboard topics** — `GET /topics` runs `Topic.find()` with no filter. All 60+ topics returned regardless of subject tab. Fix: add `req.query.subject`/`req.query.grade` filtering.
+- [x] **Subject filter ignored in Dashboard topics** ✅ Fixed: `GET /topics` now filters by `req.query.subject` and `req.query.grade`.
 - [x] **Settings.jsx only saves `name` to Zustand** — `setAuth` now spreads all changed fields (grade, subject, goal, examDate). ✅ Fixed + Delete Account UI added.
 - [ ] **Socket rooms lost on server restart** `socket.js:38` — `rooms` is in-memory. Live competition lost on restart. Fix: Redis adapter for `socket.io-redis`.
 - [x] **Mixed practice start doesn't set session** — `/practice/mixed` now calls `sessionSet` after fetching question. ✅ Fixed.
 - [x] **planExpiry never auto-downgrades** — Auth middleware now fire-and-forget downgrades expired paid users. ✅ Fixed.
-- [ ] **Revision mark doesn't update Planner state** — After "Done" click, page refresh restores item if revisionStage wasn't incremented in backend. Verify `revisionService.markRevised` increments stage.
-- [ ] **NCERT subject name mismatch for Social Science** — Needs consistency check between Lessons.jsx and DB seed data.
-- [ ] **Practice submit exposes `solutionSteps` before session ends** — Return only after correct answer confirmed; or only include after session summary.
-- [ ] **Planner `saveTopicOrder` API wired in frontend but backend route not verified** — `PATCH /planner/reorder` existence needs confirmation.
+- [x] **Revision mark doesn't update Planner state** ✅ Verified: `revisionService.markRevised` increments `revisionStage` and sets `nextRevision` atomically; Planner UI removes item optimistically on success.
+- [x] **NCERT subject name mismatch for Social Science** ✅ Verified: `seedSocialScienceCurriculum.js` and NCERT route both use `"Social Science"` consistently; `ncertSubject()` passthrough is correct.
+- [x] **Practice submit exposes `solutionSteps` / correct answer** ✅ Fixed: client sends `selectedOptionIndex` (not type); server derives `selectedType` from session; option types stripped from client question; `solutionSteps` only returned when answer is wrong.
+- [x] **Planner `saveTopicOrder` API wired in frontend but backend route not verified** ✅ Verified: `PATCH /planner/reorder` exists in `plannerRoutes.js` with Joi validation.
 
 ---
 
@@ -37,9 +37,9 @@
 
 - [ ] **No CSRF protection on state-changing routes** — Production uses `SameSite: none`. Add CSRF token for POST/PUT/DELETE in production.
 - [x] **Rate limit missing on `/api/user/me` PUT** ✅ Fixed: 20 updates/hour per user via `express-rate-limit`.
-- [ ] **No input sanitisation on `name` field** — `name` not stripped of HTML entities before embedding in welcome emails. Use `escHtml()` in email templates.
+- [x] **No input sanitisation on `name` field** ✅ Verified: `escHtml(user.name)` used in both the welcome email and forgot-password email in `authController.js:97,242`.
 - [x] **Admin delete endpoints have no soft-delete** ✅ Fixed: `deletedAt` soft-delete for Questions and Topics; list queries filter `deletedAt: { $exists: false }`.
-- [ ] **No output encoding on AI-generated content** — Audit all `dangerouslySetInnerHTML` usages in `LessonView.jsx` and `NcertTopicView.jsx` for XSS risk.
+- [x] **No output encoding on AI-generated content** ✅ Fixed: `sanitizeSvg()` in NcertTopicView strips `<script>`, `on*` event attributes, `javascript:` from SVG before `dangerouslySetInnerHTML`. LessonView has no `dangerouslySetInnerHTML`.
 - [x] **`questionId` in doubt routes accepts arbitrary strings** ✅ Fixed: validates as valid ObjectId or `"ai-generated"` before DB query.
 - [ ] **Refresh token rotation missing invalidation of old family** — Stolen token reuse not detected. Implement token family tracking.
 - [ ] **API key visible in frontend** — Razorpay `keyId` (public) returned in `createOrder`. Safe but add comment to prevent accidental secret inclusion.

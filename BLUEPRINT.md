@@ -417,8 +417,11 @@ POST   /api/auth/forgot-password     → sends reset link by email (1h expiry); 
 POST   /api/auth/reset-password/:token → verifies hashed token, updates password
 
 POST   /api/practice/start          → foundation check → AI teacher msg → first question
-POST   /api/practice/submit         → analysis → AI explanation → badge check → next question
-                                      response includes: newBadges[]  ← NEW
+                                      options returned WITHOUT type field (correct answer hidden)
+POST   /api/practice/submit         → body: { selectedOptionIndex, timeTaken, confidence }
+                                      server derives selectedType from session question options
+                                      response includes: newBadges[], correctOptionIndex, selectedOptionIndex
+                                      solutionSteps only included when answer is wrong
 
 GET    /api/analysis/report
 GET    /api/analysis/errors

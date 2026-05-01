@@ -67,7 +67,7 @@
 - [x] **No "End Session" button** ✅ Fixed: "End Session" button appears in header after first answer; shows session summary screen.
 - [x] **No session summary screen** ✅ Fixed: Summary shows score, accuracy %, accuracy bar, and all missed questions with correct/selected options and AI explanations.
 - [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
-- [ ] **No search bar** — No way to search topics, chapters, or questions by keyword.
+- [x] **No search bar** ✅ Fixed: Search overlay (⌘K / Ctrl+K) in sidebar searches topics by keyword via `GET /topics?q=`; arrow-key navigation; clicking result opens Practice with topic pre-selected.
 - [ ] **No bookmark / favourite questions** — Students cannot save hard questions for later.
 - [ ] **No dark mode** — No dark theme toggle.
 - [ ] **No offline support** — Service worker caches only `index.html`. No offline questions/lessons.

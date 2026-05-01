@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — batch 1–2 security fixes + End Session / session summary screen added.
+> Last updated: May 2026 — batch 1–2 security fixes + End Session/summary + search bar (⌘K).
 
 ---
 

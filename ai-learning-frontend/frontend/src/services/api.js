@@ -26,8 +26,9 @@ export const getMe      = ()     => api.get("/user/me");
 export const updateMe   = (data) => api.put("/user/me", data);
 export const deleteMe   = ()     => api.delete("/user/me");
 
-export const getTopics     = (params) => api.get("/topics", { params });
-export const getTopicsMeta = ()       => api.get("/topics/meta");
+export const getTopics       = (params) => api.get("/topics", { params });
+export const getTopicsMeta   = ()       => api.get("/topics/meta");
+export const searchTopics    = (q, grade) => api.get("/topics", { params: { q, grade } });
 
 export const listLessons  = (subject, grade) => api.get("/lessons", { params: { subject, grade } });
 export const getLesson    = (topic) => api.get(`/lessons/${encodeURIComponent(topic)}`);

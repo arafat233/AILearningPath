@@ -32,6 +32,10 @@ r.get("/topics", auth, async (req, res, next) => {
     const filter = { deletedAt: null };
     if (req.query.subject) filter.subject = req.query.subject;
     if (req.query.grade)   filter.grade   = req.query.grade;
+    if (req.query.q) {
+      const escaped = req.query.q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.name = { $regex: escaped, $options: "i" };
+    }
     const topics = await Topic.find(filter).sort({ examFrequency: -1 });
     res.json(topics);
   } catch (err) {

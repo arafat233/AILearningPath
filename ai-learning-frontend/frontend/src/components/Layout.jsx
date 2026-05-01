@@ -1,6 +1,8 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { logoutApi } from "../services/api";
+import SearchOverlay from "./SearchOverlay";
 
 function Icon({ id }) {
   const paths = {
@@ -49,6 +51,18 @@ const PARENT_NAV = [
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const isParent = user?.role === "parent" || user?.role === "teacher";
 
@@ -61,6 +75,7 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-apple-gray6">
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       {/* Sidebar */}
       <aside className="w-56 flex flex-col shrink-0 bg-white/80 backdrop-blur-apple border-r border-apple-gray5">
         {/* App header */}
@@ -123,6 +138,22 @@ export default function Layout() {
             </>
           )}
         </nav>
+
+        {/* Search button */}
+        <div className="px-3 mb-2">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray bg-apple-gray6 hover:bg-apple-gray5 transition-colors"
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                 strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
+              <circle cx="6.5" cy="6.5" r="4.5"/>
+              <path d="M10 10l3 3"/>
+            </svg>
+            <span className="flex-1 text-left">Search topics…</span>
+            <kbd className="text-[10px] border border-apple-gray5 rounded px-1 py-0.5">⌘K</kbd>
+          </button>
+        </div>
 
         <div className="divider mx-4 mb-3" />
 

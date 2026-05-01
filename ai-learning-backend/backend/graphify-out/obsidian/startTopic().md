@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js"
 type: "code"
 community: "Community 0"
-location: "L19"
+location: "L26"
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -16,6 +16,7 @@ tags:
 - [[generateTeacherMessage()]] - `calls` [INFERRED]
 - [[getNextQuestion()]] - `calls` [INFERRED]
 - [[practiceController.js]] - `contains` [EXTRACTED]
+- [[safeQuestion()]] - `calls` [EXTRACTED]
 - [[sessionKey()]] - `calls` [EXTRACTED]
 - [[sessionSet()]] - `calls` [INFERRED]
 

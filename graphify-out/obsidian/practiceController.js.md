@@ -13,6 +13,7 @@ tags:
 
 ## Connections
 - [[getTeacherMessage()]] - `contains` [EXTRACTED]
+- [[safeQuestion()]] - `contains` [EXTRACTED]
 - [[sessionKey()]] - `contains` [EXTRACTED]
 - [[startTopic()]] - `contains` [EXTRACTED]
 - [[submitAnswer()]] - `contains` [EXTRACTED]

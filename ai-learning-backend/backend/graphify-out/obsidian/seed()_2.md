@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js"
 type: "code"
-community: "Community 32"
+community: "Community 33"
 location: "L1049"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_32
+  - community/Community_33
 ---
 
 # seed()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[seedScienceCurriculum.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_32
+#graphify/code #graphify/EXTRACTED #community/Community_33

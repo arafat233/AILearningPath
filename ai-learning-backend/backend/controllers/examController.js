@@ -36,21 +36,32 @@ export const startExam = async (req, res, next) => {
     const questions = [...easy, ...medium, ...hard].map((q) => ({
       _id: q._id,
       questionText: q.questionText,
-      options: q.options.map((o) => ({ text: o.text, type: o.type })),
+      options: q.options.map((o) => ({ text: o.text })),
       expectedTime: q.expectedTime,
       difficultyScore: q.difficultyScore,
       marks: q.marks || 1,
     }));
 
+    const startedAt = Date.now();
     await sessionSet(examKey(userId), {
       examId,
       topic: exam.topic,
       negativeMarking: exam.negativeMarking,
       negativeValue: exam.negativeValue || 0.25,
       questions: [...easy, ...medium, ...hard],
+      startedAt,
+      durationSeconds: (exam.duration || 60) * 60,
     }, EXAM_TTL);
 
-    res.json({ questions, duration: exam.duration, title: exam.title, total: questions.length, negativeMarking: exam.negativeMarking });
+    res.json({
+      questions,
+      duration: exam.duration,
+      startedAt,
+      durationSeconds: (exam.duration || 60) * 60,
+      title: exam.title,
+      total: questions.length,
+      negativeMarking: exam.negativeMarking,
+    });
   } catch (err) { next(err); }
 };
 
@@ -61,7 +72,18 @@ export const submitExam = async (req, res, next) => {
     const session = await sessionGet(examKey(userId));
     if (!session) return next(new AppError("No active exam session", 400));
 
-    const evaluated = answers.map((a) => {
+    // Server-side time check: if exam duration has elapsed, mark remaining answers as blank
+    const elapsed = session.startedAt ? Math.floor((Date.now() - session.startedAt) / 1000) : 0;
+    const timeExpired = session.durationSeconds && elapsed > session.durationSeconds + 30; // 30s grace
+    const submittedIds = new Set(answers.map((a) => a.questionId));
+    const finalAnswers = timeExpired
+      ? session.questions.map((q) => {
+          const submitted = answers.find((a) => a.questionId === q._id.toString());
+          return submitted || { questionId: q._id.toString(), selectedType: "", timeTaken: 0 };
+        })
+      : answers;
+
+    const evaluated = finalAnswers.map((a) => {
       const fullQ = session.questions.find((q) => q._id.toString() === a.questionId);
       if (!fullQ) return null;
 

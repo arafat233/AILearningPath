@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
-- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
 
 ## Live Query (requires Dataview plugin)
 

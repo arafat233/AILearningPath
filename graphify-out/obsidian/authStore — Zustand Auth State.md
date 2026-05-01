@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 6"
+community: "Community 5"
 location: "section 9"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_5
 ---
 
 # authStore — Zustand Auth State
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Frontend (React + Vite, port 5173)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_6
+#graphify/document #graphify/EXTRACTED #community/Community_5

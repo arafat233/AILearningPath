@@ -8,39 +8,39 @@ members: 33
 **Members:** 33 nodes
 
 ## Members
-- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[AdaptiveViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[BentoCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[CardHeader()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FAQ()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Features()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FinalCTA()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Footer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[GoalPreviewSimple()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Hero()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[HowItWorks()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LearningGoals()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LiveRoomViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Logo()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Marquee()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Parents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PlannerViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PredictionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Pricing()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[ProfileViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[RevisionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[SectionEyebrow()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[StickyCta()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Subjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Testimonials()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TopBar()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TrustMetric()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[VoiceViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[sampleTopicsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[statsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[subjectsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[useStep()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -48,14 +48,3 @@ members: 33
 TABLE source_file, type FROM #community/Community_7
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 5]]
-
-## Top bridge nodes
-- [[smartAIExplanation()]] - degree 11, connects to 1 community
-- [[smartStudyAdvice()]] - degree 8, connects to 1 community
-- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
-- [[getUsageCount()]] - degree 5, connects to 1 community
-- [[generateAIQuestion()]] - degree 3, connects to 1 community

@@ -17,5 +17,6 @@ tags:
 - [[forgotPassword()]] - `calls` [INFERRED]
 - [[queueWelcomeEmail()]] - `calls` [INFERRED]
 - [[register()]] - `calls` [INFERRED]
+- [[sendReceiptEmail()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/INFERRED #community/Community_2

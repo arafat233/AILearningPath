@@ -14,6 +14,7 @@ tags:
 ## Connections
 - [[adminAuth()]] - `calls` [INFERRED]
 - [[auth()]] - `calls` [INFERRED]
+- [[logout()]] - `calls` [INFERRED]
 - [[redisClient.js]] - `contains` [EXTRACTED]
 - [[refresh()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]

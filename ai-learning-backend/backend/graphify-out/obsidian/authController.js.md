@@ -21,6 +21,7 @@ tags:
 - [[login()]] - `contains` [EXTRACTED]
 - [[logout()]] - `contains` [EXTRACTED]
 - [[makeRefreshToken()]] - `contains` [EXTRACTED]
+- [[parseRefreshToken()]] - `contains` [EXTRACTED]
 - [[queueWelcomeEmail()]] - `contains` [EXTRACTED]
 - [[refresh()]] - `contains` [EXTRACTED]
 - [[register()]] - `contains` [EXTRACTED]

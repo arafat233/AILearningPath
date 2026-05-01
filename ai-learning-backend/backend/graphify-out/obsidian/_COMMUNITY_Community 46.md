@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[chapterModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\chapterModel.js
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js"
 type: "code"
-community: "Community 12"
+community: "Community 9"
 location: "L15"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_12
+  - community/Community_9
 ---
 
 # generateStudyPlan()
@@ -15,4 +15,4 @@ tags:
 - [[getPlan()]] - `calls` [INFERRED]
 - [[plannerService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_12
+#graphify/code #graphify/INFERRED #community/Community_9

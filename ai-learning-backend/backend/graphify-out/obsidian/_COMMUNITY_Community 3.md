@@ -36,13 +36,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 5 edges to [[_COMMUNITY_Community 2]]
 - 4 edges to [[_COMMUNITY_Community 0]]
-- 3 edges to [[_COMMUNITY_Community 2]]
 - 2 edges to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
-- [[sessionGet()]] - degree 7, connects to 3 communities
+- [[sessionGet()]] - degree 8, connects to 3 communities
 - [[sessionDel()]] - degree 6, connects to 2 communities
 - [[redisClient.js]] - degree 6, connects to 1 community
+- [[verifyPayment()_1]] - degree 5, connects to 1 community
 - [[createOrder()_1]] - degree 4, connects to 1 community
-- [[adminAuth()]] - degree 3, connects to 1 community

@@ -21,6 +21,8 @@ export default function Competition() {
   const answersRef       = useRef([]);
   const timerRef         = useRef(null);
   const questionStartRef = useRef(Date.now());
+  const startedAtRef     = useRef(0);
+  const durationSecsRef  = useRef(0);
 
   useEffect(() => {
     listExams().then((r) => setExams(r.data)).catch(() => setError("Could not load exams."));
@@ -34,7 +36,18 @@ export default function Competition() {
         return t - 1;
       });
     }, 1000);
-    return () => clearInterval(timerRef.current);
+    // Resync from server timestamp when user returns to the tab
+    const resync = () => {
+      if (document.visibilityState === "visible" && startedAtRef.current) {
+        const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+        setTimeLeft(Math.max(0, durationSecsRef.current - elapsed));
+      }
+    };
+    document.addEventListener("visibilitychange", resync);
+    return () => {
+      clearInterval(timerRef.current);
+      document.removeEventListener("visibilitychange", resync);
+    };
   }, [state]);
 
   const handleJoin = async (exam) => {
@@ -46,7 +59,10 @@ export default function Competition() {
       setCurrentIdx(0);
       setSelected(null);
       answersRef.current = [];
-      setTimeLeft(data.duration * 60);
+      startedAtRef.current    = data.startedAt;
+      durationSecsRef.current = data.durationSeconds;
+      const elapsed = Math.floor((Date.now() - data.startedAt) / 1000);
+      setTimeLeft(Math.max(0, data.durationSeconds - elapsed));
       questionStartRef.current = Date.now();
       setState(STATES.EXAM);
     } catch (err) {

@@ -74,6 +74,7 @@ export const sendDoubtMessage = (questionId, message, topic, subject) => api.pos
 export const clearDoubtThread = (questionId)                          => api.delete(`/doubt/${questionId}`);
 
 export const adminGetStats       = ()          => api.get("/admin/stats");
+export const adminGetAnalytics   = ()          => api.get("/admin/analytics");
 export const adminGetUsers       = (params)    => api.get("/admin/users", { params });
 export const adminUpdateRole     = (id, role)  => api.put(`/admin/users/${id}/role`, { role });
 export const adminGetQuestions   = (params)    => api.get("/admin/questions", { params });

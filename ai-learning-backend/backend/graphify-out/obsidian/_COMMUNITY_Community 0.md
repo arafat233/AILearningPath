@@ -1,11 +1,11 @@
 ---
 type: community
-members: 24
+members: 25
 ---
 
 # Community 0
 
-**Members:** 24 nodes
+**Members:** 25 nodes
 
 ## Members
 - [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
@@ -27,6 +27,7 @@ members: 24
 - [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
 - [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[safeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
@@ -45,11 +46,11 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Community 2]]
 - 2 edges to [[_COMMUNITY_Community 5]]
 - 2 edges to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 9]]
-- 1 edge to [[_COMMUNITY_Community 14]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 11]]
+- 1 edge to [[_COMMUNITY_Community 16]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[submitAnswer()]] - degree 14, connects to 5 communities
+- [[submitAnswer()]] - degree 15, connects to 5 communities
 - [[sessionSet()]] - degree 8, connects to 3 communities
 - [[getNextQuestion()]] - degree 5, connects to 1 community

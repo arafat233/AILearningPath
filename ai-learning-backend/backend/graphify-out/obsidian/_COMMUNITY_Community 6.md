@@ -1,25 +1,26 @@
 ---
 type: community
-members: 12
+members: 13
 ---
 
 # Community 6
 
-**Members:** 12 nodes
+**Members:** 13 nodes
 
 ## Members
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[getStudentDashboardCtrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[linkStudentDirect()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,13 +28,3 @@ members: 12
 TABLE source_file, type FROM #community/Community_6
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 0]]
-
-## Top bridge nodes
-- [[getAIExplanation()]] - degree 3, connects to 1 community
-- [[generateAIQuestion()]] - degree 3, connects to 1 community
-- [[getStudyAdvice()]] - degree 3, connects to 1 community
-- [[getChatResponse()]] - degree 3, connects to 1 community

@@ -7,7 +7,7 @@ import { listUsers, updateUserRole }                                       from 
 import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
-import { getAdminStats }                                                   from "../controllers/admin/adminStatsController.js";
+import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
 
 const r = Router();
 r.use(adminAuth);
@@ -44,8 +44,9 @@ const topicSchema = Joi.object({
   examMarks:     Joi.number().min(0).optional(),
 });
 
-// Stats
+// Stats & Analytics
 r.get("/stats",                      getAdminStats);
+r.get("/analytics",                  getAnalytics);
 
 // Users
 r.get("/users",                      listUsers);

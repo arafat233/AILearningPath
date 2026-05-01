@@ -6,7 +6,8 @@ const links = [
   { to: "/admin/questions", label: "Questions" },
   { to: "/admin/topics",    label: "Topics"    },
   { to: "/admin/users",     label: "Users"     },
-  { to: "/admin/cache",     label: "AI Cache"  },
+  { to: "/admin/cache",     label: "AI Cache"     },
+  { to: "/admin/analytics", label: "Analytics"   },
 ];
 
 export default function AdminLayout() {

@@ -14,7 +14,8 @@ export default function Settings() {
   const { user, setAuth } = useAuthStore();
   const navigate = useNavigate();
 
-  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction" });
+  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction", weakTopics: [] });
+  const [weakInput, setWeakInput] = useState("");
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
   const [success, setSuccess]     = useState(false);
@@ -32,12 +33,14 @@ export default function Settings() {
     Promise.all([getMe(), getSubscription()])
       .then(([meRes, subRes]) => {
         const u = meRes.data.data.user;
+        const profile = meRes.data.data.profile;
         setForm({
-          name:     u.name     || "",
-          examDate: u.examDate ? u.examDate.split("T")[0] : "",
-          grade:    u.grade    || "10",
-          subject:  u.subject  || "Math",
-          goal:     u.goal     || "distinction",
+          name:        u.name     || "",
+          examDate:    u.examDate ? u.examDate.split("T")[0] : "",
+          grade:       u.grade    || "10",
+          subject:     u.subject  || "Math",
+          goal:        u.goal     || "distinction",
+          weakTopics:  profile?.weakAreas || [],
         });
         setSub(subRes.data.data);
       })
@@ -49,7 +52,7 @@ export default function Settings() {
     e.preventDefault();
     setError(""); setSuccess(false); setSaving(true);
     try {
-      const { data } = await updateMe(form);
+      const { data } = await updateMe({ ...form, weakTopics: form.weakTopics });
       setAuth(null, {
         ...user,
         name:     data.user.name,
@@ -213,6 +216,59 @@ export default function Settings() {
                 <option key={g.value} value={g.value}>{g.label}</option>
               ))}
             </select>
+          </Field>
+
+          <Field label="Weak Topics" hint="Topics you find difficult — used to prioritise practice and AI explanations">
+            <div className="flex gap-2">
+              <input
+                className="input flex-1"
+                value={weakInput}
+                onChange={(e) => setWeakInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const t = weakInput.trim();
+                    if (t && !form.weakTopics.includes(t)) {
+                      setForm({ ...form, weakTopics: [...form.weakTopics, t] });
+                    }
+                    setWeakInput("");
+                  }
+                }}
+                placeholder="Type a topic and press Enter"
+              />
+              <button
+                type="button"
+                className="btn-secondary px-4 py-2 text-[13px] shrink-0"
+                onClick={() => {
+                  const t = weakInput.trim();
+                  if (t && !form.weakTopics.includes(t)) {
+                    setForm({ ...form, weakTopics: [...form.weakTopics, t] });
+                  }
+                  setWeakInput("");
+                }}
+              >
+                Add
+              </button>
+            </div>
+            {form.weakTopics.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {form.weakTopics.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-apple-red/10 text-apple-red text-[12px] font-medium"
+                  >
+                    {t}
+                    <button
+                      type="button"
+                      className="opacity-60 hover:opacity-100 transition-opacity ml-0.5"
+                      onClick={() => setForm({ ...form, weakTopics: form.weakTopics.filter((x) => x !== t) })}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </Field>
 
           <button className="btn-primary py-3 mt-1" disabled={saving}>

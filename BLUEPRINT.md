@@ -436,8 +436,10 @@ GET    /api/topics
 GET    /api/topics/meta             → unique subjects + grades
 
 GET    /api/exam/list
-POST   /api/exam/start
-POST   /api/exam/submit
+POST   /api/exam/start              → returns startedAt (epoch ms) + durationSeconds for
+                                      server-side timer sync; option `type` field stripped
+POST   /api/exam/submit             → server validates elapsed time (30s grace); auto-fills
+                                      blank for unanswered if time expired
 GET    /api/exam/history
 GET    /api/exam/review/:attemptId
 
@@ -479,6 +481,7 @@ GET    /api/portal/students         ← list linked students
 GET    /api/portal/students/:id/analytics ← read-only student view
 
 GET    /api/admin/stats             ← requires admin role
+GET    /api/admin/analytics         ← DAU/MAU/revenue/conversion/retention + 30-day trends
 GET    /api/admin/users             ← paginated, searchable
 PUT    /api/admin/users/:id/role
 GET    /api/admin/questions         ← paginated, filterable
@@ -541,6 +544,8 @@ Server → Client:
 /voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
 /profile       → Profile        — user info, badges grid, invite code generator
 /settings      → Settings       — update subject/grade/goal/examDate; all 5 CBSE subjects
+                                  weak topics tag-editor (type+Enter → red pill tags → synced
+                                  to UserProfile.weakAreas via PUT /user/me);
                                   subscription card; Delete Account (GDPR — double-confirm)
 /portal        → Portal         — student: generate invite code
                                   parent/teacher: link students, view analytics
@@ -554,6 +559,9 @@ Server → Client:
 /admin/topics       → AdminTopics     — CRUD for all topics
 /admin/users        → AdminUsers      — paginated user list, role management
 /admin/cache        → AdminCacheStats — cache hit rates, Claude calls saved, cost estimate
+/admin/analytics    → AdminAnalytics  — DAU, MAU, paid conversion %, 7-day retention,
+                                        total revenue, 30-day bar charts (registrations,
+                                        attempts, daily revenue)
 ```
 
 ### Components

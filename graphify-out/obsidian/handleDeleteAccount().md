@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
-community: "Community 5"
-location: "L215"
+community: "Community 0"
+location: "L229"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_0
 ---
 
 # handleDeleteAccount()
@@ -16,4 +16,4 @@ tags:
 - [[deleteMe()]] - `calls` [INFERRED]
 - [[logout()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_0

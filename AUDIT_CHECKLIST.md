@@ -49,10 +49,10 @@
 ## 🔵 MEDIUM — Missing Test Coverage
 
 - [x] **No test for `authController`** ✅ Verified: `auth.controller.test.js` covers register (dup email, success), login (unknown email, locked, wrong pw, lockout, success), refresh (no cookie, expired, valid rotation, reuse detection), logout (JTI blacklist + family delete), forgotPassword (unknown email, XSS escape), resetPassword (bad token, valid token).
-- [ ] **No test for `practiceController`** — start, submit flow (session handling, badge award, streak update) untested.
-- [ ] **No test for `paymentService`** — signature verification, plan upgrade, order TTL untested.
-- [ ] **No test for `portalController`** — IDOR checks on `getStudentAnalytics` and `getStudentDashboardCtrl` untested.
-- [ ] **No test for `examController`** — exam start, submit, scoring, leaderboard untested.
+- [x] **No test for `practiceController`** ✅ Verified: `practice.controller.test.js` covers startTopic, submitAnswer (correct/wrong), option type stripping, server-side selectedType derivation, timeout→guessing, solutionSteps gating.
+- [x] **No test for `paymentService`** ✅ Verified: `payment.service.test.js` covers createOrder, verifyPayment (signature check, plan upgrade), getSubscription; PaymentRecord mock added.
+- [x] **No test for `portalController`** ✅ Verified: `portal.controller.test.js` covers linkStudentDirect (role check, invalid ID, self-link, not found, teacher allowed), getStudentAnalytics (IDOR, owner, admin bypass).
+- [x] **No test for `examController`** ✅ Fixed: `exam.controller.test.js` covers listExams, startExam (404, questions returned, type stripped from options, startedAt/durationSeconds in session), submitExam (correct/wrong/blank answers, negative marking, time-expired auto-fill, session deletion, 400 on no session), getExamReview (owner/IDOR/404), getLeaderboard. Also fixed: `type` field was still exposed in exam questions (parallel bug to competition fix).
 - [ ] **No integration tests** — All existing tests mock Mongoose. No tests hit a real test DB.
 - [ ] **No frontend tests** — No Vitest / Playwright setup.
 - [ ] **No load tests** — Unknown behaviour under 100+ concurrent practice sessions.
@@ -72,8 +72,8 @@
 - [x] **No dark mode** ✅ Fixed: `html.dark` class with CSS variable overrides for all tokens (card-bg, sidebar-bg, input, labels); `themeStore.js` persists preference in localStorage and respects `prefers-color-scheme`; moon/sun toggle button in sidebar.
 - [ ] **No offline support** — Service worker caches only `index.html`. No offline questions/lessons.
 - [ ] **Voice tutor has no history** — Each voice session starts fresh.
-- [ ] **No manual weak-topic override UI** — `PUT /user/me` accepts `weakTopics` but no UI exposes it.
-- [ ] **Exam timer doesn't sync on tab switch** — Use server-side start timestamp instead of `Date.now()`.
+- [x] **No manual weak-topic override UI** ✅ Fixed: Tag-style input in Settings (type + Enter or Add button); red pill tags with × to remove; loaded from `profile.weakAreas` on mount; submitted as `weakTopics` array to `PUT /user/me` which persists to `UserProfile.weakAreas`.
+- [x] **Exam timer doesn't sync on tab switch** ✅ Fixed: `startedAt` (epoch ms) and `durationSeconds` returned from `startExam`; stored in Redis session; client computes `timeLeft = max(0, durationSeconds - elapsed)` on start and on `visibilitychange` resume; server validates elapsed on submit with 30s grace.
 - [ ] **No notification when revision is due** — PWA push stubbed but never triggered.
 - [x] **Competition room has no shareable link** ✅ Fixed: "Copy invite link" button in waiting room copies `?room=<id>` URL; visiting the link pre-fills the room input.
 - [ ] **No progress certificate / achievement download** — No printable proof of completion.
@@ -100,7 +100,7 @@
 - [ ] **No coupon / referral system** — No discount codes or referral tracking.
 - [x] **No free trial for paid plans** ✅ Fixed: 7-day Pro trial granted on registration (`trialExpiry` field); AI quota uses Pro limits during trial; `trialActive` + `trialDaysLeft` exposed from `getSubscription`; trial banner shown in Settings with days remaining.
 - [x] **No annual plan option** ✅ Fixed: `pro_annual` (₹1,799/yr, 25% off) and `premium_annual` (₹4,499/yr) added to PLANS; Joi validation updated; paymentRoutes accepts annual plan keys.
-- [ ] **No admin analytics dashboard** — No DAU/MAU, revenue, conversion rate, or retention charts.
+- [x] **No admin analytics dashboard** ✅ Fixed: `GET /api/admin/analytics` returns summary (DAU, MAU, conversion %, 7-day retention, total revenue) + 30-day trends for new registrations, practice attempts, and daily revenue. `AdminAnalytics.jsx` at `/admin/analytics` shows metric cards and CSS bar charts; linked in AdminLayout sidebar.
 - [x] **No GDPR / data deletion endpoint** ✅ Fixed: `DELETE /api/user/me` deletes User + all personal data (UserProfile, Attempts, ErrorMemory, Streak, Badges, DoubtThreads, LessonProgress). UI added in Settings.
 - [x] **No Terms of Service or Privacy Policy pages** ✅ Fixed: `/terms` and `/privacy` pages with full content (eligibility, subscriptions, data rights, security, PDPB/GDPR compliance); linked in sidebar footer and cross-referenced from each other.
 - [x] **No CI/CD pipeline** ✅ Fixed: `.github/workflows/ci.yml` — backend Jest tests + frontend build on push to main and cursor/** branches.

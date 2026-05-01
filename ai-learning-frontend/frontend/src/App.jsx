@@ -55,6 +55,7 @@ import AdminUsers       from "./pages/admin/AdminUsers";
 import AdminQuestions   from "./pages/admin/AdminQuestions";
 import AdminTopics      from "./pages/admin/AdminTopics";
 import AdminCacheStats  from "./pages/admin/AdminCacheStats";
+import AdminAnalytics  from "./pages/admin/AdminAnalytics";
 import Landing          from "./pages/Landing";
 import CompanyLogin     from "./pages/CompanyLogin";
 import CompanyDashboard from "./pages/CompanyDashboard";
@@ -141,6 +142,7 @@ export default function App() {
             <Route path="questions" element={<AdminQuestions />} />
             <Route path="topics"    element={<AdminTopics />} />
             <Route path="cache"     element={<AdminCacheStats />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
 
           <Route path="/" element={<RootElement />}>

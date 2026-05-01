@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js"
 type: "code"
-community: "Community 8"
+community: "Community 12"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_12
 ---
 
 # adminQuestionController.js
@@ -15,8 +15,8 @@ tags:
 - [[createQuestion()]] - `contains` [EXTRACTED]
 - [[deleteQuestion()]] - `contains` [EXTRACTED]
 - [[getFlaggedQuestions()]] - `contains` [EXTRACTED]
-- [[listQuestions()]] - `contains` [EXTRACTED]
+- [[listQuestions()_1]] - `contains` [EXTRACTED]
 - [[unflagQuestion()]] - `contains` [EXTRACTED]
 - [[updateQuestion()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_12

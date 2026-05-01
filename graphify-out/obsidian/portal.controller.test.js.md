@@ -12,7 +12,7 @@ tags:
 # portal.controller.test.js
 
 ## Connections
-- [[findOneSelect()]] - `contains` [EXTRACTED]
+- [[findByIdSelect()]] - `contains` [EXTRACTED]
 - [[mockReqRes()_3]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_45

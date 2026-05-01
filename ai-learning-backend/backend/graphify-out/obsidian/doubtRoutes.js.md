@@ -1,14 +1,17 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js"
 type: "code"
-community: "Community 58"
+community: "Community 39"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_58
+  - community/Community_39
 ---
 
 # doubtRoutes.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_58
+## Connections
+- [[isValidQuestionId()]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_39

@@ -1,12 +1,12 @@
-# Graph Report - E:\AILearningPath\ai-learning-backend\backend  (2026-05-01)
+# Graph Report - E:\AILearningPath\ai-learning-backend\backend  (2026-05-02)
 
 ## Corpus Check
-- 106 files · ~114,562 words
+- 107 files · ~119,434 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 315 nodes · 363 edges · 82 communities detected
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 75 edges (avg confidence: 0.8)
+- 321 nodes · 372 edges · 82 communities detected
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 77 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -101,9 +101,9 @@
 5. `smartStudyAdvice()` - 8 edges
 6. `rand()` - 8 edges
 7. `sessionSet()` - 8 edges
-8. `startTopic()` - 7 edges
-9. `getSystemPrompt()` - 7 edges
-10. `sessionGet()` - 7 edges
+8. `sessionGet()` - 8 edges
+9. `startTopic()` - 7 edges
+10. `getSystemPrompt()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `usageInfo()` --calls--> `getUsageCount()`  [INFERRED]
@@ -120,16 +120,16 @@
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.12
-Nodes (16): getInterleavedQuestion(), getNextQuestion(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), award(), checkAndAwardBadges() (+8 more)
+Cohesion: 0.1
+Nodes (20): getInterleavedQuestion(), getNextQuestion(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), detectDoubtType(), generateDoubtInsight() (+12 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.19
+Cohesion: 0.17
 Nodes (16): getAdminStats(), cacheStats(), studyAdvice(), tutorChat(), usageInfo(), checkAndIncrementUsage(), getCacheStats(), getUsageCount() (+8 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.22
-Nodes (16): clerkAuth(), escHtml(), forgotPassword(), isProd(), issueTokens(), login(), logout(), makeRefreshToken() (+8 more)
+Cohesion: 0.2
+Nodes (18): clerkAuth(), escHtml(), forgotPassword(), isProd(), issueTokens(), login(), logout(), makeRefreshToken() (+10 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.13
@@ -184,32 +184,32 @@ Cohesion: 0.4
 Nodes (0): 
 
 ### Community 16 - "Community 16"
-Cohesion: 0.7
-Nodes (4): detectDoubtType(), generateDoubtInsight(), getSuggestedAction(), resolveDoubt()
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 17 - "Community 17"
 Cohesion: 0.5
 Nodes (0): 
 
 ### Community 18 - "Community 18"
-Cohesion: 0.5
-Nodes (0): 
+Cohesion: 0.67
+Nodes (2): today(), userDoc()
 
 ### Community 19 - "Community 19"
 Cohesion: 0.5
 Nodes (2): run(), validate()
 
 ### Community 20 - "Community 20"
-Cohesion: 0.67
-Nodes (2): today(), userDoc()
-
-### Community 21 - "Community 21"
 Cohesion: 1.0
 Nodes (2): gradeFor(), predictExamScore()
 
-### Community 22 - "Community 22"
+### Community 21 - "Community 21"
 Cohesion: 0.67
 Nodes (1): AppError
+
+### Community 22 - "Community 22"
+Cohesion: 0.67
+Nodes (0): 
 
 ### Community 23 - "Community 23"
 Cohesion: 0.67
@@ -556,12 +556,12 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `submitAnswer()` connect `Community 0` to `Community 1`, `Community 3`, `Community 5`, `Community 12`, `Community 16`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+- **Why does `submitAnswer()` connect `Community 0` to `Community 1`, `Community 3`, `Community 12`, `Community 5`?**
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
 - **Why does `save()` connect `Community 2` to `Community 1`, `Community 12`, `Community 4`, `Community 5`?**
-  _High betweenness centrality (0.058) - this node is a cross-community bridge._
-- **Why does `sessionSet()` connect `Community 0` to `Community 2`, `Community 3`, `Community 5`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `sessionGet()` connect `Community 3` to `Community 0`, `Community 2`, `Community 5`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `submitAnswer()` (e.g. with `sessionGet()` and `analyzeAnswer()`) actually correct?**
   _`submitAnswer()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `smartAIExplanation()` (e.g. with `submitAnswer()` and `getCached()`) actually correct?**

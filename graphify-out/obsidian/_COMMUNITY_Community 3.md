@@ -1,11 +1,11 @@
 ---
 type: community
-members: 60
+members: 64
 ---
 
 # Community 3
 
-**Members:** 60 nodes
+**Members:** 64 nodes
 
 ## Members
 - [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
@@ -25,6 +25,7 @@ members: 60
 - [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
 - [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
 - [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
 - [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
@@ -56,7 +57,9 @@ members: 60
 - [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
 - [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[safeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
 - [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
@@ -65,6 +68,7 @@ members: 60
 - [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
 - [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
 - [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
 - [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
 - [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
@@ -77,11 +81,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 8 edges to [[_COMMUNITY_Community 5]]
-- 4 edges to [[_COMMUNITY_Community 7]]
+- 7 edges to [[_COMMUNITY_Community 8]]
+- 4 edges to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
-- [[submitAnswer()]] - degree 14, connects to 2 communities
+- [[submitAnswer()]] - degree 15, connects to 2 communities
 - [[sessionSet()]] - degree 8, connects to 1 community
 - [[sessionGet()]] - degree 7, connects to 1 community
 - [[resolveDoubt()]] - degree 6, connects to 1 community

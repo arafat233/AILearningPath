@@ -1,8 +1,8 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js"
 type: "code"
 community: "Community 8"
-location: "L4"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,6 +12,7 @@ tags:
 # listQuestions()
 
 ## Connections
-- [[adminQuestionController.js]] - `contains` [EXTRACTED]
+- [[getPYQs()]] - `calls` [INFERRED]
+- [[pyqController.js]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_8

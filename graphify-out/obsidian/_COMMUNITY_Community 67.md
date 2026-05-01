@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Login()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Login.jsx
-- [[Login.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Login.jsx
+- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
 
 ## Live Query (requires Dataview plugin)
 

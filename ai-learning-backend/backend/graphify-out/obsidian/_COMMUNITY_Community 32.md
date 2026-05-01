@@ -1,0 +1,19 @@
+---
+type: community
+members: 2
+---
+
+# Community 32
+
+**Members:** 2 nodes
+
+## Members
+- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_32
+SORT file.name ASC
+```

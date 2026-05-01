@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js"
 type: "code"
-community: "Community 11"
+community: "Community 7"
 location: "L5"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_11
+  - community/Community_7
 ---
 
 # updateQuestionStats()
@@ -17,4 +17,4 @@ tags:
 - [[selfLearningService.js]] - `contains` [EXTRACTED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_11
+#graphify/code #graphify/INFERRED #community/Community_7

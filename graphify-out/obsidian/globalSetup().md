@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\global-setup.js"
 type: "code"
-community: "Community 79"
+community: "Community 83"
 location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_79
+  - community/Community_83
 ---
 
 # globalSetup()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[global-setup.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_79
+#graphify/code #graphify/EXTRACTED #community/Community_83

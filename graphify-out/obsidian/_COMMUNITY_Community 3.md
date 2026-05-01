@@ -1,51 +1,47 @@
 ---
 type: community
-members: 38
+members: 34
 ---
 
 # Community 3
 
-**Members:** 38 nodes
+**Members:** 34 nodes
 
 ## Members
-- [[Error Unexpected token in CSS selector with comma-separated locators]] - document - e2e-bot/reports/profile.md
-- [[Error toBeVisible() failed - element not found]] - document - e2e-bot/reports/profile.md
-- [[Page planner]] - document - e2e-bot/reports/planner.md
-- [[Page pricing]] - document - e2e-bot/reports/settings.md
-- [[Page profile]] - document - e2e-bot/reports/profile.md
-- [[Page settings]] - document - e2e-bot/reports/settings.md
-- [[Planner E2E Report]] - document - e2e-bot/reports/planner.md
-- [[Planner Feature]] - document - e2e-bot/reports/planner.md
-- [[Profile E2E Report]] - document - e2e-bot/reports/profile.md
-- [[Profile Feature]] - document - e2e-bot/reports/profile.md
-- [[Settings E2E Report]] - document - e2e-bot/reports/settings.md
-- [[Settings Feature]] - document - e2e-bot/reports/settings.md
-- [[SubscriptionPlan Feature]] - document - e2e-bot/reports/settings.md
-- [[Test Outcome Failed]] - document - e2e-bot/reports/SUMMARY.md
-- [[Test Outcome Passed]] - document - e2e-bot/reports/SUMMARY.md
-- [[Test Planner Complete button works if tasks are shown]] - document - e2e-bot/reports/planner.md
-- [[Test Planner Startpractice button visible and enabled if plan exists]] - document - e2e-bot/reports/planner.md
-- [[Test Planner page heading is visible]] - document - e2e-bot/reports/planner.md
-- [[Test Planner page loads at planner without crash]] - document - e2e-bot/reports/planner.md
-- [[Test Planner plan content or empty state is shown]] - document - e2e-bot/reports/planner.md
-- [[Test Practice Select Topic section is visible]] - document - e2e-bot/reports/practice.md
-- [[Test Profile Save button is present and clickable]] - document - e2e-bot/reports/profile.md
-- [[Test Profile Save button submits and stays on profile]] - document - e2e-bot/reports/profile.md
-- [[Test Profile avataruser name is visible]] - document - e2e-bot/reports/profile.md
-- [[Test Profile input fields are visible and editable]] - document - e2e-bot/reports/profile.md
-- [[Test Profile page heading is visible]] - document - e2e-bot/reports/profile.md
-- [[Test Profile page loads at profile without crash]] - document - e2e-bot/reports/profile.md
-- [[Test Profile plan badge or subscription info is visible]] - document - e2e-bot/reports/profile.md
-- [[Test Settings Exam Date input is visible]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Full Name input is visible and editable]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Grade select dropdown has options]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Save changes button is visible and enabled]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Save changes shows success message]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Study Goal select has 4 goal options]] - document - e2e-bot/reports/settings.md
-- [[Test Settings Subscriptionplan info is visible]] - document - e2e-bot/reports/settings.md
-- [[Test Settings UpgradeManage button navigates to pricing]] - document - e2e-bot/reports/settings.md
-- [[Test Settings heading is visible]] - document - e2e-bot/reports/settings.md
-- [[Test Settings page loads at settings without crash]] - document - e2e-bot/reports/settings.md
+- [[AdminOverview Page (admin)]] - document - BLUEPRINT.md
+- [[Analytics Page (analytics)]] - document - BLUEPRINT.md
+- [[BadgeToast.jsx Component]] - document - BLUEPRINT.md
+- [[Chapter Collection — CBSE Textbook Curriculum]] - document - BLUEPRINT.md
+- [[ChapterView Page (chaptersn)]] - document - BLUEPRINT.md
+- [[Competition Page (competition)]] - document - BLUEPRINT.md
+- [[Curriculum Routes (apiv1curriculum)]] - document - BLUEPRINT.md
+- [[Dashboard Page ()]] - document - BLUEPRINT.md
+- [[Doubt Routes (apidoubtquestionId)]] - document - BLUEPRINT.md
+- [[DoubtChat.jsx Component — Multi-Turn Chat]] - document - BLUEPRINT.md
+- [[DoubtThread Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[E2E Issue Analytics accuracy stat not visible]] - document - e2e-bot/reports/analytics.md
+- [[E2E Issue Lessons page redirects to start instead of lessons]] - document - e2e-bot/reports/lessons.md
+- [[E2E Report Analytics (1 issue — Accuracy stat not visible)]] - document - e2e-bot/reports/analytics.md
+- [[E2E Report Competition (all 6 checks passed)]] - document - e2e-bot/reports/competition.md
+- [[E2E Report Dashboard (all 9 checks passed)]] - document - e2e-bot/reports/dashboard.md
+- [[E2E Report Lessons (1 issue — URL redirected to start instead of lessons)]] - document - e2e-bot/reports/lessons.md
+- [[E2E Report Navigation (all 15 checks passed)]] - document - e2e-bot/reports/navigation.md
+- [[Frontend (React + Vite, port 5173)]] - document - BLUEPRINT.md
+- [[Frontend Stack (README) React 18 + Vite + Tailwind + Zustand + Recharts]] - document - ai-learning-frontend/frontend/README.md
+- [[Layout.jsx Component — Sidebar Nav]] - document - BLUEPRINT.md
+- [[Lessons Page (lessons)]] - document - BLUEPRINT.md
+- [[PWA — Service Worker + Push Notifications]] - document - BLUEPRINT.md
+- [[Portal Page (portal) — ParentTeacher]] - document - BLUEPRINT.md
+- [[Portal Routes (apiportal)]] - document - BLUEPRINT.md
+- [[Practice Page (practice)]] - document - BLUEPRINT.md
+- [[Seed CBSE English Curriculum — 23 Chapters]] - document - BLUEPRINT.md
+- [[Seed CBSE Hindi Curriculum — 32 Chapters]] - document - BLUEPRINT.md
+- [[Seed CBSE Social Science Curriculum — 22 Chapters]] - document - BLUEPRINT.md
+- [[User Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[VoiceTutor Page (voice-tutor)]] - document - BLUEPRINT.md
+- [[api.js — Axios API Service]] - document - BLUEPRINT.md
+- [[authStore — Zustand Auth State]] - document - BLUEPRINT.md
+- [[index.html — PWA manifest + theme-color meta]] - document - ai-learning-frontend/frontend/index.html
 
 ## Live Query (requires Dataview plugin)
 
@@ -55,11 +51,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 8 edges to [[_COMMUNITY_Community 7]]
+- 4 edges to [[_COMMUNITY_Community 1]]
 
 ## Top bridge nodes
-- [[Test Outcome Passed]] - degree 18, connects to 1 community
-- [[Settings E2E Report]] - degree 13, connects to 1 community
-- [[Profile E2E Report]] - degree 10, connects to 1 community
-- [[Test Outcome Failed]] - degree 10, connects to 1 community
-- [[Planner E2E Report]] - degree 9, connects to 1 community
+- [[Frontend (React + Vite, port 5173)]] - degree 18, connects to 1 community
+- [[Curriculum Routes (apiv1curriculum)]] - degree 3, connects to 1 community
+- [[BadgeToast.jsx Component]] - degree 2, connects to 1 community
+- [[api.js — Axios API Service]] - degree 2, connects to 1 community

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js"
 type: "code"
-community: "Community 20"
+community: "Community 22"
 location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_20
+  - community/Community_22
 ---
 
 # userDoc()
@@ -15,4 +15,4 @@ tags:
 - [[aiRouter.service.test.js]] - `contains` [EXTRACTED]
 - [[today()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_20
+#graphify/code #graphify/EXTRACTED #community/Community_22

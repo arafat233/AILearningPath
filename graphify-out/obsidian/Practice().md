@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx"
 type: "code"
-community: "Community 27"
+community: "Community 32"
 location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_27
+  - community/Community_32
 ---
 
 # Practice()
@@ -15,4 +15,4 @@ tags:
 - [[Practice.jsx]] - `contains` [EXTRACTED]
 - [[diffLevel()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_27
+#graphify/code #graphify/EXTRACTED #community/Community_32

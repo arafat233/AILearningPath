@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[Pricing()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
 
 ## Live Query (requires Dataview plugin)
 

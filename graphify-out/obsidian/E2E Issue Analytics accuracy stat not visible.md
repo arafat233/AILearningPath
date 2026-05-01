@@ -1,12 +1,12 @@
 ---
 source_file: "e2e-bot/reports/analytics.md"
 type: "document"
-community: "Community 4"
+community: "Community 3"
 location: "Issue 1"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_3
 ---
 
 # E2E Issue: Analytics accuracy stat not visible
@@ -15,4 +15,4 @@ tags:
 - [[Analytics Page (analytics)]] - `conceptually_related_to` [INFERRED]
 - [[E2E Report Analytics (1 issue — Accuracy stat not visible)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/INFERRED #community/Community_4
+#graphify/document #graphify/INFERRED #community/Community_3

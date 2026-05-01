@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[makeSignature()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
-- [[payment.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
+- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
 ## Live Query (requires Dataview plugin)
 

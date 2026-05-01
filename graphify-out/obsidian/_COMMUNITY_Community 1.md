@@ -1,61 +1,60 @@
 ---
 type: community
-members: 48
+members: 47
 ---
 
 # Community 1
 
-**Members:** 48 nodes
+**Members:** 47 nodes
 
 ## Members
-- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[AI Learning Platform (CBSE Class 10)]] - document - BLUEPRINT.md
+- [[AIResponseCache Collection — Permanent Cross-User Cache]] - document - BLUEPRINT.md
+- [[Admin Routes (apiadmin)]] - document - BLUEPRINT.md
+- [[AppError.js — Operational Error Class]] - document - BLUEPRINT.md
+- [[Architecture Rules (CLAUDE.md)]] - document - CLAUDE.md
+- [[Backend (Express + Node, port 5001)]] - document - BLUEPRINT.md
+- [[Backend Stack (README) Node.js + Express + MongoDB + OpenAI]] - document - ai-learning-backend/backend/README.md
+- [[Badge Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[Claude Haiku 4.5 AI Engine]] - document - BLUEPRINT.md
+- [[Deployment Docker Compose (mongo + redis + api)]] - document - BLUEPRINT.md
+- [[Deployment PM2 Cluster Mode (ecosystem.config.cjs)]] - document - BLUEPRINT.md
+- [[Enforced Folder Structure]] - document - CLAUDE.md
+- [[Jest ESM Test Suite (__tests__)]] - document - BLUEPRINT.md
+- [[MongoDB (20 collections)]] - document - BLUEPRINT.md
+- [[Payment Routes (apiv1payment) — Razorpay]] - document - BLUEPRINT.md
+- [[Rationale 7-Layer AI Cost Minimisation Strategy]] - document - BLUEPRINT.md
+- [[Rationale Redis Session Stores Replace In-Memory for Multi-Instance]] - document - BLUEPRINT.md
+- [[Rationale Subject in AI Cache Key to Prevent Collisions]] - document - BLUEPRINT.md
+- [[Rule Always validate inputs with Joi middleware]] - document - CLAUDE.md
+- [[Rule Never hardcode CORS origins — use process.env.FRONTEND_URL]] - document - CLAUDE.md
+- [[Rule New route groups use apiv1 prefix]] - document - CLAUDE.md
+- [[Rule New routes must have a test in __tests__]] - document - CLAUDE.md
+- [[Rule No business logic in controllers]] - document - CLAUDE.md
+- [[Rule Sessions must not use in-memory object (RedisDB required)]] - document - CLAUDE.md
+- [[Rule Standardised error responses via AppError]] - document - CLAUDE.md
+- [[Rule Update BLUEPRINT.md before every commit]] - document - CLAUDE.md
+- [[Socket.IO Competition Rooms]] - document - BLUEPRINT.md
+- [[Topic Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[UserProfile Collection — Analytics Brain]] - document - BLUEPRINT.md
+- [[adaptiveService.js — Smart Question Selection]] - document - BLUEPRINT.md
+- [[adminAuth.js Middleware — Role Guard]] - document - BLUEPRINT.md
+- [[aiRouter.js — 7-Layer Cost Minimisation]] - document - BLUEPRINT.md
+- [[aiService.js — Claude API Calls]] - document - BLUEPRINT.md
+- [[aiTeacherService.js — Contextual Guidance]] - document - BLUEPRINT.md
+- [[analysisService.js — Thinking Behaviour Detector]] - document - BLUEPRINT.md
+- [[auth.js Middleware — JWT Verification]] - document - BLUEPRINT.md
+- [[badgeService.js — Achievement Awards]] - document - BLUEPRINT.md
+- [[errorHandler.js Middleware — Centralised Error Handler]] - document - BLUEPRINT.md
+- [[plannerService.js — Study Plan Generator]] - document - BLUEPRINT.md
+- [[predictionService.js — Exam Score Prediction]] - document - BLUEPRINT.md
+- [[profileService.js — Thinking Profile]] - document - BLUEPRINT.md
+- [[redisClient.js — ioredis Singleton + In-Memory Fallback]] - document - BLUEPRINT.md
+- [[revisionService.js — Spaced Repetition]] - document - BLUEPRINT.md
+- [[scoringService.js — Exam Scoring]] - document - BLUEPRINT.md
+- [[selfLearningService  autoDoubtService  foundationService]] - document - BLUEPRINT.md
+- [[streakService.js — Daily Streaks]] - document - BLUEPRINT.md
+- [[validate.js Middleware — Joi Schema Validation]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 
@@ -65,13 +64,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 6 edges to [[_COMMUNITY_Community 8]]
-- 4 edges to [[_COMMUNITY_Community 11]]
-- 4 edges to [[_COMMUNITY_Community 5]]
+- 4 edges to [[_COMMUNITY_Community 3]]
 
 ## Top bridge nodes
-- [[submitAnswer()]] - degree 14, connects to 3 communities
-- [[sessionSet()]] - degree 8, connects to 2 communities
-- [[sessionGet()]] - degree 7, connects to 2 communities
-- [[sessionDel()]] - degree 6, connects to 2 communities
-- [[resolveDoubt()]] - degree 6, connects to 1 community
+- [[Backend (Express + Node, port 5001)]] - degree 25, connects to 1 community
+- [[AI Learning Platform (CBSE Class 10)]] - degree 7, connects to 1 community
+- [[badgeService.js — Achievement Awards]] - degree 3, connects to 1 community
+- [[Rule New route groups use apiv1 prefix]] - degree 3, connects to 1 community

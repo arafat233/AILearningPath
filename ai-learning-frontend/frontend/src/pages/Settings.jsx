@@ -29,7 +29,7 @@ export default function Settings() {
   useEffect(() => {
     Promise.all([getMe(), getSubscription()])
       .then(([meRes, subRes]) => {
-        const u = meRes.data.user;
+        const u = meRes.data.data.user;
         setForm({
           name:     u.name     || "",
           examDate: u.examDate ? u.examDate.split("T")[0] : "",

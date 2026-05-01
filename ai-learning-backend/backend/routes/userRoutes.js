@@ -29,7 +29,7 @@ r.get("/me", auth, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     const profile = await UserProfile.findOne({ userId: req.user.id });
-    res.json({ user, profile });
+    res.json({ data: { user, profile } });
   } catch (err) {
     next(err);
   }

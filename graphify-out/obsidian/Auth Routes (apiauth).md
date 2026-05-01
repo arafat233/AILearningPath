@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 16"
+community: "Community 17"
 location: "section 5"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_16
+  - community/Community_17
 ---
 
 # Auth Routes (/api/auth/*)
@@ -16,4 +16,4 @@ tags:
 - [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - `conceptually_related_to` [INFERRED]
 - [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/INFERRED #community/Community_16
+#graphify/document #graphify/INFERRED #community/Community_17

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
-- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
-- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
+- [[Register()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[Register.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[passwordStrength()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
 
 ## Live Query (requires Dataview plugin)
 

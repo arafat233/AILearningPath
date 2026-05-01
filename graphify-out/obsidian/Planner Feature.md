@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/planner.md"
 type: "document"
-community: "Community 3"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # Planner Feature
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Planner E2E Report]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_2

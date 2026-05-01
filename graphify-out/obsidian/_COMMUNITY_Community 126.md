@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[05_analytics.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\05_analytics.spec.js
+- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
 
 ## Live Query (requires Dataview plugin)
 

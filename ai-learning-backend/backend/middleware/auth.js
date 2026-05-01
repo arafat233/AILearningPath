@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { sessionGet } from "../utils/redisClient.js";
 import { User } from "../models/index.js";
+import logger from "../utils/logger.js";
 
 export const auth = async (req, res, next) => {
   // Accept token from httpOnly cookie (primary) or Authorization header (fallback for API tools / curl)
@@ -8,12 +9,25 @@ export const auth = async (req, res, next) => {
     req.cookies?.token ||
     req.headers.authorization?.split(" ")[1];
 
-  if (!token) return res.status(401).json({ error: "No token" });
+  if (!token) {
+    logger.warn("Auth rejected: no token", {
+      path: req.originalUrl,
+      origin: req.headers?.origin,
+      hasCookieHeader: Boolean(req.headers?.cookie),
+      cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+    });
+    return res.status(401).json({ error: "No token" });
+  }
 
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch {
+    logger.warn("Auth rejected: invalid token", {
+      path: req.originalUrl,
+      origin: req.headers?.origin,
+      hasCookieHeader: Boolean(req.headers?.cookie),
+    });
     return res.status(401).json({ error: "Invalid token" });
   }
 

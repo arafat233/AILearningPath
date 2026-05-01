@@ -1,21 +1,21 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 8"
-location: "L278"
+community: "Community 7"
+location: "L359"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_7
 ---
 
 # clerkAuth()
 
 ## Connections
 - [[authController.js]] - `contains` [EXTRACTED]
-- [[escHtml()]] - `calls` [EXTRACTED]
 - [[issueTokens()]] - `calls` [EXTRACTED]
+- [[queueWelcomeEmail()]] - `calls` [EXTRACTED]
 - [[safeUser()]] - `calls` [EXTRACTED]
 - [[sendEmail()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_7

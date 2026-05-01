@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js"
 type: "code"
-community: "Community 11"
+community: "Community 7"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_7
 ---
 
 # selfLearningService.js
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[updateQuestionStats()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_7

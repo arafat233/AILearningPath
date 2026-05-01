@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 7"
+community: "Community 9"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_9
 ---
 
 # Test: Practice page loads with Practice heading
@@ -16,4 +16,4 @@ tags:
 - [[Practice E2E Report]] - `references` [EXTRACTED]
 - [[Test Outcome Failed]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_7
+#graphify/document #graphify/EXTRACTED #community/Community_9

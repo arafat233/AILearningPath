@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 28
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[BadgeToast()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[BadgeToast.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[defaultIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[labelFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
 
 ## Live Query (requires Dataview plugin)
 

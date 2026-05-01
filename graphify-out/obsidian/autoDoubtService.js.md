@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js"
 type: "code"
-community: "Community 1"
+community: "Community 8"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_8
 ---
 
 # autoDoubtService.js
@@ -17,4 +17,4 @@ tags:
 - [[getSuggestedAction()]] - `contains` [EXTRACTED]
 - [[resolveDoubt()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_8

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js"
 type: "code"
-community: "Community 1"
-location: "L5"
+community: "Community 6"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_6
 ---
 
 # auth()
@@ -15,4 +15,4 @@ tags:
 - [[auth.js]] - `contains` [EXTRACTED]
 - [[sessionGet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_6

@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 49
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
-- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
 
 ## Live Query (requires Dataview plugin)
 

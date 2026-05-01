@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 22
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[aiRouter.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[selectLeanReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[selectReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[today()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[userDoc()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

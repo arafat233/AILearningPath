@@ -52,7 +52,7 @@ function TopBar() {
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/login" className="hidden sm:inline-flex text-[13px] text-ink-2 hover:text-ink px-3 py-1.5">Sign in</Link>
-          <Link to="/start" className="landing-btn text-[13px] font-semibold px-4 py-2 rounded-full text-white">Start free</Link>
+          <Link to="/start" className="btn-primary text-[13px] font-semibold px-4 py-2 rounded-full">Start free</Link>
         </div>
       </div>
     </header>

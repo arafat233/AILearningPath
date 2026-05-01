@@ -47,4 +47,11 @@ export function validateEnv() {
   if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID.startsWith("YOUR_")) {
     logger.warn("GOOGLE_CLIENT_ID not set — Google OAuth will be unavailable");
   }
+
+  if (!process.env.COMPANY_ADMIN_EMAIL || !process.env.COMPANY_ADMIN_PASSWORD) {
+    logger.warn("COMPANY_ADMIN_EMAIL / COMPANY_ADMIN_PASSWORD not set — company dashboard login will return 503");
+  }
+  if (!process.env.COMPANY_JWT_SECRET) {
+    logger.warn("COMPANY_JWT_SECRET not set — company dashboard will fall back to JWT_SECRET");
+  }
 }

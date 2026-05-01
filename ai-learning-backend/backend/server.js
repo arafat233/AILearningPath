@@ -34,6 +34,7 @@ import curriculumRoutes  from "./routes/curriculumRoutes.js";
 import ncertRoutes       from "./routes/ncertRoutes.js";
 import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
+import companyRoutes    from "./routes/companyRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
@@ -117,6 +118,7 @@ app.use("/api/portal",      portalRoutes);
 app.use("/api/v1/curriculum", curriculumRoutes);
 app.use("/api/v1/ncert",      ncertRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
+app.use("/api/company",     companyRoutes);
 
 app.get("/api/health", async (_req, res) => {
   const health = { status: "ok", checks: { mongodb: "unknown", redis: "unknown", anthropic: "unknown" } };

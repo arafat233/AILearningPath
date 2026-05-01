@@ -55,6 +55,8 @@ import AdminQuestions   from "./pages/admin/AdminQuestions";
 import AdminTopics      from "./pages/admin/AdminTopics";
 import AdminCacheStats  from "./pages/admin/AdminCacheStats";
 import Landing          from "./pages/Landing";
+import CompanyLogin     from "./pages/CompanyLogin";
+import CompanyDashboard from "./pages/CompanyDashboard";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -116,6 +118,10 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Routes>
+          {/* Company-internal dashboard — completely independent auth, no student/parent access */}
+          <Route path="/company-login" element={<CompanyLogin />} />
+          <Route path="/company"       element={<CompanyDashboard />} />
+
           <Route path="/start"                element={<PublicOnly><StartOnboarding /></PublicOnly>} />
           <Route path="/login"                element={<PublicOnly><Login /></PublicOnly>} />
           <Route path="/register"             element={<PublicOnly><Register /></PublicOnly>} />

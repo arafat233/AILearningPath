@@ -3,6 +3,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
+// ── subject / sub-subject constants ────────────────────────────────
+const SUBJECTS = [
+  { id: "Math",          label: "Maths",   color: "#007AFF" },
+  { id: "Science",       label: "Science", color: "#34C759" },
+  { id: "English",       label: "English", color: "#FF9500" },
+  { id: "Social Science",label: "Social",  color: "#AF52DE" },
+  { id: "Hindi",         label: "Hindi",   color: "#FF3B30" },
+];
+
+const SCIENCE_SUBS = {
+  Physics:   ["Light — Reflection and Refraction","Human Eye and Colourful World","Electricity","Magnetic Effects of Electric Current","Sources of Energy"],
+  Chemistry: ["Chemical Reactions and Equations","Acids, Bases and Salts","Metals and Non-metals","Carbon and Its Compounds","Periodic Classification of Elements"],
+  Biology:   ["Life Processes","Control and Coordination","How Do Organisms Reproduce","Heredity and Evolution","Our Environment","Sustainable Management of Natural Resources"],
+};
+
 const BEHAVIOR = {
   guessing:          { text: "Guessing detected",    bg: "bg-apple-orange/10", text_c: "text-apple-orange" },
   concept_error:     { text: "Concept misunderstood",bg: "bg-apple-red/10",    text_c: "text-apple-red"    },
@@ -30,6 +45,8 @@ export default function Practice() {
   const mixTopics  = location.state?.mixTopics || null; // from Planner "Start today"
   const [topics, setTopics]           = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(location.state?.topic || "");
+  const [activeSubject, setActiveSubject] = useState(location.state?.topic ? "" : (user?.subject || "Math"));
+  const [scienceSub,    setScienceSub]    = useState(null);
   const [question, setQuestion]     = useState(null);
   const [feedback, setFeedback]     = useState(null);
   const [confidence, setConfidence] = useState("");
@@ -174,15 +191,14 @@ export default function Practice() {
     }
   };
 
-  // Load topics from DB (filtered by user's grade + subject if available)
+  // Load topics for the active subject
   useEffect(() => {
-    const params = {};
-    if (user?.grade)   params.grade   = user.grade;
-    if (user?.subject) params.subject = user.subject;
+    if (!activeSubject) return;
+    const params = { grade: user?.grade || "10", subject: activeSubject };
     getTopics(params)
       .then((r) => setTopics(r.data.map((t) => t.name)))
       .catch(() => {});
-  }, [user?.grade, user?.subject]);
+  }, [activeSubject, user?.grade]);
 
   // ── Auto-start mixed practice if coming from Planner ───────────
   useEffect(() => {
@@ -191,30 +207,70 @@ export default function Practice() {
 
   // ── Topic selector ──────────────────────────────────────────────
   if (!question) {
+    const subjectColor = SUBJECTS.find((s) => s.id === activeSubject)?.color || "#007AFF";
+    const filteredTopics = (activeSubject === "Science" && scienceSub)
+      ? topics.filter((t) => SCIENCE_SUBS[scienceSub]?.includes(t))
+      : topics;
+
     return (
-      <div className="max-w-lg mx-auto space-y-4">
+      <div className="max-w-2xl mx-auto space-y-4">
         <div>
           <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Practice</h1>
           <p className="text-[14px] text-apple-gray mt-0.5">
-            {mixTopics ? `Mixed session: ${mixTopics.join(", ")}` : "Choose a topic to begin"}
+            {mixTopics ? `Mixed session: ${mixTopics.join(", ")}` : "Select a subject and topic to begin"}
           </p>
         </div>
 
+        {/* Subject tabs */}
+        {!mixTopics && (
+          <div className="flex gap-1.5 flex-wrap">
+            {SUBJECTS.map(({ id, label, color }) => (
+              <button key={id}
+                onClick={() => { setActiveSubject(id); setSelectedTopic(""); setScienceSub(null); }}
+                className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
+                style={activeSubject === id
+                  ? { background: color, color: "#fff" }
+                  : { background: color + "14", color }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Science sub-subject tabs */}
+        {!mixTopics && activeSubject === "Science" && (
+          <div className="flex gap-1.5">
+            {["All", "Physics", "Chemistry", "Biology"].map((s) => (
+              <button key={s}
+                onClick={() => { setScienceSub(s === "All" ? null : s); setSelectedTopic(""); }}
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
+                  (s === "All" && !scienceSub) || scienceSub === s
+                    ? "bg-[#34C759] text-white border-[#34C759]"
+                    : "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20 hover:border-[#34C759]/50"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Topic grid */}
         <div className="card p-6">
-          <p className="section-label">Select Topic</p>
-          {topics.length === 0 ? (
+          <p className="section-label mb-3">
+            {scienceSub ? `${scienceSub} Topics` : `${activeSubject} Topics`}
+          </p>
+          {filteredTopics.length === 0 ? (
             <p className="text-[13px] text-apple-gray">Loading topics…</p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
-              {topics.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setSelectedTopic(t)}
-                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.97]
-                    ${selectedTopic === t
-                      ? "bg-apple-blue text-white shadow-apple"
-                      : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
-                    }`}
+              {filteredTopics.map((t) => (
+                <button key={t} onClick={() => setSelectedTopic(t)}
+                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150 active:scale-[0.97] ${
+                    selectedTopic === t ? "text-white shadow-apple" : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
+                  }`}
+                  style={selectedTopic === t ? { background: subjectColor } : {}}
                 >
                   {t}
                 </button>
@@ -223,10 +279,9 @@ export default function Practice() {
           )}
         </div>
 
-        <button
-          onClick={handleStart}
-          disabled={!selectedTopic || loading}
+        <button onClick={handleStart} disabled={!selectedTopic || loading}
           className="btn-primary w-full py-3 text-[15px]"
+          style={selectedTopic ? { background: subjectColor } : {}}
         >
           {loading ? "Loading…" : "Start Practice →"}
         </button>

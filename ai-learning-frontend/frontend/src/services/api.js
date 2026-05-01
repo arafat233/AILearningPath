@@ -28,7 +28,7 @@ export const updateMe = (data) => api.put("/user/me", data);
 export const getTopics     = (params) => api.get("/topics", { params });
 export const getTopicsMeta = ()       => api.get("/topics/meta");
 
-export const listLessons  = ()      => api.get("/lessons");
+export const listLessons  = (subject, grade) => api.get("/lessons", { params: { subject, grade } });
 export const getLesson    = (topic) => api.get(`/lessons/${encodeURIComponent(topic)}`);
 export const saveProgress = (data)  => api.post("/lessons/progress", data);
 

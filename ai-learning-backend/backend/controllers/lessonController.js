@@ -39,7 +39,10 @@ export const getLesson = async (req, res, next) => {
 
 export const listLessons = async (req, res, next) => {
   try {
-    const lessons = await Lesson.find({}, "topic title tagline subject grade shortLesson.estimatedMinutes");
+    const filter = {};
+    if (req.query.subject) filter.subject = req.query.subject;
+    if (req.query.grade)   filter.grade   = req.query.grade;
+    const lessons = await Lesson.find(filter, "topic title tagline subject grade shortLesson.estimatedMinutes");
     res.json(lessons);
   } catch (err) {
     next(err);

@@ -1,4 +1,5 @@
 import { generateStudyPlan } from "../services/plannerService.js";
+import { getRevisionTopics } from "../services/revisionService.js";
 import { StudyPlan, User } from "../models/index.js";
 
 export const getPlan = async (req, res, next) => {
@@ -10,7 +11,10 @@ export const getPlan = async (req, res, next) => {
     const saved = await StudyPlan.findOne({ userId }).lean();
     const customTopicOrder = saved?.customTopicOrder || [];
 
-    const plan = await generateStudyPlan(userId, examDate, user?.goal || "distinction", customTopicOrder);
+    const [plan, revisionDue] = await Promise.all([
+      generateStudyPlan(userId, examDate, user?.goal || "distinction", customTopicOrder),
+      getRevisionTopics(userId),
+    ]);
 
     // Merge completion state from DB into generated plan
     if (saved?.dailyPlan?.length) {
@@ -23,6 +27,7 @@ export const getPlan = async (req, res, next) => {
 
     plan.hasCustomOrder = customTopicOrder.length > 0;
     plan.customTopicOrder = customTopicOrder;
+    plan.revisionDue = revisionDue.slice(0, 8);
     res.json(plan);
   } catch (err) {
     next(err);

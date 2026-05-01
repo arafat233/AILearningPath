@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPlan, markDayComplete, saveTopicOrder } from "../services/api";
+import { getPlan, markDayComplete, saveTopicOrder, markRevised } from "../services/api";
 
 const GOAL_LABEL = {
   pass:        "Pass the exam",
@@ -633,19 +633,110 @@ function TopicEditor({ plan, onSaved }) {
   );
 }
 
+/* ─── REVISION DUE ───────────────────────────────────────── */
+function RevisionDue({ topics, onRevised, navigate }) {
+  const [marking, setMarking] = useState(null);
+
+  if (!topics?.length) return null;
+
+  const stageLabel = (stage) => {
+    const labels = ["1st rev.", "2nd rev.", "3rd rev.", "4th rev.", "Final rev."];
+    return labels[stage] || "Revision";
+  };
+
+  const stageColor = (stage) => {
+    const colors = ["#FF3B30", "#FF9500", "#FF6B00", "#007AFF", "#34C759"];
+    return colors[stage] || "#FF9500";
+  };
+
+  const handleMark = async (topic) => {
+    setMarking(topic);
+    try {
+      await markRevised(topic);
+      onRevised(topic);
+    } catch {}
+    setMarking(null);
+  };
+
+  return (
+    <div className="card p-5 border-l-4" style={{ borderLeftColor: "#FF9500" }}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-[16px]">🔁</span>
+          <p className="text-[14px] font-semibold text-[var(--label)]">Revision Due</p>
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#FF9500] text-white text-[11px] font-bold">
+            {topics.length}
+          </span>
+        </div>
+        <p className="text-[11px] text-apple-gray">Spaced repetition — review these today</p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {topics.map((t) => (
+          <div key={t.topic}
+            className="flex items-center gap-3 p-3 rounded-apple-xl border border-apple-gray5 bg-apple-gray6/40 hover:bg-white hover:shadow-apple transition-all">
+
+            {/* stage dot */}
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: stageColor(t.revisionStage) }} />
+
+            {/* topic + meta */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[13px] font-medium text-[var(--label)] truncate">{t.topic}</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                  style={{ background: stageColor(t.revisionStage) + "18", color: stageColor(t.revisionStage) }}>
+                  {stageLabel(t.revisionStage)}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 mt-1">
+                {/* accuracy bar */}
+                <div className="flex items-center gap-1.5">
+                  <div className="w-20 h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
+                    <div className="h-1.5 rounded-full" style={{ width: `${t.accuracy}%`, background: t.accuracy >= 70 ? "#34C759" : t.accuracy >= 50 ? "#FF9500" : "#FF3B30" }} />
+                  </div>
+                  <span className="text-[11px] text-apple-gray">{t.accuracy}%</span>
+                </div>
+                <span className="text-[11px] text-apple-gray3">
+                  {t.daysSince === 0 ? "today" : `${t.daysSince}d ago`}
+                </span>
+              </div>
+            </div>
+
+            {/* actions */}
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => navigate("/practice", { state: { topic: t.topic } })}
+                className="btn-primary text-[12px] py-1.5 px-3">
+                Revise →
+              </button>
+              <button
+                onClick={() => handleMark(t.topic)}
+                disabled={marking === t.topic}
+                className="btn-secondary text-[12px] py-1.5 px-3">
+                {marking === t.topic ? "…" : "Done"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── MAIN PAGE ──────────────────────────────────────────── */
 export default function Planner() {
   const navigate = useNavigate();
-  const [plan,       setPlan]       = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [completing, setCompleting] = useState(null);
-  const [view,       setView]       = useState("daily");   // daily | weekly | monthly
-  const [showEditor, setShowEditor] = useState(false);
+  const [plan,         setPlan]         = useState(null);
+  const [revisionDue,  setRevisionDue]  = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [completing,   setCompleting]   = useState(null);
+  const [view,         setView]         = useState("daily");   // daily | weekly | monthly
+  const [showEditor,   setShowEditor]   = useState(false);
 
   const loadPlan = useCallback(() => {
     setLoading(true);
     getPlan()
-      .then(r  => setPlan(r.data))
+      .then(r => { setPlan(r.data); setRevisionDue(r.data.revisionDue || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -723,6 +814,15 @@ export default function Planner() {
 
       {/* ── Summary bar ── */}
       <SummaryBar plan={plan} />
+
+      {/* ── Revision due ── */}
+      {!showEditor && (
+        <RevisionDue
+          topics={revisionDue}
+          navigate={navigate}
+          onRevised={(topic) => setRevisionDue(prev => prev.filter(t => t.topic !== topic))}
+        />
+      )}
 
       {/* ── Today's focus ── */}
       {!showEditor && (

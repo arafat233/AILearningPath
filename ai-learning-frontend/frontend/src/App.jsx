@@ -60,6 +60,8 @@ import CompanyLogin     from "./pages/CompanyLogin";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import PYQBank          from "./pages/PYQBank";
 import ParentDashboard  from "./pages/ParentDashboard";
+import TermsOfService   from "./pages/TermsOfService";
+import PrivacyPolicy    from "./pages/PrivacyPolicy";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -162,6 +164,8 @@ export default function App() {
             <Route path="ncert/chapters/:chapterId"   element={<NcertChapterView />} />
             <Route path="ncert/topics/:topicId"       element={<NcertTopicView />} />
             <Route path="pricing"                     element={<Pricing />} />
+            <Route path="terms"                       element={<TermsOfService />} />
+            <Route path="privacy"                     element={<PrivacyPolicy />} />
           </Route>
         </Routes>
     </ErrorBoundary>

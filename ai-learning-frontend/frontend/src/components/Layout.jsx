@@ -195,6 +195,13 @@ export default function Layout() {
           </NavLink>
         </div>
 
+        {/* Legal links */}
+        <div className="px-4 pb-2 flex items-center gap-3">
+          <a href="/terms"   className="text-[10px] text-apple-gray hover:text-apple-blue transition-colors">Terms</a>
+          <span className="text-apple-gray5 text-[10px]">·</span>
+          <a href="/privacy" className="text-[10px] text-apple-gray hover:text-apple-blue transition-colors">Privacy</a>
+        </div>
+
         {/* User footer */}
         <div className="px-4 py-4 flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-apple-blue flex items-center justify-center shrink-0">

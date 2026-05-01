@@ -48,7 +48,7 @@
 
 ## 🔵 MEDIUM — Missing Test Coverage
 
-- [ ] **No test for `authController`** — register, login, logout, refresh, forgot/reset-password untested.
+- [x] **No test for `authController`** ✅ Verified: `auth.controller.test.js` covers register (dup email, success), login (unknown email, locked, wrong pw, lockout, success), refresh (no cookie, expired, valid rotation, reuse detection), logout (JTI blacklist + family delete), forgotPassword (unknown email, XSS escape), resetPassword (bad token, valid token).
 - [ ] **No test for `practiceController`** — start, submit flow (session handling, badge award, streak update) untested.
 - [ ] **No test for `paymentService`** — signature verification, plan upgrade, order TTL untested.
 - [ ] **No test for `portalController`** — IDOR checks on `getStudentAnalytics` and `getStudentDashboardCtrl` untested.
@@ -102,7 +102,7 @@
 - [ ] **No annual plan option** — Only monthly plans; annual plans improve LTV and reduce churn.
 - [ ] **No admin analytics dashboard** — No DAU/MAU, revenue, conversion rate, or retention charts.
 - [x] **No GDPR / data deletion endpoint** ✅ Fixed: `DELETE /api/user/me` deletes User + all personal data (UserProfile, Attempts, ErrorMemory, Streak, Badges, DoubtThreads, LessonProgress). UI added in Settings.
-- [ ] **No Terms of Service or Privacy Policy pages** — Required before commercial launch or app store listing.
+- [x] **No Terms of Service or Privacy Policy pages** ✅ Fixed: `/terms` and `/privacy` pages with full content (eligibility, subscriptions, data rights, security, PDPB/GDPR compliance); linked in sidebar footer and cross-referenced from each other.
 - [x] **No CI/CD pipeline** ✅ Fixed: `.github/workflows/ci.yml` — backend Jest tests + frontend build on push to main and cursor/** branches.
 - [ ] **No error monitoring** — No Sentry / Datadog integration.
 - [ ] **No database backup strategy** — No automated snapshot or offsite backup documented.

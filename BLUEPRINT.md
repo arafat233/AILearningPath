@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — security batch 1–2 + End Session + search + bookmarks + timer bar + competition share.
+> Last updated: May 2026 — security batch 1–2, UX features, Razorpay webhook, PaymentRecord model.
 
 ---
 

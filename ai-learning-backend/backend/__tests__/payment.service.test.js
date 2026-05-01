@@ -13,6 +13,7 @@ jest.unstable_mockModule("../utils/redisClient.js", () => ({
 }));
 jest.unstable_mockModule("../models/index.js", () => ({
   User: { findByIdAndUpdate: mockFindByIdAndUpdate, findById: mockFindById },
+  PaymentRecord: { create: jest.fn().mockResolvedValue({}) },
 }));
 jest.unstable_mockModule("../utils/logger.js", () => ({
   default: { info: jest.fn(), warn: jest.fn() },

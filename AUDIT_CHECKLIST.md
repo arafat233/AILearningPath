@@ -95,7 +95,7 @@
 
 ## 🏢 BUSINESS / COMPANY PERSPECTIVE
 
-- [ ] **No Razorpay webhook handler for failed/refunded payments** — `payment.failed` / `refund.processed` events don't update user plan.
+- [x] **No Razorpay webhook handler for failed/refunded payments** ✅ Fixed: `POST /api/webhooks/razorpay` verifies HMAC-SHA256 signature; `payment.failed` logs the event; `refund.processed` looks up PaymentRecord by paymentId and downgrades user to free plan. PaymentRecord model stores audit trail.
 - [ ] **No invoice or payment receipt** — No email with receipt or invoice after successful payment.
 - [ ] **No coupon / referral system** — No discount codes or referral tracking.
 - [ ] **No free trial for paid plans** — Users go directly from free to paid with no trial period.

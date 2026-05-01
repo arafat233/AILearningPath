@@ -351,3 +351,16 @@ const pushSubscriptionSchema = new mongoose.Schema({
 });
 pushSubscriptionSchema.index({ userId: 1 });
 export const PushSubscription = mongoose.model("PushSubscription", pushSubscriptionSchema);
+
+// ==================== PaymentRecord (audit trail + refund lookup) ====================
+const paymentRecordSchema = new mongoose.Schema({
+  userId:          { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  razorpayOrderId: { type: String, required: true, unique: true },
+  razorpayPaymentId: { type: String, required: true, unique: true },
+  planKey:         { type: String, required: true },
+  amount:          { type: Number, required: true }, // in paise
+  status:          { type: String, enum: ["captured", "refunded"], default: "captured" },
+  createdAt:       { type: Date, default: Date.now },
+});
+paymentRecordSchema.index({ razorpayPaymentId: 1 });
+export const PaymentRecord = mongoose.model("PaymentRecord", paymentRecordSchema);

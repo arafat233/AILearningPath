@@ -1,6 +1,6 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { User } from "../models/index.js";
+import { User, PaymentRecord } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
@@ -119,6 +119,15 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
   );
 
   if (!user) throw new AppError("User not found", 404);
+
+  await PaymentRecord.create({
+    userId,
+    razorpayOrderId,
+    razorpayPaymentId,
+    planKey,
+    amount: plan.price,
+    status: "captured",
+  });
 
   logger.info("Payment verified — plan upgraded", {
     userId, planKey, orderId: razorpayOrderId, paymentId: razorpayPaymentId, expiry,

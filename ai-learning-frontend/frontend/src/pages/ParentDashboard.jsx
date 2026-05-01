@@ -379,7 +379,7 @@ export default function ParentDashboard() {
     getLinkedStudents()
       .then(({ data }) => {
         setStudents(data);
-        if (data.length === 1) setSelectedId(data[0]._id || data[0].id);
+        if (data.length > 0) setSelectedId(data[0]._id || data[0].id);
         if (data.length === 0) setShowSearch(true);
       })
       .catch(() => { setShowSearch(true); })

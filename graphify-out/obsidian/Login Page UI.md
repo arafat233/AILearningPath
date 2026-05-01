@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png"
 type: "image"
-community: "Community 10"
+community: "Community 9"
 tags:
   - graphify/image
   - graphify/EXTRACTED
-  - community/Community_10
+  - community/Community_9
 ---
 
 # Login Page UI
@@ -22,4 +22,4 @@ tags:
 - [[Login Form — Sign In Button]] - `references` [EXTRACTED]
 - [[Login Page — EmptyInitial State (placeholder text visible)]] - `semantically_similar_to` [EXTRACTED]
 
-#graphify/image #graphify/EXTRACTED #community/Community_10
+#graphify/image #graphify/EXTRACTED #community/Community_9

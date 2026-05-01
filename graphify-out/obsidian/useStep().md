@@ -1,18 +1,34 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx"
 type: "code"
-community: "Community 7"
-location: "L697"
+community: "Community 0"
+location: "L1202"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_0
 ---
 
 # useStep()
 
 ## Connections
-- [[GoalPreviewSimple()]] - `calls` [EXTRACTED]
-- [[LandingPage.jsx]] - `contains` [EXTRACTED]
+- [[Landing.jsx]] - `contains` [EXTRACTED]
+- [[PreviewArithmetic()]] - `calls` [EXTRACTED]
+- [[PreviewChemistry()]] - `calls` [EXTRACTED]
+- [[PreviewCivics()]] - `calls` [EXTRACTED]
+- [[PreviewCoding()]] - `calls` [EXTRACTED]
+- [[PreviewGeography()]] - `calls` [EXTRACTED]
+- [[PreviewGovernment()]] - `calls` [EXTRACTED]
+- [[PreviewHistory()]] - `calls` [EXTRACTED]
+- [[PreviewLanguage()]] - `calls` [EXTRACTED]
+- [[PreviewLogic()]] - `calls` [EXTRACTED]
+- [[PreviewMensuration()]] - `calls` [EXTRACTED]
+- [[PreviewPhonics()]] - `calls` [EXTRACTED]
+- [[PreviewProportional()]] - `calls` [EXTRACTED]
+- [[PreviewQuadratics()]] - `calls` [EXTRACTED]
+- [[PreviewSocial()]] - `calls` [EXTRACTED]
+- [[PreviewSolving()]] - `calls` [EXTRACTED]
+- [[PreviewStates()]] - `calls` [EXTRACTED]
+- [[PreviewVisualAlgebra()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_0

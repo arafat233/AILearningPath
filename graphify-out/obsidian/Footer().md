@@ -1,17 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx"
 type: "code"
-community: "Community 7"
-location: "L1055"
+community: "Community 0"
+location: "L2313"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_0
 ---
 
 # Footer()
 
 ## Connections
-- [[LandingPage.jsx]] - `contains` [EXTRACTED]
+- [[Landing.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_0

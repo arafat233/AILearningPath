@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 2"
+community: "Community 4"
 location: "section 3.18"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_4
 ---
 
 # Badge Collection (MongoDB schema)
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[badgeService.js — Achievement Awards]] - `shares_data_with` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_4

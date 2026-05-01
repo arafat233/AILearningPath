@@ -596,7 +596,7 @@ function useAmbientMusic(enabled, duckedLevel) {
 }
 
 function IntroScene_Sky({ p }) {
-  const stars = [{ x:15,y:25,r:2.4,c:"#FFD166",d:0.0 },{ x:30,y:16,r:1.8,c:"#7CC4FF",d:0.2 },{ x:46,y:42,r:3.2,c:"#C8A0FF",d:0.4 },{ x:62,y:22,r:2.0,c:"#77DDA0",d:0.15 },{ x:78,y:34,r:2.2,c:"#FF9E7A",d:0.35 },{ x:36,y:62,r:1.8,c:"#FFA8D9",d:0.5 },{ x:68,y:68,r:2.4,c:"#9FE6E6",d:0.25 },{ x:88,y:14,r:1.6,c:"#FFD166",d:0.1 },{ x:10,y:55,r:2.0,c:"#7CC4FF",d:0.3 },{ x:54,y:78,r:1.4,c:"#FF9E7A",d:0.45 }];
+  const stars = [{ x:15,y:25,r:2.4,c:"#FFD166",d:0.0 },{ x:30,y:16,r:1.8,c:"#7CC4FF",d:0.2 },{ x:46,y:42,r:3.2,c:"#C8A0FF",d:0.4 },{ x:62,y:22,r:2.0,c:"#77DDA0",d:0.15 },{ x:78,y:34,r:2.2,c:"#FF9E7A",d:0.35 },{ x:36,y:62,r:1.8,c:"#FFA8D9",d:0.5 },{ x:68,y:68,r:2.4,c:"#9FE6E6",d:0.25 },{ x:22,y:50,r:1.6,c:"#FFD166",d:0.45 },{ x:84,y:56,r:1.6,c:"#7CC4FF",d:0.55 },{ x:52,y:78,r:1.8,c:"#C8A0FF",d:0.3 }];
   const scale = 1 + p * 0.08;
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid slice" style={{ transform:`scale(${scale})`, transition:"transform 5s linear" }}>
@@ -688,7 +688,7 @@ function IntroScene_Promise({ p }) {
       </div>
       <h3 className="display text-[34px] md:text-[54px] leading-[1.02] tracking-tight max-w-[820px]" style={{ opacity:p>0.05?1:0, transform:p>0.05?"translateY(0)":"translateY(8px)", transition:"all .7s cubic-bezier(.22,1,.36,1)" }}>No star left dim.</h3>
       <p className="text-[16px] md:text-[20px] text-white/70 mt-5 max-w-[540px] leading-relaxed" style={{ opacity:p>0.25?1:0, transform:p>0.25?"translateY(0)":"translateY(8px)", transition:"all .7s cubic-bezier(.22,1,.36,1)" }}>
-        Stellar reads how each child thinks and builds a study path shaped around them — so no one is bored, no one is lost.
+        Stellar reads how each child thinks and builds a study path shaped around them — so no one is bored, no one is lost, no one is left behind.
       </p>
       <p className="mono text-[11px] uppercase tracking-[0.3em] text-white/40 mt-10" style={{ opacity:p>0.55?1:0, transition:"opacity .6s ease" }}>Now watch how it works ↓</p>
     </div>
@@ -724,7 +724,7 @@ function AnimatedStellarMark({ p, className: cls }) {
 
 function IntroScene_CTA({ p }) {
   const show = (start, end = start + 0.18) => { const k = Math.max(0, Math.min(1, (p-start)/(end-start))); return { opacity:k, transform:`translateY(${(1-k)*10}px)` }; };
-  const stars = [{ x:12,y:28,r:1.4,d:0.05 },{ x:22,y:18,r:1.0,d:0.08 },{ x:30,y:42,r:1.6,d:0.10 },{ x:38,y:22,r:1.1,d:0.12 },{ x:48,y:35,r:1.3,d:0.14 },{ x:58,y:18,r:1.2,d:0.16 },{ x:66,y:38,r:1.5,d:0.18 },{ x:74,y:24,r:1.0,d:0.20 },{ x:82,y:32,r:1.3,d:0.22 },{ x:90,y:20,r:1.1,d:0.24 }];
+  const stars = [{ x:12,y:28,r:1.4,d:0.05 },{ x:22,y:18,r:1.0,d:0.08 },{ x:30,y:42,r:1.6,d:0.10 },{ x:38,y:22,r:1.1,d:0.12 },{ x:48,y:35,r:1.3,d:0.14 },{ x:58,y:18,r:1.2,d:0.16 },{ x:66,y:38,r:1.5,d:0.18 },{ x:74,y:24,r:1.0,d:0.20 },{ x:82,y:32,r:1.3,d:0.22 },{ x:90,y:20,r:1.1,d:0.24 },{ x:18,y:70,r:1.2,d:0.26 },{ x:28,y:78,r:1.4,d:0.28 },{ x:42,y:72,r:1.0,d:0.30 },{ x:56,y:82,r:1.3,d:0.32 },{ x:70,y:74,r:1.5,d:0.34 },{ x:84,y:80,r:1.1,d:0.36 }];
   return (
     <div className="w-full h-full relative flex flex-col items-center justify-center text-center px-8 overflow-hidden">
       <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full opacity-70" aria-hidden>
@@ -774,10 +774,10 @@ function UI_SignIn({ p }) {
         <p className="mono text-[9px] uppercase tracking-[0.2em] text-ink-3">Today</p>
         <p className="text-[12px] text-ink mt-0.5 font-semibold">Fractions · Lesson 3 of 7</p>
         <div className="h-1 rounded-full bg-black/10 mt-2 overflow-hidden">
-          <div className="h-full rounded-full" style={{ width:`${28+p*6}%`, background:"#AF52DE" }} />
+          <div className="h-full rounded-full" style={{ width:`${28+p*6}%`, background:"var(--accent,#007AFF)" }} />
         </div>
       </div>
-      <button className="mt-4 w-full rounded-xl py-2.5 text-white text-[12px] font-semibold" style={{ background:"#AF52DE", ...reveal(p, 0.45) }}>Start today's lesson →</button>
+      <button className="mt-4 w-full rounded-xl py-2.5 text-white text-[12px] font-semibold" style={{ background:"var(--accent,#007AFF)", ...reveal(p, 0.45) }}>Start today's lesson →</button>
     </div>
   );
 }
@@ -826,12 +826,17 @@ function UI_Question({ p }) {
           const selected = tapped && i === 1;
           return (
             <div key={o} className="rounded-xl border px-3 py-3 text-[15px] font-semibold text-center transition-all"
-                 style={{ ...rv, background:selected?"#AF52DE":"#fff", color:selected?"#fff":"#1D1D1F", borderColor:selected?"#AF52DE":"#D1D1D6", boxShadow:selected?"0 8px 20px rgba(175,82,222,.28)":"none", transform:`${rv.transform} scale(${selected?1.04:1})` }}>
+                 style={{ ...rv, background:selected?"var(--accent,#007AFF)":"#fff", color:selected?"#fff":"#1D1D1F", borderColor:selected?"var(--accent,#007AFF)":"#D1D1D6", boxShadow:selected?"0 8px 20px rgba(0,122,255,.28)":"none", transform:`${rv.transform} scale(${selected?1.04:1})` }}>
               {o}
             </div>
           );
         })}
       </div>
+      {p > 0.55 && p < 0.72 && (
+        <div className="absolute" style={{ right:72, top:250, pointerEvents:"none" }}>
+          <div className="w-10 h-10 rounded-full border-[3px] border-ink/80 bg-white/70 shadow-apple-md" style={{ transform:`scale(${1+(0.72-p)*3})`, opacity:(0.72-p)*6 }} />
+        </div>
+      )}
       <div className="flex-1" />
       <p className="mono text-[10px] text-ink-3 text-center" style={reveal(p,0.4)}>{tapped?"Answer locked · analysing":"Tap to answer"}</p>
     </div>
@@ -857,7 +862,7 @@ function UI_Guess({ p }) {
       </div>
       <div className="flex-1 flex items-end">
         <div className="w-full rounded-xl border hairline bg-white p-3 flex items-center gap-2" style={reveal(p,0.55)}>
-          <span className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] text-white" style={{ background:"#AF52DE" }}>→</span>
+          <span className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] text-white" style={{ background:"var(--accent,#007AFF)" }}>→</span>
           <p className="text-[12px] text-ink-2">Breaking this concept smaller…</p>
         </div>
       </div>
@@ -876,8 +881,8 @@ function UI_Simpler({ p }) {
           const rv = reveal(p, 0.18 + i*0.18);
           return (
             <div key={i} className="bg-white border hairline rounded-xl p-3 flex items-center gap-3" style={{ ...rv, transform:`translateX(${(1-(rv.opacity||0))*-14}px)` }}>
-              <span className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background:"#AF52DE" }}>{i+1}</span>
-              <p className="text-[13px] text-ink">{s.q} <span className="font-bold mono" style={{ color:"#AF52DE" }}>{s.a}</span></p>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background:"var(--accent,#007AFF)" }}>{i+1}</span>
+              <p className="text-[13px] text-ink">{s.q} <span className="font-bold mono" style={{ color:"var(--accent,#007AFF)" }}>{s.a}</span></p>
               {p > 0.18+i*0.18+0.12 && <span className="text-apple-green text-[14px]">✓</span>}
             </div>
           );
@@ -897,12 +902,12 @@ function UI_Retest({ p }) {
       <div className="flex-1 flex items-center justify-center">
         <div className="flex items-center gap-2">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-[22px] font-bold" style={{ background:"#AF52DE22", color:"#AF52DE", ...reveal(p,0.18) }}>2</div>
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-[22px] font-bold" style={{ background:"var(--accent,#007AFF)22", color:"var(--accent,#007AFF)", ...reveal(p,0.18) }}>2</div>
             <p className="mono text-[9px] text-ink-3 mt-1">top</p>
           </div>
           <div className="w-8 h-0.5 bg-ink-3/30" style={reveal(p,0.24)} />
           <div className="text-center">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-[22px] font-bold" style={{ background:"#AF52DE22", color:"#AF52DE", ...reveal(p,0.3) }}>5</div>
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-[22px] font-bold" style={{ background:"var(--accent,#007AFF)22", color:"var(--accent,#007AFF)", ...reveal(p,0.3) }}>5</div>
             <p className="mono text-[9px] text-ink-3 mt-1">bottom</p>
           </div>
           <span className="text-[18px] text-ink-3 mx-1" style={reveal(p,0.38)}>=</span>
@@ -932,7 +937,7 @@ function UI_LevelUp({ p }) {
           <p className="mono text-[10px] uppercase tracking-wider text-apple-green mt-2" style={reveal(p,0.48)}>Levelling up</p>
           <p className="text-[16px] font-bold text-ink tracking-tight mt-0.5" style={reveal(p,0.54)}>Adding fractions</p>
           <div className="mt-4 font-mono text-[20px] text-ink tracking-tight" style={reveal(p,0.66)}>
-            <span style={{color:"#AF52DE"}}>2/5</span><span className="text-ink-3"> + </span><span style={{color:"#007AFF"}}>1/5</span><span className="text-ink-3"> = </span><span className="text-ink">?</span>
+            <span style={{color:"var(--accent,#007AFF)"}}>2/5</span><span className="text-ink-3"> + </span><span style={{color:"#AF52DE"}}>1/5</span><span className="text-ink-3"> = </span><span className="text-ink">?</span>
           </div>
         </div>
       </div>
@@ -973,7 +978,7 @@ function UI_Parent({ p }) {
         <span className="text-[10px] mono px-2 py-0.5 rounded-full bg-apple-green/10 text-apple-green font-semibold">● ACTIVE</span>
       </div>
       <div className="grid grid-cols-3 gap-2 mt-4">
-        {[{ label:"Accuracy",val:`${acc}%`,col:"#AF52DE",d:0.1 },{ label:"Streak",val:`${streak}d`,col:"#FF9500",d:0.18 },{ label:"Topics",val:"18",col:"#34C759",d:0.26 }].map(s => (
+        {[{ label:"Accuracy",val:`${acc}%`,col:"var(--accent,#007AFF)",d:0.1 },{ label:"Streak",val:`${streak}d`,col:"#FF9500",d:0.18 },{ label:"Topics",val:"18",col:"#34C759",d:0.26 }].map(s => (
           <div key={s.label} className="rounded-xl bg-paper-2 p-2.5 text-center" style={reveal(p,s.d)}>
             <p className="text-[20px] font-bold mono tracking-tight" style={{color:s.col}}>{s.val}</p>
             <p className="mono text-[9px] text-ink-3 uppercase mt-0.5">{s.label}</p>
@@ -985,7 +990,7 @@ function UI_Parent({ p }) {
         <div className="flex items-end gap-1 h-full max-h-[120px] mt-2">
           {[3,5,4,7,6,8,9].map((h, i) => {
             const rv = reveal(p, 0.44 + i*0.04);
-            return <div key={i} className="flex-1 rounded-t" style={{ height:`${Math.min(100,h*10+p*10)}%`, background:"#AF52DE", opacity:(0.4+i*0.08)*(rv.opacity||0), transition:"height .5s, opacity .3s" }} />;
+            return <div key={i} className="flex-1 rounded-t" style={{ height:`${Math.min(100,h*10+p*10)}%`, background:"var(--accent,#007AFF)", opacity:(0.4+i*0.08)*(rv.opacity||0), transition:"height .5s, opacity .3s" }} />;
           })}
         </div>
       </div>
@@ -1035,7 +1040,7 @@ function SceneLayout({ scene, p }) {
   return (
     <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center px-4 md:px-10 py-6 md:py-0">
       <div className="md:col-span-7 relative z-10 text-center md:text-left">
-        <p className="mono text-[11px] uppercase tracking-[0.28em]" style={{ color:"#AF52DE", opacity:ebIntro, transform:`translateY(${(1-ebIntro)*6}px)`, transition:"opacity .3s, transform .3s" }}>{scene.eyebrow}</p>
+        <p className="mono text-[11px] uppercase tracking-[0.28em]" style={{ color:"var(--accent,#007AFF)", opacity:ebIntro, transform:`translateY(${(1-ebIntro)*6}px)`, transition:"opacity .3s, transform .3s" }}>{scene.eyebrow}</p>
         <h3 className="display text-[22px] md:text-[40px] leading-[1.04] mt-2 md:mt-2.5 text-ink" style={{ opacity:titleOp, transform:`translateY(${titleY}px) scale(${titleScale})`, filter:`blur(${titleBlur}px)`, transformOrigin:"0% 50%", letterSpacing:"-0.035em", transition:"filter .1s" }}>{scene.title}</h3>
         <p className="text-[12px] md:text-[15px] text-ink-2 mt-2 md:mt-3 max-w-[380px] mx-auto md:mx-0 hidden sm:block" style={{ opacity:intro*0.85, transform:`translateY(${(1-intro)*8}px)`, transition:"opacity .2s" }}>{scene.sub}</p>
       </div>
@@ -1162,7 +1167,7 @@ function ProductTour() {
               </button>
             )}
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-black/5 z-20">
-              <div className="h-full" style={{ width:`${progress}%`, background:"#AF52DE", transition:scrubbing?"none":"width .12s linear" }} />
+              <div className="h-full" style={{ width:`${progress}%`, background:"var(--accent,#007AFF)", transition:scrubbing?"none":"width .12s linear" }} />
             </div>
           </div>
           <div className="mt-5 flex items-center gap-4 select-none">
@@ -1171,7 +1176,7 @@ function ProductTour() {
             <div ref={trackRef} onMouseDown={startScrub} onTouchStart={startScrub} className="relative flex-1 h-8 flex items-center cursor-pointer group">
               <div className="absolute left-0 right-0 h-1.5 rounded-full bg-black/10 group-hover:h-2 transition-[height]" />
               {TOUR_SCENES.map((s, i) => i === 0 ? null : <div key={s.key} className="absolute top-1/2 -translate-y-1/2 w-px h-2 bg-black/20" style={{ left:`${(s.t/total)*100}%` }} />)}
-              <div className="absolute left-0 h-1.5 rounded-full group-hover:h-2 transition-[height]" style={{ width:`${progress}%`, background:"#AF52DE", transition:scrubbing?"none":"width .12s linear" }} />
+              <div className="absolute left-0 h-1.5 rounded-full group-hover:h-2 transition-[height]" style={{ width:`${progress}%`, background:"var(--accent,#007AFF)", transition:scrubbing?"none":"width .12s linear" }} />
               <div className="absolute -translate-x-1/2 w-4 h-4 rounded-full bg-white shadow-apple border hairline group-hover:scale-110 transition-transform" style={{ left:`${progress}%`, top:"50%", marginTop:"-8px" }} />
             </div>
             <span className="mono text-[11px] text-ink-3 tabular-nums w-10">{fmtTime(total)}</span>

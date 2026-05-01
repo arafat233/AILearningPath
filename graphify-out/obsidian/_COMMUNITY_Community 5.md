@@ -51,7 +51,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
 - [[Frontend (React + Vite, port 5173)]] - degree 18, connects to 1 community

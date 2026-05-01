@@ -12,7 +12,7 @@ tags:
 # Pricing.jsx
 
 ## Connections
-- [[Pricing()_1]] - `contains` [EXTRACTED]
+- [[Pricing()_2]] - `contains` [EXTRACTED]
 - [[loadRazorpayScript()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_46

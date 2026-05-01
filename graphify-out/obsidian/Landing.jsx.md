@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx"
 type: "code"
-community: "Community 3"
+community: "Community 0"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_0
 ---
 
 # Landing.jsx
@@ -16,7 +16,12 @@ tags:
 - [[AnimatedStellarMark()]] - `contains` [EXTRACTED]
 - [[BentoCard()]] - `contains` [EXTRACTED]
 - [[CardHeader()]] - `contains` [EXTRACTED]
+- [[Center()]] - `contains` [EXTRACTED]
+- [[FAQ()]] - `contains` [EXTRACTED]
 - [[Features()]] - `contains` [EXTRACTED]
+- [[FinalCTA()]] - `contains` [EXTRACTED]
+- [[Footer()]] - `contains` [EXTRACTED]
+- [[GoalPreview()]] - `contains` [EXTRACTED]
 - [[Hero()]] - `contains` [EXTRACTED]
 - [[HowItWorks()]] - `contains` [EXTRACTED]
 - [[IntroScene_CTA()]] - `contains` [EXTRACTED]
@@ -24,18 +29,54 @@ tags:
 - [[IntroScene_Promise()]] - `contains` [EXTRACTED]
 - [[IntroScene_Reshape()]] - `contains` [EXTRACTED]
 - [[IntroScene_Sky()]] - `contains` [EXTRACTED]
+- [[Landing()]] - `contains` [EXTRACTED]
+- [[LearningGoals()]] - `contains` [EXTRACTED]
 - [[LiveRoomViz()]] - `contains` [EXTRACTED]
 - [[Logo()]] - `contains` [EXTRACTED]
 - [[Manifesto()]] - `contains` [EXTRACTED]
+- [[Parents()]] - `contains` [EXTRACTED]
 - [[PhoneFrame()]] - `contains` [EXTRACTED]
 - [[PlannerViz()]] - `contains` [EXTRACTED]
 - [[PredictionViz()]] - `contains` [EXTRACTED]
+- [[PreviewArithmetic()]] - `contains` [EXTRACTED]
+- [[PreviewBody()]] - `contains` [EXTRACTED]
+- [[PreviewCells()]] - `contains` [EXTRACTED]
+- [[PreviewChemistry()]] - `contains` [EXTRACTED]
+- [[PreviewCivics()]] - `contains` [EXTRACTED]
+- [[PreviewCoding()]] - `contains` [EXTRACTED]
+- [[PreviewComprehension()]] - `contains` [EXTRACTED]
+- [[PreviewData()]] - `contains` [EXTRACTED]
+- [[PreviewEnergy()]] - `contains` [EXTRACTED]
+- [[PreviewEssay()]] - `contains` [EXTRACTED]
+- [[PreviewGeography()]] - `contains` [EXTRACTED]
+- [[PreviewGovernment()]] - `contains` [EXTRACTED]
+- [[PreviewHindi()]] - `contains` [EXTRACTED]
+- [[PreviewHistory()]] - `contains` [EXTRACTED]
+- [[PreviewLanguage()]] - `contains` [EXTRACTED]
+- [[PreviewLight()]] - `contains` [EXTRACTED]
+- [[PreviewLogic()]] - `contains` [EXTRACTED]
+- [[PreviewMensuration()]] - `contains` [EXTRACTED]
+- [[PreviewPhonics()]] - `contains` [EXTRACTED]
+- [[PreviewPoetry()]] - `contains` [EXTRACTED]
+- [[PreviewProbability()]] - `contains` [EXTRACTED]
+- [[PreviewProportional()]] - `contains` [EXTRACTED]
+- [[PreviewPuzzle()]] - `contains` [EXTRACTED]
+- [[PreviewQuadratics()]] - `contains` [EXTRACTED]
+- [[PreviewScience()]] - `contains` [EXTRACTED]
+- [[PreviewSocial()]] - `contains` [EXTRACTED]
+- [[PreviewSolving()]] - `contains` [EXTRACTED]
+- [[PreviewSpatial()]] - `contains` [EXTRACTED]
+- [[PreviewStates()]] - `contains` [EXTRACTED]
+- [[PreviewVisualAlgebra()]] - `contains` [EXTRACTED]
+- [[Pricing()]] - `contains` [EXTRACTED]
 - [[ProductTour()]] - `contains` [EXTRACTED]
 - [[ProfileViz()]] - `contains` [EXTRACTED]
 - [[RevisionViz()]] - `contains` [EXTRACTED]
 - [[SceneLayout()]] - `contains` [EXTRACTED]
 - [[SceneUI()]] - `contains` [EXTRACTED]
 - [[SectionEyebrow()]] - `contains` [EXTRACTED]
+- [[StickyCta()]] - `contains` [EXTRACTED]
+- [[Testimonials()]] - `contains` [EXTRACTED]
 - [[TopBar()]] - `contains` [EXTRACTED]
 - [[TrustMetric()]] - `contains` [EXTRACTED]
 - [[UI_Guess()]] - `contains` [EXTRACTED]
@@ -55,5 +96,6 @@ tags:
 - [[reveal()]] - `contains` [EXTRACTED]
 - [[tourPhase()]] - `contains` [EXTRACTED]
 - [[useAmbientMusic()]] - `contains` [EXTRACTED]
+- [[useStep()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_3
+#graphify/code #graphify/EXTRACTED #community/Community_0

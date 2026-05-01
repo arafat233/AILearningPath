@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx"
 type: "code"
-community: "Community 3"
-location: "L763"
+community: "Community 0"
+location: "L764"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_0
 ---
 
 # UI_SignIn()
@@ -15,4 +15,4 @@ tags:
 - [[Landing.jsx]] - `contains` [EXTRACTED]
 - [[reveal()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_3
+#graphify/code #graphify/EXTRACTED #community/Community_0

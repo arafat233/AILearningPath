@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/SUMMARY.md"
 type: "document"
-community: "Community 8"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_2
 ---
 
 # E2E Bot Summary Report
@@ -19,4 +19,4 @@ tags:
 - [[Profile E2E Report]] - `references` [INFERRED]
 - [[Settings E2E Report]] - `references` [INFERRED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_8
+#graphify/document #graphify/EXTRACTED #community/Community_2

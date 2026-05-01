@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js"
 type: "code"
-community: "Community 1"
+community: "Community 3"
 location: "L64"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_3
 ---
 
 # classifyThinkingProfile()
@@ -15,4 +15,4 @@ tags:
 - [[analysisService.js]] - `contains` [EXTRACTED]
 - [[updateUserProfile()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_3

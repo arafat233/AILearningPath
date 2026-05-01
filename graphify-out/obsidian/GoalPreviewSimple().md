@@ -13,6 +13,6 @@ tags:
 
 ## Connections
 - [[LandingPage.jsx]] - `contains` [EXTRACTED]
-- [[useStep()]] - `calls` [EXTRACTED]
+- [[useStep()_1]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_7

@@ -1,7 +1,7 @@
 # Graph Report - E:\AILearningPath  (2026-05-01)
 
 ## Corpus Check
-- 157 files · ~346,234 words
+- 157 files · ~348,133 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

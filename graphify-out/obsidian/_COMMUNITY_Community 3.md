@@ -1,57 +1,61 @@
 ---
 type: community
-members: 44
+members: 48
 ---
 
 # Community 3
 
-**Members:** 44 nodes
+**Members:** 48 nodes
 
 ## Members
-- [[AdaptiveViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[AnimatedStellarMark()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[BentoCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[CardHeader()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Features()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Hero()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[HowItWorks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_CTA()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Classroom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Promise()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Reshape()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Sky()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Landing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[LiveRoomViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Logo()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Manifesto()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PhoneFrame()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PlannerViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PredictionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[ProductTour()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[ProfileViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[RevisionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SceneLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SceneUI()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SectionEyebrow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[TopBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[TrustMetric()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Guess()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_LevelUp()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Parent()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Question()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Retest()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_SignIn()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Simpler()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Teach()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Voice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[VoiceViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[easeInOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[easeOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[pentPoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[pentPoints()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[reveal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[tourPhase()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[useAmbientMusic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -59,3 +63,15 @@ members: 44
 TABLE source_file, type FROM #community/Community_3
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 7 edges to [[_COMMUNITY_Community 8]]
+- 4 edges to [[_COMMUNITY_Community 6]]
+- 3 edges to [[_COMMUNITY_Community 11]]
+
+## Top bridge nodes
+- [[submitAnswer()]] - degree 14, connects to 2 communities
+- [[sessionSet()]] - degree 8, connects to 2 communities
+- [[sessionGet()]] - degree 7, connects to 2 communities
+- [[sessionDel()]] - degree 6, connects to 2 communities
+- [[resolveDoubt()]] - degree 6, connects to 1 community

@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/SUMMARY.md"
 type: "document"
-community: "Community 8"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_2
 ---
 
 # Auth Feature
@@ -15,4 +15,4 @@ tags:
 - [[Auth Error Context Page Load Sign In Button Not Found]] - `references` [EXTRACTED]
 - [[E2E Bot Summary Report]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_8
+#graphify/document #graphify/EXTRACTED #community/Community_2

@@ -50,8 +50,8 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 1]]
-- 2 edges to [[_COMMUNITY_Community 9]]
+- 4 edges to [[_COMMUNITY_Community 3]]
+- 2 edges to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
 - [[smartAIExplanation()]] - degree 11, connects to 1 community

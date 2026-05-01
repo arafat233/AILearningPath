@@ -1,60 +1,80 @@
 ---
 type: community
-members: 47
+members: 67
 ---
 
 # Community 2
 
-**Members:** 47 nodes
+**Members:** 67 nodes
 
 ## Members
-- [[AI Learning Platform (CBSE Class 10)]] - document - BLUEPRINT.md
-- [[AIResponseCache Collection — Permanent Cross-User Cache]] - document - BLUEPRINT.md
-- [[Admin Routes (apiadmin)]] - document - BLUEPRINT.md
-- [[AppError.js — Operational Error Class]] - document - BLUEPRINT.md
-- [[Architecture Rules (CLAUDE.md)]] - document - CLAUDE.md
-- [[Backend (Express + Node, port 5001)]] - document - BLUEPRINT.md
-- [[Backend Stack (README) Node.js + Express + MongoDB + OpenAI]] - document - ai-learning-backend/backend/README.md
-- [[Badge Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[Claude Haiku 4.5 AI Engine]] - document - BLUEPRINT.md
-- [[Deployment Docker Compose (mongo + redis + api)]] - document - BLUEPRINT.md
-- [[Deployment PM2 Cluster Mode (ecosystem.config.cjs)]] - document - BLUEPRINT.md
-- [[Enforced Folder Structure]] - document - CLAUDE.md
-- [[Jest ESM Test Suite (__tests__)]] - document - BLUEPRINT.md
-- [[MongoDB (20 collections)]] - document - BLUEPRINT.md
-- [[Payment Routes (apiv1payment) — Razorpay]] - document - BLUEPRINT.md
-- [[Rationale 7-Layer AI Cost Minimisation Strategy]] - document - BLUEPRINT.md
-- [[Rationale Redis Session Stores Replace In-Memory for Multi-Instance]] - document - BLUEPRINT.md
-- [[Rationale Subject in AI Cache Key to Prevent Collisions]] - document - BLUEPRINT.md
-- [[Rule Always validate inputs with Joi middleware]] - document - CLAUDE.md
-- [[Rule Never hardcode CORS origins — use process.env.FRONTEND_URL]] - document - CLAUDE.md
-- [[Rule New route groups use apiv1 prefix]] - document - CLAUDE.md
-- [[Rule New routes must have a test in __tests__]] - document - CLAUDE.md
-- [[Rule No business logic in controllers]] - document - CLAUDE.md
-- [[Rule Sessions must not use in-memory object (RedisDB required)]] - document - CLAUDE.md
-- [[Rule Standardised error responses via AppError]] - document - CLAUDE.md
-- [[Rule Update BLUEPRINT.md before every commit]] - document - CLAUDE.md
-- [[Socket.IO Competition Rooms]] - document - BLUEPRINT.md
-- [[Topic Collection (MongoDB schema)]] - document - BLUEPRINT.md
-- [[UserProfile Collection — Analytics Brain]] - document - BLUEPRINT.md
-- [[adaptiveService.js — Smart Question Selection]] - document - BLUEPRINT.md
-- [[adminAuth.js Middleware — Role Guard]] - document - BLUEPRINT.md
-- [[aiRouter.js — 7-Layer Cost Minimisation]] - document - BLUEPRINT.md
-- [[aiService.js — Claude API Calls]] - document - BLUEPRINT.md
-- [[aiTeacherService.js — Contextual Guidance]] - document - BLUEPRINT.md
-- [[analysisService.js — Thinking Behaviour Detector]] - document - BLUEPRINT.md
-- [[auth.js Middleware — JWT Verification]] - document - BLUEPRINT.md
-- [[badgeService.js — Achievement Awards]] - document - BLUEPRINT.md
-- [[errorHandler.js Middleware — Centralised Error Handler]] - document - BLUEPRINT.md
-- [[plannerService.js — Study Plan Generator]] - document - BLUEPRINT.md
-- [[predictionService.js — Exam Score Prediction]] - document - BLUEPRINT.md
-- [[profileService.js — Thinking Profile]] - document - BLUEPRINT.md
-- [[redisClient.js — ioredis Singleton + In-Memory Fallback]] - document - BLUEPRINT.md
-- [[revisionService.js — Spaced Repetition]] - document - BLUEPRINT.md
-- [[scoringService.js — Exam Scoring]] - document - BLUEPRINT.md
-- [[selfLearningService  autoDoubtService  foundationService]] - document - BLUEPRINT.md
-- [[streakService.js — Daily Streaks]] - document - BLUEPRINT.md
-- [[validate.js Middleware — Joi Schema Validation]] - document - BLUEPRINT.md
+- [[Auth Error Context Invalid Credentials Stay on Login]] - document - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/error-context.md
+- [[Auth Error Context Page Load Sign In Button Not Found]] - document - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md
+- [[Auth Feature]] - document - e2e-bot/reports/SUMMARY.md
+- [[E2E Bot Summary Report]] - document - e2e-bot/reports/SUMMARY.md
+- [[Error No topic buttons and no loading indicator - topics failed to load]] - document - e2e-bot/reports/practice.md
+- [[Error Practice h1 shows 'Your personal AI study coach' instead of 'Practice']] - document - e2e-bot/reports/practice.md
+- [[Error TimeoutError page.click exceeded 20000ms]] - document - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/error-context.md
+- [[Error Unexpected token in CSS selector with comma-separated locators]] - document - e2e-bot/reports/profile.md
+- [[Error button type submit not found in DOM]] - document - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md
+- [[Error toBeDisabled() failed - element not found]] - document - e2e-bot/reports/practice.md
+- [[Error toBeVisible() failed - element not found]] - document - e2e-bot/reports/profile.md
+- [[Error toContainText() failed - wrong h1 text]] - document - e2e-bot/reports/practice.md
+- [[Helper helpersauth.js (TEST_EMAIL, TEST_PASSWORD, injectAuth, waitForPage)]] - document - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/error-context.md
+- [[Helper helpersfixtures.js]] - document - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md
+- [[Lessons Feature]] - document - e2e-bot/reports/SUMMARY.md
+- [[Page login]] - document - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md
+- [[Page planner]] - document - e2e-bot/reports/planner.md
+- [[Page practice]] - document - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md
+- [[Page pricing]] - document - e2e-bot/reports/settings.md
+- [[Page profile]] - document - e2e-bot/reports/profile.md
+- [[Page settings]] - document - e2e-bot/reports/settings.md
+- [[Planner E2E Report]] - document - e2e-bot/reports/planner.md
+- [[Planner Feature]] - document - e2e-bot/reports/planner.md
+- [[Practice E2E Report]] - document - e2e-bot/reports/practice.md
+- [[Practice Error Context Start Practice Disabled When No Topic Selected]] - document - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md
+- [[Practice Feature]] - document - e2e-bot/reports/practice.md
+- [[Profile E2E Report]] - document - e2e-bot/reports/profile.md
+- [[Profile Feature]] - document - e2e-bot/reports/profile.md
+- [[Root Issue Auth state not injected - practice page shows landing page instead]] - document - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md
+- [[Root Issue Login Submit button lacks type=submit attribute]] - document - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md
+- [[Settings E2E Report]] - document - e2e-bot/reports/settings.md
+- [[Settings Feature]] - document - e2e-bot/reports/settings.md
+- [[SubscriptionPlan Feature]] - document - e2e-bot/reports/settings.md
+- [[Test Outcome Failed]] - document - e2e-bot/reports/SUMMARY.md
+- [[Test Outcome Passed]] - document - e2e-bot/reports/SUMMARY.md
+- [[Test Spec 01_auth.spec.js]] - document - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/error-context.md
+- [[Test Spec 04_practice.spec.js]] - document - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/error-context.md
+- [[Test Planner Complete button works if tasks are shown]] - document - e2e-bot/reports/planner.md
+- [[Test Planner Startpractice button visible and enabled if plan exists]] - document - e2e-bot/reports/planner.md
+- [[Test Planner page heading is visible]] - document - e2e-bot/reports/planner.md
+- [[Test Planner page loads at planner without crash]] - document - e2e-bot/reports/planner.md
+- [[Test Planner plan content or empty state is shown]] - document - e2e-bot/reports/planner.md
+- [[Test Practice Select Topic section is visible]] - document - e2e-bot/reports/practice.md
+- [[Test Practice Start Practice disabled when no topic selected]] - document - e2e-bot/reports/practice.md
+- [[Test Practice page loads with Practice heading]] - document - e2e-bot/reports/practice.md
+- [[Test Practice selecting a topic enables Start Practice]] - document - e2e-bot/reports/practice.md
+- [[Test Practice topic buttons are visible]] - document - e2e-bot/reports/practice.md
+- [[Test Profile Save button is present and clickable]] - document - e2e-bot/reports/profile.md
+- [[Test Profile Save button submits and stays on profile]] - document - e2e-bot/reports/profile.md
+- [[Test Profile avataruser name is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Profile input fields are visible and editable]] - document - e2e-bot/reports/profile.md
+- [[Test Profile page heading is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Profile page loads at profile without crash]] - document - e2e-bot/reports/profile.md
+- [[Test Profile plan badge or subscription info is visible]] - document - e2e-bot/reports/profile.md
+- [[Test Settings Exam Date input is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Full Name input is visible and editable]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Grade select dropdown has options]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Save changes button is visible and enabled]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Save changes shows success message]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Study Goal select has 4 goal options]] - document - e2e-bot/reports/settings.md
+- [[Test Settings Subscriptionplan info is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings UpgradeManage button navigates to pricing]] - document - e2e-bot/reports/settings.md
+- [[Test Settings heading is visible]] - document - e2e-bot/reports/settings.md
+- [[Test Settings page loads at settings without crash]] - document - e2e-bot/reports/settings.md
+- [[UI Element Sign In Button (button type=submit)]] - document - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md
+- [[UI Element Start Practice Button]] - document - e2e-bot/reports/practice.md
+- [[UI Element Topic Selector Grid]] - document - e2e-bot/reports/practice.md
 
 ## Live Query (requires Dataview plugin)
 
@@ -62,12 +82,3 @@ members: 47
 TABLE source_file, type FROM #community/Community_2
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 5]]
-
-## Top bridge nodes
-- [[Backend (Express + Node, port 5001)]] - degree 25, connects to 1 community
-- [[AI Learning Platform (CBSE Class 10)]] - degree 7, connects to 1 community
-- [[badgeService.js — Achievement Awards]] - degree 3, connects to 1 community
-- [[Rule New route groups use apiv1 prefix]] - degree 3, connects to 1 community

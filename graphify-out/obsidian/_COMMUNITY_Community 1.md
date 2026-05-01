@@ -1,76 +1,82 @@
 ---
 type: community
-members: 63
+members: 69
 ---
 
 # Community 1
 
-**Members:** 63 nodes
+**Members:** 69 nodes
 
 ## Members
-- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
-- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[adminCreateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminCreateTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminDeleteQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminDeleteTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetFlagged()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminUnflagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminUpdateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminUpdateRole()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminUpdateTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[api.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[askTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[clearDoubtThread()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[createOrder()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[evaluateExplanation()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[flagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[forgotPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[generateInvite()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getAIAdvice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getAICacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getAIUsage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getBadges()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getCurriculumChapter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getCurriculumSubjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getDoubtThread()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getErrorMemory()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getHint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getLastDayRevision()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getLeaderboard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getLesson()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getLinkedStudents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getNcertChapter()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getNcertTopicContent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPlans()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPrediction()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getReport()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getRevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getRoomQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getStudentAnalytics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getSubscription()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getTopicsMeta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getWeeklyLeaderboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[linkStudent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[listCurriculumChapters()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[listExams()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[listLessons()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[listNcertChapters()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[logoutApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[markDayComplete()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[markRevised()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[resetPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[saveProgress()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[sendDoubtMessage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[startExam()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[startMixedPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[startTopic()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[submitAnswer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[submitExam()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[updateMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[verifyPayment()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[voiceAnswer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -78,14 +84,3 @@ members: 63
 TABLE source_file, type FROM #community/Community_1
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 7 edges to [[_COMMUNITY_Community 9]]
-- 4 edges to [[_COMMUNITY_Community 6]]
-
-## Top bridge nodes
-- [[submitAnswer()]] - degree 14, connects to 2 communities
-- [[sessionSet()]] - degree 8, connects to 1 community
-- [[sessionGet()]] - degree 7, connects to 1 community
-- [[resolveDoubt()]] - degree 6, connects to 1 community
-- [[sessionDel()]] - degree 6, connects to 1 community

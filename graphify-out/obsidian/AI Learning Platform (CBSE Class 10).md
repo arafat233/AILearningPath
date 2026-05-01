@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 2"
+community: "Community 4"
 location: "section 1"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_4
 ---
 
 # AI Learning Platform (CBSE Class 10)
@@ -20,4 +20,4 @@ tags:
 - [[Rule Update BLUEPRINT.md before every commit]] - `references` [INFERRED]
 - [[Socket.IO Competition Rooms]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_4

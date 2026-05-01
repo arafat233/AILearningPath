@@ -57,6 +57,7 @@ import AdminCacheStats  from "./pages/admin/AdminCacheStats";
 import Landing          from "./pages/Landing";
 import CompanyLogin     from "./pages/CompanyLogin";
 import CompanyDashboard from "./pages/CompanyDashboard";
+import PYQBank          from "./pages/PYQBank";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -147,6 +148,7 @@ export default function App() {
             <Route path="competition"             element={<Competition />} />
             <Route path="live"                    element={<LiveRoom />} />
             <Route path="planner"                 element={<Planner />} />
+            <Route path="pyq"                     element={<PYQBank />} />
             <Route path="voice-tutor"             element={<VoiceTutor />} />
             <Route path="profile"                 element={<Profile />} />
             <Route path="settings"                element={<Settings />} />

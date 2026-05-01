@@ -21,12 +21,18 @@ const questionSchema = Joi.object({
   questionText:    Joi.string().required(),
   topic:           Joi.string().required(),
   subject:         Joi.string().optional(),
+  grade:           Joi.string().optional(),
+  examBoard:       Joi.string().optional(),
   options:         Joi.array().required(),
   solutionSteps:   Joi.array().optional(),
   shortcut:        Joi.string().optional().allow(""),
   difficultyScore: Joi.number().min(0).max(1).optional(),
   expectedTime:    Joi.number().positive().optional(),
   marks:           Joi.number().min(0).optional(),
+  isPYQ:           Joi.boolean().optional(),
+  pyqYear:         Joi.number().integer().min(2000).max(2030).optional(),
+  questionType:    Joi.string().valid("mcq","case_based","assertion_reason","pyq").optional(),
+  difficulty:      Joi.string().valid("easy","medium","hard").optional(),
 });
 
 const topicSchema = Joi.object({

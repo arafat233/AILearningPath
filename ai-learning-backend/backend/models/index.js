@@ -55,6 +55,9 @@ export const Topic = mongoose.model("Topic", topicSchema);
 const questionSchema = new mongoose.Schema({
   topic:         { type: String, required: true },
   subtopic:      String,
+  subject:       { type: String, default: "Mathematics" },
+  grade:         { type: String, default: "10" },
+  examBoard:     { type: String, default: "CBSE" },
   questionText:  { type: String, required: true },
   questionType:  { type: String, enum: ["mcq", "case_based", "assertion_reason", "pyq"], default: "mcq" },
   difficulty:    { type: String, enum: ["easy", "medium", "hard"], default: "medium" },

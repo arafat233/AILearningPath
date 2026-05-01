@@ -99,6 +99,11 @@ export const listNcertChapters    = ()           => api.get("/v1/ncert/chapters"
 export const getNcertChapter      = (chapterId)  => api.get(`/v1/ncert/chapters/${chapterId}`);
 export const getNcertTopicContent = (topicId)    => api.get(`/v1/ncert/topics/${topicId}`);
 
+export const getPYQTopics    = (params)  => api.get("/v1/pyq/topics", { params });
+export const getPYQYears     = (params)  => api.get("/v1/pyq/years",  { params });
+export const getPYQs         = (params)  => api.get("/v1/pyq",        { params });
+export const getPYQById      = (id)      => api.get(`/v1/pyq/${id}`);
+
 export const getPlans        = ()        => api.get("/v1/payment/plans");
 export const getSubscription = ()        => api.get("/v1/payment/subscription");
 export const createOrder     = (planKey) => api.post("/v1/payment/create-order", { planKey });

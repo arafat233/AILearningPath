@@ -36,6 +36,7 @@ const NAV = [
   { to: "/live",        label: "Live Room",    icon: "live"                  },
   { to: "/planner",     label: "Study Planner",icon: "planner"               },
   { to: "/pyq",         label: "PYQ Bank",     icon: "pyq"                   },
+  { to: "/parent",      label: "Parent View",  icon: "parent"                },
   { to: "/voice-tutor", label: "Voice Tutor",  icon: "voiceTutor"            },
   { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];

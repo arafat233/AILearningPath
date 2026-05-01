@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { getLinkedStudents, getStudentDashboard, linkStudent } from "../services/api";
-import { useAuthStore } from "../store/authStore";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const daysSince = (iso) => {
@@ -269,9 +268,6 @@ function StudentView({ data }) {
 
 // ── page root ──────────────────────────────────────────────────────────────
 export default function ParentDashboard() {
-  const user = useAuthStore((s) => s.user);
-  const isParent = user?.role === "parent" || user?.role === "teacher" || user?.role === "admin";
-
   const [students,     setStudents]     = useState([]);
   const [selectedId,   setSelectedId]   = useState(null);
   const [dashboard,    setDashboard]    = useState(null);
@@ -281,9 +277,8 @@ export default function ParentDashboard() {
   const [linkLoading,  setLinkLoading]  = useState(false);
   const [linkMsg,      setLinkMsg]      = useState("");
 
-  // load linked students
+  // load linked students — any logged-in user can be a parent/guardian
   useEffect(() => {
-    if (!isParent) { setLoading(false); return; }
     getLinkedStudents()
       .then(({ data }) => {
         setStudents(data);
@@ -291,7 +286,7 @@ export default function ParentDashboard() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [isParent]);
+  }, []);
 
   // load dashboard when selection changes
   const loadDashboard = useCallback((id) => {
@@ -321,25 +316,6 @@ export default function ParentDashboard() {
       setLinkMsg(err.response?.data?.error || "Invalid invite code.");
     } finally { setLinkLoading(false); }
   };
-
-  // not a parent/teacher
-  if (!isParent) {
-    return (
-      <div className="max-w-lg space-y-4">
-        <div>
-          <h1 className="text-[22px] font-bold text-[var(--label)]">Parent Dashboard</h1>
-          <p className="text-[13px] text-apple-gray mt-1">
-            This page is for parents and teachers. Your account role is <strong>{user?.role}</strong>.
-          </p>
-        </div>
-        <div className="card p-5 text-center">
-          <p className="text-[13px] text-apple-gray">
-            Ask your student to go to the <strong>Portal</strong> page and generate an invite code.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

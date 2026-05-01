@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 51
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
-- [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[Pricing()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
 
 ## Live Query (requires Dataview plugin)
 

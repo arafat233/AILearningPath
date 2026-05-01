@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js"
 type: "code"
-community: "Community 11"
+community: "Community 2"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_2
 ---
 
 # currentWeekStr()
@@ -15,4 +15,4 @@ tags:
 - [[examController.js]] - `contains` [EXTRACTED]
 - [[submitExam()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_2

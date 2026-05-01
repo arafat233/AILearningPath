@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx"
 type: "code"
-community: "Community 28"
+community: "Community 34"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_28
+  - community/Community_34
 ---
 
 # BadgeToast.jsx
@@ -16,4 +16,4 @@ tags:
 - [[defaultIcon()]] - `contains` [EXTRACTED]
 - [[labelFor()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_28
+#graphify/code #graphify/EXTRACTED #community/Community_34

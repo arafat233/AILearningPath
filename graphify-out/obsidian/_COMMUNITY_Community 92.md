@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ncertTopicContentModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\ncertTopicContentModel.js
+- [[seedPYQ.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPYQ.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,17 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx"
 type: "code"
-community: "Community 45"
-location: "L148"
+community: "Community 36"
+location: "L239"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_45
+  - community/Community_36
 ---
 
 # StatCard()
 
 ## Connections
-- [[ExamReview.jsx]] - `contains` [EXTRACTED]
+- [[Dashboard.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_45
+#graphify/code #graphify/EXTRACTED #community/Community_36

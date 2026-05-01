@@ -3,6 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
+const SUBJECTS = [
+  { id: "Math",          label: "Maths",   color: "#007AFF" },
+  { id: "Science",       label: "Science", color: "#34C759" },
+  { id: "English",       label: "English", color: "#FF9500" },
+  { id: "Social Science",label: "Social",  color: "#AF52DE" },
+  { id: "Hindi",         label: "Hindi",   color: "#FF3B30" },
+];
+
+const SCIENCE_SUBS = {
+  Physics:   ["Light — Reflection and Refraction","Human Eye and Colourful World","Electricity","Magnetic Effects of Electric Current","Sources of Energy"],
+  Chemistry: ["Chemical Reactions and Equations","Acids, Bases and Salts","Metals and Non-metals","Carbon and Its Compounds","Periodic Classification of Elements"],
+  Biology:   ["Life Processes","Control and Coordination","How Do Organisms Reproduce","Heredity and Evolution","Our Environment","Sustainable Management of Natural Resources"],
+};
+
 const PROFILE_STYLE = {
   "Deep Thinker":       { bg: "bg-apple-green/10",  text: "text-apple-green",  dot: "bg-apple-green"  },
   "Pattern Recognizer": { bg: "bg-apple-blue/10",   text: "text-apple-blue",   dot: "bg-apple-blue"   },
@@ -18,22 +32,34 @@ export default function Dashboard() {
   const [advice, setAdvice]         = useState(null);
   const [topics, setTopics]         = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [topicsLoading, setTopicsLoading] = useState(false);
   const [error, setError]           = useState("");
   const [aiUsage, setAiUsage]       = useState(null);
   const [cacheStats, setCacheStats] = useState(null);
+  const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
+  const [scienceSub,    setScienceSub]    = useState(null);
 
+  // initial load — report + advice + ai stats
   useEffect(() => {
-    Promise.all([getReport(), getAIAdvice(), getAIUsage(), getAICacheStats(), getTopics()])
-      .then(([r, a, u, cs, t]) => {
+    Promise.all([getReport(), getAIAdvice(), getAIUsage(), getAICacheStats()])
+      .then(([r, a, u, cs]) => {
         setReport(r.data);
         setAdvice(a.data?.advice || a.data);
         setAiUsage(u.data);
         setCacheStats(cs.data);
-        setTopics(t.data);
       })
       .catch(() => setError("Could not connect to backend. Is it running?"))
       .finally(() => setLoading(false));
   }, []);
+
+  // reload topics when subject tab changes
+  useEffect(() => {
+    setTopicsLoading(true);
+    getTopics({ subject: activeSubject, grade: user?.grade || "10" })
+      .then((r) => setTopics(r.data))
+      .catch(() => setTopics([]))
+      .finally(() => setTopicsLoading(false));
+  }, [activeSubject, user?.grade]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -171,29 +197,81 @@ export default function Dashboard() {
           <p className="section-label mb-0">Topics</p>
           <span className="text-[12px] text-apple-gray">{topics.length} available</span>
         </div>
-        {topics.length === 0 ? (
+
+        {/* Subject tabs */}
+        <div className="flex gap-1.5 flex-wrap mb-3">
+          {SUBJECTS.map(({ id, label, color }) => (
+            <button
+              key={id}
+              onClick={() => { setActiveSubject(id); setScienceSub(null); }}
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
+              style={
+                activeSubject === id
+                  ? { background: color, color: "#fff" }
+                  : { background: color + "14", color }
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Science sub-subject tabs */}
+        {activeSubject === "Science" && (
+          <div className="flex gap-1.5 mb-3">
+            {["All", "Physics", "Chemistry", "Biology"].map((s) => (
+              <button
+                key={s}
+                onClick={() => setScienceSub(s === "All" ? null : s)}
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
+                  (s === "All" && !scienceSub) || scienceSub === s
+                    ? "bg-[#34C759] text-white border-[#34C759]"
+                    : "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20 hover:border-[#34C759]/50"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {topicsLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <div
+              className="w-6 h-6 border-2 border-apple-gray5 rounded-full animate-spin"
+              style={{ borderTopColor: SUBJECTS.find((s) => s.id === activeSubject)?.color || "#007AFF" }}
+            />
+          </div>
+        ) : topics.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-[13px] text-apple-gray">
-              No topics found. Run{" "}
+              No topics found for {activeSubject}. Run{" "}
               <code className="bg-apple-gray6 px-1.5 py-0.5 rounded font-mono text-apple-gray">npm run seed</code>{" "}
               in the backend.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-            {topics.map((t) => {
+            {(activeSubject === "Science" && scienceSub
+              ? topics.filter((t) => SCIENCE_SUBS[scienceSub]?.includes(t.name))
+              : topics
+            ).map((t) => {
               const isWeak   = report?.weakAreas?.includes(t.name);
               const isStrong = report?.strongAreas?.includes(t.name);
+              const subjectColor = SUBJECTS.find((s) => s.id === activeSubject)?.color || "#007AFF";
               return (
                 <button
                   key={t._id}
                   onClick={() => navigate("/practice", { state: { topic: t.name }, replace: false })}
                   className="group flex items-start justify-between p-4 rounded-apple-lg bg-apple-gray6
-                             hover:bg-apple-blue/8 border border-transparent hover:border-apple-blue/20
+                             border border-transparent
                              transition-[background-color,border-color,transform] duration-150 active:scale-[0.97] text-left"
+                  style={{ "--hover-bg": subjectColor + "14", "--hover-border": subjectColor + "33" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = subjectColor + "14"; e.currentTarget.style.borderColor = subjectColor + "33"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.borderColor = "transparent"; }}
                 >
                   <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-[var(--label)] group-hover:text-apple-blue truncate">
+                    <p className="text-[13px] font-semibold text-[var(--label)] truncate">
                       {t.name}
                     </p>
                     <p className="text-[11px] text-apple-gray mt-0.5">{t.subject} · Grade {t.grade}</p>

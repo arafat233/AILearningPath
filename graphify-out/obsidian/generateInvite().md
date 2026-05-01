@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js"
 type: "code"
-community: "Community 15"
+community: "Community 18"
 location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_15
+  - community/Community_18
 ---
 
 # generateInvite()
@@ -15,4 +15,4 @@ tags:
 - [[generateUniqueCode()]] - `calls` [EXTRACTED]
 - [[portalController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_15
+#graphify/code #graphify/EXTRACTED #community/Community_18

@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[03_lessons.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\03_lessons.spec.js
+- [[authStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\authStore.js
 
 ## Live Query (requires Dataview plugin)
 

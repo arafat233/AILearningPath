@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[createOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getSubscription()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[paymentController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[verifyPayment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 
 ## Live Query (requires Dataview plugin)
 

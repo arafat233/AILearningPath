@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[ClerkCallback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[ClerkCallback.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[authedRedirectTarget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[getStoredRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[normalizeRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
 
 ## Live Query (requires Dataview plugin)
 

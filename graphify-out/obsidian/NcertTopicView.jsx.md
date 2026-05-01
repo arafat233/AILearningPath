@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx"
 type: "code"
-community: "Community 14"
+community: "Community 20"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_14
+  - community/Community_20
 ---
 
 # NcertTopicView.jsx
@@ -17,7 +17,7 @@ tags:
 - [[DiagramCard()]] - `contains` [EXTRACTED]
 - [[MisconceptionCard()]] - `contains` [EXTRACTED]
 - [[NcertTopicView()]] - `contains` [EXTRACTED]
-- [[Section()]] - `contains` [EXTRACTED]
+- [[Section()_1]] - `contains` [EXTRACTED]
 - [[WorkedExample()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_14
+#graphify/code #graphify/EXTRACTED #community/Community_20

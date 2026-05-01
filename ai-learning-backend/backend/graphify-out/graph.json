@@ -9,7 +9,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\server.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_server_js",
-      "community": 43,
+      "community": 45,
       "norm_label": "server.js"
     },
     {
@@ -18,7 +18,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\importNcert.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_importncert_js",
-      "community": 10,
+      "community": 13,
       "norm_label": "importncert.js"
     },
     {
@@ -27,7 +27,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\importNcert.js",
       "source_location": "L24",
       "id": "importncert_importchapters",
-      "community": 10,
+      "community": 13,
       "norm_label": "importchapters()"
     },
     {
@@ -36,7 +36,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\importNcert.js",
       "source_location": "L56",
       "id": "importncert_upserttopic",
-      "community": 10,
+      "community": 13,
       "norm_label": "upserttopic()"
     },
     {
@@ -45,7 +45,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\importNcert.js",
       "source_location": "L72",
       "id": "importncert_importtopiccontent",
-      "community": 10,
+      "community": 13,
       "norm_label": "importtopiccontent()"
     },
     {
@@ -54,7 +54,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\importNcert.js",
       "source_location": "L104",
       "id": "importncert_main",
-      "community": 10,
+      "community": 13,
       "norm_label": "main()"
     },
     {
@@ -63,7 +63,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seed.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seed_js",
-      "community": 44,
+      "community": 46,
       "norm_label": "seed.js"
     },
     {
@@ -72,7 +72,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedEnglishCurriculum.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedenglishcurriculum_js",
-      "community": 29,
+      "community": 30,
       "norm_label": "seedenglishcurriculum.js"
     },
     {
@@ -81,7 +81,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedEnglishCurriculum.js",
       "source_location": "L1048",
       "id": "seedenglishcurriculum_seed",
-      "community": 29,
+      "community": 30,
       "norm_label": "seed()"
     },
     {
@@ -90,7 +90,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedHindiCurriculum.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedhindicurriculum_js",
-      "community": 30,
+      "community": 31,
       "norm_label": "seedhindicurriculum.js"
     },
     {
@@ -99,7 +99,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedHindiCurriculum.js",
       "source_location": "L1195",
       "id": "seedhindicurriculum_seed",
-      "community": 30,
+      "community": 31,
       "norm_label": "seed()"
     },
     {
@@ -108,7 +108,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedLessons.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedlessons_js",
-      "community": 45,
+      "community": 47,
       "norm_label": "seedlessons.js"
     },
     {
@@ -117,7 +117,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedMathCurriculum.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedmathcurriculum_js",
-      "community": 31,
+      "community": 32,
       "norm_label": "seedmathcurriculum.js"
     },
     {
@@ -126,8 +126,17 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedMathCurriculum.js",
       "source_location": "L1014",
       "id": "seedmathcurriculum_seedcurriculum",
-      "community": 31,
+      "community": 32,
       "norm_label": "seedcurriculum()"
+    },
+    {
+      "label": "seedPYQ.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedPYQ.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_config_seedpyq_js",
+      "community": 48,
+      "norm_label": "seedpyq.js"
     },
     {
       "label": "seedScienceCurriculum.js",
@@ -135,7 +144,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedScienceCurriculum.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedsciencecurriculum_js",
-      "community": 32,
+      "community": 33,
       "norm_label": "seedsciencecurriculum.js"
     },
     {
@@ -144,7 +153,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedScienceCurriculum.js",
       "source_location": "L1049",
       "id": "seedsciencecurriculum_seed",
-      "community": 32,
+      "community": 33,
       "norm_label": "seed()"
     },
     {
@@ -153,7 +162,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedSocialScienceCurriculum.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedsocialsciencecurriculum_js",
-      "community": 33,
+      "community": 34,
       "norm_label": "seedsocialsciencecurriculum.js"
     },
     {
@@ -162,7 +171,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedSocialScienceCurriculum.js",
       "source_location": "L1382",
       "id": "seedsocialsciencecurriculum_seed",
-      "community": 33,
+      "community": 34,
       "norm_label": "seed()"
     },
     {
@@ -171,7 +180,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedSubjects.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_config_seedsubjects_js",
-      "community": 34,
+      "community": 35,
       "norm_label": "seedsubjects.js"
     },
     {
@@ -180,7 +189,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\config\\seedSubjects.js",
       "source_location": "L87",
       "id": "seedsubjects_seed",
-      "community": 34,
+      "community": 35,
       "norm_label": "seed()"
     },
     {
@@ -234,7 +243,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\analysisController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_analysiscontroller_js",
-      "community": 9,
+      "community": 5,
       "norm_label": "analysiscontroller.js"
     },
     {
@@ -243,7 +252,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\analysisController.js",
       "source_location": "L5",
       "id": "analysiscontroller_getreport",
-      "community": 9,
+      "community": 5,
       "norm_label": "getreport()"
     },
     {
@@ -252,7 +261,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\analysisController.js",
       "source_location": "L39",
       "id": "analysiscontroller_buildaccuracyhistory",
-      "community": 9,
+      "community": 5,
       "norm_label": "buildaccuracyhistory()"
     },
     {
@@ -261,7 +270,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\analysisController.js",
       "source_location": "L53",
       "id": "analysiscontroller_buildweaknessmap",
-      "community": 9,
+      "community": 5,
       "norm_label": "buildweaknessmap()"
     },
     {
@@ -270,7 +279,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_authcontroller_js",
-      "community": 2,
+      "community": 4,
       "norm_label": "authcontroller.js"
     },
     {
@@ -279,7 +288,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L14",
       "id": "authcontroller_isprod",
-      "community": 2,
+      "community": 4,
       "norm_label": "isprod()"
     },
     {
@@ -288,7 +297,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L33",
       "id": "authcontroller_makerefreshtoken",
-      "community": 2,
+      "community": 4,
       "norm_label": "makerefreshtoken()"
     },
     {
@@ -297,7 +306,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L39",
       "id": "authcontroller_issuetokens",
-      "community": 2,
+      "community": 4,
       "norm_label": "issuetokens()"
     },
     {
@@ -306,7 +315,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L57",
       "id": "authcontroller_signtoken",
-      "community": 2,
+      "community": 4,
       "norm_label": "signtoken()"
     },
     {
@@ -315,7 +324,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L65",
       "id": "authcontroller_safeuser",
-      "community": 2,
+      "community": 4,
       "norm_label": "safeuser()"
     },
     {
@@ -324,7 +333,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L69",
       "id": "authcontroller_eschtml",
-      "community": 2,
+      "community": 4,
       "norm_label": "eschtml()"
     },
     {
@@ -333,7 +342,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L77",
       "id": "authcontroller_queuewelcomeemail",
-      "community": 2,
+      "community": 4,
       "norm_label": "queuewelcomeemail()"
     },
     {
@@ -342,7 +351,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L104",
       "id": "authcontroller_register",
-      "community": 2,
+      "community": 4,
       "norm_label": "register()"
     },
     {
@@ -351,7 +360,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L126",
       "id": "authcontroller_login",
-      "community": 2,
+      "community": 4,
       "norm_label": "login()"
     },
     {
@@ -360,7 +369,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L160",
       "id": "authcontroller_refresh",
-      "community": 2,
+      "community": 4,
       "norm_label": "refresh()"
     },
     {
@@ -369,7 +378,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L182",
       "id": "authcontroller_logout",
-      "community": 2,
+      "community": 4,
       "norm_label": "logout()"
     },
     {
@@ -378,7 +387,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L205",
       "id": "authcontroller_forgotpassword",
-      "community": 2,
+      "community": 4,
       "norm_label": "forgotpassword()"
     },
     {
@@ -387,7 +396,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L252",
       "id": "authcontroller_resetpassword",
-      "community": 2,
+      "community": 5,
       "norm_label": "resetpassword()"
     },
     {
@@ -396,7 +405,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L284",
       "id": "authcontroller_initpassport",
-      "community": 2,
+      "community": 4,
       "norm_label": "initpassport()"
     },
     {
@@ -405,8 +414,44 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\authController.js",
       "source_location": "L359",
       "id": "authcontroller_clerkauth",
-      "community": 2,
+      "community": 4,
       "norm_label": "clerkauth()"
+    },
+    {
+      "label": "companyController.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "community": 11,
+      "norm_label": "companycontroller.js"
+    },
+    {
+      "label": "timingSafe()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L6",
+      "id": "companycontroller_timingsafe",
+      "community": 11,
+      "norm_label": "timingsafe()"
+    },
+    {
+      "label": "companyLogin()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L14",
+      "id": "companycontroller_companylogin",
+      "community": 11,
+      "norm_label": "companylogin()"
+    },
+    {
+      "label": "getStats()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L43",
+      "id": "companycontroller_getstats",
+      "community": 11,
+      "norm_label": "getstats()"
     },
     {
       "label": "curriculumController.js",
@@ -414,7 +459,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\curriculumController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_curriculumcontroller_js",
-      "community": 16,
+      "community": 18,
       "norm_label": "curriculumcontroller.js"
     },
     {
@@ -423,7 +468,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\curriculumController.js",
       "source_location": "L5",
       "id": "curriculumcontroller_listchapters",
-      "community": 16,
+      "community": 18,
       "norm_label": "listchapters()"
     },
     {
@@ -432,7 +477,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\curriculumController.js",
       "source_location": "L19",
       "id": "curriculumcontroller_getchapter",
-      "community": 16,
+      "community": 18,
       "norm_label": "getchapter()"
     },
     {
@@ -441,7 +486,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\curriculumController.js",
       "source_location": "L34",
       "id": "curriculumcontroller_listsubjects",
-      "community": 16,
+      "community": 18,
       "norm_label": "listsubjects()"
     },
     {
@@ -450,7 +495,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_examcontroller_js",
-      "community": 5,
+      "community": 6,
       "norm_label": "examcontroller.js"
     },
     {
@@ -459,7 +504,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L7",
       "id": "examcontroller_examkey",
-      "community": 5,
+      "community": 6,
       "norm_label": "examkey()"
     },
     {
@@ -468,7 +513,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L9",
       "id": "examcontroller_currentweekstr",
-      "community": 5,
+      "community": 6,
       "norm_label": "currentweekstr()"
     },
     {
@@ -477,7 +522,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L16",
       "id": "examcontroller_listexams",
-      "community": 5,
+      "community": 6,
       "norm_label": "listexams()"
     },
     {
@@ -486,7 +531,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L23",
       "id": "examcontroller_startexam",
-      "community": 5,
+      "community": 6,
       "norm_label": "startexam()"
     },
     {
@@ -495,7 +540,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L57",
       "id": "examcontroller_submitexam",
-      "community": 5,
+      "community": 6,
       "norm_label": "submitexam()"
     },
     {
@@ -504,7 +549,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L138",
       "id": "examcontroller_getexamreview",
-      "community": 5,
+      "community": 6,
       "norm_label": "getexamreview()"
     },
     {
@@ -513,7 +558,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\examController.js",
       "source_location": "L148",
       "id": "examcontroller_getleaderboard",
-      "community": 5,
+      "community": 6,
       "norm_label": "getleaderboard()"
     },
     {
@@ -522,7 +567,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\lessonController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_lessoncontroller_js",
-      "community": 6,
+      "community": 8,
       "norm_label": "lessoncontroller.js"
     },
     {
@@ -531,7 +576,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\lessonController.js",
       "source_location": "L6",
       "id": "lessoncontroller_getlesson",
-      "community": 6,
+      "community": 8,
       "norm_label": "getlesson()"
     },
     {
@@ -540,7 +585,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\lessonController.js",
       "source_location": "L40",
       "id": "lessoncontroller_listlessons",
-      "community": 6,
+      "community": 8,
       "norm_label": "listlessons()"
     },
     {
@@ -549,7 +594,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\lessonController.js",
       "source_location": "L49",
       "id": "lessoncontroller_saveprogress",
-      "community": 6,
+      "community": 8,
       "norm_label": "saveprogress()"
     },
     {
@@ -558,7 +603,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\ncertController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_ncertcontroller_js",
-      "community": 17,
+      "community": 19,
       "norm_label": "ncertcontroller.js"
     },
     {
@@ -567,7 +612,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\ncertController.js",
       "source_location": "L6",
       "id": "ncertcontroller_listncertchapters",
-      "community": 17,
+      "community": 19,
       "norm_label": "listncertchapters()"
     },
     {
@@ -576,7 +621,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\ncertController.js",
       "source_location": "L20",
       "id": "ncertcontroller_getncertchapter",
-      "community": 17,
+      "community": 19,
       "norm_label": "getncertchapter()"
     },
     {
@@ -585,7 +630,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\ncertController.js",
       "source_location": "L32",
       "id": "ncertcontroller_getncerttopiccontent",
-      "community": 17,
+      "community": 19,
       "norm_label": "getncerttopiccontent()"
     },
     {
@@ -594,7 +639,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\paymentController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_paymentcontroller_js",
-      "community": 11,
+      "community": 14,
       "norm_label": "paymentcontroller.js"
     },
     {
@@ -603,7 +648,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\paymentController.js",
       "source_location": "L3",
       "id": "paymentcontroller_getplans",
-      "community": 11,
+      "community": 14,
       "norm_label": "getplans()"
     },
     {
@@ -612,7 +657,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\paymentController.js",
       "source_location": "L7",
       "id": "paymentcontroller_getsubscription",
-      "community": 11,
+      "community": 14,
       "norm_label": "getsubscription()"
     },
     {
@@ -621,7 +666,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\paymentController.js",
       "source_location": "L16",
       "id": "paymentcontroller_createorder",
-      "community": 11,
+      "community": 14,
       "norm_label": "createorder()"
     },
     {
@@ -630,7 +675,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\paymentController.js",
       "source_location": "L26",
       "id": "paymentcontroller_verifypayment",
-      "community": 11,
+      "community": 14,
       "norm_label": "verifypayment()"
     },
     {
@@ -639,26 +684,35 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
-      "community": 12,
+      "community": 10,
       "norm_label": "plannercontroller.js"
     },
     {
       "label": "getPlan()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "id": "plannercontroller_getplan",
-      "community": 12,
+      "community": 10,
       "norm_label": "getplan()"
     },
     {
       "label": "markDayComplete()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
-      "source_location": "L17",
+      "source_location": "L37",
       "id": "plannercontroller_markdaycomplete",
-      "community": 12,
+      "community": 10,
       "norm_label": "markdaycomplete()"
+    },
+    {
+      "label": "saveTopicOrder()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
+      "source_location": "L58",
+      "id": "plannercontroller_savetopicorder",
+      "community": 10,
+      "norm_label": "savetopicorder()"
     },
     {
       "label": "portalController.js",
@@ -670,58 +724,67 @@
       "norm_label": "portalcontroller.js"
     },
     {
-      "label": "generateUniqueCode()",
-      "file_type": "code",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L7",
-      "id": "portalcontroller_generateuniquecode",
-      "community": 7,
-      "norm_label": "generateuniquecode()"
-    },
-    {
-      "label": "generateInvite()",
-      "file_type": "code",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L16",
-      "id": "portalcontroller_generateinvite",
-      "community": 7,
-      "norm_label": "generateinvite()"
-    },
-    {
-      "label": "linkStudent()",
-      "file_type": "code",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L24",
-      "id": "portalcontroller_linkstudent",
-      "community": 7,
-      "norm_label": "linkstudent()"
-    },
-    {
-      "label": "getLinkedStudents()",
-      "file_type": "code",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L39",
-      "id": "portalcontroller_getlinkedstudents",
-      "community": 7,
-      "norm_label": "getlinkedstudents()"
-    },
-    {
       "label": "verifyOwnership()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L51",
+      "source_location": "L7",
       "id": "portalcontroller_verifyownership",
       "community": 7,
       "norm_label": "verifyownership()"
     },
     {
+      "label": "searchStudents()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L13",
+      "id": "portalcontroller_searchstudents",
+      "community": 7,
+      "norm_label": "searchstudents()"
+    },
+    {
+      "label": "linkStudentDirect()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L32",
+      "id": "portalcontroller_linkstudentdirect",
+      "community": 7,
+      "norm_label": "linkstudentdirect()"
+    },
+    {
+      "label": "removeLinkedStudent()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L50",
+      "id": "portalcontroller_removelinkedstudent",
+      "community": 7,
+      "norm_label": "removelinkedstudent()"
+    },
+    {
+      "label": "getLinkedStudents()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L60",
+      "id": "portalcontroller_getlinkedstudents",
+      "community": 7,
+      "norm_label": "getlinkedstudents()"
+    },
+    {
       "label": "getStudentAnalytics()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L56",
+      "source_location": "L72",
       "id": "portalcontroller_getstudentanalytics",
       "community": 7,
       "norm_label": "getstudentanalytics()"
+    },
+    {
+      "label": "getStudentDashboardCtrl()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L89",
+      "id": "portalcontroller_getstudentdashboardctrl",
+      "community": 7,
+      "norm_label": "getstudentdashboardctrl()"
     },
     {
       "label": "practiceController.js",
@@ -769,12 +832,57 @@
       "norm_label": "getteachermessage()"
     },
     {
+      "label": "pyqController.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "community": 9,
+      "norm_label": "pyqcontroller.js"
+    },
+    {
+      "label": "listTopics()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L3",
+      "id": "pyqcontroller_listtopics",
+      "community": 9,
+      "norm_label": "listtopics()"
+    },
+    {
+      "label": "listYears()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L13",
+      "id": "pyqcontroller_listyears",
+      "community": 9,
+      "norm_label": "listyears()"
+    },
+    {
+      "label": "listQuestions()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L23",
+      "id": "pyqcontroller_listquestions",
+      "community": 9,
+      "norm_label": "listquestions()"
+    },
+    {
+      "label": "getQuestion()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L33",
+      "id": "pyqcontroller_getquestion",
+      "community": 9,
+      "norm_label": "getquestion()"
+    },
+    {
       "label": "adminQuestionController.js",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_admin_adminquestioncontroller_js",
-      "community": 8,
+      "community": 12,
       "norm_label": "adminquestioncontroller.js"
     },
     {
@@ -783,7 +891,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L4",
       "id": "adminquestioncontroller_listquestions",
-      "community": 8,
+      "community": 12,
       "norm_label": "listquestions()"
     },
     {
@@ -792,7 +900,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L19",
       "id": "adminquestioncontroller_getflaggedquestions",
-      "community": 8,
+      "community": 12,
       "norm_label": "getflaggedquestions()"
     },
     {
@@ -801,7 +909,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L26",
       "id": "adminquestioncontroller_createquestion",
-      "community": 8,
+      "community": 12,
       "norm_label": "createquestion()"
     },
     {
@@ -810,7 +918,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L33",
       "id": "adminquestioncontroller_updatequestion",
-      "community": 8,
+      "community": 12,
       "norm_label": "updatequestion()"
     },
     {
@@ -819,7 +927,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L41",
       "id": "adminquestioncontroller_deletequestion",
-      "community": 8,
+      "community": 12,
       "norm_label": "deletequestion()"
     },
     {
@@ -828,7 +936,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L48",
       "id": "adminquestioncontroller_unflagquestion",
-      "community": 8,
+      "community": 12,
       "norm_label": "unflagquestion()"
     },
     {
@@ -855,7 +963,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminTopicController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_admin_admintopiccontroller_js",
-      "community": 13,
+      "community": 15,
       "norm_label": "admintopiccontroller.js"
     },
     {
@@ -864,7 +972,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminTopicController.js",
       "source_location": "L4",
       "id": "admintopiccontroller_listtopics",
-      "community": 13,
+      "community": 15,
       "norm_label": "listtopics()"
     },
     {
@@ -873,7 +981,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminTopicController.js",
       "source_location": "L11",
       "id": "admintopiccontroller_createtopic",
-      "community": 13,
+      "community": 15,
       "norm_label": "createtopic()"
     },
     {
@@ -882,7 +990,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminTopicController.js",
       "source_location": "L18",
       "id": "admintopiccontroller_updatetopic",
-      "community": 13,
+      "community": 15,
       "norm_label": "updatetopic()"
     },
     {
@@ -891,7 +999,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminTopicController.js",
       "source_location": "L26",
       "id": "admintopiccontroller_deletetopic",
-      "community": 13,
+      "community": 15,
       "norm_label": "deletetopic()"
     },
     {
@@ -900,7 +1008,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminUserController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_admin_adminusercontroller_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "adminusercontroller.js"
     },
     {
@@ -909,7 +1017,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminUserController.js",
       "source_location": "L5",
       "id": "adminusercontroller_listusers",
-      "community": 3,
+      "community": 2,
       "norm_label": "listusers()"
     },
     {
@@ -918,7 +1026,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminUserController.js",
       "source_location": "L24",
       "id": "adminusercontroller_updateuserrole",
-      "community": 3,
+      "community": 2,
       "norm_label": "updateuserrole()"
     },
     {
@@ -927,7 +1035,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\adminAuth.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_middleware_adminauth_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "adminauth.js"
     },
     {
@@ -936,7 +1044,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\adminAuth.js",
       "source_location": "L8",
       "id": "adminauth_adminauth",
-      "community": 3,
+      "community": 2,
       "norm_label": "adminauth()"
     },
     {
@@ -945,7 +1053,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\auth.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_middleware_auth_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "auth.js"
     },
     {
@@ -954,8 +1062,26 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\auth.js",
       "source_location": "L6",
       "id": "auth_auth",
-      "community": 3,
+      "community": 2,
       "norm_label": "auth()"
+    },
+    {
+      "label": "companyAuth.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\companyAuth.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_middleware_companyauth_js",
+      "community": 36,
+      "norm_label": "companyauth.js"
+    },
+    {
+      "label": "companyAuth()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\companyAuth.js",
+      "source_location": "L3",
+      "id": "companyauth_companyauth",
+      "community": 36,
+      "norm_label": "companyauth()"
     },
     {
       "label": "errorHandler.js",
@@ -963,7 +1089,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\errorHandler.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_middleware_errorhandler_js",
-      "community": 35,
+      "community": 37,
       "norm_label": "errorhandler.js"
     },
     {
@@ -972,7 +1098,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\errorHandler.js",
       "source_location": "L7",
       "id": "errorhandler_errorhandler",
-      "community": 35,
+      "community": 37,
       "norm_label": "errorhandler()"
     },
     {
@@ -981,7 +1107,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\validate.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_middleware_validate_js",
-      "community": 18,
+      "community": 20,
       "norm_label": "validate.js"
     },
     {
@@ -990,7 +1116,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\validate.js",
       "source_location": "L6",
       "id": "validate_validate",
-      "community": 18,
+      "community": 20,
       "norm_label": "validate()"
     },
     {
@@ -999,7 +1125,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\validateObjectId.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_middleware_validateobjectid_js",
-      "community": 36,
+      "community": 38,
       "norm_label": "validateobjectid.js"
     },
     {
@@ -1008,7 +1134,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\validateObjectId.js",
       "source_location": "L6",
       "id": "validateobjectid_validateobjectid",
-      "community": 36,
+      "community": 38,
       "norm_label": "validateobjectid()"
     },
     {
@@ -1017,7 +1143,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\models\\chapterModel.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_models_chaptermodel_js",
-      "community": 46,
+      "community": 49,
       "norm_label": "chaptermodel.js"
     },
     {
@@ -1026,7 +1152,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\models\\index.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_models_index_js",
-      "community": 47,
+      "community": 50,
       "norm_label": "index.js"
     },
     {
@@ -1035,7 +1161,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\models\\lessonModel.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_models_lessonmodel_js",
-      "community": 48,
+      "community": 51,
       "norm_label": "lessonmodel.js"
     },
     {
@@ -1044,7 +1170,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\models\\ncertChapterModel.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_models_ncertchaptermodel_js",
-      "community": 49,
+      "community": 52,
       "norm_label": "ncertchaptermodel.js"
     },
     {
@@ -1053,7 +1179,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\models\\ncertTopicContentModel.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_models_ncerttopiccontentmodel_js",
-      "community": 50,
+      "community": 53,
       "norm_label": "ncerttopiccontentmodel.js"
     },
     {
@@ -1062,7 +1188,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\adminRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_adminroutes_js",
-      "community": 51,
+      "community": 54,
       "norm_label": "adminroutes.js"
     },
     {
@@ -1071,7 +1197,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\aiRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_airoutes_js",
-      "community": 52,
+      "community": 55,
       "norm_label": "airoutes.js"
     },
     {
@@ -1080,7 +1206,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\analysisRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_analysisroutes_js",
-      "community": 53,
+      "community": 56,
       "norm_label": "analysisroutes.js"
     },
     {
@@ -1089,7 +1215,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\authRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_authroutes_js",
-      "community": 54,
+      "community": 57,
       "norm_label": "authroutes.js"
     },
     {
@@ -1098,8 +1224,17 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\badgeRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_badgeroutes_js",
-      "community": 55,
+      "community": 58,
       "norm_label": "badgeroutes.js"
+    },
+    {
+      "label": "companyRoutes.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\companyRoutes.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_routes_companyroutes_js",
+      "community": 59,
+      "norm_label": "companyroutes.js"
     },
     {
       "label": "competitionRoutes.js",
@@ -1107,7 +1242,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\competitionRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_competitionroutes_js",
-      "community": 56,
+      "community": 60,
       "norm_label": "competitionroutes.js"
     },
     {
@@ -1116,7 +1251,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\curriculumRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_curriculumroutes_js",
-      "community": 57,
+      "community": 61,
       "norm_label": "curriculumroutes.js"
     },
     {
@@ -1125,7 +1260,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\doubtRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_doubtroutes_js",
-      "community": 58,
+      "community": 62,
       "norm_label": "doubtroutes.js"
     },
     {
@@ -1134,7 +1269,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\examRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_examroutes_js",
-      "community": 59,
+      "community": 63,
       "norm_label": "examroutes.js"
     },
     {
@@ -1143,7 +1278,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\lessonRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_lessonroutes_js",
-      "community": 60,
+      "community": 64,
       "norm_label": "lessonroutes.js"
     },
     {
@@ -1152,7 +1287,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\ncertRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_ncertroutes_js",
-      "community": 61,
+      "community": 65,
       "norm_label": "ncertroutes.js"
     },
     {
@@ -1161,7 +1296,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\paymentRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_paymentroutes_js",
-      "community": 62,
+      "community": 66,
       "norm_label": "paymentroutes.js"
     },
     {
@@ -1170,7 +1305,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\plannerRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_plannerroutes_js",
-      "community": 63,
+      "community": 67,
       "norm_label": "plannerroutes.js"
     },
     {
@@ -1179,7 +1314,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\portalRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_portalroutes_js",
-      "community": 64,
+      "community": 68,
       "norm_label": "portalroutes.js"
     },
     {
@@ -1188,8 +1323,17 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\practiceRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_practiceroutes_js",
-      "community": 65,
+      "community": 69,
       "norm_label": "practiceroutes.js"
+    },
+    {
+      "label": "pyqRoutes.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\pyqRoutes.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_routes_pyqroutes_js",
+      "community": 70,
+      "norm_label": "pyqroutes.js"
     },
     {
       "label": "revisionRoutes.js",
@@ -1197,7 +1341,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\revisionRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_revisionroutes_js",
-      "community": 66,
+      "community": 71,
       "norm_label": "revisionroutes.js"
     },
     {
@@ -1206,7 +1350,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\topicRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_topicroutes_js",
-      "community": 67,
+      "community": 72,
       "norm_label": "topicroutes.js"
     },
     {
@@ -1215,7 +1359,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\userRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_userroutes_js",
-      "community": 68,
+      "community": 73,
       "norm_label": "userroutes.js"
     },
     {
@@ -1224,7 +1368,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\routes\\webhookRoutes.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_routes_webhookroutes_js",
-      "community": 69,
+      "community": 74,
       "norm_label": "webhookroutes.js"
     },
     {
@@ -1350,7 +1494,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_aiservice_js",
-      "community": 6,
+      "community": 8,
       "norm_label": "aiservice.js"
     },
     {
@@ -1359,7 +1503,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L47",
       "id": "aiservice_getsystemprompt",
-      "community": 6,
+      "community": 8,
       "norm_label": "getsystemprompt()"
     },
     {
@@ -1368,7 +1512,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L51",
       "id": "aiservice_getaiexplanation",
-      "community": 6,
+      "community": 8,
       "norm_label": "getaiexplanation()"
     },
     {
@@ -1377,7 +1521,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L87",
       "id": "aiservice_generateaiquestion",
-      "community": 6,
+      "community": 8,
       "norm_label": "generateaiquestion()"
     },
     {
@@ -1386,7 +1530,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L128",
       "id": "aiservice_getstudyadvice",
-      "community": 6,
+      "community": 8,
       "norm_label": "getstudyadvice()"
     },
     {
@@ -1395,7 +1539,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L163",
       "id": "aiservice_generatehint",
-      "community": 6,
+      "community": 8,
       "norm_label": "generatehint()"
     },
     {
@@ -1404,7 +1548,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L188",
       "id": "aiservice_generatelesson",
-      "community": 6,
+      "community": 8,
       "norm_label": "generatelesson()"
     },
     {
@@ -1413,7 +1557,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\aiService.js",
       "source_location": "L292",
       "id": "aiservice_getchatresponse",
-      "community": 6,
+      "community": 8,
       "norm_label": "getchatresponse()"
     },
     {
@@ -1485,7 +1629,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\autoDoubtService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_autodoubtservice_js",
-      "community": 14,
+      "community": 16,
       "norm_label": "autodoubtservice.js"
     },
     {
@@ -1494,7 +1638,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\autoDoubtService.js",
       "source_location": "L7",
       "id": "autodoubtservice_detectdoubttype",
-      "community": 14,
+      "community": 16,
       "norm_label": "detectdoubttype()"
     },
     {
@@ -1503,7 +1647,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\autoDoubtService.js",
       "source_location": "L23",
       "id": "autodoubtservice_generatedoubtinsight",
-      "community": 14,
+      "community": 16,
       "norm_label": "generatedoubtinsight()"
     },
     {
@@ -1512,7 +1656,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\autoDoubtService.js",
       "source_location": "L37",
       "id": "autodoubtservice_resolvedoubt",
-      "community": 14,
+      "community": 16,
       "norm_label": "resolvedoubt()"
     },
     {
@@ -1521,7 +1665,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\autoDoubtService.js",
       "source_location": "L52",
       "id": "autodoubtservice_getsuggestedaction",
-      "community": 14,
+      "community": 16,
       "norm_label": "getsuggestedaction()"
     },
     {
@@ -1561,6 +1705,42 @@
       "norm_label": "getuserbadges()"
     },
     {
+      "label": "companyService.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "community": 11,
+      "norm_label": "companyservice.js"
+    },
+    {
+      "label": "todayStr()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L3",
+      "id": "companyservice_todaystr",
+      "community": 11,
+      "norm_label": "todaystr()"
+    },
+    {
+      "label": "startOf()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L5",
+      "id": "companyservice_startof",
+      "community": 11,
+      "norm_label": "startof()"
+    },
+    {
+      "label": "getDashboardStats()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L13",
+      "id": "companyservice_getdashboardstats",
+      "community": 11,
+      "norm_label": "getdashboardstats()"
+    },
+    {
       "label": "foundationService.js",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\foundationService.js",
@@ -1584,7 +1764,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_paymentservice_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "paymentservice.js"
     },
     {
@@ -1593,7 +1773,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L43",
       "id": "paymentservice_getrazorpay",
-      "community": 3,
+      "community": 2,
       "norm_label": "getrazorpay()"
     },
     {
@@ -1602,7 +1782,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L51",
       "id": "paymentservice_orderplankey",
-      "community": 3,
+      "community": 2,
       "norm_label": "orderplankey()"
     },
     {
@@ -1611,7 +1791,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L54",
       "id": "paymentservice_createorder",
-      "community": 3,
+      "community": 2,
       "norm_label": "createorder()"
     },
     {
@@ -1620,7 +1800,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L83",
       "id": "paymentservice_verifypayment",
-      "community": 3,
+      "community": 2,
       "norm_label": "verifypayment()"
     },
     {
@@ -1629,7 +1809,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\paymentService.js",
       "source_location": "L130",
       "id": "paymentservice_getsubscription",
-      "community": 3,
+      "community": 2,
       "norm_label": "getsubscription()"
     },
     {
@@ -1638,7 +1818,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\plannerService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_plannerservice_js",
-      "community": 12,
+      "community": 10,
       "norm_label": "plannerservice.js"
     },
     {
@@ -1647,8 +1827,44 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\plannerService.js",
       "source_location": "L15",
       "id": "plannerservice_generatestudyplan",
-      "community": 12,
+      "community": 10,
       "norm_label": "generatestudyplan()"
+    },
+    {
+      "label": "portalService.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "community": 7,
+      "norm_label": "portalservice.js"
+    },
+    {
+      "label": "gradeFromAccuracy()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L4",
+      "id": "portalservice_gradefromaccuracy",
+      "community": 7,
+      "norm_label": "gradefromaccuracy()"
+    },
+    {
+      "label": "timeAgoLabel()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L14",
+      "id": "portalservice_timeagolabel",
+      "community": 7,
+      "norm_label": "timeagolabel()"
+    },
+    {
+      "label": "getStudentDashboard()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L24",
+      "id": "portalservice_getstudentdashboard",
+      "community": 7,
+      "norm_label": "getstudentdashboard()"
     },
     {
       "label": "predictionService.js",
@@ -1656,7 +1872,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\predictionService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_predictionservice_js",
-      "community": 19,
+      "community": 21,
       "norm_label": "predictionservice.js"
     },
     {
@@ -1665,7 +1881,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\predictionService.js",
       "source_location": "L19",
       "id": "predictionservice_gradefor",
-      "community": 19,
+      "community": 21,
       "norm_label": "gradefor()"
     },
     {
@@ -1674,7 +1890,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\predictionService.js",
       "source_location": "L21",
       "id": "predictionservice_predictexamscore",
-      "community": 19,
+      "community": 21,
       "norm_label": "predictexamscore()"
     },
     {
@@ -1696,12 +1912,57 @@
       "norm_label": "updateuserprofile()"
     },
     {
+      "label": "pyqService.js",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L1",
+      "id": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "community": 9,
+      "norm_label": "pyqservice.js"
+    },
+    {
+      "label": "getPYQTopics()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L3",
+      "id": "pyqservice_getpyqtopics",
+      "community": 9,
+      "norm_label": "getpyqtopics()"
+    },
+    {
+      "label": "getPYQs()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L30",
+      "id": "pyqservice_getpyqs",
+      "community": 9,
+      "norm_label": "getpyqs()"
+    },
+    {
+      "label": "getPYQById()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L52",
+      "id": "pyqservice_getpyqbyid",
+      "community": 9,
+      "norm_label": "getpyqbyid()"
+    },
+    {
+      "label": "getPYQYears()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L56",
+      "id": "pyqservice_getpyqyears",
+      "community": 9,
+      "norm_label": "getpyqyears()"
+    },
+    {
       "label": "revisionService.js",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\revisionService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_revisionservice_js",
-      "community": 20,
+      "community": 10,
       "norm_label": "revisionservice.js"
     },
     {
@@ -1710,7 +1971,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\revisionService.js",
       "source_location": "L5",
       "id": "revisionservice_getrevisiontopics",
-      "community": 20,
+      "community": 10,
       "norm_label": "getrevisiontopics()"
     },
     {
@@ -1719,7 +1980,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\revisionService.js",
       "source_location": "L49",
       "id": "revisionservice_markrevised",
-      "community": 20,
+      "community": 10,
       "norm_label": "markrevised()"
     },
     {
@@ -1728,7 +1989,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\scoringService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_scoringservice_js",
-      "community": 5,
+      "community": 6,
       "norm_label": "scoringservice.js"
     },
     {
@@ -1737,7 +1998,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\scoringService.js",
       "source_location": "L2",
       "id": "scoringservice_calculateexamscore",
-      "community": 5,
+      "community": 6,
       "norm_label": "calculateexamscore()"
     },
     {
@@ -1746,7 +2007,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\scoringService.js",
       "source_location": "L22",
       "id": "scoringservice_normalizescores",
-      "community": 5,
+      "community": 6,
       "norm_label": "normalizescores()"
     },
     {
@@ -1755,7 +2016,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\scoringService.js",
       "source_location": "L37",
       "id": "scoringservice_assignranks",
-      "community": 5,
+      "community": 6,
       "norm_label": "assignranks()"
     },
     {
@@ -1791,7 +2052,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\streakService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_streakservice_js",
-      "community": 9,
+      "community": 5,
       "norm_label": "streakservice.js"
     },
     {
@@ -1800,7 +2061,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\streakService.js",
       "source_location": "L4",
       "id": "streakservice_updatestreak",
-      "community": 9,
+      "community": 5,
       "norm_label": "updatestreak()"
     },
     {
@@ -1809,7 +2070,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\streakService.js",
       "source_location": "L37",
       "id": "streakservice_getstreak",
-      "community": 9,
+      "community": 5,
       "norm_label": "getstreak()"
     },
     {
@@ -1818,7 +2079,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\AppError.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_apperror_js",
-      "community": 21,
+      "community": 22,
       "norm_label": "apperror.js"
     },
     {
@@ -1827,7 +2088,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\AppError.js",
       "source_location": "L3",
       "id": "apperror_apperror",
-      "community": 21,
+      "community": 22,
       "norm_label": "apperror"
     },
     {
@@ -1836,7 +2097,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\AppError.js",
       "source_location": "L4",
       "id": "apperror_apperror_constructor",
-      "community": 21,
+      "community": 22,
       "norm_label": ".constructor()"
     },
     {
@@ -1881,7 +2142,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\email.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_email_js",
-      "community": 2,
+      "community": 4,
       "norm_label": "email.js"
     },
     {
@@ -1890,7 +2151,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\email.js",
       "source_location": "L8",
       "id": "email_sendemail",
-      "community": 2,
+      "community": 4,
       "norm_label": "sendemail()"
     },
     {
@@ -1899,7 +2160,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\logger.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_logger_js",
-      "community": 37,
+      "community": 39,
       "norm_label": "logger.js"
     },
     {
@@ -1908,7 +2169,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\logger.js",
       "source_location": "L21",
       "id": "logger_write",
-      "community": 37,
+      "community": 39,
       "norm_label": "write()"
     },
     {
@@ -1917,7 +2178,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_questiongenerator_js",
-      "community": 4,
+      "community": 3,
       "norm_label": "questiongenerator.js"
     },
     {
@@ -1926,7 +2187,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L6",
       "id": "questiongenerator_save",
-      "community": 2,
+      "community": 5,
       "norm_label": "save()"
     },
     {
@@ -1935,7 +2196,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L13",
       "id": "questiongenerator_diff",
-      "community": 4,
+      "community": 3,
       "norm_label": "diff()"
     },
     {
@@ -1944,7 +2205,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L14",
       "id": "questiongenerator_ds",
-      "community": 4,
+      "community": 3,
       "norm_label": "ds()"
     },
     {
@@ -1953,7 +2214,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L15",
       "id": "questiongenerator_gcd",
-      "community": 4,
+      "community": 3,
       "norm_label": "gcd()"
     },
     {
@@ -1962,7 +2223,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L16",
       "id": "questiongenerator_rand",
-      "community": 4,
+      "community": 3,
       "norm_label": "rand()"
     },
     {
@@ -1971,7 +2232,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L19",
       "id": "questiongenerator_quadratic",
-      "community": 4,
+      "community": 3,
       "norm_label": "quadratic()"
     },
     {
@@ -1980,7 +2241,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L41",
       "id": "questiongenerator_linear",
-      "community": 4,
+      "community": 3,
       "norm_label": "linear()"
     },
     {
@@ -1989,7 +2250,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L55",
       "id": "questiongenerator_realnumbers",
-      "community": 4,
+      "community": 3,
       "norm_label": "realnumbers()"
     },
     {
@@ -1998,7 +2259,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L77",
       "id": "questiongenerator_polynomials",
-      "community": 4,
+      "community": 3,
       "norm_label": "polynomials()"
     },
     {
@@ -2007,7 +2268,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L99",
       "id": "questiongenerator_ap",
-      "community": 4,
+      "community": 3,
       "norm_label": "ap()"
     },
     {
@@ -2016,7 +2277,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L121",
       "id": "questiongenerator_trigonometry",
-      "community": 4,
+      "community": 3,
       "norm_label": "trigonometry()"
     },
     {
@@ -2025,7 +2286,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L145",
       "id": "questiongenerator_coordinategeometry",
-      "community": 4,
+      "community": 3,
       "norm_label": "coordinategeometry()"
     },
     {
@@ -2034,7 +2295,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L174",
       "id": "questiongenerator_triangles",
-      "community": 4,
+      "community": 3,
       "norm_label": "triangles()"
     },
     {
@@ -2043,7 +2304,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L196",
       "id": "questiongenerator_circles",
-      "community": 4,
+      "community": 3,
       "norm_label": "circles()"
     },
     {
@@ -2052,7 +2313,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L214",
       "id": "questiongenerator_surfacevolumes",
-      "community": 4,
+      "community": 3,
       "norm_label": "surfacevolumes()"
     },
     {
@@ -2061,7 +2322,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L242",
       "id": "questiongenerator_statistics",
-      "community": 4,
+      "community": 3,
       "norm_label": "statistics()"
     },
     {
@@ -2070,7 +2331,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L263",
       "id": "questiongenerator_probability",
-      "community": 4,
+      "community": 3,
       "norm_label": "probability()"
     },
     {
@@ -2079,7 +2340,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L292",
       "id": "questiongenerator_appstrig",
-      "community": 4,
+      "community": 3,
       "norm_label": "appstrig()"
     },
     {
@@ -2088,7 +2349,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\questionGenerator.js",
       "source_location": "L312",
       "id": "questiongenerator_areascircles",
-      "community": 4,
+      "community": 3,
       "norm_label": "areascircles()"
     },
     {
@@ -2097,7 +2358,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_redisclient_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "redisclient.js"
     },
     {
@@ -2106,7 +2367,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L15",
       "id": "redisclient_createclient",
-      "community": 3,
+      "community": 2,
       "norm_label": "createclient()"
     },
     {
@@ -2115,7 +2376,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L34",
       "id": "redisclient_connectredis",
-      "community": 3,
+      "community": 2,
       "norm_label": "connectredis()"
     },
     {
@@ -2133,7 +2394,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L60",
       "id": "redisclient_sessionget",
-      "community": 3,
+      "community": 2,
       "norm_label": "sessionget()"
     },
     {
@@ -2142,7 +2403,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L71",
       "id": "redisclient_sessiondel",
-      "community": 3,
+      "community": 2,
       "norm_label": "sessiondel()"
     },
     {
@@ -2151,7 +2412,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\redisClient.js",
       "source_location": "L79",
       "id": "redisclient_isusingfallback",
-      "community": 3,
+      "community": 2,
       "norm_label": "isusingfallback()"
     },
     {
@@ -2160,7 +2421,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\socket.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_socket_js",
-      "community": 22,
+      "community": 23,
       "norm_label": "socket.js"
     },
     {
@@ -2169,7 +2430,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\socket.js",
       "source_location": "L7",
       "id": "socket_initsocket",
-      "community": 22,
+      "community": 23,
       "norm_label": "initsocket()"
     },
     {
@@ -2178,7 +2439,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\socket.js",
       "source_location": "L80",
       "id": "socket_getio",
-      "community": 22,
+      "community": 23,
       "norm_label": "getio()"
     },
     {
@@ -2187,7 +2448,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\validateEnv.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_utils_validateenv_js",
-      "community": 38,
+      "community": 40,
       "norm_label": "validateenv.js"
     },
     {
@@ -2196,7 +2457,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\utils\\validateEnv.js",
       "source_location": "L16",
       "id": "validateenv_validateenv",
-      "community": 38,
+      "community": 40,
       "norm_label": "validateenv()"
     },
     {
@@ -2205,7 +2466,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adaptive.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_adaptive_service_test_js",
-      "community": 23,
+      "community": 24,
       "norm_label": "adaptive.service.test.js"
     },
     {
@@ -2214,7 +2475,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adaptive.service.test.js",
       "source_location": "L28",
       "id": "adaptive_service_test_leanresult",
-      "community": 23,
+      "community": 24,
       "norm_label": "leanresult()"
     },
     {
@@ -2223,7 +2484,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adaptive.service.test.js",
       "source_location": "L30",
       "id": "adaptive_service_test_seenresult",
-      "community": 23,
+      "community": 24,
       "norm_label": "seenresult()"
     },
     {
@@ -2232,7 +2493,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adminAuth.middleware.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_adminauth_middleware_test_js",
-      "community": 24,
+      "community": 25,
       "norm_label": "adminauth.middleware.test.js"
     },
     {
@@ -2241,7 +2502,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adminAuth.middleware.test.js",
       "source_location": "L31",
       "id": "adminauth_middleware_test_maketoken",
-      "community": 24,
+      "community": 25,
       "norm_label": "maketoken()"
     },
     {
@@ -2250,7 +2511,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\adminAuth.middleware.test.js",
       "source_location": "L35",
       "id": "adminauth_middleware_test_mockreqres",
-      "community": 24,
+      "community": 25,
       "norm_label": "mockreqres()"
     },
     {
@@ -2259,7 +2520,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_airouter_service_test_js",
-      "community": 15,
+      "community": 17,
       "norm_label": "airouter.service.test.js"
     },
     {
@@ -2268,7 +2529,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.service.test.js",
       "source_location": "L34",
       "id": "airouter_service_test_today",
-      "community": 15,
+      "community": 17,
       "norm_label": "today()"
     },
     {
@@ -2277,7 +2538,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.service.test.js",
       "source_location": "L35",
       "id": "airouter_service_test_userdoc",
-      "community": 15,
+      "community": 17,
       "norm_label": "userdoc()"
     },
     {
@@ -2286,7 +2547,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.service.test.js",
       "source_location": "L41",
       "id": "airouter_service_test_selectreturn",
-      "community": 15,
+      "community": 17,
       "norm_label": "selectreturn()"
     },
     {
@@ -2295,7 +2556,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.service.test.js",
       "source_location": "L43",
       "id": "airouter_service_test_selectleanreturn",
-      "community": 15,
+      "community": 17,
       "norm_label": "selectleanreturn()"
     },
     {
@@ -2304,7 +2565,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiRouter.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_airouter_test_js",
-      "community": 70,
+      "community": 75,
       "norm_label": "airouter.test.js"
     },
     {
@@ -2313,7 +2574,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiTeacher.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_aiteacher_service_test_js",
-      "community": 39,
+      "community": 41,
       "norm_label": "aiteacher.service.test.js"
     },
     {
@@ -2322,7 +2583,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\aiTeacher.service.test.js",
       "source_location": "L3",
       "id": "aiteacher_service_test_baseprofile",
-      "community": 39,
+      "community": 41,
       "norm_label": "baseprofile()"
     },
     {
@@ -2331,7 +2592,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\analysis.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_analysis_service_test_js",
-      "community": 71,
+      "community": 76,
       "norm_label": "analysis.service.test.js"
     },
     {
@@ -2340,7 +2601,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\analysisService.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_analysisservice_test_js",
-      "community": 72,
+      "community": 77,
       "norm_label": "analysisservice.test.js"
     },
     {
@@ -2349,7 +2610,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.controller.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_auth_controller_test_js",
-      "community": 25,
+      "community": 26,
       "norm_label": "auth.controller.test.js"
     },
     {
@@ -2358,7 +2619,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.controller.test.js",
       "source_location": "L47",
       "id": "auth_controller_test_mockreqres",
-      "community": 25,
+      "community": 26,
       "norm_label": "mockreqres()"
     },
     {
@@ -2367,7 +2628,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.controller.test.js",
       "source_location": "L54",
       "id": "auth_controller_test_makeuser",
-      "community": 25,
+      "community": 26,
       "norm_label": "makeuser()"
     },
     {
@@ -2376,7 +2637,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.middleware.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_auth_middleware_test_js",
-      "community": 26,
+      "community": 27,
       "norm_label": "auth.middleware.test.js"
     },
     {
@@ -2385,7 +2646,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.middleware.test.js",
       "source_location": "L18",
       "id": "auth_middleware_test_mockreqres",
-      "community": 26,
+      "community": 27,
       "norm_label": "mockreqres()"
     },
     {
@@ -2394,7 +2655,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\auth.middleware.test.js",
       "source_location": "L28",
       "id": "auth_middleware_test_maketoken",
-      "community": 26,
+      "community": 27,
       "norm_label": "maketoken()"
     },
     {
@@ -2403,7 +2664,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\autoDoubt.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_autodoubt_service_test_js",
-      "community": 73,
+      "community": 78,
       "norm_label": "autodoubt.service.test.js"
     },
     {
@@ -2412,7 +2673,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\payment.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_payment_service_test_js",
-      "community": 40,
+      "community": 42,
       "norm_label": "payment.service.test.js"
     },
     {
@@ -2421,7 +2682,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\payment.service.test.js",
       "source_location": "L62",
       "id": "payment_service_test_makesignature",
-      "community": 40,
+      "community": 42,
       "norm_label": "makesignature()"
     },
     {
@@ -2430,7 +2691,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\plannerService.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_plannerservice_test_js",
-      "community": 74,
+      "community": 79,
       "norm_label": "plannerservice.test.js"
     },
     {
@@ -2439,7 +2700,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\portal.controller.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_portal_controller_test_js",
-      "community": 27,
+      "community": 28,
       "norm_label": "portal.controller.test.js"
     },
     {
@@ -2448,7 +2709,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\portal.controller.test.js",
       "source_location": "L27",
       "id": "portal_controller_test_mockreqres",
-      "community": 27,
+      "community": 28,
       "norm_label": "mockreqres()"
     },
     {
@@ -2457,7 +2718,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\portal.controller.test.js",
       "source_location": "L58",
       "id": "portal_controller_test_findoneselect",
-      "community": 27,
+      "community": 28,
       "norm_label": "findoneselect()"
     },
     {
@@ -2466,7 +2727,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\practice.controller.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_practice_controller_test_js",
-      "community": 41,
+      "community": 43,
       "norm_label": "practice.controller.test.js"
     },
     {
@@ -2475,7 +2736,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\practice.controller.test.js",
       "source_location": "L84",
       "id": "practice_controller_test_mockreqres",
-      "community": 41,
+      "community": 43,
       "norm_label": "mockreqres()"
     },
     {
@@ -2484,7 +2745,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\revision.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_revision_service_test_js",
-      "community": 28,
+      "community": 29,
       "norm_label": "revision.service.test.js"
     },
     {
@@ -2493,7 +2754,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\revision.service.test.js",
       "source_location": "L17",
       "id": "revision_service_test_daysago",
-      "community": 28,
+      "community": 29,
       "norm_label": "daysago()"
     },
     {
@@ -2502,7 +2763,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\revision.service.test.js",
       "source_location": "L18",
       "id": "revision_service_test_daysfrom",
-      "community": 28,
+      "community": 29,
       "norm_label": "daysfrom()"
     },
     {
@@ -2511,7 +2772,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\scoring.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_scoring_service_test_js",
-      "community": 75,
+      "community": 80,
       "norm_label": "scoring.service.test.js"
     },
     {
@@ -2520,7 +2781,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\scoringService.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_scoringservice_test_js",
-      "community": 76,
+      "community": 81,
       "norm_label": "scoringservice.test.js"
     },
     {
@@ -2529,7 +2790,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\streak.service.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_streak_service_test_js",
-      "community": 42,
+      "community": 44,
       "norm_label": "streak.service.test.js"
     },
     {
@@ -2538,7 +2799,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\streak.service.test.js",
       "source_location": "L7",
       "id": "streak_service_test_streak",
-      "community": 42,
+      "community": 44,
       "norm_label": "streak()"
     },
     {
@@ -2547,7 +2808,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\validate.middleware.test.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_tests_validate_middleware_test_js",
-      "community": 18,
+      "community": 20,
       "norm_label": "validate.middleware.test.js"
     },
     {
@@ -2556,7 +2817,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\__tests__\\validate.middleware.test.js",
       "source_location": "L10",
       "id": "validate_middleware_test_run",
-      "community": 18,
+      "community": 20,
       "norm_label": "run()"
     }
   ],
@@ -3428,6 +3689,66 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "_tgt": "companycontroller_timingsafe",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "target": "companycontroller_timingsafe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "_tgt": "companycontroller_companylogin",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "target": "companycontroller_companylogin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "_tgt": "companycontroller_getstats",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
+      "target": "companycontroller_getstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "companycontroller_companylogin",
+      "_tgt": "companycontroller_timingsafe",
+      "source": "companycontroller_timingsafe",
+      "target": "companycontroller_companylogin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_src": "companycontroller_getstats",
+      "_tgt": "companyservice_getdashboardstats",
+      "source": "companycontroller_getstats",
+      "target": "companyservice_getdashboardstats"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\curriculumController.js",
       "source_location": "L5",
       "weight": 1.0,
@@ -3789,7 +4110,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
       "_tgt": "plannercontroller_getplan",
@@ -3801,12 +4122,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
-      "source_location": "L17",
+      "source_location": "L37",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
       "_tgt": "plannercontroller_markdaycomplete",
       "source": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
       "target": "plannercontroller_markdaycomplete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
+      "_tgt": "plannercontroller_savetopicorder",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_plannercontroller_js",
+      "target": "plannercontroller_savetopicorder",
       "confidence_score": 1.0
     },
     {
@@ -3822,58 +4155,22 @@
       "target": "plannerservice_generatestudyplan"
     },
     {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\plannerController.js",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "plannercontroller_getplan",
+      "_tgt": "revisionservice_getrevisiontopics",
+      "source": "plannercontroller_getplan",
+      "target": "revisionservice_getrevisiontopics"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
       "source_location": "L7",
-      "weight": 1.0,
-      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "_tgt": "portalcontroller_generateuniquecode",
-      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "target": "portalcontroller_generateuniquecode",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L16",
-      "weight": 1.0,
-      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "_tgt": "portalcontroller_generateinvite",
-      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "target": "portalcontroller_generateinvite",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L24",
-      "weight": 1.0,
-      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "_tgt": "portalcontroller_linkstudent",
-      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "target": "portalcontroller_linkstudent",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L39",
-      "weight": 1.0,
-      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "_tgt": "portalcontroller_getlinkedstudents",
-      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
-      "target": "portalcontroller_getlinkedstudents",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L51",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
       "_tgt": "portalcontroller_verifyownership",
@@ -3885,7 +4182,55 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L56",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "_tgt": "portalcontroller_searchstudents",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "target": "portalcontroller_searchstudents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "_tgt": "portalcontroller_linkstudentdirect",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "target": "portalcontroller_linkstudentdirect",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "_tgt": "portalcontroller_removelinkedstudent",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "target": "portalcontroller_removelinkedstudent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "_tgt": "portalcontroller_getlinkedstudents",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "target": "portalcontroller_getlinkedstudents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L72",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
       "_tgt": "portalcontroller_getstudentanalytics",
@@ -3894,28 +4239,52 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
+      "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L18",
+      "source_location": "L89",
       "weight": 1.0,
-      "_src": "portalcontroller_generateinvite",
-      "_tgt": "portalcontroller_generateuniquecode",
-      "source": "portalcontroller_generateuniquecode",
-      "target": "portalcontroller_generateinvite",
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "_tgt": "portalcontroller_getstudentdashboardctrl",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_portalcontroller_js",
+      "target": "portalcontroller_getstudentdashboardctrl",
       "confidence_score": 1.0
     },
     {
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
-      "source_location": "L65",
+      "source_location": "L77",
       "weight": 1.0,
       "_src": "portalcontroller_getstudentanalytics",
       "_tgt": "portalcontroller_verifyownership",
       "source": "portalcontroller_verifyownership",
       "target": "portalcontroller_getstudentanalytics",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_src": "portalcontroller_getstudentdashboardctrl",
+      "_tgt": "portalcontroller_verifyownership",
+      "source": "portalcontroller_verifyownership",
+      "target": "portalcontroller_getstudentdashboardctrl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\portalController.js",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_src": "portalcontroller_getstudentdashboardctrl",
+      "_tgt": "portalservice_getstudentdashboard",
+      "source": "portalcontroller_getstudentdashboardctrl",
+      "target": "portalservice_getstudentdashboard"
     },
     {
       "relation": "contains",
@@ -4196,6 +4565,102 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "_tgt": "pyqcontroller_listtopics",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "target": "pyqcontroller_listtopics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "_tgt": "pyqcontroller_listyears",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "target": "pyqcontroller_listyears",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "_tgt": "pyqcontroller_listquestions",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "target": "pyqcontroller_listquestions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "_tgt": "pyqcontroller_getquestion",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_pyqcontroller_js",
+      "target": "pyqcontroller_getquestion",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "pyqcontroller_listtopics",
+      "_tgt": "pyqservice_getpyqtopics",
+      "source": "pyqcontroller_listtopics",
+      "target": "pyqservice_getpyqtopics"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_src": "pyqcontroller_listyears",
+      "_tgt": "pyqservice_getpyqyears",
+      "source": "pyqcontroller_listyears",
+      "target": "pyqservice_getpyqyears"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_src": "pyqcontroller_listquestions",
+      "_tgt": "pyqservice_getpyqs",
+      "source": "pyqcontroller_listquestions",
+      "target": "pyqservice_getpyqs"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\pyqController.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_src": "pyqcontroller_getquestion",
+      "_tgt": "pyqservice_getpyqbyid",
+      "source": "pyqcontroller_getquestion",
+      "target": "pyqservice_getpyqbyid"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\admin\\adminQuestionController.js",
       "source_location": "L4",
       "weight": 1.0,
@@ -4432,6 +4897,18 @@
       "_tgt": "redisclient_sessionget",
       "source": "auth_auth",
       "target": "redisclient_sessionget"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\middleware\\companyAuth.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_middleware_companyauth_js",
+      "_tgt": "companyauth_companyauth",
+      "source": "e_ailearningpath_ai_learning_backend_backend_middleware_companyauth_js",
+      "target": "companyauth_companyauth",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -5240,6 +5717,66 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "_tgt": "companyservice_todaystr",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "target": "companyservice_todaystr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "_tgt": "companyservice_startof",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "target": "companyservice_startof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "_tgt": "companyservice_getdashboardstats",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
+      "target": "companyservice_getdashboardstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "companyservice_getdashboardstats",
+      "_tgt": "companyservice_todaystr",
+      "source": "companyservice_todaystr",
+      "target": "companyservice_getdashboardstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_src": "companyservice_getdashboardstats",
+      "_tgt": "companyservice_startof",
+      "source": "companyservice_startof",
+      "target": "companyservice_getdashboardstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\foundationService.js",
       "source_location": "L15",
       "weight": 1.0,
@@ -5396,6 +5933,54 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "_tgt": "portalservice_gradefromaccuracy",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "target": "portalservice_gradefromaccuracy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "_tgt": "portalservice_timeagolabel",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "target": "portalservice_timeagolabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "_tgt": "portalservice_getstudentdashboard",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_portalservice_js",
+      "target": "portalservice_getstudentdashboard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\portalService.js",
+      "source_location": "L207",
+      "weight": 1.0,
+      "_src": "portalservice_getstudentdashboard",
+      "_tgt": "portalservice_gradefromaccuracy",
+      "source": "portalservice_gradefromaccuracy",
+      "target": "portalservice_getstudentdashboard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\predictionService.js",
       "source_location": "L19",
       "weight": 1.0,
@@ -5439,6 +6024,54 @@
       "_tgt": "profileservice_updateuserprofile",
       "source": "e_ailearningpath_ai_learning_backend_backend_services_profileservice_js",
       "target": "profileservice_updateuserprofile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "_tgt": "pyqservice_getpyqtopics",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "target": "pyqservice_getpyqtopics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "_tgt": "pyqservice_getpyqs",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "target": "pyqservice_getpyqs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "_tgt": "pyqservice_getpyqbyid",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "target": "pyqservice_getpyqbyid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\pyqService.js",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "_tgt": "pyqservice_getpyqyears",
+      "source": "e_ailearningpath_ai_learning_backend_backend_services_pyqservice_js",
+      "target": "pyqservice_getpyqyears",
       "confidence_score": 1.0
     },
     {

@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\models\ncertChapterModel.js"
 type: "code"
-community: "Community 91"
+community: "Community 96"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_91
+  - community/Community_96
 ---
 
 # ncertChapterModel.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_91
+#graphify/code #graphify/EXTRACTED #community/Community_96

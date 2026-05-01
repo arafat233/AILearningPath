@@ -1,17 +1,19 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js"
 type: "code"
-community: "Community 16"
-location: "L4"
+community: "Community 1"
+location: "L23"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_16
+  - graphify/INFERRED
+  - community/Community_1
 ---
 
 # listQuestions()
 
 ## Connections
-- [[adminQuestionController.js]] - `contains` [EXTRACTED]
+- [[getPYQs()_1]] - `calls` [INFERRED]
+- [[getPYQs()]] - `calls` [INFERRED]
+- [[pyqController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_16
+#graphify/code #graphify/INFERRED #community/Community_1

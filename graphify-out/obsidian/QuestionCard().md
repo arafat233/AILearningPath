@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx"
 type: "code"
-community: "Community 31"
+community: "Community 37"
 location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_31
+  - community/Community_37
 ---
 
 # QuestionCard()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[NcertChapterView.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_31
+#graphify/code #graphify/EXTRACTED #community/Community_37

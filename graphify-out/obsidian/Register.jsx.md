@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx"
 type: "code"
-community: "Community 47"
+community: "Community 52"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_47
+  - community/Community_52
 ---
 
 # Register.jsx
@@ -15,4 +15,4 @@ tags:
 - [[Register()]] - `contains` [EXTRACTED]
 - [[passwordStrength()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_47
+#graphify/code #graphify/EXTRACTED #community/Community_52

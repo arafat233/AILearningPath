@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js"
 type: "code"
-community: "Community 3"
+community: "Community 2"
 location: "L71"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # sessionDel()
@@ -19,4 +19,4 @@ tags:
 - [[updateUserRole()]] - `calls` [INFERRED]
 - [[verifyPayment()_1]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_3
+#graphify/code #graphify/INFERRED #community/Community_2

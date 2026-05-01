@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 30
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Dashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[Dashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
-- [[getGreeting()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[MarksChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[PYQBank()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[PYQBank.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[QuestionCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[YearChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
 
 ## Live Query (requires Dataview plugin)
 

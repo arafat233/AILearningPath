@@ -1,20 +1,22 @@
 ---
 type: community
-members: 7
+members: 9
 ---
 
 # Community 16
 
-**Members:** 7 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[adminQuestionController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[createQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[deleteQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[getFlaggedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[listQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[unflagQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
-- [[updateQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[RootElement()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
 
 ## Live Query (requires Dataview plugin)
 

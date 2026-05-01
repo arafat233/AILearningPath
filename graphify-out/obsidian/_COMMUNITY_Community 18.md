@@ -1,18 +1,22 @@
 ---
 type: community
-members: 5
+members: 9
 ---
 
 # Community 18
 
-**Members:** 5 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
 
 ## Live Query (requires Dataview plugin)
 

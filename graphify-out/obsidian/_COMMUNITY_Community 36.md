@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 36
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[Dashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[Dashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[StatCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[getGreeting()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 

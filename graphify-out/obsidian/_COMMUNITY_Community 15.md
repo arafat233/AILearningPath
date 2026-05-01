@@ -1,20 +1,22 @@
 ---
 type: community
-members: 7
+members: 9
 ---
 
 # Community 15
 
-**Members:** 7 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[generateInvite()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[generateUniqueCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[linkStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 
 ## Live Query (requires Dataview plugin)
 

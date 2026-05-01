@@ -1,12 +1,12 @@
 ---
 source_file: "ai-learning-backend/backend/README.md"
 type: "document"
-community: "Community 17"
+community: "Community 22"
 location: "All API Routes section"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_17
+  - community/Community_22
 ---
 
 # Backend API Routes (README listing)
@@ -15,4 +15,4 @@ tags:
 - [[Auth Routes (apiauth)]] - `references` [INFERRED]
 - [[Practice Routes (apipractice)]] - `references` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_17
+#graphify/document #graphify/INFERRED #community/Community_22

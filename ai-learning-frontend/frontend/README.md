@@ -22,14 +22,14 @@ Open: http://localhost:5173
 |------|------|-------------|
 | Login | /login | Sign in |
 | Register | /register | Create account, set exam date + grade |
-| Dashboard | / | Stats, streak, thinking profile, AI advice, topic picker |
-| Learn | /lessons | All lessons with revision-due alerts |
+| Dashboard | / | Stats, streak, thinking profile, AI advice; subject tabs (Maths/Science/English/Social/Hindi) in Topics |
+| Learn | /lessons | Subject tabs + Science sub-tabs (Physics/Chemistry/Biology); Textbook Chapters + AI Lessons tabs |
 | Lesson | /lessons/:topic | Slide-by-slide lesson reader (short + deep dive mode) |
-| Practice | /practice | Adaptive questions, timer, confidence, AI explanation, solution steps |
+| Practice | /practice | Subject tabs + Science sub-tabs; adaptive questions, timer, confidence, AI explanation |
 | Analytics | /analytics | Accuracy charts, topic bars, mistake breakdown, confidence analysis |
 | Competition | /competition | Join exams, countdown timer, ranked results, leaderboard |
-| Study Planner | /planner | Daily schedule, priority topics, skip suggestions |
-| Settings | /settings | Update name, exam date, grade |
+| Study Planner | /planner | Daily schedule, priority topics, skip suggestions; revision-due section |
+| Settings | /settings | Update name, exam date, grade; all 5 CBSE subjects |
 
 ## Project Structure
 ```

@@ -1,11 +1,11 @@
 ---
 type: community
-members: 29
+members: 26
 ---
 
 # Community 8
 
-**Members:** 29 nodes
+**Members:** 26 nodes
 
 ## Members
 - [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
@@ -13,7 +13,6 @@ members: 29
 - [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
 - [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
 - [[clerkAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
 - [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
 - [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
@@ -31,11 +30,9 @@ members: 29
 - [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
 - [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
 - [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
 - [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
 
 ## Live Query (requires Dataview plugin)
@@ -46,13 +43,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 7 edges to [[_COMMUNITY_Community 3]]
+- 7 edges to [[_COMMUNITY_Community 2]]
 - 2 edges to [[_COMMUNITY_Community 6]]
 - 1 edge to [[_COMMUNITY_Community 11]]
-- 1 edge to [[_COMMUNITY_Community 10]]
 
 ## Top bridge nodes
-- [[save()]] - degree 6, connects to 2 communities
+- [[save()]] - degree 6, connects to 3 communities
 - [[issueTokens()]] - degree 8, connects to 1 community
 - [[getReport()]] - degree 5, connects to 1 community
 - [[refresh()]] - degree 5, connects to 1 community

@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\scoring.service.test.js"
 type: "code"
-community: "Community 117"
+community: "Community 124"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_117
+  - community/Community_124
 ---
 
 # scoring.service.test.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_117
+#graphify/code #graphify/EXTRACTED #community/Community_124

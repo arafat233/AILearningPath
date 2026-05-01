@@ -1,22 +1,25 @@
 ---
 type: community
-members: 9
+members: 12
 ---
 
 # Community 13
 
-**Members:** 9 nodes
+**Members:** 12 nodes
 
 ## Members
-- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[BarRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Card()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CompanyDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CompanyDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[MiniTrend()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[ago()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[fmt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[pct()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[CompanyLogin()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
+- [[CompanyLogin.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
 
 ## Live Query (requires Dataview plugin)
 

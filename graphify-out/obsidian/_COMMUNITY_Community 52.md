@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 52
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
-- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[Register()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[Register.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[passwordStrength()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
 
 ## Live Query (requires Dataview plugin)
 

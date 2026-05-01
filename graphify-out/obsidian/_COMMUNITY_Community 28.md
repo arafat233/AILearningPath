@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 28
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[BadgeToast()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[BadgeToast.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[defaultIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[labelFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[ScienceSubBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[SubjectBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[ncertSubject()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,19 +1,22 @@
 ---
 type: community
-members: 6
+members: 9
 ---
 
 # Community 17
 
-**Members:** 6 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[Auth Routes (apiauth)]] - document - BLUEPRINT.md
-- [[Backend API Routes (README listing)]] - document - ai-learning-backend/backend/README.md
-- [[E2E Issue Auth login click timeout (20000ms exceeded)]] - document - e2e-bot/reports/auth.md
-- [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - document - e2e-bot/reports/auth.md
-- [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - document - e2e-bot/reports/auth.md
-- [[Practice Routes (apipractice)]] - document - BLUEPRINT.md
+- [[ActivityIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[AddChildPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[ParentDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[ParentDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[StudentView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[SubjectMastery()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[WeeklyChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[daysSince()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[hoursMinutes()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 

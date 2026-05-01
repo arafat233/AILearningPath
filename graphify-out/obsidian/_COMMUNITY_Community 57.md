@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
-- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

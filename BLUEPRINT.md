@@ -328,7 +328,9 @@ Goal-based priority weights:
   top:         freq=0.30, weak=0.30, accuracy=0.40
   scholarship: freq=0.20, weak=0.40, accuracy=0.40
 
-Output: dailyPlan + priorityTopics + skipSuggestions
+Filters: Topic.find({ subject, grade }) — subject-aware (default "Math", grade "10")
+Output: dailyPlan + priorityTopics + skipSuggestions + revisionDue (from revisionService)
+  revisionDue: up to 8 topics with stage/urgency for display in Planner page
 ```
 
 ### 4.6 revisionService.js — Spaced Repetition
@@ -513,22 +515,29 @@ Server → Client:
 ### Student Pages (inside Layout, protected)
 ```
 /              → Dashboard      — streak, AI teacher msg, revision due, quick links
+                                  Subject tabs (Maths/Science/English/Social/Hindi) in Topics
+                                  Science sub-tabs (All/Physics/Chemistry/Biology)
 /forgot-password → ForgotPassword — email input → "check your email" success state ← NEW
 /reset-password/:token → ResetPassword — new password + confirm + strength bar ← NEW
-/lessons       → Lessons        — Textbook Chapters tab (CBSE curriculum) + AI Lessons tab
+/lessons       → Lessons        — Subject tabs + Science sub-tabs (All/Physics/Chemistry/Biology)
+                                  Textbook Chapters tab (CBSE curriculum) + AI Lessons tab
+                                  Each tab fetches chapters/lessons for that subject only
 /lessons/:t    → LessonView     — short/long lesson, mark complete
 /chapters/:n   → ChapterView    — full chapter: sections, formulas, theorems, tips, exercises ← NEW
-/practice      → Practice       — adaptive quiz, confidence, AI explain, DoubtChat
+/practice      → Practice       — Subject tabs + Science sub-tabs; adaptive quiz per subject
+                                  confidence, AI explain, DoubtChat
 /analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
 /competition   → Competition    — weekly leaderboard, create/join room
 /live          → LiveRoom       — real-time Socket.IO quiz
 /planner       → Planner        — calendar, priority topics, skip suggestions
+                                  Revision Due section (spaced-repetition topics from revisionService)
 /exam-review   → ExamReview     — past exams, per-question AI review
 /voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
 /profile       → Profile        — user info, badges grid, invite code generator
-/settings      → Settings       — update subject/grade/goal/examDate
+/settings      → Settings       — update subject/grade/goal/examDate; all 5 CBSE subjects
 /portal        → Portal         — student: generate invite code
                                   parent/teacher: link students, view analytics
+                                  Subject Mastery bars always shown (4 CBSE subjects pre-seeded at 0%)
 ```
 
 ### Admin Pages (inside AdminLayout, admin role required)

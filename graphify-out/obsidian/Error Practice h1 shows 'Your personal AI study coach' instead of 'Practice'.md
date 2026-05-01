@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/practice.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # Error: Practice h1 shows 'Your personal AI study coach' instead of 'Practice'
@@ -14,4 +14,4 @@ tags:
 - [[Root Issue Auth state not injected - practice page shows landing page instead]] - `rationale_for` [INFERRED]
 - [[Test Practice page loads with Practice heading]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_3

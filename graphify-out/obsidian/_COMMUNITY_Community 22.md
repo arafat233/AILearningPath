@@ -1,18 +1,19 @@
 ---
 type: community
-members: 5
+members: 6
 ---
 
 # Community 22
 
-**Members:** 5 nodes
+**Members:** 6 nodes
 
 ## Members
-- [[aiRouter.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[selectLeanReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[selectReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[today()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[userDoc()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[Auth Routes (apiauth)]] - document - BLUEPRINT.md
+- [[Backend API Routes (README listing)]] - document - ai-learning-backend/backend/README.md
+- [[E2E Issue Auth login click timeout (20000ms exceeded)]] - document - e2e-bot/reports/auth.md
+- [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - document - e2e-bot/reports/auth.md
+- [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - document - e2e-bot/reports/auth.md
+- [[Practice Routes (apipractice)]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 

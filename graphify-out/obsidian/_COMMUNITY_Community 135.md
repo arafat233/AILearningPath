@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[07_profile.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\07_profile.spec.js
+- [[Switch-And-Resume.ps1]] - code - E:\AILearningPath\ClaudeTools\Switch-And-Resume.ps1
 
 ## Live Query (requires Dataview plugin)
 

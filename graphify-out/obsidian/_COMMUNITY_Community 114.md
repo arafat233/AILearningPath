@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[analysisService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\analysisService.test.js
+- [[pyqRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\pyqRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

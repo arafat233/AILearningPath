@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Switch-And-Resume.ps1]] - code - E:\AILearningPath\ClaudeTools\Switch-And-Resume.ps1
+- [[tailwind.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\tailwind.config.js
 
 ## Live Query (requires Dataview plugin)
 

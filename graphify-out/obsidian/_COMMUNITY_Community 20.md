@@ -1,18 +1,21 @@
 ---
 type: community
-members: 5
+members: 8
 ---
 
 # Community 20
 
-**Members:** 5 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
-- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[BulletList()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[DerivationPart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[DiagramCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MisconceptionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[Section()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[WorkedExample()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
 
 ## Live Query (requires Dataview plugin)
 

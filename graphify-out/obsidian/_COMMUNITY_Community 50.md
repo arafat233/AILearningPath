@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
-- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
-- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
+- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[StatCard()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[StartOnboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
-- [[StartOnboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\StartOnboarding.jsx
+- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
 
 ## Live Query (requires Dataview plugin)
 

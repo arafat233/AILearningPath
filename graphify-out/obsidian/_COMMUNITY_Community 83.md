@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
-- [[globalSetup()]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[AdminOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[AdminOverview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
 
 ## Live Query (requires Dataview plugin)
 

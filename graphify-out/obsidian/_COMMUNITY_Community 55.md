@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 55
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
-- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
+- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
+- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
 
 ## Live Query (requires Dataview plugin)
 

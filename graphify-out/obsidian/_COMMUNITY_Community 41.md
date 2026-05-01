@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[findOneSelect()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[mockReqRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[portal.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
+- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 
 ## Live Query (requires Dataview plugin)
 

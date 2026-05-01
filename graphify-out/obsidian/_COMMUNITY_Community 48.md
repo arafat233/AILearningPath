@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Icon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[Layout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[Layout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
 
 ## Live Query (requires Dataview plugin)
 

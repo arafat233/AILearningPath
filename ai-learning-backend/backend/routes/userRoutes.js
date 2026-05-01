@@ -1,7 +1,7 @@
 import express from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
-import { Attempt, Badge, DoubtThread, ErrorMemory, Streak, Topic, User, UserProfile } from "../models/index.js";
+import { Attempt, Badge, DoubtThread, ErrorMemory, Question, Streak, Topic, User, UserProfile } from "../models/index.js";
 import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -38,6 +38,47 @@ r.get("/topics", auth, async (req, res, next) => {
     }
     const topics = await Topic.find(filter).sort({ examFrequency: -1 });
     res.json(topics);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Toggle bookmark: adds if absent, removes if already present
+r.post("/bookmarks/:questionId", auth, async (req, res, next) => {
+  try {
+    const { questionId } = req.params;
+    if (!questionId.match(/^[0-9a-fA-F]{24}$/)) {
+      const { AppError } = await import("../utils/AppError.js");
+      return next(new AppError("Invalid question ID", 400));
+    }
+    const user = await User.findById(req.user.id).select("savedQuestions");
+    const already = user.savedQuestions.some((id) => id.toString() === questionId);
+    if (already) {
+      await User.findByIdAndUpdate(req.user.id, { $pull: { savedQuestions: questionId } });
+      return res.json({ bookmarked: false });
+    }
+    await User.findByIdAndUpdate(req.user.id, { $addToSet: { savedQuestions: questionId } });
+    res.json({ bookmarked: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+r.get("/bookmarks", auth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("savedQuestions").lean();
+    const questions = await Question.find({
+      _id: { $in: user.savedQuestions },
+      deletedAt: { $exists: false },
+    })
+      .select("questionText subject grade conceptTested difficultyScore options")
+      .lean();
+    // Strip option types before sending to client
+    const safe = questions.map((q) => ({
+      ...q,
+      options: (q.options || []).map(({ text, logicTag }) => ({ text, logicTag })),
+    }));
+    res.json(safe);
   } catch (err) {
     next(err);
   }

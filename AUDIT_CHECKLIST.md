@@ -68,7 +68,7 @@
 - [x] **No session summary screen** ✅ Fixed: Summary shows score, accuracy %, accuracy bar, and all missed questions with correct/selected options and AI explanations.
 - [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
 - [x] **No search bar** ✅ Fixed: Search overlay (⌘K / Ctrl+K) in sidebar searches topics by keyword via `GET /topics?q=`; arrow-key navigation; clicking result opens Practice with topic pre-selected.
-- [ ] **No bookmark / favourite questions** — Students cannot save hard questions for later.
+- [x] **No bookmark / favourite questions** ✅ Fixed: ☆ Bookmark toggle on every feedback card; `POST /api/user/bookmarks/:id` (toggle), `GET /api/user/bookmarks`; dedicated Bookmarks page in sidebar with remove & "Practice this topic" links.
 - [ ] **No dark mode** — No dark theme toggle.
 - [ ] **No offline support** — Service worker caches only `index.html`. No offline questions/lessons.
 - [ ] **Voice tutor has no history** — Each voice session starts fresh.

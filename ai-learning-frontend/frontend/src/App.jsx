@@ -33,6 +33,7 @@ import Dashboard        from "./pages/Dashboard";
 import Lessons          from "./pages/Lessons";
 import LessonView       from "./pages/LessonView";
 import Practice         from "./pages/Practice";
+import Bookmarks        from "./pages/Bookmarks";
 import Analytics        from "./pages/Analytics";
 import Competition      from "./pages/Competition";
 import LiveRoom         from "./pages/LiveRoom";
@@ -145,6 +146,7 @@ export default function App() {
             <Route path="lessons"                 element={<Lessons />} />
             <Route path="lessons/:topic"          element={<LessonView />} />
             <Route path="practice"                element={<Practice />} />
+            <Route path="bookmarks"               element={<Bookmarks />} />
             <Route path="analytics"               element={<Analytics />} />
             <Route path="competition"             element={<Competition />} />
             <Route path="live"                    element={<LiveRoom />} />

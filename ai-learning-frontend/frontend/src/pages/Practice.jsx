@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 // ── subject / sub-subject constants ────────────────────────────────
@@ -60,6 +60,7 @@ export default function Practice() {
   const [evalFeedback, setEvalFeedback] = useState(null);
   const [evalLoading, setEvalLoading]   = useState(false);
   const [flagged, setFlagged]           = useState(false);
+  const [bookmarked, setBookmarked]     = useState(false);
   const [hint, setHint]                 = useState(null);
   const [hintLoading, setHintLoading]   = useState(false);
   const [showSummary, setShowSummary]   = useState(false);
@@ -186,12 +187,21 @@ export default function Practice() {
     } catch {}
   };
 
+  const handleBookmark = async () => {
+    if (!question?._id) return;
+    try {
+      const { data } = await toggleBookmark(question._id);
+      setBookmarked(data.bookmarked);
+    } catch {}
+  };
+
   const handleNext = () => {
     setRecallMode(true);
     setRecallAttempt("");
     setEvalFeedback(null);
     setShowSteps(false);
     setFlagged(false);
+    setBookmarked(false);
     setHint(null);
     setHintLoading(false);
     if (feedback?.nextQuestion) {
@@ -709,7 +719,7 @@ export default function Practice() {
             </div>
           )}
 
-          {/* Flag question */}
+          {/* Flag + Bookmark row */}
           <div className="flex items-center justify-between pt-1">
             <button
               onClick={handleFlag}
@@ -717,6 +727,14 @@ export default function Practice() {
               className={`text-[11px] transition-colors ${flagged ? "text-apple-red cursor-default" : "text-apple-gray hover:text-apple-red"}`}
             >
               {flagged ? "⚑ Reported — thanks" : "⚑ Report this question"}
+            </button>
+            <button
+              onClick={handleBookmark}
+              className={`text-[11px] font-medium transition-colors ${
+                bookmarked ? "text-apple-orange" : "text-apple-gray hover:text-apple-orange"
+              }`}
+            >
+              {bookmarked ? "★ Bookmarked" : "☆ Bookmark"}
             </button>
           </div>
 

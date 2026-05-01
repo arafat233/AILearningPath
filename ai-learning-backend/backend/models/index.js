@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema({
   // Login lockout (SEC-23)
   loginAttempts:        { type: Number, default: 0 },
   lockUntil:            { type: Date,   default: null },
+  // Bookmarked questions
+  savedQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);

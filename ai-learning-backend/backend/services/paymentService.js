@@ -77,7 +77,8 @@ export async function createOrder(userId, planKey) {
     currency: plan.currency,
     planKey,
     planName: plan.name,
-    keyId:    process.env.RAZORPAY_KEY_ID, // public key — safe to send to client
+    // SECURITY: only the public key_id is sent here — NEVER include key_secret
+    keyId:    process.env.RAZORPAY_KEY_ID,
   };
 }
 

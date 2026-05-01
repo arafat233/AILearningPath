@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
+import { useThemeStore } from "../store/themeStore";
 import { logoutApi } from "../services/api";
 import SearchOverlay from "./SearchOverlay";
 
@@ -53,6 +54,7 @@ const PARENT_NAV = [
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { dark, toggle: toggleDark } = useThemeStore();
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -79,7 +81,8 @@ export default function Layout() {
     <div className="flex h-screen overflow-hidden bg-apple-gray6">
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       {/* Sidebar */}
-      <aside className="w-56 flex flex-col shrink-0 bg-white/80 backdrop-blur-apple border-r border-apple-gray5">
+      <aside className="w-56 flex flex-col shrink-0 backdrop-blur-apple border-r border-apple-gray5 dark:border-apple-gray/20 transition-colors"
+             style={{ background: "var(--sidebar-bg)" }}>
         {/* App header */}
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center gap-2.5 mb-0.5">
@@ -141,11 +144,12 @@ export default function Layout() {
           )}
         </nav>
 
-        {/* Search button */}
-        <div className="px-3 mb-2">
+        {/* Search + dark mode toggle */}
+        <div className="px-3 mb-2 flex flex-col gap-1.5">
           <button
             onClick={() => setSearchOpen(true)}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray bg-apple-gray6 hover:bg-apple-gray5 transition-colors"
+            style={{ background: "var(--fill)" }}
           >
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
                  strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
@@ -154,6 +158,20 @@ export default function Layout() {
             </svg>
             <span className="flex-1 text-left">Search topics…</span>
             <kbd className="text-[10px] border border-apple-gray5 rounded px-1 py-0.5">⌘K</kbd>
+          </button>
+          <button
+            onClick={toggleDark}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray hover:bg-apple-gray5 transition-colors"
+            style={{ background: "var(--fill)" }}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                 strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
+              {dark
+                ? <><circle cx="8" cy="8" r="4"/><path d="M8 1v1M8 14v1M1 8h1M14 8h1M3.2 3.2l.7.7M12.1 12.1l.7.7M3.2 12.8l.7-.7M12.1 3.9l.7-.7"/></>
+                : <path d="M14 9.5A6 6 0 019.5 2a6 6 0 100 12 6 6 0 004.5-4.5z"/>
+              }
+            </svg>
+            <span className="flex-1 text-left">{dark ? "Light mode" : "Dark mode"}</span>
           </button>
         </div>
 
@@ -195,7 +213,7 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
         <div className="max-w-5xl mx-auto px-8 py-8">
           <Outlet />
         </div>

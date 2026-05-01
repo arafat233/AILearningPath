@@ -42,7 +42,7 @@
 - [x] **No output encoding on AI-generated content** ✅ Fixed: `sanitizeSvg()` in NcertTopicView strips `<script>`, `on*` event attributes, `javascript:` from SVG before `dangerouslySetInnerHTML`. LessonView has no `dangerouslySetInnerHTML`.
 - [x] **`questionId` in doubt routes accepts arbitrary strings** ✅ Fixed: validates as valid ObjectId or `"ai-generated"` before DB query.
 - [x] **Refresh token rotation missing invalidation of old family** ✅ Fixed: familyId embedded in raw token (`random:familyId`); on rotation both `refresh:<hash>` and `family:<familyId>` stored in Redis; if a rotated-away hash is presented but family is still active → reuse detected → family invalidated; logout deletes both keys.
-- [ ] **API key visible in frontend** — Razorpay `keyId` (public) returned in `createOrder`. Safe but add comment to prevent accidental secret inclusion.
+- [x] **API key visible in frontend** ✅ Fixed: Comment added in `paymentService.js` next to `keyId` explicitly noting only public key is sent, never the secret.
 
 ---
 
@@ -69,7 +69,7 @@
 - [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
 - [x] **No search bar** ✅ Fixed: Search overlay (⌘K / Ctrl+K) in sidebar searches topics by keyword via `GET /topics?q=`; arrow-key navigation; clicking result opens Practice with topic pre-selected.
 - [x] **No bookmark / favourite questions** ✅ Fixed: ☆ Bookmark toggle on every feedback card; `POST /api/user/bookmarks/:id` (toggle), `GET /api/user/bookmarks`; dedicated Bookmarks page in sidebar with remove & "Practice this topic" links.
-- [ ] **No dark mode** — No dark theme toggle.
+- [x] **No dark mode** ✅ Fixed: `html.dark` class with CSS variable overrides for all tokens (card-bg, sidebar-bg, input, labels); `themeStore.js` persists preference in localStorage and respects `prefers-color-scheme`; moon/sun toggle button in sidebar.
 - [ ] **No offline support** — Service worker caches only `index.html`. No offline questions/lessons.
 - [ ] **Voice tutor has no history** — Each voice session starts fresh.
 - [ ] **No manual weak-topic override UI** — `PUT /user/me` accepts `weakTopics` but no UI exposes it.
@@ -109,7 +109,7 @@
 - [ ] **No onboarding email sequence** — No day-2 / day-7 re-engagement emails.
 - [ ] **No NPS or in-app feedback** — No mechanism to collect satisfaction scores or feature requests.
 - [ ] **Socket.IO `rooms` object is single-instance** — Competition fails in multi-pod deployments. Fix: `socket.io-redis` adapter.
-- [ ] **`CLAUDE_MODEL` hardcoded fallback** — Review quarterly as Anthropic releases new models.
+- [x] **`CLAUDE_MODEL` hardcoded fallback** ✅ Verified: fallback is `claude-haiku-4-5-20251001` — current latest Haiku. Overridable via `CLAUDE_MODEL` env var.
 - [ ] **No A/B testing infrastructure** — No feature flags or experiment framework.
 
 ---

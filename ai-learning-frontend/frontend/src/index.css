@@ -17,8 +17,27 @@
   --label2: #3A3A3C;
   --label3: #636366;
   --label4: #8E8E93;
+  --card-bg: #ffffff;
+  --sidebar-bg: rgba(255,255,255,0.80);
+  --input-bg: #F2F2F7;
+  --input-border: #D1D1D6;
+  --fill: #F2F2F7;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html.dark {
+  --gray5:  #3A3A3C;
+  --gray6:  #1C1C1E;
+  --label:  #FFFFFF;
+  --label2: #EBEBF5;
+  --label3: rgba(235,235,245,0.6);
+  --label4: rgba(235,235,245,0.3);
+  --card-bg: #2C2C2E;
+  --sidebar-bg: rgba(28,28,30,0.92);
+  --input-bg: #3A3A3C;
+  --input-border: #48484A;
+  --fill: #2C2C2E;
 }
 
 @keyframes enter {
@@ -37,15 +56,19 @@ body {
   color: var(--label);
   min-height: 100vh;
   letter-spacing: -0.01em;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 @layer components {
   /* Cards */
   .card {
-    @apply bg-white rounded-apple-lg shadow-apple;
+    background: var(--card-bg);
+    @apply rounded-apple-lg shadow-apple;
+    transition: background-color 0.2s;
   }
   .card-inset {
-    @apply bg-apple-gray6 rounded-apple;
+    background: var(--fill);
+    @apply rounded-apple;
   }
 
   /* Buttons */
@@ -69,10 +92,12 @@ body {
 
   /* Inputs */
   .input {
-    @apply w-full bg-apple-gray6 border border-apple-gray4 rounded-apple px-4 py-3 text-sm
+    @apply w-full border rounded-apple px-4 py-3 text-sm
            placeholder:text-apple-gray3
            focus:outline-none focus:ring-2 focus:ring-apple-blue/30 focus:border-apple-blue
-           transition-[border-color,box-shadow] duration-150;
+           transition-[border-color,box-shadow,background-color] duration-150;
+    background: var(--input-bg);
+    border-color: var(--input-border);
     color: var(--label);
   }
 

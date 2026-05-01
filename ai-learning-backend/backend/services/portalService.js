@@ -82,29 +82,31 @@ export const getStudentDashboard = async (studentId) => {
   const totalWeeklyMinutes  = weeklyPractice.reduce((s, d) => s + d.minutes, 0);
 
   // ── Subject mastery ───────────────────────────────────────────────────────
+  const CBSE_SUBJECTS = [
+    { name: "Mathematics",    color: "#007AFF" },
+    { name: "Science",        color: "#34C759" },
+    { name: "English",        color: "#FF9500" },
+    { name: "Social Science", color: "#AF52DE" },
+  ];
+  const SUBJECT_ALIAS = { Math: "Mathematics", "Social Std.": "Social Science" };
   const subjectAcc    = {};
   const subjectCounts = {};
+  CBSE_SUBJECTS.forEach(({ name }) => { subjectAcc[name] = 0; subjectCounts[name] = 0; });
+
   (profile?.topicProgress || []).forEach((tp) => {
-    const sub = topicSubjectMap[tp.topic] || "Mathematics";
-    if (!subjectAcc[sub]) { subjectAcc[sub] = 0; subjectCounts[sub] = 0; }
+    const raw = topicSubjectMap[tp.topic] || "Mathematics";
+    const sub = SUBJECT_ALIAS[raw] || raw;
+    if (subjectAcc[sub] === undefined) { subjectAcc[sub] = 0; subjectCounts[sub] = 0; }
     subjectAcc[sub]    += (tp.accuracy || 0);
     subjectCounts[sub] += 1;
   });
-  const SUBJECT_COLORS = {
-    Mathematics: "#007AFF", Math: "#007AFF",
-    Science:     "#34C759",
-    English:     "#FF9500",
-    "Social Science": "#AF52DE", "Social Std.": "#AF52DE",
-    Hindi:       "#FF3B30",
-  };
-  const subjectMastery = Object.keys(subjectAcc)
-    .map((s) => ({
-      subject:    s,
-      accuracy:   Math.round((subjectAcc[s] / subjectCounts[s]) * 100),
-      topicCount: subjectCounts[s],
-      color:      SUBJECT_COLORS[s] || "#007AFF",
-    }))
-    .sort((a, b) => b.accuracy - a.accuracy);
+
+  const subjectMastery = CBSE_SUBJECTS.map(({ name, color }) => ({
+    subject:    name,
+    accuracy:   subjectCounts[name] > 0 ? Math.round((subjectAcc[name] / subjectCounts[name]) * 100) : 0,
+    topicCount: subjectCounts[name],
+    color,
+  }));
 
   // ── Is learning now ───────────────────────────────────────────────────────
   const isLearningNow = recentAttempts.some(

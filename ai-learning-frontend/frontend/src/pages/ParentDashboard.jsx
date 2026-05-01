@@ -90,7 +90,7 @@ function WeeklyChart({ weeklyPractice, totalWeeklyMinutes }) {
 
 // ── subject mastery bars ───────────────────────────────────────────────────
 function SubjectMastery({ subjectMastery }) {
-  if (!subjectMastery?.length) return null;
+  if (!subjectMastery?.length) return null; // fallback only
   return (
     <div className="card p-5">
       <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Subject Mastery</p>
@@ -187,10 +187,8 @@ function StudentView({ data }) {
         <WeeklyChart weeklyPractice={data.weeklyPractice} totalWeeklyMinutes={data.totalWeeklyMinutes} />
       )}
 
-      {/* subject mastery */}
-      {data.subjectMastery?.length > 0 && (
-        <SubjectMastery subjectMastery={data.subjectMastery} />
-      )}
+      {/* subject mastery — always shown, 0% when no practice data yet */}
+      <SubjectMastery subjectMastery={data.subjectMastery} />
 
       {/* weak topics + mastered this week */}
       <div className="grid grid-cols-2 gap-3">

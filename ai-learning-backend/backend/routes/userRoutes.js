@@ -29,7 +29,10 @@ const updateMeSchema = Joi.object({
 // SEC-16: requires auth — topics list is product IP, not public data
 r.get("/topics", auth, async (req, res, next) => {
   try {
-    const topics = await Topic.find().sort({ examFrequency: -1 });
+    const filter = { deletedAt: null };
+    if (req.query.subject) filter.subject = req.query.subject;
+    if (req.query.grade)   filter.grade   = req.query.grade;
+    const topics = await Topic.find(filter).sort({ examFrequency: -1 });
     res.json(topics);
   } catch (err) {
     next(err);

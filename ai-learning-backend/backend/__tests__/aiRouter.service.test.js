@@ -4,6 +4,7 @@ const mockGetCached    = jest.fn();
 const mockSetCache     = jest.fn();
 const mockGetAIExplanation = jest.fn();
 const mockUserFindById = jest.fn();
+const mockUserFindOneAndUpdate = jest.fn();
 const mockAIResponseCacheFindOne  = jest.fn();
 const mockAIResponseCacheFAU      = jest.fn();
 const mockAIUsageStatsFAU         = jest.fn();
@@ -18,7 +19,7 @@ jest.unstable_mockModule("../utils/logger.js", () => ({
 }));
 
 jest.unstable_mockModule("../models/index.js", () => ({
-  User:            { findById: mockUserFindById },
+  User:            { findById: mockUserFindById, findOneAndUpdate: mockUserFindOneAndUpdate },
   AIResponseCache: { findOne: mockAIResponseCacheFindOne, findOneAndUpdate: mockAIResponseCacheFAU },
   AIUsageStats:    { findOneAndUpdate: mockAIUsageStatsFAU },
 }));
@@ -34,23 +35,24 @@ const { smartAIExplanation, checkAndIncrementUsage, getUsageCount } =
 const today = () => new Date().toISOString().split("T")[0];
 const userDoc = (overrides = {}) => ({
   isPaid: false, aiCallsToday: 0, aiCallsDate: today(),
-  save: jest.fn().mockResolvedValue({}),
+  plan: "free",
   ...overrides,
 });
-// checkAndIncrementUsage: findById().select() — no .lean()
-const selectReturn = (doc) => ({ select: jest.fn().mockResolvedValue(doc) });
-// getUsageCount: findById().select().lean()
+// Both checkAndIncrementUsage and getUsageCount use findById().select().lean()
 const selectLeanReturn = (doc) => ({
   select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(doc) }),
 });
+// Keep old name for backwards compat in smartAIExplanation tests
+const selectReturn = selectLeanReturn;
 
 beforeEach(() => {
-  // These are called fire-and-forget with .catch() — must return a Promise
   mockAIResponseCacheFAU.mockResolvedValue({});
   mockAIUsageStatsFAU.mockResolvedValue({});
-  // AIResponseCache.findOne(...).lean() — needs chained mock
   mockAIResponseCacheFindOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
   mockGetCached.mockReturnValue(null);
+  // Default: user under limit — findById returns doc, findOneAndUpdate returns updated doc
+  mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ aiCallsToday: 0 })));
+  mockUserFindOneAndUpdate.mockResolvedValue({ aiCallsToday: 1 });
 });
 
 afterEach(() => jest.clearAllMocks());
@@ -94,12 +96,10 @@ describe("smartAIExplanation", () => {
   });
 
   test("Layer 6 — user at daily limit → returns quota message, no AI call", async () => {
-    mockGetCached.mockReturnValue(null);
-    // DB cache miss — must also use chained mock
-    mockAIResponseCacheFindOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
-    mockUserFindById.mockReturnValue(selectReturn(userDoc({ aiCallsToday: 10 })));
+    mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ aiCallsToday: 10 })));
+    mockUserFindOneAndUpdate.mockResolvedValue(null); // atomic update condition not met
     const result = await smartAIExplanation("u1", "Rate limited Q?", "concept_error", "A", []);
-    expect(result).toContain("free AI explanations");
+    expect(result).toContain("daily AI explanation limit");
     expect(mockGetAIExplanation).not.toHaveBeenCalled();
   });
 });
@@ -107,36 +107,38 @@ describe("smartAIExplanation", () => {
 // ── checkAndIncrementUsage ─────────────────────────────────────────
 
 describe("checkAndIncrementUsage", () => {
-  test("user not found → returns false", async () => {
-    mockUserFindById.mockReturnValue(selectReturn(null));
+  beforeEach(() => {
+    // Default: atomic findOneAndUpdate succeeds (returns a doc)
+    mockUserFindOneAndUpdate.mockResolvedValue({ aiCallsToday: 1 });
+  });
+
+  test("user not found (findById returns null) → returns false", async () => {
+    mockUserFindById.mockReturnValue(selectLeanReturn(null));
     expect(await checkAndIncrementUsage("missing")).toBe(false);
   });
 
-  test("free user at limit (10) → returns false, does not increment", async () => {
-    mockUserFindById.mockReturnValue(selectReturn(userDoc({ aiCallsToday: 10 })));
+  test("free user at limit (10) → findOneAndUpdate returns null → returns false", async () => {
+    mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ aiCallsToday: 10 })));
+    mockUserFindOneAndUpdate.mockResolvedValue(null); // condition not met → null
     expect(await checkAndIncrementUsage("u1")).toBe(false);
   });
 
-  test("free user under limit → increments counter and returns true", async () => {
-    const doc = userDoc({ aiCallsToday: 5 });
-    mockUserFindById.mockReturnValue(selectReturn(doc));
-    const result = await checkAndIncrementUsage("u1");
-    expect(result).toBe(true);
-    expect(doc.aiCallsToday).toBe(6);
-  });
-
-  test("paid user at free limit (10) but under pro limit (100) → returns true", async () => {
-    const doc = userDoc({ isPaid: true, aiCallsToday: 10 });
-    mockUserFindById.mockReturnValue(selectReturn(doc));
+  test("free user under limit → findOneAndUpdate returns updated doc → returns true", async () => {
+    mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ aiCallsToday: 5 })));
+    mockUserFindOneAndUpdate.mockResolvedValue({ aiCallsToday: 6 });
     expect(await checkAndIncrementUsage("u1")).toBe(true);
   });
 
-  test("new day → resets counter to 0 before incrementing", async () => {
-    const doc = userDoc({ aiCallsToday: 10, aiCallsDate: "2000-01-01" });
-    mockUserFindById.mockReturnValue(selectReturn(doc));
-    const result = await checkAndIncrementUsage("u1");
-    expect(result).toBe(true);
-    expect(doc.aiCallsToday).toBe(1);
+  test("paid pro user at free limit (10) but under pro limit (100) → returns true", async () => {
+    mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ isPaid: true, plan: "pro", aiCallsToday: 10 })));
+    mockUserFindOneAndUpdate.mockResolvedValue({ aiCallsToday: 11 });
+    expect(await checkAndIncrementUsage("u1")).toBe(true);
+  });
+
+  test("new day → atomic update resets and increments → returns true", async () => {
+    mockUserFindById.mockReturnValue(selectLeanReturn(userDoc({ aiCallsToday: 10, aiCallsDate: "2000-01-01" })));
+    mockUserFindOneAndUpdate.mockResolvedValue({ aiCallsToday: 1 });
+    expect(await checkAndIncrementUsage("u1")).toBe(true);
   });
 });
 

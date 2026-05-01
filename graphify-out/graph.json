@@ -423,7 +423,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_controllers_companycontroller_js",
-      "community": 18,
+      "community": 19,
       "norm_label": "companycontroller.js"
     },
     {
@@ -432,7 +432,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
       "source_location": "L6",
       "id": "companycontroller_timingsafe",
-      "community": 18,
+      "community": 19,
       "norm_label": "timingsafe()"
     },
     {
@@ -441,7 +441,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
       "source_location": "L14",
       "id": "companycontroller_companylogin",
-      "community": 18,
+      "community": 19,
       "norm_label": "companylogin()"
     },
     {
@@ -450,7 +450,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\companyController.js",
       "source_location": "L43",
       "id": "companycontroller_getstats",
-      "community": 18,
+      "community": 19,
       "norm_label": "getstats()"
     },
     {
@@ -814,10 +814,19 @@
       "norm_label": "sessionkey()"
     },
     {
+      "label": "safeQuestion()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
+      "source_location": "L21",
+      "id": "practicecontroller_safequestion",
+      "community": 3,
+      "norm_label": "safequestion()"
+    },
+    {
       "label": "startTopic()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L20",
+      "source_location": "L26",
       "id": "practicecontroller_starttopic",
       "community": 3,
       "norm_label": "starttopic()"
@@ -826,7 +835,7 @@
       "label": "submitAnswer()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L58",
+      "source_location": "L64",
       "id": "practicecontroller_submitanswer",
       "community": 3,
       "norm_label": "submitanswer()"
@@ -835,7 +844,7 @@
       "label": "getTeacherMessage()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L182",
+      "source_location": "L203",
       "id": "practicecontroller_getteachermessage",
       "community": 3,
       "norm_label": "getteachermessage()"
@@ -1728,7 +1737,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_companyservice_js",
-      "community": 18,
+      "community": 19,
       "norm_label": "companyservice.js"
     },
     {
@@ -1737,7 +1746,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
       "source_location": "L3",
       "id": "companyservice_todaystr",
-      "community": 18,
+      "community": 19,
       "norm_label": "todaystr()"
     },
     {
@@ -1746,7 +1755,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
       "source_location": "L5",
       "id": "companyservice_startof",
-      "community": 18,
+      "community": 19,
       "norm_label": "startof()"
     },
     {
@@ -1755,7 +1764,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\companyService.js",
       "source_location": "L13",
       "id": "companyservice_getdashboardstats",
-      "community": 18,
+      "community": 19,
       "norm_label": "getdashboardstats()"
     },
     {
@@ -2043,7 +2052,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\scoringService.js",
       "source_location": "L49",
       "id": "scoringservice_computedynamicdifficulty",
-      "community": 8,
+      "community": 3,
       "norm_label": "computedynamicdifficulty()"
     },
     {
@@ -2052,7 +2061,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\selfLearningService.js",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_backend_backend_services_selflearningservice_js",
-      "community": 8,
+      "community": 3,
       "norm_label": "selflearningservice.js"
     },
     {
@@ -2061,7 +2070,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\services\\selfLearningService.js",
       "source_location": "L5",
       "id": "selflearningservice_updatequestionstats",
-      "community": 8,
+      "community": 3,
       "norm_label": "updatequestionstats()"
     },
     {
@@ -4572,7 +4581,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
-      "community": 19,
+      "community": 16,
       "norm_label": "ncerttopicview.jsx"
     },
     {
@@ -4581,61 +4590,70 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
       "source_location": "L16",
       "id": "ncerttopicview_section",
-      "community": 19,
+      "community": 16,
       "norm_label": "section()"
+    },
+    {
+      "label": "sanitizeSvg()",
+      "file_type": "code",
+      "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
+      "source_location": "L40",
+      "id": "ncerttopicview_sanitizesvg",
+      "community": 16,
+      "norm_label": "sanitizesvg()"
     },
     {
       "label": "DiagramCard()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L38",
+      "source_location": "L49",
       "id": "ncerttopicview_diagramcard",
-      "community": 19,
+      "community": 16,
       "norm_label": "diagramcard()"
     },
     {
       "label": "BulletList()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L57",
+      "source_location": "L63",
       "id": "ncerttopicview_bulletlist",
-      "community": 19,
+      "community": 16,
       "norm_label": "bulletlist()"
     },
     {
       "label": "WorkedExample()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L74",
+      "source_location": "L80",
       "id": "ncerttopicview_workedexample",
-      "community": 19,
+      "community": 16,
       "norm_label": "workedexample()"
     },
     {
       "label": "DerivationPart()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L153",
+      "source_location": "L159",
       "id": "ncerttopicview_derivationpart",
-      "community": 19,
+      "community": 16,
       "norm_label": "derivationpart()"
     },
     {
       "label": "MisconceptionCard()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L199",
+      "source_location": "L205",
       "id": "ncerttopicview_misconceptioncard",
-      "community": 19,
+      "community": 16,
       "norm_label": "misconceptioncard()"
     },
     {
       "label": "NcertTopicView()",
       "file_type": "code",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L235",
+      "source_location": "L241",
       "id": "ncerttopicview_ncerttopicview",
-      "community": 19,
+      "community": 16,
       "norm_label": "ncerttopicview()"
     },
     {
@@ -4662,7 +4680,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L1",
       "id": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_parentdashboard_jsx",
-      "community": 16,
+      "community": 17,
       "norm_label": "parentdashboard.jsx"
     },
     {
@@ -4671,7 +4689,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L5",
       "id": "parentdashboard_dayssince",
-      "community": 16,
+      "community": 17,
       "norm_label": "dayssince()"
     },
     {
@@ -4680,7 +4698,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L10",
       "id": "parentdashboard_hoursminutes",
-      "community": 16,
+      "community": 17,
       "norm_label": "hoursminutes()"
     },
     {
@@ -4689,7 +4707,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L20",
       "id": "parentdashboard_activityicon",
-      "community": 16,
+      "community": 17,
       "norm_label": "activityicon()"
     },
     {
@@ -4698,7 +4716,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L43",
       "id": "parentdashboard_weeklychart",
-      "community": 16,
+      "community": 17,
       "norm_label": "weeklychart()"
     },
     {
@@ -4707,7 +4725,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L92",
       "id": "parentdashboard_subjectmastery",
-      "community": 16,
+      "community": 17,
       "norm_label": "subjectmastery()"
     },
     {
@@ -4716,7 +4734,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L118",
       "id": "parentdashboard_studentview",
-      "community": 16,
+      "community": 17,
       "norm_label": "studentview()"
     },
     {
@@ -4725,7 +4743,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L278",
       "id": "parentdashboard_addchildpanel",
-      "community": 16,
+      "community": 17,
       "norm_label": "addchildpanel()"
     },
     {
@@ -4734,7 +4752,7 @@
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\ParentDashboard.jsx",
       "source_location": "L369",
       "id": "parentdashboard_parentdashboard",
-      "community": 16,
+      "community": 17,
       "norm_label": "parentdashboard()"
     },
     {
@@ -6120,7 +6138,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L1",
       "id": "e_ailearningpath_e2e_bot_reporter_issue_reporter_js",
-      "community": 17,
+      "community": 18,
       "norm_label": "issue-reporter.js"
     },
     {
@@ -6129,7 +6147,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L9",
       "id": "issue_reporter_issuereporter",
-      "community": 17,
+      "community": 18,
       "norm_label": "issuereporter"
     },
     {
@@ -6138,7 +6156,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L10",
       "id": "issue_reporter_issuereporter_constructor",
-      "community": 17,
+      "community": 18,
       "norm_label": ".constructor()"
     },
     {
@@ -6147,7 +6165,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L18",
       "id": "issue_reporter_issuereporter_onbegin",
-      "community": 17,
+      "community": 18,
       "norm_label": ".onbegin()"
     },
     {
@@ -6156,7 +6174,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L29",
       "id": "issue_reporter_issuereporter_ontestend",
-      "community": 17,
+      "community": 18,
       "norm_label": ".ontestend()"
     },
     {
@@ -6165,7 +6183,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L46",
       "id": "issue_reporter_issuereporter_onend",
-      "community": 17,
+      "community": 18,
       "norm_label": ".onend()"
     },
     {
@@ -6174,7 +6192,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L78",
       "id": "issue_reporter_issuereporter_name",
-      "community": 17,
+      "community": 18,
       "norm_label": "._name()"
     },
     {
@@ -6183,7 +6201,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L82",
       "id": "issue_reporter_issuereporter_componentreport",
-      "community": 17,
+      "community": 18,
       "norm_label": "._componentreport()"
     },
     {
@@ -6192,7 +6210,7 @@
       "source_file": "E:\\AILearningPath\\e2e-bot\\reporter\\issue-reporter.js",
       "source_location": "L121",
       "id": "issue_reporter_issuereporter_summary",
-      "community": 17,
+      "community": 18,
       "norm_label": "._summary()"
     },
     {
@@ -10194,7 +10212,19 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L20",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_practicecontroller_js",
+      "_tgt": "practicecontroller_safequestion",
+      "source": "e_ailearningpath_ai_learning_backend_backend_controllers_practicecontroller_js",
+      "target": "practicecontroller_safequestion",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
+      "source_location": "L26",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_practicecontroller_js",
       "_tgt": "practicecontroller_starttopic",
@@ -10206,7 +10236,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L58",
+      "source_location": "L64",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_practicecontroller_js",
       "_tgt": "practicecontroller_submitanswer",
@@ -10218,7 +10248,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L182",
+      "source_location": "L203",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_backend_backend_controllers_practicecontroller_js",
       "_tgt": "practicecontroller_getteachermessage",
@@ -10230,7 +10260,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L28",
+      "source_location": "L34",
       "weight": 1.0,
       "_src": "practicecontroller_starttopic",
       "_tgt": "practicecontroller_sessionkey",
@@ -10242,11 +10272,35 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
-      "source_location": "L63",
+      "source_location": "L69",
       "weight": 1.0,
       "_src": "practicecontroller_submitanswer",
       "_tgt": "practicecontroller_sessionkey",
       "source": "practicecontroller_sessionkey",
+      "target": "practicecontroller_submitanswer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "practicecontroller_starttopic",
+      "_tgt": "practicecontroller_safequestion",
+      "source": "practicecontroller_safequestion",
+      "target": "practicecontroller_starttopic",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-backend\\backend\\controllers\\practiceController.js",
+      "source_location": "L171",
+      "weight": 1.0,
+      "_src": "practicecontroller_submitanswer",
+      "_tgt": "practicecontroller_safequestion",
+      "source": "practicecontroller_safequestion",
       "target": "practicecontroller_submitanswer",
       "confidence_score": 1.0
     },
@@ -15570,7 +15624,19 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L38",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
+      "_tgt": "ncerttopicview_sanitizesvg",
+      "source": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
+      "target": "ncerttopicview_sanitizesvg",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
+      "source_location": "L49",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_diagramcard",
@@ -15582,7 +15648,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L57",
+      "source_location": "L63",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_bulletlist",
@@ -15594,7 +15660,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L74",
+      "source_location": "L80",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_workedexample",
@@ -15606,7 +15672,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L153",
+      "source_location": "L159",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_derivationpart",
@@ -15618,7 +15684,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L199",
+      "source_location": "L205",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_misconceptioncard",
@@ -15630,12 +15696,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
-      "source_location": "L235",
+      "source_location": "L241",
       "weight": 1.0,
       "_src": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "_tgt": "ncerttopicview_ncerttopicview",
       "source": "e_ailearningpath_ai_learning_frontend_frontend_src_pages_ncerttopicview_jsx",
       "target": "ncerttopicview_ncerttopicview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "E:\\AILearningPath\\ai-learning-frontend\\frontend\\src\\pages\\NcertTopicView.jsx",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_src": "ncerttopicview_diagramcard",
+      "_tgt": "ncerttopicview_sanitizesvg",
+      "source": "ncerttopicview_sanitizesvg",
+      "target": "ncerttopicview_diagramcard",
       "confidence_score": 1.0
     },
     {

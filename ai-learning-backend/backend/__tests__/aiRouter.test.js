@@ -14,12 +14,14 @@ jest.unstable_mockModule("../services/aiService.js", () => ({
 jest.unstable_mockModule("../models/index.js", () => ({
   User: {
     findById: jest.fn(() => ({
-      select: jest.fn(() => Promise.resolve({
-        isPaid: false, plan: "free",
-        aiCallsToday: 0, aiCallsDate: "",
-        save: jest.fn(),
+      select: jest.fn(() => ({
+        lean: jest.fn(() => Promise.resolve({
+          isPaid: false, plan: "free",
+          aiCallsToday: 0, aiCallsDate: "",
+        })),
       })),
     })),
+    findOneAndUpdate: jest.fn(() => Promise.resolve({ aiCallsToday: 1 })),
   },
   AIResponseCache: {
     findOne:          jest.fn(() => ({ lean: jest.fn(() => Promise.resolve(null)) })),

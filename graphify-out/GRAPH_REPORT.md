@@ -1,11 +1,11 @@
 # Graph Report - E:\AILearningPath  (2026-05-01)
 
 ## Corpus Check
-- 171 files · ~377,796 words
+- 171 files · ~378,430 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 881 nodes · 993 edges · 151 communities detected
+- 883 nodes · 998 edges · 151 communities detected
 - Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 130 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
@@ -167,7 +167,7 @@
 2. `useStep()` - 18 edges
 3. `Frontend (React + Vite, port 5173)` - 18 edges
 4. `Test Outcome: Passed` - 18 edges
-5. `submitAnswer()` - 14 edges
+5. `submitAnswer()` - 15 edges
 6. `Settings E2E Report` - 13 edges
 7. `smartAIExplanation()` - 11 edges
 8. `reveal()` - 10 edges
@@ -202,7 +202,7 @@ Nodes (67): Auth Error Context: Invalid Credentials Stay on Login, Auth Error Co
 
 ### Community 3 - "Community 3"
 Cohesion: 0.05
-Nodes (37): getInterleavedQuestion(), getNextQuestion(), adminAuth(), updateUserRole(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback() (+29 more)
+Nodes (40): getInterleavedQuestion(), getNextQuestion(), adminAuth(), updateUserRole(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback() (+32 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.05
@@ -221,8 +221,8 @@ Cohesion: 0.07
 Nodes (5): GoalPreviewSimple(), sampleTopicsFor(), statsFor(), Subjects(), useStep()
 
 ### Community 8 - "Community 8"
-Cohesion: 0.12
-Nodes (23): buildAccuracyHistory(), buildWeaknessMap(), getReport(), clerkAuth(), escHtml(), forgotPassword(), isProd(), issueTokens() (+15 more)
+Cohesion: 0.14
+Nodes (21): buildAccuracyHistory(), buildWeaknessMap(), getReport(), clerkAuth(), escHtml(), forgotPassword(), isProd(), issueTokens() (+13 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.14
@@ -253,20 +253,20 @@ Cohesion: 0.22
 Nodes (1): ErrorBoundary
 
 ### Community 16 - "Community 16"
+Cohesion: 0.25
+Nodes (2): DiagramCard(), sanitizeSvg()
+
+### Community 17 - "Community 17"
 Cohesion: 0.28
 Nodes (4): daysSince(), hoursMinutes(), StudentView(), WeeklyChart()
 
-### Community 17 - "Community 17"
+### Community 18 - "Community 18"
 Cohesion: 0.31
 Nodes (1): IssueReporter
 
-### Community 18 - "Community 18"
+### Community 19 - "Community 19"
 Cohesion: 0.36
 Nodes (6): companyLogin(), getStats(), timingSafe(), getDashboardStats(), startOf(), todayStr()
-
-### Community 19 - "Community 19"
-Cohesion: 0.25
-Nodes (0): 
 
 ### Community 20 - "Community 20"
 Cohesion: 0.29
@@ -1000,7 +1000,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `Root Issue: Auth state not injected - practice page shows landing page instead` and `Root Issue: Login Submit button lacks type=submit attribute`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `logout()` connect `Community 8` to `Community 0`, `Community 3`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **Why does `handleDeleteAccount()` connect `Community 0` to `Community 8`?**
   _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `Frontend (React + Vite, port 5173)` (e.g. with `Frontend Stack (README): React 18 + Vite + Tailwind + Zustand + Recharts` and `E2E Report: Navigation (all 15 checks passed)`) actually correct?**

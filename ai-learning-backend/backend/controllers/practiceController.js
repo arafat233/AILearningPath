@@ -17,6 +17,12 @@ import { sessionGet, sessionSet } from "../utils/redisClient.js";
 const SESSION_TTL = 7200; // 2 hours — max length of a practice session
 const sessionKey  = (userId) => `practice:${userId}`;
 
+// Strip option types before sending to client — type:"correct" must not be exposed
+const safeQuestion = (q) => {
+  const obj = q.toObject?.() ?? q;
+  return { ...obj, options: (obj.options || []).map(({ text, logicTag }) => ({ text, logicTag })) };
+};
+
 export const startTopic = async (req, res, next) => {
   try {
     const { topicId } = req.body;
@@ -49,7 +55,7 @@ export const startTopic = async (req, res, next) => {
       ? generateTeacherMessage(profile, { questionsAnswered: 0, sessionCorrect: 0 })
       : null;
 
-    res.json({ ...question.toObject?.() ?? question, teacherMessage: teacherMsg });
+    res.json({ ...safeQuestion(question), teacherMessage: teacherMsg });
   } catch (err) {
     next(err);
   }
@@ -57,7 +63,7 @@ export const startTopic = async (req, res, next) => {
 
 export const submitAnswer = async (req, res, next) => {
   try {
-    const { selectedType, timeTaken, confidence } = req.body;
+    const { selectedOptionIndex, timeTaken, confidence } = req.body;
 
     const userId = req.user.id;
     const session = await sessionGet(sessionKey(userId));
@@ -66,6 +72,18 @@ export const submitAnswer = async (req, res, next) => {
     }
 
     const question = session.currentQuestion;
+    const opts = question.options || [];
+
+    // Derive selectedType server-side — client only sends index, never the type
+    let selectedType;
+    const idx = Number(selectedOptionIndex);
+    if (idx === -1 || idx >= opts.length) {
+      selectedType = "guessing"; // timeout or out-of-range
+    } else {
+      selectedType = opts[idx]?.type || "guessing";
+    }
+    const correctOptionIndex = opts.findIndex((o) => o.type === "correct");
+
     const safeTime = Math.max(1, Math.min(Number(timeTaken) || 15, 600));
     const result = analyzeAnswer(question, selectedType, safeTime, confidence);
 
@@ -149,10 +167,11 @@ export const submitAnswer = async (req, res, next) => {
       topicAttempts: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.attempts,
     }).catch(() => []);
 
-    const nextQuestion = await getNextQuestion(userId, session.topic).catch(() => null);
+    const nextQuestionRaw = await getNextQuestion(userId, session.topic).catch(() => null);
+    const nextQuestionSafe = nextQuestionRaw ? safeQuestion(nextQuestionRaw) : null;
     await sessionSet(sessionKey(userId), {
       ...session,
-      currentQuestion: nextQuestion?.toObject?.() ?? nextQuestion ?? null,
+      currentQuestion: nextQuestionRaw?.toObject?.() ?? nextQuestionRaw ?? null,
     }, SESSION_TTL);
 
     res.json({
@@ -161,17 +180,19 @@ export const submitAnswer = async (req, res, next) => {
       speedProfile: result.speedProfile,
       confidenceInsight: result.confidenceInsight,
       message: result.message,
+      selectedOptionIndex: idx === -1 ? idx : Math.max(0, Math.min(idx, opts.length - 1)),
+      correctOptionIndex,
       doubtType: doubtResolution?.doubtType || null,
       doubtInsight: doubtResolution?.insight || null,
       suggestedAction: doubtResolution?.suggestedAction || null,
       aiExplanation,
       shortcut: question.shortcut || null,
-      solutionSteps: question.solutionSteps || [],
+      solutionSteps: result.isCorrect ? [] : (question.solutionSteps || []),
       teacherMessage,
       aiUsage,
       aiFromCache: !!(aiExplanation && question.solutionSteps?.length === 0),
       newBadges,
-      nextQuestion,
+      nextQuestion: nextQuestionSafe,
       difficultyLevel: prevLevel,
     });
   } catch (err) {

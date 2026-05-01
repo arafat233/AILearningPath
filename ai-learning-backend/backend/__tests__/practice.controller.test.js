@@ -142,7 +142,8 @@ describe("startTopic", () => {
     mockCheckFoundation.mockResolvedValue({ redirect: false });
     const q = {
       _id: "q1", questionText: "Q?", difficultyScore: 0.5,
-      toObject: () => ({ _id: "q1", questionText: "Q?" }),
+      options: [{ type: "correct", text: "4", logicTag: "sqrt" }, { type: "concept_error", text: "2" }],
+      toObject: () => ({ _id: "q1", questionText: "Q?", options: [{ type: "correct", text: "4", logicTag: "sqrt" }, { type: "concept_error", text: "2" }] }),
     };
     mockGetNextQuestion.mockResolvedValue(q);
     mockProfileFindOne.mockResolvedValue(null);
@@ -151,6 +152,11 @@ describe("startTopic", () => {
     expect(mockSessionSet).toHaveBeenCalled();
     expect(res.json).toHaveBeenCalled();
     expect(next).not.toHaveBeenCalled();
+    // option types must be stripped from client response
+    const payload = res.json.mock.calls[0][0];
+    expect(payload.options[0]).not.toHaveProperty("type");
+    expect(payload.options[0].text).toBe("4");
+    expect(payload.options[0].logicTag).toBe("sqrt");
   });
 });
 
@@ -159,60 +165,105 @@ describe("startTopic", () => {
 describe("submitAnswer", () => {
   test("no active session → 400 AppError", async () => {
     mockSessionGet.mockResolvedValue(null);
-    const { req, res, next } = mockReqRes({ selectedType: "correct", timeTaken: 20, confidence: "medium" });
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 20, confidence: "medium" });
     await ctrl.submitAnswer(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(400);
   });
 
   test("session with no currentQuestion → 400 AppError", async () => {
     mockSessionGet.mockResolvedValue({ topic: "Algebra" }); // no currentQuestion
-    const { req, res, next } = mockReqRes({ selectedType: "correct", timeTaken: 20, confidence: "medium" });
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 20, confidence: "medium" });
     await ctrl.submitAnswer(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(400);
   });
 
-  test("correct answer → isCorrect:true, no aiExplanation, no resolveDoubt call", async () => {
-    const question = { _id: "q1", questionText: "Q?", expectedTime: 20, options: [], difficultyScore: 0.5 };
+  test("correct answer (index 0, type correct) → isCorrect:true, no aiExplanation, solutionSteps empty", async () => {
+    const question = {
+      _id: "q1", questionText: "Q?", expectedTime: 20, difficultyScore: 0.5,
+      options: [{ type: "correct", text: "4" }, { type: "concept_error", text: "2" }],
+      solutionSteps: ["Step 1", "Step 2"],
+    };
     mockSessionGet.mockResolvedValue({ currentQuestion: question, topic: "Algebra", sessionTotal: 2, sessionCorrect: 1 });
-    mockAnalyzeAnswer.mockReturnValue({ isCorrect: true, behavior: "normal", speedProfile: "mastery", confidenceInsight: null, message: "Great!" });
+    mockAnalyzeAnswer.mockReturnValue({ isCorrect: true, behavior: "correct", speedProfile: "mastery", confidenceInsight: null, message: "Great!" });
     mockProfileFindOne.mockResolvedValue(PROFILE);
     mockGetNextQuestion.mockResolvedValue(null);
-    const { req, res, next } = mockReqRes({ selectedType: "correct", timeTaken: 15, confidence: "high" });
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 15, confidence: "high" });
     await ctrl.submitAnswer(req, res, next);
     expect(res.json).toHaveBeenCalled();
     const payload = res.json.mock.calls[0][0];
     expect(payload.isCorrect).toBe(true);
     expect(payload.aiExplanation).toBeFalsy();
+    expect(payload.solutionSteps).toEqual([]);  // not exposed when correct
+    expect(payload.correctOptionIndex).toBe(0);
     expect(mockResolveDoubt).not.toHaveBeenCalled();
   });
 
-  test("wrong answer → resolveDoubt is called with correct args", async () => {
+  test("selectedType derived server-side from option index — client cannot fake correct", async () => {
+    const question = {
+      _id: "q1", questionText: "Q?", expectedTime: 20, difficultyScore: 0.5,
+      options: [{ type: "concept_error", text: "2" }, { type: "correct", text: "4" }],
+      solutionSteps: [],
+    };
+    mockSessionGet.mockResolvedValue({ currentQuestion: question, topic: "Algebra", sessionTotal: 0, sessionCorrect: 0 });
+    mockAnalyzeAnswer.mockReturnValue({ isCorrect: false, behavior: "concept_error", speedProfile: "normal", confidenceInsight: null, message: "Review." });
+    mockResolveDoubt.mockResolvedValue(null);
+    mockProfileFindOne.mockResolvedValue(PROFILE);
+    mockGetNextQuestion.mockResolvedValue(null);
+    // Client sends index 0 — backend should derive type "concept_error", not "correct"
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 20, confidence: "medium" });
+    await ctrl.submitAnswer(req, res, next);
+    expect(mockAnalyzeAnswer).toHaveBeenCalledWith(question, "concept_error", expect.any(Number), "medium");
+  });
+
+  test("timeout (index -1) → selectedType becomes guessing", async () => {
+    const question = {
+      _id: "q1", questionText: "Q?", expectedTime: 20, difficultyScore: 0.5,
+      options: [{ type: "correct", text: "4" }],
+      solutionSteps: [],
+    };
+    mockSessionGet.mockResolvedValue({ currentQuestion: question, topic: "Algebra", sessionTotal: 0, sessionCorrect: 0 });
+    mockAnalyzeAnswer.mockReturnValue({ isCorrect: false, behavior: "guessing", speedProfile: "guessing", confidenceInsight: null, message: "Time!" });
+    mockResolveDoubt.mockResolvedValue(null);
+    mockProfileFindOne.mockResolvedValue(PROFILE);
+    mockGetNextQuestion.mockResolvedValue(null);
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: -1, timeTaken: 30, confidence: "low" });
+    await ctrl.submitAnswer(req, res, next);
+    expect(mockAnalyzeAnswer).toHaveBeenCalledWith(question, "guessing", expect.any(Number), "low");
+  });
+
+  test("wrong answer → resolveDoubt is called and solutionSteps included", async () => {
     const question = {
       _id: "q1", questionText: "What is sqrt(16)?", expectedTime: 20,
-      options: [{ type: "correct", text: "4" }], difficultyScore: 0.5,
-      solutionSteps: [], shortcut: null,
+      options: [{ type: "concept_error", text: "2" }, { type: "correct", text: "4" }],
+      difficultyScore: 0.5, solutionSteps: ["sqrt(16) = 4"], shortcut: null,
     };
     mockSessionGet.mockResolvedValue({ currentQuestion: question, topic: "Algebra", sessionTotal: 4, sessionCorrect: 2 });
     mockAnalyzeAnswer.mockReturnValue({ isCorrect: false, behavior: "concept_error", speedProfile: "normal", confidenceInsight: "dangerous_misconception", message: "Review." });
     mockResolveDoubt.mockResolvedValue({ doubtType: "concept_gap", insight: "Gap.", suggestedAction: "revisit_lesson", aiHelp: "Here's help" });
     mockProfileFindOne.mockResolvedValue(PROFILE);
     mockGetNextQuestion.mockResolvedValue(null);
-    const { req, res, next } = mockReqRes({ selectedType: "concept_error", timeTaken: 20, confidence: "high" });
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 20, confidence: "high" });
     await ctrl.submitAnswer(req, res, next);
     expect(mockResolveDoubt).toHaveBeenCalled();
     const payload = res.json.mock.calls[0][0];
     expect(payload.isCorrect).toBe(false);
     expect(payload.doubtType).toBe("concept_gap");
+    expect(payload.solutionSteps).toEqual(["sqrt(16) = 4"]);  // included when wrong
+    expect(payload.correctOptionIndex).toBe(1);
+    expect(payload.selectedOptionIndex).toBe(0);
   });
 
-  test("wrong answer → attempt is recorded in DB", async () => {
-    const question = { _id: "q1", questionText: "Q?", expectedTime: 20, options: [], difficultyScore: 0.5, solutionSteps: [] };
+  test("wrong answer → attempt recorded with server-derived selectedType", async () => {
+    const question = {
+      _id: "q1", questionText: "Q?", expectedTime: 20, difficultyScore: 0.5,
+      options: [{ type: "guessing", text: "?" }], solutionSteps: [],
+    };
     mockSessionGet.mockResolvedValue({ currentQuestion: question, topic: "Algebra", sessionTotal: 0, sessionCorrect: 0 });
     mockAnalyzeAnswer.mockReturnValue({ isCorrect: false, behavior: "guessing", speedProfile: "guessing", confidenceInsight: null, message: "Slow down." });
     mockResolveDoubt.mockResolvedValue(null);
     mockProfileFindOne.mockResolvedValue(PROFILE);
     mockGetNextQuestion.mockResolvedValue(null);
-    const { req, res, next } = mockReqRes({ selectedType: "guessing", timeTaken: 5, confidence: "low" });
+    const { req, res, next } = mockReqRes({ selectedOptionIndex: 0, timeTaken: 5, confidence: "low" });
     await ctrl.submitAnswer(req, res, next);
     expect(mockAttemptCreate).toHaveBeenCalledWith(expect.objectContaining({
       userId: "user1", isCorrect: false, selectedType: "guessing",

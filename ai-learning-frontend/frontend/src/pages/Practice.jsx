@@ -82,7 +82,7 @@ export default function Practice() {
           if (secs >= limit - 5) setTimeWarning(true);
           if (secs >= limit) {
             clearInterval(timerRef.current);
-            handleAnswer("guessing");
+            handleAnswer(-1); // timeout — backend treats as guessing
           }
         }
       }, 1000);
@@ -116,14 +116,14 @@ export default function Practice() {
     }
   };
 
-  const handleAnswer = async (optionType) => {
+  const handleAnswer = async (optionIndex) => {
     if (answering || !question) return;
     clearInterval(timerRef.current);
     const timeTaken = Math.floor((Date.now() - (startTimeRef.current || Date.now())) / 1000);
     setAnswering(true);
     try {
       const { data } = await submitAnswer({
-        selectedType: optionType,
+        selectedOptionIndex: optionIndex,
         timeTaken,
         confidence: confidence || "medium",
       });
@@ -366,9 +366,9 @@ export default function Practice() {
           {question.options?.map((opt, i) => {
             let cls = "bg-apple-gray6 border-transparent text-[var(--label)] hover:bg-apple-blue/8 hover:border-apple-blue/30";
             if (feedback) {
-              if (opt.type === "correct")
+              if (i === feedback.correctOptionIndex)
                 cls = "bg-apple-green/10 border-apple-green/30 text-apple-green";
-              else if (opt.type === feedback.behavior && !feedback.isCorrect)
+              else if (i === feedback.selectedOptionIndex && !feedback.isCorrect)
                 cls = "bg-apple-red/10 border-apple-red/30 text-apple-red";
               else
                 cls = "bg-apple-gray6 border-transparent text-apple-gray cursor-default";
@@ -376,7 +376,7 @@ export default function Practice() {
             return (
               <button
                 key={i}
-                onClick={() => !feedback && handleAnswer(opt.type)}
+                onClick={() => !feedback && handleAnswer(i)}
                 disabled={!!feedback || answering}
                 className={`w-full text-left px-4 py-3.5 rounded-apple-lg border text-[14px] font-medium
                             transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.99] ${cls}`}

@@ -25,13 +25,11 @@ const startSchema = Joi.object({
   topicId: Joi.string().required(),
 });
 
-// SEC-06: Restrict selectedType to valid enum values — prevents analytics poisoning
-const ANSWER_TYPES = ["correct", "concept_error", "calculation_error", "partial_logic", "guessing", "misinterpretation"];
-
+// Client sends selected option index; backend derives selectedType server-side
 const submitSchema = Joi.object({
-  selectedType: Joi.string().valid(...ANSWER_TYPES).required(),
-  timeTaken:    Joi.number().min(1).max(600).optional(),
-  confidence:   Joi.string().valid("low", "medium", "high").optional(),
+  selectedOptionIndex: Joi.number().integer().min(-1).max(10).required(),
+  timeTaken:           Joi.number().min(1).max(600).optional(),
+  confidence:          Joi.string().valid("low", "medium", "high").optional(),
 });
 
 const mixedSchema = Joi.object({
@@ -55,14 +53,17 @@ r.post("/mixed", auth, validate(mixedSchema), async (req, res, next) => {
     // Store in session so /practice/submit can find the current question
     const { sessionSet } = await import("../utils/redisClient.js");
     const sessionKey = `practice:${req.user.id}`;
+    const qObj = question.toObject?.() ?? question;
     await sessionSet(sessionKey, {
       topic: question.topic || topics[0],
       sessionCorrect: 0,
       sessionTotal: 0,
-      currentQuestion: question.toObject?.() ?? question,
+      currentQuestion: qObj,
     }, 7200);
 
-    res.json(question);
+    // Strip option types before sending to client
+    const safeOpts = (qObj.options || []).map(({ text, logicTag }) => ({ text, logicTag }));
+    res.json({ ...qObj, options: safeOpts });
   } catch (err) {
     next(err);
   }

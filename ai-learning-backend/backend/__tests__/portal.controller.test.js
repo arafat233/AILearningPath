@@ -9,75 +9,90 @@ const mockProfileFindOne  = jest.fn();
 const mockStreakFindOne   = jest.fn();
 const mockBadgeFind       = jest.fn();
 
+const mockNoop = jest.fn().mockResolvedValue([]);
+
 jest.unstable_mockModule("../models/index.js", () => ({
   User: {
-    exists:           mockExists,
+    exists:            mockExists,
     findByIdAndUpdate: mockFindByIdAndUpdate,
-    findOne:          mockFindOne,
-    findById:         mockFindById,
-    find:             mockFind,
+    findOne:           mockFindOne,
+    findById:          mockFindById,
+    find:              mockFind,
   },
-  UserProfile: { findOne: mockProfileFindOne },
-  Streak:      { findOne: mockStreakFindOne   },
-  Badge:       { find:    mockBadgeFind       },
+  UserProfile:      { findOne: mockProfileFindOne },
+  Streak:           { findOne: mockStreakFindOne  },
+  Badge:            { find:    mockBadgeFind      },
+  Attempt:          { find: mockNoop, countDocuments: mockNoop },
+  Topic:            { find: mockNoop },
+  ExamAttempt:      { find: mockNoop },
+  DoubtThread:      { find: mockNoop },
+  Question:         { find: mockNoop },
+  WeeklyLeaderboard:{ find: mockNoop },
+}));
+
+jest.unstable_mockModule("../models/lessonModel.js", () => ({
+  LessonProgress: { find: mockNoop },
 }));
 
 const ctrl = await import("../controllers/portalController.js");
 
-function mockReqRes(params = {}, body = {}, userId = "requester1") {
-  const req  = { params, body, user: { id: userId } };
+const VALID_STUDENT_ID = "507f1f77bcf86cd799439011";
+const VALID_PARENT_ID  = "507f191e810c19729de860ea";
+
+function mockReqRes(params = {}, body = {}, userId = VALID_PARENT_ID, role = "parent") {
+  const req  = { params, body, user: { id: userId, role } };
   const res  = { json: jest.fn() };
   const next = jest.fn();
   return { req, res, next };
 }
 
+// findById().select() chainable mock
+const findByIdSelect = (doc) => ({ select: jest.fn().mockResolvedValue(doc) });
+
 afterEach(() => jest.clearAllMocks());
 
-describe("generateInvite", () => {
-  test("generates 8-char uppercase code and updates user", async () => {
-    mockExists.mockResolvedValue(false);
+describe("linkStudentDirect", () => {
+  test("parent with valid studentId → student linked, returns student data", async () => {
+    mockFindById.mockReturnValue(findByIdSelect({ _id: VALID_STUDENT_ID, name: "Bob", grade: "10", subject: "Math", role: "student" }));
     mockFindByIdAndUpdate.mockResolvedValue({});
-    const { req, res, next } = mockReqRes();
-    await ctrl.generateInvite(req, res, next);
-    const code = res.json.mock.calls[0][0].inviteCode;
-    expect(code).toMatch(/^[A-F0-9]{8}$/);
-  });
-
-  test("retries on collision and eventually succeeds", async () => {
-    // First call: collision, second: unique
-    mockExists.mockResolvedValueOnce(true).mockResolvedValue(false);
-    mockFindByIdAndUpdate.mockResolvedValue({});
-    const { req, res, next } = mockReqRes();
-    await ctrl.generateInvite(req, res, next);
-    expect(mockExists.mock.calls.length).toBeGreaterThanOrEqual(2);
-    expect(res.json).toHaveBeenCalled();
-  });
-});
-
-// linkStudent calls User.findOne(...).select(...) — needs chainable mock
-const findOneSelect = (doc) => ({ select: () => Promise.resolve(doc) });
-
-describe("linkStudent", () => {
-  test("valid code → student linked", async () => {
-    mockFindOne.mockReturnValue(findOneSelect({ _id: "student1", name: "Bob", email: "b@c.com" }));
-    mockFindByIdAndUpdate.mockResolvedValue({});
-    const { req, res, next } = mockReqRes({}, { inviteCode: "ABCD1234" }, "parent1");
-    await ctrl.linkStudent(req, res, next);
+    const { req, res, next } = mockReqRes({}, { studentId: VALID_STUDENT_ID }, VALID_PARENT_ID, "parent");
+    await ctrl.linkStudentDirect(req, res, next);
     expect(res.json.mock.calls[0][0].student.name).toBe("Bob");
+    expect(next).not.toHaveBeenCalled();
   });
 
-  test("self-link → 400 AppError", async () => {
-    mockFindOne.mockReturnValue(findOneSelect({ _id: "requester1", name: "Self" }));
-    const { req, res, next } = mockReqRes({}, { inviteCode: "SELF1234" }, "requester1");
-    await ctrl.linkStudent(req, res, next);
+  test("student role → 403 AppError", async () => {
+    const { req, res, next } = mockReqRes({}, { studentId: VALID_STUDENT_ID }, VALID_PARENT_ID, "student");
+    await ctrl.linkStudentDirect(req, res, next);
+    expect(next.mock.calls[0][0].statusCode).toBe(403);
+  });
+
+  test("invalid ObjectId → 400 AppError", async () => {
+    const { req, res, next } = mockReqRes({}, { studentId: "notanid" }, VALID_PARENT_ID, "parent");
+    await ctrl.linkStudentDirect(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(400);
   });
 
-  test("invalid code → 404 AppError", async () => {
-    mockFindOne.mockReturnValue(findOneSelect(null));
-    const { req, res, next } = mockReqRes({}, { inviteCode: "BADCODE1" });
-    await ctrl.linkStudent(req, res, next);
+  test("self-link → 400 AppError", async () => {
+    mockFindById.mockReturnValue(findByIdSelect({ _id: VALID_PARENT_ID, name: "Self", grade: "10", subject: "Math" }));
+    const { req, res, next } = mockReqRes({}, { studentId: VALID_PARENT_ID }, VALID_PARENT_ID, "parent");
+    await ctrl.linkStudentDirect(req, res, next);
+    expect(next.mock.calls[0][0].statusCode).toBe(400);
+  });
+
+  test("student not found → 404 AppError", async () => {
+    mockFindById.mockReturnValue(findByIdSelect(null));
+    const { req, res, next } = mockReqRes({}, { studentId: VALID_STUDENT_ID }, VALID_PARENT_ID, "parent");
+    await ctrl.linkStudentDirect(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(404);
+  });
+
+  test("teacher role → also allowed", async () => {
+    mockFindById.mockReturnValue(findByIdSelect({ _id: VALID_STUDENT_ID, name: "Alice", grade: "10", subject: "Math" }));
+    mockFindByIdAndUpdate.mockResolvedValue({});
+    const { req, res, next } = mockReqRes({}, { studentId: VALID_STUDENT_ID }, VALID_PARENT_ID, "teacher");
+    await ctrl.linkStudentDirect(req, res, next);
+    expect(next).not.toHaveBeenCalled();
   });
 });
 

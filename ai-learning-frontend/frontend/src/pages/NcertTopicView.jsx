@@ -35,20 +35,26 @@ function Section({ title, accent, defaultOpen = false, children }) {
   );
 }
 
+// Strip scripts and event handlers from SVG before rendering — data comes
+// from DB seed (not user input) but defence in depth is still good practice
+function sanitizeSvg(svg) {
+  return svg
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/\s+on\w+="[^"]*"/gi, "")
+    .replace(/\s+on\w+='[^']*'/gi, "")
+    .replace(/javascript:/gi, "")
+    .replace(/<svg /, '<svg style="max-width:100%;height:auto;display:block;margin:0 auto" ');
+}
+
 function DiagramCard({ diagram }) {
   return (
     <div style={{ background: "#FFFFFF", padding: "36px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
       <h3 style={{ margin: "0 0 4px", color: "#1D1D1F", fontWeight: 600, fontSize: "19px", letterSpacing: "-0.01em" }}>
         {diagram.title}
       </h3>
-      <div style={{ color: "#86868B", fontSize: "13px", marginBottom: "24px", fontFamily: "'SF Mono', ui-monospace, monospace" }}>
-        id: {diagram.id}
-      </div>
       <div
         style={{ lineHeight: 0 }}
-        dangerouslySetInnerHTML={{
-          __html: diagram.svg.replace(/<svg /, '<svg style="max-width:100%;height:auto;display:block;margin:0 auto" '),
-        }}
+        dangerouslySetInnerHTML={{ __html: sanitizeSvg(diagram.svg) }}
       />
     </div>
   );

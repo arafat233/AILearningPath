@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import { getMe } from "./services/api";
 
@@ -54,16 +54,25 @@ import AdminUsers       from "./pages/admin/AdminUsers";
 import AdminQuestions   from "./pages/admin/AdminQuestions";
 import AdminTopics      from "./pages/admin/AdminTopics";
 import AdminCacheStats  from "./pages/admin/AdminCacheStats";
+import Landing          from "./pages/Landing";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
   const user = useAuthStore((s) => s.user);
-  return user ? children : <Navigate to="/start" replace />;
+  return user ? children : <Navigate to="/" replace />;
 };
 
 const PublicOnly = ({ children }) => {
   const user = useAuthStore((s) => s.user);
   return user ? <Navigate to="/" replace /> : children;
+};
+
+// Shows Landing for guests at "/"; deep-links to app routes redirect to "/" for guests
+const RootElement = () => {
+  const user = useAuthStore((s) => s.user);
+  const location = useLocation();
+  if (!user && location.pathname !== "/") return <Navigate to="/" replace />;
+  return user ? <Layout /> : <Landing />;
 };
 
 export default function App() {
@@ -123,7 +132,7 @@ export default function App() {
             <Route path="cache"     element={<AdminCacheStats />} />
           </Route>
 
-          <Route path="/" element={<Protected><Layout /></Protected>}>
+          <Route path="/" element={<RootElement />}>
             <Route index                          element={<Dashboard />} />
             <Route path="lessons"                 element={<Lessons />} />
             <Route path="lessons/:topic"          element={<LessonView />} />

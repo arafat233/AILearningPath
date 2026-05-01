@@ -194,3 +194,9 @@ body {
 
 .caret::after { content:'▍'; margin-left:2px; color:#007AFF; animation: caret 1s steps(2) infinite; }
 @keyframes caret { 50%{opacity:0} }
+
+.caption-fade { animation: captionFade .6s ease both; }
+@keyframes captionFade { from { opacity: 0; transform: translateY(6px); } to { opacity: .9; transform: translateY(0); } }
+
+@keyframes twinkle { from { opacity: .3; } to { opacity: 1; } }
+@keyframes lg-swing { 0%,100%{transform:rotate(-35deg)} 50%{transform:rotate(35deg)} }

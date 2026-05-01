@@ -546,8 +546,9 @@ function useAmbientMusic(enabled, duckedLevel) {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     const ctx = new AC();
+    ctx.resume().catch(() => {});
     const master = ctx.createGain(); master.gain.value = 0;
-    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2200;
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2200; lp.Q.value = 0.3;
     master.connect(lp).connect(ctx.destination);
     const delay = ctx.createDelay(1.2); delay.delayTime.value = 0.42;
     const fb = ctx.createGain(); fb.gain.value = 0.35;
@@ -595,7 +596,7 @@ function useAmbientMusic(enabled, duckedLevel) {
 }
 
 function IntroScene_Sky({ p }) {
-  const stars = [{ x:15,y:25,r:2.4,c:"#FFD166",d:0.0 },{ x:30,y:16,r:1.8,c:"#7CC4FF",d:0.2 },{ x:46,y:42,r:3.2,c:"#C8A0FF",d:0.4 },{ x:62,y:22,r:2.0,c:"#77DDA0",d:0.15 },{ x:78,y:34,r:2.2,c:"#FF9E7A",d:0.35 },{ x:36,y:62,r:1.8,c:"#FFA8D9",d:0.5 },{ x:68,y:68,r:2.4,c:"#9FE6E6",d:0.25 }];
+  const stars = [{ x:15,y:25,r:2.4,c:"#FFD166",d:0.0 },{ x:30,y:16,r:1.8,c:"#7CC4FF",d:0.2 },{ x:46,y:42,r:3.2,c:"#C8A0FF",d:0.4 },{ x:62,y:22,r:2.0,c:"#77DDA0",d:0.15 },{ x:78,y:34,r:2.2,c:"#FF9E7A",d:0.35 },{ x:36,y:62,r:1.8,c:"#FFA8D9",d:0.5 },{ x:68,y:68,r:2.4,c:"#9FE6E6",d:0.25 },{ x:88,y:14,r:1.6,c:"#FFD166",d:0.1 },{ x:10,y:55,r:2.0,c:"#7CC4FF",d:0.3 },{ x:54,y:78,r:1.4,c:"#FF9E7A",d:0.45 }];
   const scale = 1 + p * 0.08;
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid slice" style={{ transform:`scale(${scale})`, transition:"transform 5s linear" }}>
@@ -1124,7 +1125,7 @@ function ProductTour() {
 
   return (
     <section id="tour" className="py-24 md:py-32 bg-paper-2 border-y hairline overflow-hidden">
-      <audio ref={audioRef} src="/audio/voiceover.mp3" preload="none" />
+      <audio ref={audioRef} src="/audio/voiceover.mp3" preload="auto" />
       <div className="max-w-[1200px] mx-auto px-6">
         <p className="text-[11px] mono uppercase tracking-[0.2em] text-ink-3">How it learns with your child</p>
         <h2 className="display text-[40px] md:text-[56px] leading-[1] mt-3 max-w-[820px]">Teach. Test. Adapt. Repeat.</h2>

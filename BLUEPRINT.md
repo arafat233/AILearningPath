@@ -819,10 +819,14 @@ Location: src/__tests__/
 Runner:   vitest (npm test in frontend dir)
 Coverage: @vitest/coverage-v8
 
-src/__tests__/setup.js                    — @testing-library/jest-dom import
+src/__tests__/setup.js                    — @testing-library/jest-dom + scrollIntoView stub
 src/__tests__/authStore.test.js           — 4 tests: initial state, setAuth, logout, re-auth
 src/__tests__/api.interceptors.test.js    — 7 tests: CSRF cookie, method filter, 401 logout
 src/__tests__/NPSSurveyBanner.test.jsx    — 5 tests: eligibility, score select, submit, dismiss
+src/__tests__/useFeatureFlags.test.js     — 6 tests: fetch, unknown flag, error fallback, caching
+src/__tests__/DoubtChat.test.jsx          — 18 tests: render guard, toggle, thread fetch, send, clear
+src/__tests__/Layout.test.jsx             — 7 tests: Protected/AdminOnly/PublicOnly guards
+src/__tests__/Practice.test.jsx           — 9 tests: topic load, session start, MCQ submit, summary
 ```
 
 ---
@@ -1076,10 +1080,13 @@ Runner:   node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js
 Command:  npm test              (unit tests, ignores integration/)
           npm run test:integration  (integration tests against real DB)
 
-Unit tests (22+): analysisService, scoringService, plannerService, aiRouter,
+Unit tests (29+): analysisService, scoringService, plannerService, aiRouter,
   auth.middleware, adminAuth.middleware, validate.middleware, practice.controller,
   exam.controller, payment.service, portal.controller, ai.service, adaptive.service,
-  revision.service, streak.service, autoDoubt.service, aiTeacher.service
+  revision.service, streak.service, autoDoubt.service, aiTeacher.service,
+  badgeService (17 tests), predictionService (13 tests), couponService (19 tests),
+  onboardingEmailService (9 tests), adminStats.controller (6 tests),
+  admin.routes (10 tests: adminAuth + validate), user.controller (4 tests: GDPR + updateMe)
 
 Integration tests (backend/__tests__/integration/):
   _setup.js — connects to MONGO_URI if set (CI real DB), else MongoMemoryServer

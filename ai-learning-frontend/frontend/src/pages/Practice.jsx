@@ -75,9 +75,6 @@ export default function Practice() {
   const [timeWarning, setTimeWarning] = useState(false);
   const timerRef = useRef(null);
 
-  // Keep ref current so the timer closure never captures a stale handleAnswer
-  handleAnswerRef.current = handleAnswer;
-
   // Keyboard shortcuts: A/B/C/D select answer options
   useEffect(() => {
     if (!question || feedback) return;
@@ -185,6 +182,9 @@ export default function Practice() {
       setEvalLoading(false);
     }
   };
+
+  // Keep ref current so the timer closure never captures a stale handleAnswer
+  handleAnswerRef.current = handleAnswer;
 
   const handleHint = async () => {
     if (hintLoading || hint || !question) return;

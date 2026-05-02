@@ -595,6 +595,7 @@ utils/email.js           — nodemailer wrapper; logs to console when SMTP not s
 utils/logger.js          — structured logger (pretty dev / JSON prod)
 utils/validateEnv.js     — crashes on startup if required env vars missing
 utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
+utils/sentry.js          — Sentry init wrapper; no-op when SENTRY_DSN not set; exports Sentry for captureException
 
 Security hardening:
   helmet      — HTTP security headers (CSP, HSTS, etc.)

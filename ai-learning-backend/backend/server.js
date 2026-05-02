@@ -18,6 +18,7 @@ import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
+import { initSentry } from "./utils/sentry.js";
 
 import authRoutes        from "./routes/authRoutes.js";
 import { initPassport }  from "./controllers/authController.js";
@@ -44,6 +45,7 @@ import pyqRoutes        from "./routes/pyqRoutes.js";
 import feedbackRoutes   from "./routes/feedbackRoutes.js";
 
 dotenv.config();
+initSentry();   // no-op when SENTRY_DSN is not set
 validateEnv(); // crash fast if required env vars are missing
 initPassport(); // register Google strategy after env vars are loaded
 

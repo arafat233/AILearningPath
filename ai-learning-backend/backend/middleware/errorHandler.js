@@ -1,5 +1,6 @@
 import { AppError } from "../utils/AppError.js";
 import logger from "../utils/logger.js";
+import { Sentry } from "../utils/sentry.js";
 
 // Standardised error response shape — always { error: string, ...optional }
 // Operational errors (AppError) → surface message to client
@@ -36,6 +37,10 @@ export const errorHandler = (err, req, res, next) => {
     route:  req.path,
     method: req.method,
     userId: req.user?.id,
+  });
+  Sentry.captureException(err, {
+    user:  req.user?.id ? { id: req.user.id } : undefined,
+    extra: { route: req.path, method: req.method },
   });
   res.status(500).json({ error: "Internal server error" });
 };

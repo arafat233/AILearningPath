@@ -242,9 +242,9 @@ export default function Practice() {
       .catch(() => {});
   }, [activeSubject, user?.grade]);
 
-  // ── Auto-start mixed practice if coming from Planner ───────────
+  // ── Auto-start when arriving with a pre-selected topic (from ChapterView) ─
   useEffect(() => {
-    if (mixTopics?.length && !question) handleStart();
+    if ((mixTopics?.length || location.state?.autoStart) && !question) handleStart();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Topic selector ──────────────────────────────────────────────

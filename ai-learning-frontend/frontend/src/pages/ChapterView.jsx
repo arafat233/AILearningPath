@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getCurriculumChapter } from "../services/api";
 
-function SectionCard({ section }) {
+function SectionCard({ section, chapterTitle }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   return (
@@ -18,7 +18,7 @@ function SectionCard({ section }) {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: section.title } }); }}
+            onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: chapterTitle, autoStart: true } }); }}
             className="text-[11px] text-apple-blue font-medium px-2 py-0.5 rounded bg-apple-blue/10 hover:bg-apple-blue/20 transition-colors"
           >
             Practice →
@@ -163,7 +163,7 @@ export default function ChapterView() {
       {activeTab === "sections" && (
         <div className="space-y-2">
           {chapter.sections?.map((s) => (
-            <SectionCard key={s.sectionNumber} section={s} />
+            <SectionCard key={s.sectionNumber} section={s} chapterTitle={chapter.title} />
           ))}
         </div>
       )}

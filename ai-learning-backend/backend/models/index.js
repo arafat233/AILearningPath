@@ -81,10 +81,14 @@ const topicSchema = new mongoose.Schema({
   realWorldUse:   { type: String, default: "" },
   whyMatters:     { type: String, default: "" },
   deletedAt:      { type: Date, default: null }, // soft-delete
+  // Fine-grained DAG fields (populated by seedTopicDAG)
+  topicId:        { type: String, default: null }, // e.g. "ch1_s1_c1_t1"
+  level:          { type: Number, default: null }, // DAG depth 0-7
 });
 // Filtering by subject+grade (onboarding, settings dropdowns) and sorting by frequency
 topicSchema.index({ subject: 1, grade: 1 });
 topicSchema.index({ examFrequency: -1 });
+topicSchema.index({ topicId: 1 }, { sparse: true });
 export const Topic = mongoose.model("Topic", topicSchema);
 
 // ==================== Question ====================
@@ -150,6 +154,7 @@ const questionSchema = new mongoose.Schema({
     ifFlukeDetected: String,
   },
   flukeCheckQuestionId: String,     // questionId of the paired fluke-check question
+  placementRole: { type: String, enum: ["primary", "secondary"], default: null }, // placement quiz role
 });
 // Practice adapter queries: find un-flagged questions by topic near a target difficulty
 questionSchema.index({ topic: 1, difficultyScore: 1, isFlagged: 1 });
@@ -278,10 +283,11 @@ const examSchema = new mongoose.Schema({
   },
   isActive:      { type: Boolean, default: true },
   createdAt:     { type: Date, default: Date.now },
-  // ── Mock paper fields ──────────────────────────────────────────────────────
-  isMockPaper:   { type: Boolean, default: false },
-  chapterNumber: { type: Number },   // 1-14 — which chapter this mock covers
-  questionIds:   [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }], // pre-defined set
+  // ── Mock paper / placement quiz fields ────────────────────────────────────
+  isMockPaper:      { type: Boolean, default: false },
+  isPlacementQuiz:  { type: Boolean, default: false },
+  chapterNumber:    { type: Number },   // 1-14 — which chapter this mock covers
+  questionIds:      [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }], // pre-defined set
 });
 export const Exam = mongoose.model("Exam", examSchema);
 

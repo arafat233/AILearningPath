@@ -4,6 +4,7 @@ import { getCurriculumChapter } from "../services/api";
 
 function SectionCard({ section }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   return (
     <div className="border border-[var(--separator)] rounded-apple overflow-hidden">
       <button
@@ -14,7 +15,16 @@ function SectionCard({ section }) {
           <span className="text-[11px] font-mono text-apple-gray3 w-8 shrink-0">{section.sectionNumber}</span>
           <span className="text-[14px] font-medium text-[var(--label)]">{section.title}</span>
         </div>
-        <span className={`text-apple-gray3 text-[12px] transition-transform ${open ? "rotate-90" : ""}`}>›</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: section.title } }); }}
+            className="text-[11px] text-apple-blue font-medium px-2 py-0.5 rounded bg-apple-blue/10 hover:bg-apple-blue/20 transition-colors"
+          >
+            Practice →
+          </button>
+          <span className={`text-apple-gray3 text-[12px] transition-transform ${open ? "rotate-90" : ""}`}>›</span>
+        </div>
       </button>
       {open && section.microConcepts?.length > 0 && (
         <div className="px-4 pb-4 pt-1 border-t border-[var(--separator)] bg-apple-gray6/30">

@@ -308,7 +308,6 @@ export default function Lessons() {
                       key={lesson._id}
                       lesson={lesson}
                       isDue={dueTopic.has(lesson.topic)}
-                      isDone={completedTopics.has(lesson.topic)}
                       onLearn={() => goToLearn(lesson.topic)}
                       onPractice={() => goToPractice(lesson.topic)}
                     />

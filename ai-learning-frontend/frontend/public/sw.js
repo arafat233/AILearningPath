@@ -1,37 +1,129 @@
-// Service Worker — PWA push notifications + offline shell caching
-const CACHE_NAME = "ai-learn-v1";
-const OFFLINE_URLS = ["/", "/index.html"];
+// Service Worker — PWA offline support + push notifications
+// v2: stale-while-revalidate for static assets,
+//     network-first + cache fallback for key API GETs,
+//     shell fallback for navigation.
 
-// Install: cache shell
+const CACHE_VERSION  = "v2";
+const STATIC_CACHE   = `ai-learn-static-${CACHE_VERSION}`;
+const API_CACHE      = `ai-learn-api-${CACHE_VERSION}`;
+const ALL_CACHES     = new Set([STATIC_CACHE, API_CACHE]);
+
+// API paths whose GET responses are worth caching for offline use.
+// Session-based routes (practice, exam, auth) are intentionally excluded.
+const CACHEABLE_API_PREFIXES = [
+  "/api/topics",
+  "/api/lessons",
+  "/api/v1/ncert",
+  "/api/v1/curriculum",
+  "/api/badges",
+  "/api/analysis",
+  "/api/revision",
+  "/api/planner",
+  "/api/user/me",
+];
+
+const isCacheableApi = (pathname) =>
+  CACHEABLE_API_PREFIXES.some((p) => pathname.startsWith(p));
+
+const isStaticAsset = (url) =>
+  url.origin === self.location.origin && !url.pathname.startsWith("/api/");
+
+// ── Install: pre-cache app shell ─────────────────────────────────────
 self.addEventListener("install", (e) => {
   self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_URLS).catch(() => {}))
+    caches.open(STATIC_CACHE).then((c) =>
+      c.addAll(["/", "/index.html"]).catch(() => {})
+    )
   );
 });
 
-// Activate: clean old caches
+// ── Activate: delete stale caches ────────────────────────────────────
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(
+        keys.filter((k) => !ALL_CACHES.has(k)).map((k) => caches.delete(k))
+      )
     )
   );
   self.clients.claim();
 });
 
-// Fetch: network-first, fallback to cache for navigation
+// ── Fetch ─────────────────────────────────────────────────────────────
 self.addEventListener("fetch", (e) => {
-  if (e.request.mode === "navigate") {
+  const { request } = e;
+  if (request.method !== "GET") return; // never intercept writes
+
+  let url;
+  try { url = new URL(request.url); } catch { return; }
+  if (!url.protocol.startsWith("http")) return; // skip chrome-extension etc.
+
+  // 1. Navigation — network-first; fall back to cached shell so the SPA loads
+  if (request.mode === "navigate") {
     e.respondWith(
-      fetch(e.request).catch(() =>
-        caches.match("/index.html").then((r) => r || new Response("Offline", { status: 503 }))
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            caches.open(STATIC_CACHE)
+              .then((c) => c.put(request, res.clone()))
+              .catch(() => {});
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match("/index.html").then(
+            (cached) => cached || new Response("Offline", { status: 503 })
+          )
+        )
+    );
+    return;
+  }
+
+  // 2. Cacheable API GETs — network-first, serve stale cache on failure
+  if (url.origin === self.location.origin && isCacheableApi(url.pathname)) {
+    e.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            caches.open(API_CACHE)
+              .then((c) => c.put(request, res.clone()))
+              .catch(() => {});
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(request).then(
+            (cached) =>
+              cached ||
+              new Response(
+                JSON.stringify({ error: "Offline", offline: true }),
+                { status: 503, headers: { "Content-Type": "application/json" } }
+              )
+          )
+        )
+    );
+    return;
+  }
+
+  // 3. Same-origin static assets (JS/CSS/images) — stale-while-revalidate:
+  //    serve the cached copy immediately; refresh in the background.
+  if (isStaticAsset(url)) {
+    e.respondWith(
+      caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(request).then((cached) => {
+          const networkFetch = fetch(request).then((res) => {
+            if (res.ok) cache.put(request, res.clone()).catch(() => {});
+            return res;
+          });
+          return cached || networkFetch; // instant if cached, fresh if not
+        })
       )
     );
   }
 });
 
-// Push: show notification
+// ── Push: show notification ───────────────────────────────────────────
 self.addEventListener("push", (e) => {
   let data = { title: "AI Learning", body: "You have a new update!", icon: "/icon-192.png" };
   try { data = { ...data, ...e.data.json() }; } catch {}
@@ -47,7 +139,7 @@ self.addEventListener("push", (e) => {
   );
 });
 
-// Notification click: open app
+// ── Notification click: focus or open app ────────────────────────────
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();
   const url = e.notification.data?.url || "/";

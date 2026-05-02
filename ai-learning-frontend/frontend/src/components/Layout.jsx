@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/authStore";
 import { useThemeStore } from "../store/themeStore";
 import { logoutApi } from "../services/api";
 import SearchOverlay from "./SearchOverlay";
+import OfflineBanner from "./OfflineBanner";
 
 function Icon({ id }) {
   const paths = {
@@ -221,6 +222,7 @@ export default function Layout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
+        <OfflineBanner />
         <div className="max-w-5xl mx-auto px-8 py-8">
           <Outlet />
         </div>

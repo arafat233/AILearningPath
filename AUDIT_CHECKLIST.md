@@ -36,12 +36,12 @@ Check off each item as it is fixed and committed.
 - [x] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
 - [x] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
 - [x] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
-- [ ] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
+- [x] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
 - [x] **[ARCH] models/index.js** — PaymentRecord.amount stored in paise with no code comment
 - [x] **[PERF] profileService.js** — Attempt.find({ userId }) fetches full attempt history on every answer
 - [x] **[PERF] adaptiveService.js** — $nin exclusion list grows to 500+ ObjectIds — forces collection scan
 - [x] **[ARCH] aiRouter.js** — tokensUsed always 0 in AIUsageStats — token cost tracking broken
-- [ ] **[ARCH] aiRouter.js** — Cached AI responses can never be invalidated without direct DB access
+- [x] **[ARCH] aiRouter.js** — Cached AI responses can never be invalidated without direct DB access
 - [x] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
 - [x] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
 - [x] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
@@ -50,7 +50,7 @@ Check off each item as it is fixed and committed.
 - [x] **[PERF] models/index.js** — Missing sparse index on pushSubscription.endpoint
 - [x] **[PERF] models/index.js** — Missing compound index on Attempt.(userId, createdAt) and Attempt.topic
 - [x] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
-- [ ] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
+- [x] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
 - [x] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
 - [x] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
 - [x] **[SEC] cors** — If FRONTEND_URL unset, no-origin branch returns true — all server requests allowed
@@ -59,12 +59,12 @@ Check off each item as it is fixed and committed.
 - [x] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12
 - [x] **[INFRA] docker-compose.yml** — No memory limits — one runaway process OOMs the host
 - [ ] **[TEST] __tests__/** — No integration tests with real DB; mock/prod divergence risk
-- [ ] **[OPS] logger.js** — No log-level env var — cannot tune verbosity without code change
+- [x] **[OPS] logger.js** — No log-level env var — cannot tune verbosity without code change
 - [x] **[SEC] JWT** — Access token TTL 1d — stolen token valid 24 h; reduce to 15-60 min
 - [x] **[BUG] aiRouter.js** — Free-plan check reads isPaid not plan — edge case after expiry bypasses limit
-- [ ] **[OPS] ci.yml** — Frontend Vitest suite not run in CI — test regressions ship silently
+- [x] **[OPS] ci.yml** — Frontend Vitest suite not run in CI — test regressions ship silently
 - [ ] **[OPS] ci.yml** — No deploy stage — CD is fully manual
-- [ ] **[SEC] models/index.js** — linkedStudents: [String] — no referential integrity; orphan IDs accumulate
+- [x] **[SEC] models/index.js** — linkedStudents: [String] — no referential integrity; orphan IDs accumulate
 
 ---
 

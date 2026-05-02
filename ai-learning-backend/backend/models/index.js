@@ -20,7 +20,10 @@ const userSchema = new mongoose.Schema({
   // Role-based access
   role: { type: String, enum: ["student", "admin", "parent", "teacher"], default: "student" },
   // Parent/teacher portal
-  linkedStudents: [{ type: String }], // student userIds
+  linkedStudents: [{
+    type:     String,
+    validate: { validator: (v) => /^[a-f\d]{24}$/i.test(v), message: "Invalid student userId" },
+  }], // student ObjectIds stored as strings
   inviteCode:     { type: String, unique: true, sparse: true },
   // Password reset
   passwordResetToken:   { type: String, default: null },

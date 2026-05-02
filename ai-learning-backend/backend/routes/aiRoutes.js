@@ -59,6 +59,21 @@ r.get("/usage",       auth,      usageInfo);
 r.get("/cache-stats", adminAuth, cacheStats); // admin only — business metrics
 r.post("/chat",       auth, perUserAILimit, validate(chatSchema), tutorChat);
 
+// Admin: invalidate cached AI responses by cacheKey prefix or mistakeType
+r.delete("/cache", adminAuth, async (req, res, next) => {
+  try {
+    const { cacheKey, mistakeType } = req.query;
+    const filter = cacheKey
+      ? { cacheKey }
+      : mistakeType
+      ? { mistakeType }
+      : null;
+    if (!filter) return res.status(400).json({ error: "Provide cacheKey or mistakeType query param" });
+    const result = await AIResponseCache.deleteMany(filter);
+    res.json({ data: { deleted: result.deletedCount } });
+  } catch (err) { next(err); }
+});
+
 // Voice history CRUD
 r.get("/voice-history", auth, async (req, res, next) => {
   try {

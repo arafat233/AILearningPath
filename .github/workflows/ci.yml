@@ -70,6 +70,12 @@ jobs:
         working-directory: ai-learning-frontend/frontend
         run: npm audit --audit-level=high
 
+      - name: Run frontend tests
+        working-directory: ai-learning-frontend/frontend
+        run: npm run test -- --run
+        env:
+          VITE_API_URL: http://localhost:5001/api
+
       - name: Build frontend
         working-directory: ai-learning-frontend/frontend
         run: npm run build

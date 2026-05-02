@@ -97,6 +97,8 @@ export const predictExamScore = async (userId) => {
     totalMarks:     EXAM_MARKS,
     pctMin,
     pctMax,
+    isHeuristic:    true, // weighted-accuracy formula, not a trained ML model
+    disclaimer:     "This estimate is based on your practice accuracy weighted by topic importance. It is indicative, not a trained prediction.",
     breakdown: breakdown.sort((a, b) => b.contribution - a.contribution),
     message: daysLeft < 7
       ? "Exam is very close — revise your strongest topics to maximise marks."

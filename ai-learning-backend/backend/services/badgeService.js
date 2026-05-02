@@ -5,6 +5,7 @@
 // ============================================================
 import { Badge, Streak, UserProfile } from "../models/index.js";
 import logger from "../utils/logger.js";
+import { notifyParentsOfMilestone } from "./pushService.js";
 
 const BADGE_LABELS = {
   streak_7:           "7-Day Streak",
@@ -63,6 +64,10 @@ export const checkAndAwardBadges = async (userId, context = {}) => {
   results.forEach((r) => {
     if (r.status === "fulfilled" && r.value) newBadges.push(r.value);
   });
+
+  // Notify linked parents for each newly awarded badge (fire-and-forget)
+  const badgeMeta = topic ? { topic } : {};
+  newBadges.forEach((bt) => notifyParentsOfMilestone(userId, bt, badgeMeta).catch(() => {}));
 
   return newBadges; // array of newly awarded badgeType strings
 };

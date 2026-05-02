@@ -7,6 +7,7 @@ import {
   getLinkedStudents, getStudentAnalytics, getStudentDashboardCtrl,
   getLinkRequests, respondToLinkRequest,
   setStudyReminder, getStudyReminders, deleteStudyReminder,
+  getClassStats,
 } from "../controllers/portalController.js";
 
 const r = Router();
@@ -34,6 +35,7 @@ r.get("/students/:studentId/analytics",       getStudentAnalytics);
 r.get("/students/:studentId/dashboard",       getStudentDashboardCtrl);
 r.get("/requests",                            getLinkRequests);
 r.post("/requests/:id/respond",               validate(respondSchema), respondToLinkRequest);
+r.get("/class-stats",                         getClassStats);
 r.get("/reminders",                           getStudyReminders);
 r.post("/reminders",                          validate(reminderSchema), setStudyReminder);
 r.delete("/reminders/:studentId",             deleteStudyReminder);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder } from "../services/api";
+import { useAuthStore } from "../store/authStore";
+import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder, getClassStats } from "../services/api";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const daysSince = (iso) => {
@@ -502,6 +503,100 @@ function AddChildPanel({ onAdded }) {
   );
 }
 
+// ── teacher class-level view ───────────────────────────────────────────────
+function TeacherClassView() {
+  const [stats,   setStats]   = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getClassStats()
+      .then(({ data }) => setStats(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div className="space-y-3">
+      {[1,2,3].map((i) => <div key={i} className="card h-20 animate-pulse bg-apple-gray5" />)}
+    </div>
+  );
+
+  if (!stats) return null;
+
+  return (
+    <div className="space-y-4">
+      {/* class summary */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Students</p>
+          <p className="text-[28px] font-bold text-apple-blue">{stats.students}</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Class Accuracy</p>
+          <p className="text-[28px] font-bold" style={{ color: stats.classAccuracy >= 70 ? "#34C759" : stats.classAccuracy >= 50 ? "#FF9500" : "#FF3B30" }}>
+            {stats.classAccuracy}%
+          </p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Avg Streak</p>
+          <p className="text-[28px] font-bold text-apple-orange">{stats.avgStreak}d</p>
+        </div>
+      </div>
+
+      {/* students needing attention */}
+      {stats.weakStudents?.length > 0 && (
+        <div className="card p-5">
+          <p className="text-[11px] font-semibold text-apple-red uppercase tracking-wide mb-3">
+            Students Needing Attention ({stats.weakStudents.length})
+          </p>
+          <div className="flex flex-col gap-2">
+            {stats.weakStudents.map((s) => (
+              <div key={s.id} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-apple-red/20 flex items-center justify-center text-apple-red text-[10px] font-bold">
+                    {s.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-[13px] text-[var(--label)]">{s.name}</span>
+                  <span className="text-[11px] text-apple-gray">Gr.{s.grade}</span>
+                </div>
+                <span className="text-[13px] font-bold text-apple-red">{s.accuracy}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* topic performance */}
+      {stats.topicStats?.length > 0 && (
+        <div className="card p-5">
+          <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-3">
+            Weakest Topics (class average)
+          </p>
+          <div className="flex flex-col gap-3">
+            {stats.topicStats.slice(0, 8).map((t) => (
+              <div key={t.topic}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] text-[var(--label)] capitalize">{t.topic}</span>
+                  <span className="text-[12px] font-semibold text-[var(--label)]">{t.accuracy}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width:      `${t.accuracy}%`,
+                      background: t.accuracy >= 70 ? "#34C759" : t.accuracy >= 50 ? "#FF9500" : "#FF3B30",
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── multi-child overview ───────────────────────────────────────────────────
 function MultiChildOverview({ students, dashboards }) {
   const activeDashboards = students
@@ -593,8 +688,12 @@ function MultiChildOverview({ students, dashboards }) {
 
 // ── page root ──────────────────────────────────────────────────────────────
 const OVERVIEW_ID = "__overview__";
+const CLASS_ID    = "__class__";
 
 export default function ParentDashboard() {
+  const { user }  = useAuthStore();
+  const isTeacher = user?.role === "teacher";
+
   const [students,    setStudents]    = useState([]);
   const [selectedId,  setSelectedId]  = useState(null);
   const [dashboard,   setDashboard]   = useState(null);
@@ -608,7 +707,8 @@ export default function ParentDashboard() {
     getLinkedStudents()
       .then(({ data }) => {
         setStudents(data);
-        if (data.length >= 2) setSelectedId(OVERVIEW_ID);
+        if (isTeacher) setSelectedId(CLASS_ID);
+        else if (data.length >= 2) setSelectedId(OVERVIEW_ID);
         else if (data.length === 1) setSelectedId(data[0]._id || data[0].id);
         else setShowSearch(true);
       })
@@ -618,7 +718,7 @@ export default function ParentDashboard() {
 
   // load dashboard whenever selected child changes (skip if consent is pending or overview)
   const loadDashboard = useCallback((id) => {
-    if (!id || id === OVERVIEW_ID) return;
+    if (!id || id === OVERVIEW_ID || id === CLASS_ID) return;
     const isPending = students.find((s) => (s._id || s.id) === id)?._pendingConsent;
     if (isPending) return;
     setDashLoading(true);
@@ -686,8 +786,12 @@ export default function ParentDashboard() {
       {/* header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-[var(--label)]">Parent Dashboard</h1>
-          <p className="text-[13px] text-apple-gray mt-0.5">Read-only view of your child's learning progress</p>
+          <h1 className="text-[22px] font-bold text-[var(--label)]">
+            {isTeacher ? "Teacher Dashboard" : "Parent Dashboard"}
+          </h1>
+          <p className="text-[13px] text-apple-gray mt-0.5">
+            {isTeacher ? "Class performance overview and individual student data" : "Read-only view of your child's learning progress"}
+          </p>
         </div>
         {students.length > 0 && !showSearch && (
           <button onClick={() => setShowSearch(true)} className="btn-secondary text-[12px]">
@@ -709,6 +813,24 @@ export default function ParentDashboard() {
       {/* child tabs — shown when ≥1 child tracked */}
       {!showSearch && students.length > 0 && (
         <div className="flex gap-2 flex-wrap">
+          {/* Class tab — teachers only */}
+          {isTeacher && (
+            <button
+              onClick={() => setSelectedId(CLASS_ID)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[13px] transition-all ${
+                selectedId === CLASS_ID
+                  ? "border-apple-purple/60 bg-apple-purple/8 text-apple-purple font-semibold"
+                  : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
+              }`}
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                <circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/>
+                <path d="M1 14c0-2.5 2-4 4-4h6c2 0 4 1.5 4 4"/>
+              </svg>
+              Class View
+            </button>
+          )}
           {/* Overview tab — shown when 2+ students */}
           {students.length >= 2 && (
             <button
@@ -789,6 +911,8 @@ export default function ParentDashboard() {
               Find my child
             </button>
           </div>
+        ) : selectedId === CLASS_ID ? (
+          <TeacherClassView />
         ) : selectedId === OVERVIEW_ID ? (
           <MultiChildOverview students={students} dashboards={allDashboards} />
         ) : students.find((s) => (s._id || s.id) === selectedId)?._pendingConsent ? (

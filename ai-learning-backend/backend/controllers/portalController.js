@@ -76,6 +76,64 @@ export const linkStudentDirect = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// Teacher/admin: aggregate class-level stats across all linked students
+export const getClassStats = async (req, res, next) => {
+  try {
+    if (!["teacher", "admin"].includes(req.user.role))
+      return next(new AppError("Only teachers and admins can view class stats", 403));
+
+    const me = await User.findById(req.user.id).select("linkedStudents").lean();
+    const studentIds = me?.linkedStudents || [];
+    if (studentIds.length === 0) return res.json({ students: 0, classAccuracy: 0, topicStats: [], weakStudents: [] });
+
+    const [profiles, streaks] = await Promise.all([
+      UserProfile.find({ userId: { $in: studentIds } }).lean(),
+      Streak.find({ userId: { $in: studentIds } }).lean(),
+    ]);
+
+    const students = await User.find({ _id: { $in: studentIds } }).select("name grade subject").lean();
+
+    // Class-level accuracy
+    const accuracies = profiles.map((p) => p.accuracy || 0);
+    const classAccuracy = accuracies.length > 0
+      ? Math.round((accuracies.reduce((a, b) => a + b, 0) / accuracies.length) * 100)
+      : 0;
+
+    // Per-topic aggregates
+    const topicMap = {};
+    profiles.forEach((p) => {
+      (p.topicProgress || []).forEach((tp) => {
+        if (!topicMap[tp.topic]) topicMap[tp.topic] = { topic: tp.topic, totalAcc: 0, count: 0 };
+        topicMap[tp.topic].totalAcc += (tp.accuracy || 0) * 100;
+        topicMap[tp.topic].count++;
+      });
+    });
+    const topicStats = Object.values(topicMap)
+      .map((t) => ({ topic: t.topic, accuracy: Math.round(t.totalAcc / t.count), count: t.count }))
+      .sort((a, b) => a.accuracy - b.accuracy)
+      .slice(0, 10);
+
+    // Students struggling (accuracy < 50%)
+    const weakStudents = profiles
+      .filter((p) => (p.accuracy || 0) < 0.5)
+      .map((p) => {
+        const s = students.find((u) => u._id.toString() === p.userId);
+        return s ? { id: p.userId, name: s.name, grade: s.grade, accuracy: Math.round((p.accuracy || 0) * 100) } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.accuracy - b.accuracy);
+
+    // Streak distribution
+    const streakMap = {};
+    streaks.forEach((s) => { streakMap[s.userId] = s.currentStreak || 0; });
+    const avgStreak = studentIds.length > 0
+      ? Math.round(studentIds.reduce((sum, id) => sum + (streakMap[id] || 0), 0) / studentIds.length)
+      : 0;
+
+    res.json({ students: studentIds.length, classAccuracy, topicStats, weakStudents, avgStreak });
+  } catch (err) { next(err); }
+};
+
 // Student fetches their pending link requests (inbox)
 export const getLinkRequests = async (req, res, next) => {
   try {

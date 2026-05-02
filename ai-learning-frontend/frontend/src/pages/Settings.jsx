@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 const GOALS = [
   { value: "pass",        label: "Pass the exam"           },
@@ -147,6 +148,9 @@ export default function Settings() {
           )}
         </div>
       )}
+
+      {/* Revision reminders */}
+      <NotificationsCard />
 
       <div className="card p-6">
         {error && (
@@ -313,6 +317,46 @@ export default function Settings() {
       setDeleting(false);
     }
   }
+}
+
+function NotificationsCard() {
+  const { supported, subscribed, permission, loading, error, subscribe, unsubscribe } = usePushNotifications();
+
+  if (!supported) return null;
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <p className="text-[13px] font-semibold text-[var(--label)] mb-0.5">Revision reminders</p>
+          <p className="text-[12px] text-apple-gray">
+            {subscribed
+              ? "You'll get a push notification each day you have topics due for revision."
+              : permission === "denied"
+              ? "Notifications blocked in browser settings. Update site permissions to enable."
+              : "Get notified when topics are due for spaced-repetition revision."}
+          </p>
+          {error && <p className="text-[12px] text-apple-red mt-1">{error}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={subscribed ? unsubscribe : subscribe}
+          disabled={loading || permission === "denied"}
+          className={`shrink-0 px-4 py-2 rounded-apple text-[13px] font-medium transition-colors disabled:opacity-50
+            ${subscribed
+              ? "bg-apple-gray5 text-[var(--label)] hover:bg-apple-gray4"
+              : "btn-primary"}`}
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+              {subscribed ? "Disabling…" : "Enabling…"}
+            </span>
+          ) : subscribed ? "Turn off" : "Enable"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function Field({ label, hint, children }) {

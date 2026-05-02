@@ -34,6 +34,18 @@ const userSchema = new mongoose.Schema({
   savedQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   // Free trial (7-day Pro trial on first registration)
   trialExpiry: { type: Date, default: null },
+  // Onboarding email sequence tracking
+  onboardingDay2SentAt: { type: Date, default: null },
+  onboardingDay7SentAt: { type: Date, default: null },
+  // Web Push subscription (stored server-side; auto-removed on 410 response)
+  pushSubscription: {
+    endpoint:       { type: String, default: null },
+    expirationTime: { type: Date,   default: null },
+    keys: {
+      p256dh: { type: String, default: null },
+      auth:   { type: String, default: null },
+    },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 export const User = mongoose.model("User", userSchema);

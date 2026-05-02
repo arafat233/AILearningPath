@@ -6,6 +6,22 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Read CSRF token cookie (set by server on login/register) and send as header
+// on every state-changing request so the server can validate it in production.
+const getCsrfToken = () => {
+  const match = document.cookie.match(/(?:^|;\s*)csrf=([^;]+)/);
+  return match ? match[1] : null;
+};
+
+api.interceptors.request.use((config) => {
+  const method = (config.method || "").toUpperCase();
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    const token = getCsrfToken();
+    if (token) config.headers["x-csrf-token"] = token;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (r) => r,
   (err) => {
@@ -66,6 +82,8 @@ export const askTutor            = (message, history, topic)   => api.post("/ai/
 export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
 export const getHint             = (questionText, topic)       => api.post("/ai/hint", { questionText, topic });
 export const voiceAnswer         = (transcript, subject, topic) => api.post("/ai/voice-answer", { transcript, subject, topic });
+export const getVoiceHistory     = ()     => api.get("/ai/voice-history");
+export const clearVoiceHistory   = ()     => api.delete("/ai/voice-history");
 
 export const getBadges = () => api.get("/badges");
 
@@ -115,3 +133,7 @@ export const getPlans        = ()        => api.get("/v1/payment/plans");
 export const getSubscription = ()        => api.get("/v1/payment/subscription");
 export const createOrder     = (planKey) => api.post("/v1/payment/create-order", { planKey });
 export const verifyPayment   = (payload) => api.post("/v1/payment/verify", payload);
+
+export const getVapidKey     = ()    => api.get("/push/vapid-public-key");
+export const subscribePush   = (sub) => api.post("/push/subscribe", sub);
+export const unsubscribePush = ()    => api.delete("/push/subscribe");

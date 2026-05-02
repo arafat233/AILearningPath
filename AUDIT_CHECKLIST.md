@@ -74,7 +74,7 @@
 - [x] **Voice tutor has no history** ✅ Fixed: `GET /api/ai/voice-history` and `DELETE /api/ai/voice-history` added; voice-answer now loads Redis history for context and appends each exchange (capped at 50 messages, 7-day TTL); VoiceTutor.jsx loads history on mount and shows a "Clear history" button.
 - [x] **No manual weak-topic override UI** ✅ Fixed: Tag-style input in Settings (type + Enter or Add button); red pill tags with × to remove; loaded from `profile.weakAreas` on mount; submitted as `weakTopics` array to `PUT /user/me` which persists to `UserProfile.weakAreas`.
 - [x] **Exam timer doesn't sync on tab switch** ✅ Fixed: `startedAt` (epoch ms) and `durationSeconds` returned from `startExam`; stored in Redis session; client computes `timeLeft = max(0, durationSeconds - elapsed)` on start and on `visibilitychange` resume; server validates elapsed on submit with 30s grace.
-- [ ] **No notification when revision is due** — PWA push stubbed but never triggered.
+- [x] **No notification when revision is due** ✅ Fixed: `web-push` installed; `pushService.js` sends push to all subscribed users with due revisions (runs at startup + every 24h); `pushRoutes.js` adds `POST /api/push/subscribe`, `DELETE /api/push/subscribe`, `GET /api/push/vapid-public-key`; `pushSubscription` field added to User model; expired subscriptions (410) auto-cleaned; frontend `usePushNotifications` hook + toggle card in Settings.
 - [x] **Competition room has no shareable link** ✅ Fixed: "Copy invite link" button in waiting room copies `?room=<id>` URL; visiting the link pre-fills the room input.
 - [ ] **No progress certificate / achievement download** — No printable proof of completion.
 

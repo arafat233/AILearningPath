@@ -10,6 +10,10 @@ import morgan from "morgan";
 import http from "http";
 import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { csrfProtect } from "./middleware/csrf.js";
+import { runOnboardingEmails } from "./services/onboardingEmailService.js";
+import { sendRevisionReminders } from "./services/pushService.js";
+import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
@@ -36,6 +40,7 @@ import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
 import companyRoutes    from "./routes/companyRoutes.js";
 import pyqRoutes        from "./routes/pyqRoutes.js";
+import feedbackRoutes   from "./routes/feedbackRoutes.js";
 
 dotenv.config();
 validateEnv(); // crash fast if required env vars are missing
@@ -100,6 +105,14 @@ connectRedis();
 
 initSocket(server);
 
+// CSRF: skip safe methods and auth/webhook routes (auth routes issue the token)
+app.use((req, res, next) => {
+  const safe    = ["GET", "HEAD", "OPTIONS"].includes(req.method);
+  const excluded = req.path.startsWith("/api/auth") || req.path.startsWith("/api/webhooks");
+  if (safe || excluded) return next();
+  return csrfProtect(req, res, next);
+});
+
 // REST API routes
 app.use("/api/auth",        authRoutes);
 app.use("/api/practice",    practiceRoutes);
@@ -121,6 +134,8 @@ app.use("/api/v1/ncert",      ncertRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
 app.use("/api/company",     companyRoutes);
 app.use("/api/v1/pyq",      pyqRoutes);
+app.use("/api/feedback",   feedbackRoutes);
+app.use("/api/push",       pushRoutes);
 
 app.get("/api/health", async (_req, res) => {
   const health = { status: "ok", checks: { mongodb: "unknown", redis: "unknown", anthropic: "unknown" } };
@@ -144,4 +159,12 @@ app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} n
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => logger.info("Server + WebSocket started", { port: PORT, env: process.env.NODE_ENV || "development" }));
+server.listen(PORT, () => {
+  logger.info("Server + WebSocket started", { port: PORT, env: process.env.NODE_ENV || "development" });
+  // Onboarding emails: run at startup + every 24 hours
+  runOnboardingEmails().catch(() => {});
+  setInterval(() => runOnboardingEmails().catch(() => {}), 24 * 60 * 60 * 1000);
+  // Revision push notifications: run daily
+  sendRevisionReminders().catch(() => {});
+  setInterval(() => sendRevisionReminders().catch(() => {}), 24 * 60 * 60 * 1000);
+});

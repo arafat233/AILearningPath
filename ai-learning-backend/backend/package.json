@@ -16,6 +16,7 @@
     "import:ncert": "node config/importNcert.js",
     "seed:ncert-content": "node config/seedNcertContent.js",
     "seed:pyq": "node config/seedPYQ.js",
+    "seed:questions": "node config/seedQuestionsAndMockPapers.js",
     "generate:questions": "node utils/questionGenerator.js",
     "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__ --testPathIgnorePatterns=__tests__/integration",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__/integration --testTimeout=60000 --forceExit",

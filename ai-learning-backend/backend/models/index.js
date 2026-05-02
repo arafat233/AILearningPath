@@ -95,7 +95,11 @@ const questionSchema = new mongoose.Schema({
   grade:         { type: String, default: "10" },
   examBoard:     { type: String, default: "CBSE" },
   questionText:  { type: String, required: true },
-  questionType:  { type: String, enum: ["mcq", "case_based", "assertion_reason", "pyq"], default: "mcq" },
+  questionType:  {
+    type: String,
+    enum: ["mcq", "case_based", "assertion_reason", "pyq", "free_text", "numeric", "numeric_range", "fill_blank"],
+    default: "mcq",
+  },
   difficulty:    { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
   difficultyScore: { type: Number, default: 0.5 },
   expectedTime:  { type: Number, default: 20 },
@@ -117,11 +121,44 @@ const questionSchema = new mongoose.Schema({
   negativeMarks: { type: Number, default: 0 },
   createdAt:     { type: Date, default: Date.now },
   deletedAt:     { type: Date, default: null }, // soft-delete
+
+  // ── Adaptive algorithm fields (populated by seedQuestionsAndMockPapers) ──────
+  questionId:    { type: String, sparse: true, unique: true }, // JSON id — dedup key
+  topicId:       { type: String },  // e.g. "ch1_s1_c1_t1" — fine-grained topic
+  chapterNumber: { type: Number },  // 1-14
+  bloomLevel:    { type: String },  // recall | understand | apply | analyse | evaluate | create
+  correctAnswer: { type: String },  // for numeric / free_text / fill_blank / numeric_range
+  mixingType:    { type: String },  // single_topic | within_chapter | cross_chapter
+  approachTags:  [String],
+  hintLevels:    [String],          // 3 progressive hints
+  timeThresholds: {
+    guessBelow:  Number,
+    expectedMin: Number,
+    expectedMax: Number,
+    stuckAbove:  Number,
+  },
+  stepByStep: [{                    // richer solution: clean + internal voice
+    stepNumber: Number,
+    clean:      String,
+    voice:      String,
+    _id: false,
+  }],
+  routing: {                        // adaptive routing pointers
+    ifCorrect:       String,
+    ifWrong:         String,
+    ifStuck:         String,
+    ifFlukeDetected: String,
+  },
+  flukeCheckQuestionId: String,     // questionId of the paired fluke-check question
 });
 // Practice adapter queries: find un-flagged questions by topic near a target difficulty
 questionSchema.index({ topic: 1, difficultyScore: 1, isFlagged: 1 });
 // AI-generated question lookup by topic
 questionSchema.index({ topic: 1, isAIGenerated: 1 });
+// Adaptive engine: look up all questions for a fine-grained topic
+questionSchema.index({ topicId: 1, difficulty: 1 });
+// Chapter-level question listing
+questionSchema.index({ chapterNumber: 1, difficulty: 1 });
 export const Question = mongoose.model("Question", questionSchema);
 
 // ==================== Attempt ====================
@@ -229,6 +266,7 @@ export const QuestionStats = mongoose.model("QuestionStats", questionStatsSchema
 const examSchema = new mongoose.Schema({
   title:          String,
   topic:          String,
+  subject:        { type: String, default: "Mathematics" },
   totalQuestions: { type: Number, default: 10 },
   duration:       { type: Number, default: 30 },
   negativeMarking: { type: Boolean, default: false },
@@ -238,8 +276,12 @@ const examSchema = new mongoose.Schema({
     medium: { type: Number, default: 5 },
     hard:   { type: Number, default: 2 },
   },
-  isActive:  { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now },
+  isActive:      { type: Boolean, default: true },
+  createdAt:     { type: Date, default: Date.now },
+  // ── Mock paper fields ──────────────────────────────────────────────────────
+  isMockPaper:   { type: Boolean, default: false },
+  chapterNumber: { type: Number },   // 1-14 — which chapter this mock covers
+  questionIds:   [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }], // pre-defined set
 });
 export const Exam = mongoose.model("Exam", examSchema);
 

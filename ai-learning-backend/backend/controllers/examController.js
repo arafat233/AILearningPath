@@ -27,16 +27,31 @@ export const startExam = async (req, res, next) => {
     const exam = await Exam.findById(examId);
     if (!exam) return next(new AppError("Exam not found", 404));
 
-    const [easy, medium, hard] = await Promise.all([
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.easy } }]),
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.medium } }]),
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.hard } }]),
-    ]);
+    let allQuestions;
 
-    const questions = [...easy, ...medium, ...hard].map((q) => ({
+    if (exam.isMockPaper && exam.questionIds?.length) {
+      // Mock paper: use the pre-defined ordered question set
+      allQuestions = await Question.find(
+        { _id: { $in: exam.questionIds }, deletedAt: null },
+      ).lean();
+      // Restore the order defined in questionIds
+      const idMap = new Map(allQuestions.map((q) => [String(q._id), q]));
+      allQuestions = exam.questionIds.map((id) => idMap.get(String(id))).filter(Boolean);
+    } else {
+      // Adaptive exam: sample questions by difficulty
+      const [easy, medium, hard] = await Promise.all([
+        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.easy } }]),
+        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.medium } }]),
+        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.hard } }]),
+      ]);
+      allQuestions = [...easy, ...medium, ...hard];
+    }
+
+    const questions = allQuestions.map((q) => ({
       _id: q._id,
       questionText: q.questionText,
-      options: q.options.map((o) => ({ text: o.text })),
+      questionType: q.questionType,
+      options: q.options?.map((o) => ({ text: o.text })) ?? [],
       expectedTime: q.expectedTime,
       difficultyScore: q.difficultyScore,
       marks: q.marks || 1,
@@ -48,7 +63,7 @@ export const startExam = async (req, res, next) => {
       topic: exam.topic,
       negativeMarking: exam.negativeMarking,
       negativeValue: exam.negativeValue || 0.25,
-      questions: [...easy, ...medium, ...hard],
+      questions: allQuestions,
       startedAt,
       durationSeconds: (exam.duration || 60) * 60,
     }, EXAM_TTL);

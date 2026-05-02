@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — AUDIT_CHECKLIST complete: NPS survey, Sentry, backup, coupons/referrals, Vitest, k6, feature flags, voice history, push notifications, payment, NCERT/PYQ routes.
+> Last updated: May 2026 — 113/113 audit items fixed. New: skeleton loaders, Playwright E2E, Swagger docs at /api-docs, migrate-mongo migrations, cookie domain support, NCERT/PYQ seed content, CONTRIBUTING.md, CHANGELOG.md.
 
 ---
 
@@ -682,10 +682,14 @@ Practice.jsx    — FeedbackWidget shown after session (rate question quality)
 
 ### Components
 ```
-Layout.jsx           — sidebar nav + outlet
+Layout.jsx           — sidebar nav + outlet; responsive mobile hamburger (fixed sm:static)
 BadgeToast.jsx       — floating toast when newBadges[] returned from practice submit
 DoubtChat.jsx        — expandable multi-turn chat below wrong answers in Practice
 FeedbackWidget.jsx   — inline 1-5 star + comment widget (used after practice sessions)
+OfflineBanner.jsx    — shows when navigator.onLine is false
+SearchOverlay.jsx    — ⌘K global search
+Skeleton.jsx         — shimmer skeleton components: DashboardSkeleton, AnalyticsSkeleton,
+                        LessonsSkeleton, ProfileSkeleton, SkeletonCard, SkeletonStat
 ```
 
 ### Frontend test suite (Vitest 2.x + jsdom@24)
@@ -717,6 +721,9 @@ middleware/errorHandler.js — centralised error handler (AppError,
 utils/AppError.js        — operational error class with statusCode
 utils/email.js           — nodemailer wrapper; logs to console when SMTP not set
 utils/logger.js          — structured logger (pretty dev / JSON prod)
+utils/swagger.js         — OpenAPI 3.0 spec + setupSwagger(app); served at /api-docs
+utils/cookieNames.js     — __Host-token / __Secure-refreshToken / __Host-csrf in prod
+                           COOKIE_DOMAIN env var supported on refresh cookie
 utils/validateEnv.js     — crashes on startup if required env vars missing
 utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
 utils/sentry.js          — Sentry init wrapper; no-op when SENTRY_DSN not set; exports Sentry for captureException
@@ -792,7 +799,11 @@ Files:
 
 CI/CD (.github/workflows/ci.yml):
   Triggers: push to main or cursor/** branches, PRs to main
-  Jobs: backend Jest tests (with MongoDB service) + frontend Vite build
+  Jobs:
+    backend-test   — Jest unit tests + integration tests against real MongoDB service
+    frontend-build — Vitest + Vite build
+    e2e            — Playwright (Chromium) against vite preview + test backend
+    deploy         — SSH deploy to production (main branch only)
 
 Backup (.github/workflows/backup.yml):
   Trigger: nightly cron 0 2 * * * (02:00 UTC) + workflow_dispatch
@@ -928,6 +939,9 @@ npm run seed:science-curriculum          ← CBSE Class 10 Science textbook chap
 npm run seed:english-curriculum          ← NEW: CBSE Class 10 English textbook chapters
 npm run seed:hindi-curriculum            ← NEW: CBSE Class 10 Hindi textbook chapters
 npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science textbook chapters
+npm run seed:ncert-content              ← NCERT chapter content (self-contained, no external files)
+npm run seed:pyq                        ← 30+ real CBSE board exam PYQ MCQs (2020-2024)
+npm run migrate                         ← run pending DB migrations (migrate-mongo)
 ```
 
 ---
@@ -938,13 +952,30 @@ npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science t
 ```
 Location: backend/__tests__/
 Runner:   node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js
-Command:  npm test  (in ai-learning-backend/backend/)
+Command:  npm test              (unit tests, ignores integration/)
+          npm run test:integration  (integration tests against real DB)
 
-__tests__/analysisService.test.js   — 7 tests
-__tests__/scoringService.test.js    — 6 tests
-__tests__/plannerService.test.js    — 4 tests (mocked Mongoose)
-__tests__/aiRouter.test.js          — 5 tests (mocked Mongoose + aiService)
-Total: 22 backend tests
+Unit tests (22+): analysisService, scoringService, plannerService, aiRouter,
+  auth.middleware, adminAuth.middleware, validate.middleware, practice.controller,
+  exam.controller, payment.service, portal.controller, ai.service, adaptive.service,
+  revision.service, streak.service, autoDoubt.service, aiTeacher.service
+
+Integration tests (backend/__tests__/integration/):
+  _setup.js — connects to MONGO_URI if set (CI real DB), else MongoMemoryServer
+  auth.integration.test.js   — register, login lockout, password update, soft-delete
+  aiQuota.integration.test.js — daily quota tracking, plan limits
+```
+
+### E2E Tests (Playwright)
+```
+Location: ai-learning-frontend/frontend/e2e/
+Config:   playwright.config.js  (Chromium, baseURL from PLAYWRIGHT_BASE_URL)
+Command:  npm run test:e2e  (in frontend dir)
+
+e2e/auth.spec.js     — landing page CTA, register, login, wrong password, forgot link,
+                        pricing page, terms page, privacy page
+e2e/practice.spec.js — authenticated: practice page, dashboard stats, analytics,
+                        settings, sidebar nav links, sign-out
 ```
 
 ### Frontend (Vitest 2.x + jsdom@24)

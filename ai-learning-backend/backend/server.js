@@ -47,6 +47,7 @@ import webhookRoutes    from "./routes/webhookRoutes.js";
 import companyRoutes    from "./routes/companyRoutes.js";
 import pyqRoutes        from "./routes/pyqRoutes.js";
 import feedbackRoutes   from "./routes/feedbackRoutes.js";
+import { setupSwagger } from "./utils/swagger.js";
 
 dotenv.config();
 initSentry();   // no-op when SENTRY_DSN is not set
@@ -174,6 +175,11 @@ app.use("/api/company",     companyRoutes);
 app.use("/api/v1/pyq",      pyqRoutes);
 app.use("/api/feedback",   feedbackRoutes);
 app.use("/api/push",       pushRoutes);
+
+// API docs — only in non-production or when ENABLE_SWAGGER=true
+if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {
+  setupSwagger(app);
+}
 
 // Feature flags — public endpoint, user-aware when authenticated
 app.get("/api/flags", (req, res) => {

@@ -96,7 +96,7 @@ Check off each item as it is fixed and committed.
 - [x] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
 - [x] **[OPS] docker/** — No Dockerfile for frontend
 - [x] **[OPS] docker/** — No .dockerignore — node_modules copied into build context
-- [ ] **[TEST] __tests__/** — No E2E tests (Playwright / Cypress) for critical flows
+- [x] **[TEST] __tests__/** — No E2E tests (Playwright / Cypress) for critical flows
 - [x] **[TEST] __tests__/** — No tests for authController
 - [x] **[TEST] __tests__/** — No tests for paymentService or couponService
 - [x] **[TEST] __tests__/** — No tests for portalController
@@ -129,7 +129,7 @@ Check off each item as it is fixed and committed.
 - [x] **[OPS] Dockerfile** — No multi-stage build — dev node_modules in production image
 - [x] **[SEC] helmet** — No HSTS preload directive
 - [x] **[SEC] cookies** — Cookie domain not set — breaks subdomains
-- [ ] **[DOCS] API** — No Swagger / OpenAPI spec
+- [x] **[DOCS] API** — No Swagger / OpenAPI spec
 - [x] **[DOCS] repo root** — No CONTRIBUTING.md
 - [x] **[DOCS] repo root** — No CHANGELOG.md
 - [x] **[DATA] migrations/** — No DB migration tooling (e.g. migrate-mongo)

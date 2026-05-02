@@ -120,6 +120,12 @@ connectRedis();
 
 initSocket(server);
 
+// Attach a per-request trace ID so all log lines for one request share the same ID
+app.use((req, _res, next) => {
+  req.traceId = req.headers["x-request-id"] || crypto.randomUUID();
+  next();
+});
+
 // Gate: return 503 until MongoDB is ready so early requests don't hit unhandled rejections
 app.use((req, res, next) => {
   if (mongoose.connection.readyState !== 1) {

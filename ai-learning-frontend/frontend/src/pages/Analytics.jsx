@@ -71,7 +71,7 @@ export default function Analytics() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Accuracy"         value={`${data?.score ?? 0}%`}               accent="blue"   />
         <StatCard label="Total Attempts"   value={data?.totalAttempts ?? 0}              accent="green"  />
-        <StatCard label="Thinking Profile" value={data?.thinkingProfile ?? "—"}          accent="purple" small />
+        <StatCard label="Thinking Profile" value={data?.thinkingProfile && data.thinkingProfile !== "Unclassified" ? data.thinkingProfile : "10+ attempts needed"} accent="purple" small />
         <StatCard label="Weak Topics"      value={data?.weakAreas?.length ?? 0}          accent="orange" />
       </div>
 

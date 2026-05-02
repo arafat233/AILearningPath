@@ -75,16 +75,16 @@ Check off each item as it is fixed and committed.
 - [x] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
 - [ ] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
 - [ ] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
-- [ ] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
+- [x] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
 - [ ] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
-- [ ] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
+- [x] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
 - [ ] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
 - [ ] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
 - [ ] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
 - [ ] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
 - [ ] **[PERF] AdminQuestions.jsx** — No server-side pagination
 - [x] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
-- [ ] **[ARCH] logger.js** — No request correlation / trace ID in log lines
+- [x] **[ARCH] logger.js** — No request correlation / trace ID in log lines
 - [ ] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
 - [x] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
 - [ ] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history

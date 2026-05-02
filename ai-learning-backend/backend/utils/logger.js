@@ -43,6 +43,13 @@ const logger = {
   info:  (msg, ctx) => write("info",  msg, ctx),
   warn:  (msg, ctx) => write("warn",  msg, ctx),
   error: (msg, ctx) => write("error", msg, ctx),
+  // Returns a logger bound to a traceId — all calls automatically include it
+  withTrace: (traceId) => ({
+    debug: (msg, ctx) => write("debug", msg, { traceId, ...ctx }),
+    info:  (msg, ctx) => write("info",  msg, { traceId, ...ctx }),
+    warn:  (msg, ctx) => write("warn",  msg, { traceId, ...ctx }),
+    error: (msg, ctx) => write("error", msg, { traceId, ...ctx }),
+  }),
 };
 
 export default logger;

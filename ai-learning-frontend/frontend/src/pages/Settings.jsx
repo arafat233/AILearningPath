@@ -21,7 +21,9 @@ export default function Settings() {
   const [saving, setSaving]       = useState(false);
   const [success, setSuccess]     = useState(false);
   const [error, setError]         = useState("");
-  const [deleting, setDeleting]   = useState(false);
+  const [deleting, setDeleting]       = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm]     = useState("");
   const { logout } = useAuthStore();
   const [meta, setMeta]           = useState({ subjects: ["English","Hindi","Math","Science","Social Science"], grades: ["8","9","10","11","12"] });
   const [subscription, setSub]    = useState(null);
@@ -300,19 +302,54 @@ export default function Settings() {
         </p>
         <button
           className="text-[13px] font-medium text-apple-red border border-apple-red/30 px-4 py-2 rounded-apple hover:bg-apple-red/8 transition-colors disabled:opacity-50"
-          onClick={handleDeleteAccount}
+          onClick={() => { setShowDeleteModal(true); setDeleteConfirm(""); }}
           disabled={deleting}
         >
-          {deleting ? "Deleting…" : "Delete my account"}
+          Delete my account
         </button>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-[var(--bg)] rounded-apple-xl shadow-apple-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-[17px] font-bold text-[var(--label)]">Delete account?</p>
+            <p className="text-[13px] text-apple-gray leading-relaxed">
+              This will permanently delete your account and all practice data. This action <strong>cannot be undone</strong>.
+            </p>
+            <div>
+              <p className="text-[12px] text-apple-gray mb-1.5">Type <strong>DELETE</strong> to confirm:</p>
+              <input
+                className="input w-full text-[14px]"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                placeholder="DELETE"
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button
+                className="btn-secondary flex-1"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex-1 bg-apple-red text-white text-[13px] font-semibold py-2 rounded-apple disabled:opacity-40 transition-opacity"
+                disabled={deleteConfirm !== "DELETE" || deleting}
+                onClick={handleDeleteAccount}
+              >
+                {deleting ? "Deleting…" : "Delete permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
   async function handleDeleteAccount() {
-    if (!window.confirm("This will permanently delete your account and all data. This cannot be undone.")) return;
-    const input = window.prompt("Type DELETE to confirm:");
-    if (input !== "DELETE") return;
+    if (deleteConfirm !== "DELETE") return;
     setDeleting(true);
     try {
       await deleteMe();
@@ -321,6 +358,7 @@ export default function Settings() {
     } catch {
       setError("Could not delete account. Please try again.");
       setDeleting(false);
+      setShowDeleteModal(false);
     }
   }
 }

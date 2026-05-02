@@ -8,6 +8,7 @@ import { AppError } from "../utils/AppError.js";
 import { sendEmail } from "../utils/email.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
+import { setCsrfCookie } from "../middleware/csrf.js";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -132,14 +133,23 @@ function queueWelcomeEmail(user, { social = false } = {}) {
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, examDate, grade } = req.body;
+    const { name, email, password, examDate, grade, referralCode } = req.body;
     const existing = await User.findOne({ email });
     if (existing) return next(new AppError("Email already registered", 409));
 
     const hashed     = await bcrypt.hash(password, 10);
     const trialExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7-day Pro trial
-    const user       = await User.create({ name, email, password: hashed, examDate, grade, trialExpiry });
+
+    // Referral: look up the user whose inviteCode matches
+    let referredBy = null;
+    if (referralCode) {
+      const referrer = await User.findOne({ inviteCode: referralCode.toUpperCase() }).select("_id");
+      if (referrer) referredBy = referrer._id.toString();
+    }
+
+    const user = await User.create({ name, email, password: hashed, examDate, grade, trialExpiry, referredBy });
     await issueTokens(user, res);
+    setCsrfCookie(res);
     queueWelcomeEmail(user);
 
     res.json({ data: { user: safeUser(user) } });
@@ -179,6 +189,7 @@ export const login = async (req, res, next) => {
 
     await User.findByIdAndUpdate(user._id, { $set: { loginAttempts: 0, lockUntil: null } });
     await issueTokens(user, res);
+    setCsrfCookie(res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
@@ -224,6 +235,7 @@ export const refresh = async (req, res, next) => {
 
     await sessionDel(`refresh:${hash}`);
     await issueTokens(user, res, storedFamilyId);
+    setCsrfCookie(res);
     res.json({ data: { user: safeUser(user) } });
   } catch (err) {
     next(err);
@@ -511,6 +523,7 @@ export const clerkAuth = async (req, res, next) => {
     // ── Step 4: issue tokens ──────────────────────────────────────────────────
     logger.info("Clerk step 4: issuing tokens...");
     await issueTokens(user, res);
+    setCsrfCookie(res);
 
     logger.info("Clerk auth exchange completed", {
       userId: user._id?.toString?.() || String(user._id),

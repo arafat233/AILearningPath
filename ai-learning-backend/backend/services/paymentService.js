@@ -5,6 +5,7 @@ import { AppError } from "../utils/AppError.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
 import { sendReceiptEmail } from "../utils/email.js";
+import { validateCoupon, computeDiscount, redeemCoupon } from "./couponService.js";
 
 // Plan definitions — single source of truth
 export const PLANS = {
@@ -77,36 +78,54 @@ function getRazorpay() {
 }
 
 // SEC-07: planKey is stored server-side against orderId — client cannot swap plans
-const orderPlanKey = (orderId) => `order_plan:${orderId}`;
-const ORDER_TTL    = 30 * 60; // 30 min — Razorpay orders expire in 15 min by default
+const orderPlanKey    = (orderId) => `order_plan:${orderId}`;
+const orderCouponKey  = (orderId) => `order_coupon:${orderId}`;
+const ORDER_TTL       = 30 * 60; // 30 min — Razorpay orders expire in 15 min by default
 
-export async function createOrder(userId, planKey) {
+export async function createOrder(userId, planKey, couponCode = null) {
   const plan = PLANS[planKey];
   if (!plan) throw new AppError(`Unknown plan: ${planKey}`, 400);
+
+  let finalPrice    = plan.price;
+  let discountAmount = 0;
+  let discountLabel  = null;
+  let couponId       = null;
+
+  if (couponCode) {
+    const coupon = await validateCoupon(couponCode, planKey);
+    ({ discountAmount, finalPrice, discountLabel } = computeDiscount(coupon, plan.price));
+    couponId = coupon._id.toString();
+  }
 
   const razorpay = getRazorpay();
   const receipt  = `order_${userId}_${Date.now()}`;
 
   const order = await razorpay.orders.create({
-    amount:   plan.price,
+    amount:   finalPrice,
     currency: plan.currency,
     receipt,
     notes: { userId: userId.toString(), planKey },
   });
 
-  // Store planKey in Redis — verifyPayment will read from here, ignoring client input
+  // Store planKey + coupon info in Redis — verifyPayment reads from here, ignoring client input
   await sessionSet(orderPlanKey(order.id), planKey, ORDER_TTL);
+  if (couponId) {
+    await sessionSet(orderCouponKey(order.id), JSON.stringify({ couponId, discountAmount }), ORDER_TTL);
+  }
 
-  logger.info("Razorpay order created", { orderId: order.id, userId, planKey });
+  logger.info("Razorpay order created", { orderId: order.id, userId, planKey, finalPrice, couponCode: couponCode || null });
 
   return {
-    orderId:  order.id,
-    amount:   plan.price,
-    currency: plan.currency,
+    orderId:       order.id,
+    amount:        finalPrice,
+    originalPrice: plan.price,
+    discountAmount,
+    discountLabel,
+    currency:      plan.currency,
     planKey,
-    planName: plan.name,
+    planName:      plan.name,
     // SECURITY: only the public key_id is sent here — NEVER include key_secret
-    keyId:    process.env.RAZORPAY_KEY_ID,
+    keyId:         process.env.RAZORPAY_KEY_ID,
   };
 }
 
@@ -130,24 +149,57 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
     throw new AppError("Payment verification failed — invalid signature", 400);
   }
 
-  // Clean up the order key
-  await sessionDel(orderPlanKey(razorpayOrderId));
+  // Clean up order keys + redeem coupon if used
+  const couponRaw = await sessionGet(orderCouponKey(razorpayOrderId));
+  await Promise.all([
+    sessionDel(orderPlanKey(razorpayOrderId)),
+    sessionDel(orderCouponKey(razorpayOrderId)),
+  ]);
 
-  // Upgrade user
+  const couponData = couponRaw ? JSON.parse(couponRaw) : null;
+  if (couponData?.couponId) {
+    await redeemCoupon(couponData.couponId);
+  }
+
+  // Upgrade user (also mark referral as rewarded if applicable)
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + plan.durationDays);
 
-  const user = await User.findByIdAndUpdate(
-    userId,
-    {
-      isPaid:       true,
-      plan:         planKey,
-      planExpiry:   expiry,
-      aiCallsToday: 0,
-    },
-    { new: true, select: "name email plan planExpiry isPaid" }
-  );
+  const fullUser = await User.findById(userId).select("name email plan planExpiry isPaid referredBy referralRewarded");
+  if (!fullUser) throw new AppError("User not found", 404);
 
+  await User.findByIdAndUpdate(userId, {
+    isPaid:           true,
+    plan:             planKey,
+    planExpiry:       expiry,
+    aiCallsToday:     0,
+    referralRewarded: true,
+  });
+
+  // Referral reward — 30 free days added to referrer when referred user first upgrades
+  if (fullUser.referredBy && !fullUser.referralRewarded) {
+    try {
+      const referrer = await User.findById(fullUser.referredBy).select("isPaid plan planExpiry");
+      if (referrer) {
+        const base = referrer.isPaid && referrer.planExpiry > new Date()
+          ? referrer.planExpiry
+          : new Date();
+        const newExpiry = new Date(base);
+        newExpiry.setDate(newExpiry.getDate() + 30);
+        await User.findByIdAndUpdate(fullUser.referredBy, {
+          isPaid:          true,
+          plan:            referrer.isPaid ? referrer.plan : "pro",
+          planExpiry:      newExpiry,
+          $inc:            { referralCount: 1 },
+        });
+        logger.info("Referral reward granted", { referrerId: fullUser.referredBy, referredUserId: userId, bonusDays: 30 });
+      }
+    } catch (e) {
+      logger.warn("Referral reward failed — non-critical", { error: e.message });
+    }
+  }
+
+  const user = await User.findById(userId).select("name email plan planExpiry isPaid");
   if (!user) throw new AppError("User not found", 404);
 
   await PaymentRecord.create({
@@ -155,7 +207,9 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
     razorpayOrderId,
     razorpayPaymentId,
     planKey,
-    amount: plan.price,
+    amount: couponData?.discountAmount
+      ? plan.price - couponData.discountAmount
+      : plan.price,
     status: "captured",
   });
 

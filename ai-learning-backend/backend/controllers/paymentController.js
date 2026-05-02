@@ -15,8 +15,8 @@ export const getSubscription = async (req, res, next) => {
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { planKey } = req.body;
-    const result = await paymentService.createOrder(req.user.id, planKey);
+    const { planKey, couponCode } = req.body;
+    const result = await paymentService.createOrder(req.user.id, planKey, couponCode || null);
     res.json({ data: result });
   } catch (err) {
     next(err);

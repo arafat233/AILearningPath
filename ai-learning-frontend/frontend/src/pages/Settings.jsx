@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe } from "../services/api";
+import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe, validateCoupon, createOrder } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 
@@ -148,6 +148,12 @@ export default function Settings() {
           )}
         </div>
       )}
+
+      {/* Coupon code */}
+      {subscription && !subscription.isActive && <CouponInput />}
+
+      {/* Referral link */}
+      <ReferralCard user={user} subscription={subscription} />
 
       {/* Revision reminders */}
       <NotificationsCard />
@@ -353,6 +359,129 @@ function NotificationsCard() {
               {subscribed ? "Disabling…" : "Enabling…"}
             </span>
           ) : subscribed ? "Turn off" : "Enable"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CouponInput() {
+  const [code,    setCode]    = useState("");
+  const [planKey, setPlanKey] = useState("pro");
+  const [result,  setResult]  = useState(null);  // { discountLabel, finalPrice, originalPrice }
+  const [err,     setErr]     = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const check = async () => {
+    if (!code.trim()) return;
+    setErr(""); setResult(null); setLoading(true);
+    try {
+      const { data } = await validateCoupon(code.trim(), planKey);
+      setResult(data);
+    } catch (e) {
+      setErr(e.response?.data?.error || "Invalid coupon");
+    } finally { setLoading(false); }
+  };
+
+  const apply = async () => {
+    if (!result) return;
+    try {
+      const { data } = await createOrder(planKey, code.trim());
+      // Hand off to Razorpay checkout — stored in window so the pricing page can pick it up
+      window._pendingOrder = data;
+      navigate("/pricing");
+    } catch (e) {
+      setErr(e.response?.data?.error || "Could not create order");
+    }
+  };
+
+  return (
+    <div className="card p-5 border border-apple-blue/20">
+      <p className="text-[13px] font-semibold text-[var(--label)] mb-3">Have a coupon code?</p>
+      <div className="flex gap-2 mb-2">
+        <select
+          value={planKey}
+          onChange={(e) => { setPlanKey(e.target.value); setResult(null); setErr(""); }}
+          className="input text-[13px] w-40"
+        >
+          <option value="pro">Pro Monthly</option>
+          <option value="pro_annual">Pro Annual</option>
+          <option value="premium">Premium Monthly</option>
+          <option value="premium_annual">Premium Annual</option>
+        </select>
+        <input
+          value={code}
+          onChange={(e) => { setCode(e.target.value.toUpperCase()); setResult(null); setErr(""); }}
+          onKeyDown={(e) => e.key === "Enter" && check()}
+          placeholder="COUPON CODE"
+          className="input flex-1 text-[13px] font-mono tracking-wider"
+          maxLength={32}
+        />
+        <button
+          onClick={check}
+          disabled={loading || !code.trim()}
+          className="btn-secondary px-4 py-2 text-[13px] shrink-0 disabled:opacity-40"
+        >
+          {loading ? "…" : "Check"}
+        </button>
+      </div>
+
+      {err && <p className="text-[12px] text-apple-red mb-2">{err}</p>}
+
+      {result && (
+        <div className="flex items-center justify-between bg-apple-green/8 border border-apple-green/20 rounded-apple px-3 py-2.5">
+          <div>
+            <p className="text-[13px] font-semibold text-apple-green">
+              {result.discountLabel} applied
+            </p>
+            <p className="text-[12px] text-apple-gray">
+              ₹{(result.finalPrice / 100).toFixed(0)} instead of ₹{(result.originalPrice / 100).toFixed(0)}
+            </p>
+          </div>
+          <button onClick={apply} className="btn-primary text-[12px] px-3 py-1.5">
+            Pay now →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReferralCard({ user, subscription }) {
+  const [copied, setCopied] = useState(false);
+  const referralLink = user?.inviteCode
+    ? `${window.location.origin}/register?ref=${user.inviteCode}`
+    : null;
+
+  if (!referralLink) return null;
+
+  const copy = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="card p-5 border border-apple-purple/20">
+      <p className="text-[13px] font-semibold text-[var(--label)] mb-0.5">Refer a friend</p>
+      <p className="text-[12px] text-apple-gray mb-3">
+        Share your link. When your friend upgrades to a paid plan, you get 30 free days added to your subscription.
+        {user?.referralCount > 0 && (
+          <span className="ml-1 font-semibold text-apple-purple">
+            {user.referralCount} successful referral{user.referralCount !== 1 ? "s" : ""} so far!
+          </span>
+        )}
+      </p>
+      <div className="flex gap-2">
+        <input
+          readOnly
+          value={referralLink}
+          className="input flex-1 text-[12px] font-mono bg-apple-gray6 text-apple-gray"
+        />
+        <button onClick={copy} className="btn-secondary px-4 py-2 text-[13px] shrink-0">
+          {copied ? "Copied!" : "Copy"}
         </button>
       </div>
     </div>

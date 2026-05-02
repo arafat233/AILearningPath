@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema({
   weeklyParentEmailSentAt: { type: Date, default: null },
   // NPS survey throttle — don't resurface for 30 days after submission
   npsLastShownAt: { type: Date, default: null },
+  // Referral
+  referredBy:       { type: String, default: null },  // userId of the user who referred them
+  referralCount:    { type: Number, default: 0 },     // paid conversions from this user's referral code
+  referralRewarded: { type: Boolean, default: false }, // has this user's upgrade been rewarded to their referrer?
   // Study reminders set by parent for linked students
   studyReminders: [{
     studentId: { type: String, required: true },
@@ -389,6 +393,22 @@ const paymentRecordSchema = new mongoose.Schema({
 });
 paymentRecordSchema.index({ razorpayPaymentId: 1 });
 export const PaymentRecord = mongoose.model("PaymentRecord", paymentRecordSchema);
+
+// ==================== Coupon (discount codes) ====================
+const couponSchema = new mongoose.Schema({
+  code:          { type: String, required: true, unique: true, uppercase: true, trim: true },
+  discountType:  { type: String, enum: ["percent", "fixed"], required: true },
+  // percent: 0-100 | fixed: amount in paise (e.g. 5000 = ₹50 off)
+  discountValue: { type: Number, required: true, min: 1 },
+  planFilter:    [{ type: String }],       // empty = valid for all plans
+  validUntil:    { type: Date, default: null },
+  maxUses:       { type: Number, default: 0 }, // 0 = unlimited
+  usedCount:     { type: Number, default: 0 },
+  isActive:      { type: Boolean, default: true },
+  createdAt:     { type: Date, default: Date.now },
+});
+couponSchema.index({ code: 1 });
+export const Coupon = mongoose.model("Coupon", couponSchema);
 
 // ==================== LinkRequest (parent/teacher consent flow) ====================
 const linkRequestSchema = new mongoose.Schema({

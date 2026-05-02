@@ -141,9 +141,15 @@ export const getPYQById      = (id)      => api.get(`/v1/pyq/${id}`);
 
 export const getPlans        = ()        => api.get("/v1/payment/plans");
 export const getSubscription = ()        => api.get("/v1/payment/subscription");
-export const createOrder     = (planKey) => api.post("/v1/payment/create-order", { planKey });
-export const verifyPayment   = (payload) => api.post("/v1/payment/verify", payload);
+export const createOrder     = (planKey, couponCode) => api.post("/v1/payment/create-order", { planKey, couponCode });
+export const verifyPayment   = (payload)             => api.post("/v1/payment/verify", payload);
+export const validateCoupon  = (code, planKey)       => api.post("/v1/payment/validate-coupon", { code, planKey });
 
 export const getVapidKey     = ()    => api.get("/push/vapid-public-key");
 export const subscribePush   = (sub) => api.post("/push/subscribe", sub);
 export const unsubscribePush = ()    => api.delete("/push/subscribe");
+
+export const adminGetCoupons    = ()          => api.get("/admin/coupons");
+export const adminCreateCoupon  = (data)      => api.post("/admin/coupons", data);
+export const adminUpdateCoupon  = (id, data)  => api.put(`/admin/coupons/${id}`, data);
+export const adminDeleteCoupon  = (id)        => api.delete(`/admin/coupons/${id}`);

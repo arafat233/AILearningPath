@@ -26,11 +26,12 @@ const forgotLimiter = rateLimit({
 });
 
 const registerSchema = Joi.object({
-  name:     Joi.string().trim().min(2).max(80).required(),
-  email:    Joi.string().email().lowercase().required(),
-  password: Joi.string().min(8).required(), // raised from 6 to 8
-  examDate: Joi.date().iso().optional(),
-  grade:    Joi.string().optional(),
+  name:         Joi.string().trim().min(2).max(80).required(),
+  email:        Joi.string().email().lowercase().required(),
+  password:     Joi.string().min(8).required(), // raised from 6 to 8
+  examDate:     Joi.date().iso().optional(),
+  grade:        Joi.string().optional(),
+  referralCode: Joi.string().max(32).uppercase().optional(), // invite/referral code from another user
 });
 
 const loginSchema = Joi.object({

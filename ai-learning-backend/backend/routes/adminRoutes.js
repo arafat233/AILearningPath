@@ -10,6 +10,7 @@ import { listTopics, createTopic, updateTopic, deleteTopic }              from "
 import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
 import { runOnboardingEmails }                                             from "../services/onboardingEmailService.js";
 import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
+import { Coupon }                                                          from "../models/index.js";
 
 const r = Router();
 r.use(adminAuth);
@@ -83,5 +84,45 @@ r.get("/topics",                     listTopics);
 r.post("/topics",                    validate(topicSchema),    createTopic);
 r.put("/topics/:id",                 validate(topicSchema),    updateTopic);
 r.delete("/topics/:id",              deleteTopic);
+
+// Coupons
+const couponSchema = Joi.object({
+  code:          Joi.string().max(32).uppercase().trim().required(),
+  discountType:  Joi.string().valid("percent", "fixed").required(),
+  discountValue: Joi.number().positive().required(),
+  planFilter:    Joi.array().items(Joi.string()).optional(),
+  validUntil:    Joi.date().iso().optional().allow(null),
+  maxUses:       Joi.number().integer().min(0).optional(),
+  isActive:      Joi.boolean().optional(),
+});
+
+r.get("/coupons", async (_req, res, next) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 }).lean();
+    res.json({ data: coupons });
+  } catch (err) { next(err); }
+});
+
+r.post("/coupons", validate(couponSchema), async (req, res, next) => {
+  try {
+    const coupon = await Coupon.create(req.body);
+    res.status(201).json({ data: coupon });
+  } catch (err) { next(err); }
+});
+
+r.put("/coupons/:id", validate(couponSchema), async (req, res, next) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!coupon) return res.status(404).json({ error: "Coupon not found" });
+    res.json({ data: coupon });
+  } catch (err) { next(err); }
+});
+
+r.delete("/coupons/:id", async (req, res, next) => {
+  try {
+    await Coupon.findByIdAndDelete(req.params.id);
+    res.json({ data: { message: "Coupon deleted" } });
+  } catch (err) { next(err); }
+});
 
 export default r;

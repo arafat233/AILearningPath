@@ -4,8 +4,8 @@
 //     shell fallback for navigation.
 
 const CACHE_VERSION  = "v2";
-const STATIC_CACHE   = `ai-learn-static-${CACHE_VERSION}`;
-const API_CACHE      = `ai-learn-api-${CACHE_VERSION}`;
+const STATIC_CACHE   = `stellar-static-${CACHE_VERSION}`;
+const API_CACHE      = `stellar-api-${CACHE_VERSION}`;
 const ALL_CACHES     = new Set([STATIC_CACHE, API_CACHE]);
 
 // API paths whose GET responses are worth caching for offline use.
@@ -125,14 +125,14 @@ self.addEventListener("fetch", (e) => {
 
 // ── Push: show notification ───────────────────────────────────────────
 self.addEventListener("push", (e) => {
-  let data = { title: "AI Learning", body: "You have a new update!", icon: "/icon-192.png" };
+  let data = { title: "Stellar", body: "You have a new update!", icon: "/icon-192.png" };
   try { data = { ...data, ...e.data.json() }; } catch {}
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body:    data.body,
       icon:    data.icon || "/icon-192.png",
       badge:   "/icon-192.png",
-      tag:     data.tag || "ai-learn",
+      tag:     data.tag || "stellar",
       data:    data.url ? { url: data.url } : {},
       actions: data.action ? [{ action: "open", title: data.action }] : [],
     })

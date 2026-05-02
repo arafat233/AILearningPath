@@ -7,14 +7,14 @@ export default function TermsOfService() {
       </div>
 
       <Section title="1. Acceptance of Terms">
-        By creating an account and using AILearn ("the Service"), you agree to be bound by these Terms
+        By creating an account and using Stellar ("the Service"), you agree to be bound by these Terms
         of Service. If you do not agree, please do not use the Service.
       </Section>
 
       <Section title="2. Description of Service">
-        AILearn provides an AI-powered exam preparation platform for CBSE Class 10 students. Features
-        include adaptive practice questions, AI explanations, a study planner, live competitions, and
-        personalised analytics.
+        Stellar ("Building Stars") provides an AI-powered learning platform for students across all
+        curricula and countries. Features include adaptive practice questions, AI explanations, a study
+        planner, live competitions, and personalised analytics.
       </Section>
 
       <Section title="3. Eligibility">
@@ -32,7 +32,7 @@ export default function TermsOfService() {
       </Section>
 
       <Section title="5. Subscriptions and Payments">
-        AILearn offers free and paid subscription tiers. Paid plans are billed monthly.
+        Stellar offers free and paid subscription tiers. Paid plans are billed monthly.
         All payments are processed securely via Razorpay. Subscription fees are non-refundable
         except where required by applicable law or in cases of demonstrated service failure.
         Plan details are available on the Pricing page.
@@ -51,7 +51,7 @@ export default function TermsOfService() {
 
       <Section title="7. Intellectual Property">
         All content on the platform — including questions, AI explanations, lessons, and curricula
-        — is the intellectual property of AILearn or its licensors. You may not reproduce or
+        — is the intellectual property of Stellar or its licensors. You may not reproduce or
         distribute this content without express written permission.
       </Section>
 
@@ -62,7 +62,7 @@ export default function TermsOfService() {
       </Section>
 
       <Section title="9. Disclaimers">
-        The Service is provided "as is" without warranties of any kind. AILearn does not guarantee
+        The Service is provided "as is" without warranties of any kind. Stellar does not guarantee
         specific academic outcomes. AI-generated explanations are for educational purposes and should
         not replace teacher guidance.{" "}
         <strong>AI-generated board exam score predictions are statistical estimates based solely
@@ -74,7 +74,7 @@ export default function TermsOfService() {
       </Section>
 
       <Section title="10. Limitation of Liability">
-        To the fullest extent permitted by law, AILearn's total liability for any claim arising from
+        To the fullest extent permitted by law, Stellar's total liability for any claim arising from
         use of the Service shall not exceed the amount paid by you in the 12 months preceding the claim.
       </Section>
 

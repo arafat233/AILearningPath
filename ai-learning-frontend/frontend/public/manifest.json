@@ -1,7 +1,7 @@
 {
-  "name": "AI Learning Path",
-  "short_name": "AI Learn",
-  "description": "CBSE Class 10 AI-powered exam preparation",
+  "name": "Stellar",
+  "short_name": "Stellar",
+  "description": "Building Stars — AI-powered learning for every student, every curriculum, every country",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -12,5 +12,5 @@
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "categories": ["education"],
-  "lang": "en-IN"
+  "lang": "en"
 }

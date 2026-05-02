@@ -3,9 +3,9 @@ import swaggerUi from "swagger-ui-express";
 const spec = {
   openapi: "3.0.3",
   info: {
-    title: "AI Learning Path API",
+    title: "Stellar API",
     version: "1.0.0",
-    description: "CBSE Class 10 adaptive learning platform — REST API reference",
+    description: "Stellar — Building Stars. Adaptive learning platform REST API reference.",
   },
   servers: [
     { url: "/api",    description: "Stable v0 routes" },
@@ -293,7 +293,7 @@ export function setupSwagger(app) {
     "/api-docs",
     swaggerUi.serve,
     swaggerUi.setup(spec, {
-      customSiteTitle: "AI Learning Path — API Docs",
+      customSiteTitle: "Stellar — API Docs",
       swaggerOptions: { persistAuthorization: true },
     }),
   );

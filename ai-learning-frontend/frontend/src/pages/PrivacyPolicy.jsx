@@ -7,9 +7,9 @@ export default function PrivacyPolicy() {
       </div>
 
       <Section title="1. Introduction">
-        AILearn ("we", "us", "our") is committed to protecting the privacy of our users. This Privacy
+        Stellar ("we", "us", "our") is committed to protecting the privacy of our users. This Privacy
         Policy explains how we collect, use, and safeguard your personal information when you use
-        the AILearn platform.
+        the Stellar platform.
       </Section>
 
       <Section title="2. Information We Collect">

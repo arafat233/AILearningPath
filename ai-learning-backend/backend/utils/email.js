@@ -10,7 +10,7 @@ export async function sendEmail({ to, subject, html }) {
   if (process.env.RESEND_API_KEY) {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.RESEND_FROM || "AILearn <noreply@ailearn.app>";
+    const from = process.env.RESEND_FROM || "Stellar <noreply@stellar.app>";
     const { error } = await resend.emails.send({ from, to, subject, html });
     if (error) {
       logger.error("Resend delivery failed", { to, subject, error: error.message });

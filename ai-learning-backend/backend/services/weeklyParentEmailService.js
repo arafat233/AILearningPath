@@ -148,7 +148,7 @@ function buildEmailHtml(parentName, summaries) {
         <div style="width:36px;height:36px;border-radius:10px;background:#007AFF;
                     display:flex;align-items:center;justify-content:center;
                     font-size:18px;font-weight:700;color:#fff">A</div>
-        <span style="font-size:15px;font-weight:700;color:#1c1c1e">AI Learning</span>
+        <span style="font-size:15px;font-weight:700;color:#1c1c1e">Stellar</span>
       </div>
 
       <h1 style="margin:0 0 6px;font-size:24px;font-weight:700">Weekly progress report 📊</h1>
@@ -167,7 +167,7 @@ function buildEmailHtml(parentName, summaries) {
       </div>
 
       <p style="margin-top:32px;font-size:12px;color:#8e8e93;text-align:center">
-        AI Learning Platform · You're receiving this because you're a linked parent.<br>
+        Stellar Platform · You're receiving this because you're a linked parent.<br>
         <a href="${frontendUrl()}/settings" style="color:#007AFF">Manage notification preferences</a>
       </p>
     </div>

@@ -31,7 +31,7 @@ function TopBar() {
       <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2">
           <Logo />
-          <span className="font-semibold tracking-tight text-[15px] text-ink">AILearn</span>
+          <span className="font-semibold tracking-tight text-[15px] text-ink">Stellar</span>
         </a>
         <nav className="hidden md:flex items-center gap-7 text-[13px] text-ink-3">
           {links.map(([l, h]) => (
@@ -91,7 +91,7 @@ function Hero() {
           <p className="text-[18px] md:text-[20px] text-ink-2 mt-6 max-w-[560px] leading-relaxed">
             No two stars shine the same — and no two children learn the same. So why do they all sit through the same class, at the same speed, on the same page?
             <br /><br />
-            AILearn reads <em>how</em> your child thinks, then builds a study path just for them. From Class 1 to Class 10, across every major board.
+            Stellar reads <em>how</em> your child thinks, then builds a study path just for them — any board, any country, any subject.
           </p>
 
           <div className="mt-8 flex items-center gap-6 text-[12px] text-ink-3">
@@ -1066,7 +1066,7 @@ function Footer() {
           <div className="md:col-span-4">
             <div className="flex items-center gap-2">
               <Logo />
-              <span className="font-semibold text-[15px] text-ink">AILearn</span>
+              <span className="font-semibold text-[15px] text-ink">Stellar</span>
             </div>
             <p className="text-[13px] text-ink-2 mt-4 max-w-[320px] leading-relaxed">
               A study partner built for how your child actually thinks. Class 1 to 10, CBSE · ICSE · IB · State Boards.
@@ -1086,7 +1086,7 @@ function Footer() {
         </div>
         <div className="mt-16 pt-6 flex items-center justify-between flex-wrap gap-3 text-[12px] text-ink-3"
              style={{ borderTop: "1px solid rgba(0,0,0,0.08)" }}>
-          <p>© 2026 AILearn Pvt. Ltd.</p>
+          <p>© 2026 Stellar · Building Stars</p>
           <div className="flex gap-5">
             {["Privacy", "Terms", "Refund policy", "Responsible AI"].map((x) => (
               <a key={x} href="#" className="hover:text-ink transition-colors">{x}</a>

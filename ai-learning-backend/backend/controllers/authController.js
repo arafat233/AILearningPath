@@ -115,7 +115,7 @@ const escHtml = (s) =>
 
 function queueWelcomeEmail(user, { social = false } = {}) {
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  const subject = social ? "Welcome to AILearn - Google sign-in confirmed" : "Welcome to AILearn";
+  const subject = social ? "Welcome to Stellar - Google sign-in confirmed" : "Welcome to Stellar";
   Promise.resolve(sendEmail({
     to:      user.email,
     subject,
@@ -303,7 +303,7 @@ export const forgotPassword = async (req, res, next) => {
 
     await sendEmail({
       to:      user.email,
-      subject: "Reset your AILearn password",
+      subject: "Reset your Stellar password",
       html: `
         <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto">
           <h2 style="color:#007AFF">Reset your password</h2>

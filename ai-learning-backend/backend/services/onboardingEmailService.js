@@ -39,7 +39,7 @@ async function sendDay2Emails() {
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#1c1c1e">
           <h2 style="margin:0 0 8px;font-size:22px;font-weight:700">Hey ${escHtml(user.name)}, ready to start? 🎯</h2>
           <p style="margin:0 0 20px;color:#636366;font-size:15px;line-height:1.6">
-            You signed up for AILearn but haven't tried a practice session yet.
+            You signed up for Stellar but haven't tried a practice session yet.
             It only takes 5 minutes — and your AI tutor is already set up for <strong>${escHtml(subject)}</strong>.
           </p>
           <a href="${frontendUrl()}/practice"

@@ -22,13 +22,14 @@ const timeAgoLabel = (ms) => {
 };
 
 export const getStudentDashboard = async (studentId) => {
-  const now          = new Date();
-  const sevenDaysAgo = new Date(now - 7  * 24 * 60 * 60 * 1000);
-  const twoDaysAgo   = new Date(now - 48 * 60 * 60 * 1000);
-  const thirtyMinAgo = new Date(now - 30 * 60 * 1000);
-  const oneWeekAgo   = new Date(now - 7  * 24 * 60 * 60 * 1000);
+  const now             = new Date();
+  const sevenDaysAgo    = new Date(now - 7  * 24 * 60 * 60 * 1000);
+  const twentyEightDaysAgo = new Date(now - 28 * 24 * 60 * 60 * 1000);
+  const twoDaysAgo      = new Date(now - 48 * 60 * 60 * 1000);
+  const thirtyMinAgo    = new Date(now - 30 * 60 * 1000);
+  const oneWeekAgo      = sevenDaysAgo;
 
-  const [student, profile, streak, badges, recentAttempts, topics, recentDoubts, recentExams, recentLessons] =
+  const [student, profile, streak, badges, recentAttempts, allFourWeekAttempts, topics, recentDoubts, recentExams, recentLessons] =
     await Promise.all([
       User.findById(studentId).select("name email grade subject goal createdAt").lean(),
       UserProfile.findOne({ userId: studentId }).lean(),
@@ -37,6 +38,9 @@ export const getStudentDashboard = async (studentId) => {
       Attempt.find({ userId: studentId, createdAt: { $gte: sevenDaysAgo } })
         .select("topic isCorrect timeTaken createdAt")
         .sort({ createdAt: -1 })
+        .lean(),
+      Attempt.find({ userId: studentId, createdAt: { $gte: twentyEightDaysAgo } })
+        .select("isCorrect createdAt")
         .lean(),
       Topic.find().select("name subject").lean(),
       DoubtThread.find({ userId: studentId, updatedAt: { $gte: twoDaysAgo } })
@@ -203,6 +207,25 @@ export const getStudentDashboard = async (studentId) => {
     .slice(0, 6)
     .map(({ ts, ...rest }) => rest);
 
+  // ── 4-week accuracy trend (weekly buckets, most recent last) ─────────────
+  const weeklyTrend = [];
+  for (let i = 3; i >= 0; i--) {
+    const weekStart = new Date(now - (i + 1) * 7 * 24 * 60 * 60 * 1000);
+    const weekEnd   = new Date(now - i       * 7 * 24 * 60 * 60 * 1000);
+    const label     = `W${4 - i}`;
+    const bucket    = allFourWeekAttempts.filter((a) => {
+      const t = new Date(a.createdAt);
+      return t >= weekStart && t < weekEnd;
+    });
+    const total    = bucket.length;
+    const correct  = bucket.filter((a) => a.isCorrect).length;
+    weeklyTrend.push({
+      label,
+      accuracy: total > 0 ? Math.round((correct / total) * 100) : null,
+      sessions: total,
+    });
+  }
+
   // ── Predicted grade ───────────────────────────────────────────────────────
   const predicted = gradeFromAccuracy(profile?.accuracy || 0);
 
@@ -227,5 +250,6 @@ export const getStudentDashboard = async (studentId) => {
     recentActivity,
     isLearningNow,
     badges,
+    weeklyTrend,
   };
 };

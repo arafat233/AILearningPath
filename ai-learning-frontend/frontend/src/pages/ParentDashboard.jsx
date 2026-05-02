@@ -39,6 +39,52 @@ function ActivityIcon({ type }) {
   );
 }
 
+// ── 4-week accuracy trend ─────────────────────────────────────────────────
+function WeeklyTrendChart({ trend }) {
+  const max = Math.max(...trend.map((w) => w.accuracy ?? 0), 1);
+  return (
+    <div className="card p-5">
+      <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">4-Week Accuracy Trend</p>
+      <div className="flex items-end gap-3 h-24">
+        {trend.map((w, i) => {
+          const isLatest = i === trend.length - 1;
+          const pct = w.accuracy !== null ? (w.accuracy / 100) * 100 : 0;
+          return (
+            <div key={w.label} className="flex-1 flex flex-col items-center gap-1">
+              {w.accuracy !== null && (
+                <span className="text-[11px] font-semibold" style={{ color: isLatest ? "var(--accent,#007AFF)" : "#636366" }}>
+                  {w.accuracy}%
+                </span>
+              )}
+              <div className="w-full flex flex-col justify-end" style={{ height: 56 }}>
+                <div
+                  className="w-full rounded-t-md transition-all"
+                  style={{
+                    height: pct > 0 ? `${Math.max(pct, 8)}%` : "2px",
+                    background: isLatest
+                      ? "var(--accent,#007AFF)"
+                      : w.accuracy !== null
+                        ? w.accuracy >= 70
+                          ? "#34C759"
+                          : w.accuracy >= 50
+                            ? "#FF9500"
+                            : "#FF3B30"
+                        : "#E2E8F0",
+                  }}
+                />
+              </div>
+              <span className="text-[10px] font-medium text-apple-gray">{w.label}</span>
+              {w.sessions > 0 && (
+                <span className="text-[10px] text-apple-gray">{w.sessions}q</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── weekly bar chart ───────────────────────────────────────────────────────
 function WeeklyChart({ weeklyPractice, totalWeeklyMinutes }) {
   const maxMin = Math.max(...weeklyPractice.map((d) => d.minutes), 1);
@@ -181,6 +227,11 @@ function StudentView({ data }) {
           </p>
         </div>
       </div>
+
+      {/* 4-week accuracy trend */}
+      {data.weeklyTrend?.some((w) => w.accuracy !== null) && (
+        <WeeklyTrendChart trend={data.weeklyTrend} />
+      )}
 
       {/* weekly chart */}
       {data.weeklyPractice?.length > 0 && (

@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Seed Math Topics + Questions (seed.js)]] - document - BLUEPRINT.md
+- [[07_profile.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\07_profile.spec.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ncertChapterModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\ncertChapterModel.js
+- [[seed.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seed.js
 
 ## Live Query (requires Dataview plugin)
 

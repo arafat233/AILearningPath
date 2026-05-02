@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 63
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
-- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,18 +1,17 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js"
 type: "code"
-community: "Community 0"
+community: "Community 24"
 location: "L3"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Community_0
+  - graphify/EXTRACTED
+  - community/Community_24
 ---
 
 # getPYQTopics()
 
 ## Connections
-- [[listTopics()]] - `calls` [INFERRED]
 - [[pyqService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_0
+#graphify/code #graphify/EXTRACTED #community/Community_24

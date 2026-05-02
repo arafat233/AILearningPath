@@ -1,33 +1,28 @@
 ---
 type: community
-members: 20
+members: 15
 ---
 
 # Community 13
 
-**Members:** 20 nodes
+**Members:** 15 nodes
 
 ## Members
-- [[App Branding — Blue Square Logo with Letter A]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Auth Guard on Practice Route]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Behavior Login Page Loads With All Elements Visible]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[Behavior Page Remains on Login After Failed Auth]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug No Error Message Shown After Invalid Login]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug Practice Page Redirects Unauthenticated User to Landing Page]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[E2E Test Invalid Credentials — Stay on Login Page (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[E2E Test Login Page Load — Sign In Button Visible (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[E2E Test Practice — Start Disabled When No Topic Selected (Failed)]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page UI — Your Personal AI Study Coach]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Already Have an Account Sign In Link]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Start My Learning Journey CTA Button]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Login Form — Create Account Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Email Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Forgot Password Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Password Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — ShowHide Password Toggle]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Sign In Button]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page UI]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page — EmptyInitial State (placeholder text visible)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
+- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -35,3 +30,15 @@ members: 20
 TABLE source_file, type FROM #community/Community_13
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 5 edges to [[_COMMUNITY_Community 2]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 4]]
+
+## Top bridge nodes
+- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
+- [[serveAtDifficulty()]] - degree 6, connects to 1 community
+- [[recordAttempt()]] - degree 6, connects to 1 community
+- [[getNextTopic()]] - degree 3, connects to 1 community
+- [[getNextQuestion()]] - degree 3, connects to 1 community

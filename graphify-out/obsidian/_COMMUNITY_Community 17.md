@@ -8,15 +8,15 @@ members: 9
 **Members:** 9 nodes
 
 ## Members
-- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[CouponInput()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[NotificationsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[ReferralCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[urlBase64ToUint8Array()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,9 +24,3 @@ members: 9
 TABLE source_file, type FROM #community/Community_17
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 1]]
-
-## Top bridge nodes
-- [[getRevisionTopics()]] - degree 3, connects to 1 community

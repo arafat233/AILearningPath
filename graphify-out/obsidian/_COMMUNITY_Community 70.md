@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[validateEnv()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
-- [[validateEnv.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
+- [[initSentry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
+- [[sentry.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
 
 ## Live Query (requires Dataview plugin)
 

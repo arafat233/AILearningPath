@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
+- [[08_settings.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\08_settings.spec.js
 
 ## Live Query (requires Dataview plugin)
 

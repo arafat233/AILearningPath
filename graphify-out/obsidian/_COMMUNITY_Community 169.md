@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Test Outcome Skipped]] - document - e2e-bot/reports/practice.md
+- [[10_navigation.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\10_navigation.spec.js
 
 ## Live Query (requires Dataview plugin)
 

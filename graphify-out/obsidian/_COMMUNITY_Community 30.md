@@ -19,9 +19,3 @@ members: 4
 TABLE source_file, type FROM #community/Community_30
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 1]]
-
-## Top bridge nodes
-- [[getStudentDashboard()]] - degree 3, connects to 1 community

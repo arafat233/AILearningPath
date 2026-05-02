@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\reporter\issue-reporter.js"
 type: "code"
-community: "Community 5"
+community: "Community 3"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_3
 ---
 
 # IssueReporter
@@ -21,4 +21,4 @@ tags:
 - [[.onTestEnd()]] - `method` [EXTRACTED]
 - [[issue-reporter.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_3

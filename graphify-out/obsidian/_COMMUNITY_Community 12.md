@@ -1,34 +1,30 @@
 ---
 type: community
-members: 21
+members: 17
 ---
 
 # Community 12
 
-**Members:** 21 nodes
+**Members:** 17 nodes
 
 ## Members
-- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Practice.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
+- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[renderPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
+- [[startAndAnswer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
+- [[startSession()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
+- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[validateCoupon()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -36,3 +32,16 @@ members: 21
 TABLE source_file, type FROM #community/Community_12
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 6]]
+- 2 edges to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 4]]
+- 1 edge to [[_COMMUNITY_Community 11]]
+- 1 edge to [[_COMMUNITY_Community 5]]
+
+## Top bridge nodes
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
+- [[createOrder()_1]] - degree 7, connects to 1 community
+- [[validateCoupon()_1]] - degree 3, connects to 1 community
+- [[renderPractice()]] - degree 3, connects to 1 community

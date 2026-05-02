@@ -12,7 +12,6 @@ tags:
 # getStudentDashboard()
 
 ## Connections
-- [[getStudentDashboardCtrl()]] - `calls` [INFERRED]
 - [[gradeFromAccuracy()]] - `calls` [EXTRACTED]
 - [[portalService.js]] - `contains` [EXTRACTED]
 

@@ -1,20 +1,19 @@
 ---
 type: community
-members: 7
+members: 6
 ---
 
 # Community 22
 
-**Members:** 7 nodes
+**Members:** 6 nodes
 
 ## Members
-- [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[main()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[shuffle()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[Dashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[Dashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[LinkRequestsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[NPSSurveyBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[StatCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
+- [[getGreeting()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -22,9 +21,3 @@ members: 7
 TABLE source_file, type FROM #community/Community_22
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 5]]
-
-## Top bridge nodes
-- [[main()_3]] - degree 2, connects to 1 community

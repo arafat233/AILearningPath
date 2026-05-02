@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js"
 type: "code"
-community: "Community 10"
+community: "Community 5"
 location: "L113"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_10
+  - community/Community_5
 ---
 
 # getHomeworkVariant()
@@ -19,4 +19,4 @@ tags:
 - [[hasDynamicTemplate()]] - `calls` [INFERRED]
 - [[schoolVariantService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_10
+#graphify/code #graphify/INFERRED #community/Community_5

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[initSentry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
-- [[sentry.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
+- [[aiRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
+- [[voiceHistoryKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

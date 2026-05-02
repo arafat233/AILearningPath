@@ -1,22 +1,21 @@
 ---
 type: community
-members: 9
+members: 8
 ---
 
 # Community 19
 
-**Members:** 9 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[CouponInput()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[NotificationsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[ReferralCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
-- [[urlBase64ToUint8Array()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
-- [[usePushNotifications()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
-- [[usePushNotifications.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,3 +23,10 @@ members: 9
 TABLE source_file, type FROM #community/Community_19
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 2]]
+
+## Top bridge nodes
+- [[companyLogin()]] - degree 3, connects to 1 community
+- [[getStats()]] - degree 3, connects to 1 community

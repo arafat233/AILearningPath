@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx"
 type: "code"
-community: "Community 56"
+community: "Community 59"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_56
+  - community/Community_59
 ---
 
 # PrivacyPolicy()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[PrivacyPolicy.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_56
+#graphify/code #graphify/EXTRACTED #community/Community_59

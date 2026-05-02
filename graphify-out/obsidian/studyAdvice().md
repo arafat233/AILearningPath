@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js"
 type: "code"
-community: "Community 11"
+community: "Community 8"
 location: "L10"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_11
+  - community/Community_8
 ---
 
 # studyAdvice()
@@ -17,4 +17,4 @@ tags:
 - [[getUsageCount()]] - `calls` [INFERRED]
 - [[smartStudyAdvice()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_11
+#graphify/code #graphify/INFERRED #community/Community_8

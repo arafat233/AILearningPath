@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx"
 type: "code"
-community: "Community 21"
+community: "Community 20"
 location: "L49"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_20
 ---
 
 # AnalyticsSkeleton()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Skeleton.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_20

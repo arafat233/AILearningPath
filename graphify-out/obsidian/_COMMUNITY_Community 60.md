@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[Register()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[Register.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[passwordStrength()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
 
 ## Live Query (requires Dataview plugin)
 

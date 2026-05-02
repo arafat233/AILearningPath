@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\helpers\auth.js"
 type: "code"
-community: "Community 61"
+community: "Community 64"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_61
+  - community/Community_64
 ---
 
 # auth.js
@@ -15,4 +15,4 @@ tags:
 - [[injectAuth()]] - `contains` [EXTRACTED]
 - [[waitForPage()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_61
+#graphify/code #graphify/EXTRACTED #community/Community_64

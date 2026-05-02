@@ -1,40 +1,32 @@
 ---
 type: community
-members: 27
+members: 19
 ---
 
 # Community 10
 
-**Members:** 27 nodes
+**Members:** 19 nodes
 
 ## Members
-- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[RootElement()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[buildResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[getDynamicQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[getDynamicQuestionForSchoolVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[getHomeworkVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
-- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[hasDynamicTemplate()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[lcm()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[questionTemplateService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[seedFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
-- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -44,12 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 9 edges to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[recordAttempt()]] - degree 6, connects to 2 communities
-- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
-- [[questionTemplateService.js]] - degree 9, connects to 1 community
-- [[getHomeworkVariant()]] - degree 6, connects to 1 community
-- [[nextQuestion()]] - degree 5, connects to 1 community
+- [[questionGenerator.js]] - degree 19, connects to 1 community

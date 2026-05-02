@@ -1,21 +1,20 @@
 ---
 type: community
-members: 8
+members: 7
 ---
 
 # Community 21
 
-**Members:** 8 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[AnalyticsSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[Bone()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[DashboardSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[LessonsSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[ProfileSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[Skeleton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[SkeletonCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
-- [[SkeletonStat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[main()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[shuffle()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -23,3 +22,9 @@ members: 8
 TABLE source_file, type FROM #community/Community_21
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 3]]
+
+## Top bridge nodes
+- [[main()_3]] - degree 2, connects to 1 community

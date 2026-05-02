@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\aiTeacher.service.test.js"
 type: "code"
-community: "Community 71"
+community: "Community 73"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_71
+  - community/Community_73
 ---
 
 # aiTeacher.service.test.js
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[baseProfile()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_71
+#graphify/code #graphify/EXTRACTED #community/Community_73

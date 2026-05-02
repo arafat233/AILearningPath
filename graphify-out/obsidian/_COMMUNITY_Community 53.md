@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[StatCard()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

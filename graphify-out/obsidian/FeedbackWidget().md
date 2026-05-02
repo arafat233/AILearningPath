@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx"
 type: "code"
-community: "Community 78"
+community: "Community 82"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_78
+  - community/Community_82
 ---
 
 # FeedbackWidget()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[FeedbackWidget.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_78
+#graphify/code #graphify/EXTRACTED #community/Community_82

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx"
 type: "code"
-community: "Community 10"
+community: "Community 5"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_10
+  - community/Community_5
 ---
 
 # App.jsx
@@ -18,4 +18,4 @@ tags:
 - [[PublicOnly()]] - `contains` [EXTRACTED]
 - [[RootElement()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_10
+#graphify/code #graphify/EXTRACTED #community/Community_5

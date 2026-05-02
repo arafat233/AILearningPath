@@ -1,19 +1,18 @@
 ---
 type: community
-members: 6
+members: 5
 ---
 
 # Community 24
 
-**Members:** 6 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[badgeMeta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[getPYQById()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQs()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[pyqService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
 
 ## Live Query (requires Dataview plugin)
 

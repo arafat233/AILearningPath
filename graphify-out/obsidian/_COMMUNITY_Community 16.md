@@ -1,25 +1,22 @@
 ---
 type: community
-members: 12
+members: 9
 ---
 
 # Community 16
 
-**Members:** 12 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[BarRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Card()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[CompanyDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[CompanyDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
-- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
-- [[MiniTrend()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[ago()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[fmt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[pct()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,3 +24,9 @@ members: 12
 TABLE source_file, type FROM #community/Community_16
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 2]]
+
+## Top bridge nodes
+- [[getRevisionTopics()]] - degree 3, connects to 1 community

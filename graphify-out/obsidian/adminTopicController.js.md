@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js"
 type: "code"
-community: "Community 1"
+community: "Community 2"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # adminTopicController.js
@@ -17,4 +17,4 @@ tags:
 - [[listTopics()_1]] - `contains` [EXTRACTED]
 - [[updateTopic()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_2

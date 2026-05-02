@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 64
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
-- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
 
 ## Live Query (requires Dataview plugin)
 

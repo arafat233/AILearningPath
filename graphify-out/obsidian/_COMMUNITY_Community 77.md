@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
-- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[makeProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\prediction.service.test.js
+- [[prediction.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\prediction.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

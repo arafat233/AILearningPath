@@ -1,27 +1,25 @@
 ---
 type: community
-members: 14
+members: 12
 ---
 
 # Community 15
 
-**Members:** 14 nodes
+**Members:** 12 nodes
 
 ## Members
-- [[ActivityIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AddChildPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AttemptsPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[MultiChildOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudentView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudyReminderCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[SubjectMastery()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[TeacherClassView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyTrendChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[daysSince()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[hoursMinutes()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[BarRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Card()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CompanyDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CompanyDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[MiniTrend()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[ago()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[fmt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[pct()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 

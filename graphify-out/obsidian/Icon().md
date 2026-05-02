@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx"
 type: "code"
-community: "Community 51"
+community: "Community 54"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_51
+  - community/Community_54
 ---
 
 # Icon()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Layout.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_51
+#graphify/code #graphify/EXTRACTED #community/Community_54

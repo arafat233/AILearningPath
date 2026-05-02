@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js"
 type: "code"
-community: "Community 6"
+community: "Community 2"
 location: "L24"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_2
 ---
 
 # updateUserRole()
@@ -16,4 +16,4 @@ tags:
 - [[adminUserController.js]] - `contains` [EXTRACTED]
 - [[sessionDel()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_2

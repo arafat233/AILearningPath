@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[aiQuota.integration.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
-- [[makeUser()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
+- [[makeSignature()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
+- [[payment.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

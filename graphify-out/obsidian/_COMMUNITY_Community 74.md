@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
-- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[makeUser()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\onboardingEmailService.test.js
+- [[onboardingEmailService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\onboardingEmailService.test.js
 
 ## Live Query (requires Dataview plugin)
 

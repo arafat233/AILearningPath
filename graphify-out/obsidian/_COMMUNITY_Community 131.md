@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[cookieNames.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cookieNames.js
+- [[schoolRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\schoolRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

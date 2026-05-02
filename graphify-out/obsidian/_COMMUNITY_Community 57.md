@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Register()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
-- [[Register.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
-- [[passwordStrength()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[CopyRoomLink()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
 
 ## Live Query (requires Dataview plugin)
 

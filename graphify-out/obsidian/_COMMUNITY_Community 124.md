@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[recommenderRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\recommenderRoutes.js
+- [[plannerRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\plannerRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

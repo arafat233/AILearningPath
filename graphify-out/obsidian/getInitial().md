@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js"
 type: "code"
-community: "Community 60"
+community: "Community 63"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_60
+  - community/Community_63
 ---
 
 # getInitial()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[themeStore.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_60
+#graphify/code #graphify/EXTRACTED #community/Community_63

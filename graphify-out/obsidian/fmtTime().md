@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PlacementQuiz.jsx"
 type: "code"
-community: "Community 2"
+community: "Community 26"
 location: "L14"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_26
 ---
 
 # fmtTime()
@@ -16,4 +16,4 @@ tags:
 - [[PlacementQuiz.jsx]] - `contains` [EXTRACTED]
 - [[ProductTour()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_2
+#graphify/code #graphify/EXTRACTED #community/Community_26

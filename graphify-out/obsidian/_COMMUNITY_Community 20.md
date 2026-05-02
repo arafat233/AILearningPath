@@ -8,14 +8,14 @@ members: 8
 **Members:** 8 nodes
 
 ## Members
-- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[AnalyticsSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[Bone()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[DashboardSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[LessonsSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[ProfileSkeleton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[Skeleton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[SkeletonCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
+- [[SkeletonStat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Skeleton.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -23,10 +23,3 @@ members: 8
 TABLE source_file, type FROM #community/Community_20
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 1]]
-
-## Top bridge nodes
-- [[companyLogin()]] - degree 3, connects to 1 community
-- [[getStats()]] - degree 3, connects to 1 community

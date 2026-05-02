@@ -1,32 +1,27 @@
 ---
 type: community
-members: 19
+members: 14
 ---
 
 # Community 14
 
-**Members:** 19 nodes
+**Members:** 14 nodes
 
 ## Members
-- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ActivityIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[AddChildPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[AttemptsPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[MultiChildOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[ParentDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[ParentDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[StudentView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[StudyReminderCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[SubjectMastery()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[TeacherClassView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[WeeklyChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[WeeklyTrendChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[daysSince()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[hoursMinutes()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -34,9 +29,3 @@ members: 19
 TABLE source_file, type FROM #community/Community_14
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 5]]
-
-## Top bridge nodes
-- [[questionGenerator.js]] - degree 19, connects to 1 community

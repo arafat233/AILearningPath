@@ -19,6 +19,8 @@ import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
 import { initSentry } from "./utils/sentry.js";
+import { getFlagsForUser } from "./utils/featureFlags.js";
+import jwt from "jsonwebtoken";
 
 import authRoutes        from "./routes/authRoutes.js";
 import { initPassport }  from "./controllers/authController.js";
@@ -139,6 +141,19 @@ app.use("/api/company",     companyRoutes);
 app.use("/api/v1/pyq",      pyqRoutes);
 app.use("/api/feedback",   feedbackRoutes);
 app.use("/api/push",       pushRoutes);
+
+// Feature flags — public endpoint, user-aware when authenticated
+app.get("/api/flags", (req, res) => {
+  let user = null;
+  try {
+    const token = req.cookies?.token;
+    if (token) {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      user = { id: payload.id, role: payload.role };
+    }
+  } catch { /* unauthenticated — flags use defaults */ }
+  res.json({ data: getFlagsForUser(user) });
+});
 
 app.get("/api/health", async (_req, res) => {
   const health = { status: "ok", checks: { mongodb: "unknown", redis: "unknown", anthropic: "unknown" } };

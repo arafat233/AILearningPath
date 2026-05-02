@@ -599,6 +599,7 @@ utils/logger.js          — structured logger (pretty dev / JSON prod)
 utils/validateEnv.js     — crashes on startup if required env vars missing
 utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
 utils/sentry.js          — Sentry init wrapper; no-op when SENTRY_DSN not set; exports Sentry for captureException
+utils/featureFlags.js    — flag registry with env-var overrides + rollout %; getFlagsForUser(user) for /api/flags endpoint
 scripts/backup.js        — mongodump → gzip archive → optional S3 upload; prunes old local backups; npm run backup
 scripts/restore.js       — mongorestore from local file or S3 path; 5s abort window; npm run restore
 

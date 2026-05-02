@@ -149,6 +149,8 @@ export const getVapidKey     = ()    => api.get("/push/vapid-public-key");
 export const subscribePush   = (sub) => api.post("/push/subscribe", sub);
 export const unsubscribePush = ()    => api.delete("/push/subscribe");
 
+export const getFlags           = ()          => api.get("/flags");
+
 export const adminGetCoupons    = ()          => api.get("/admin/coupons");
 export const adminCreateCoupon  = (data)      => api.post("/admin/coupons", data);
 export const adminUpdateCoupon  = (id, data)  => api.put(`/admin/coupons/${id}`, data);

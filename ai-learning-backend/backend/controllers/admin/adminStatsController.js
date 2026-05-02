@@ -12,7 +12,7 @@ export const getAdminStats = async (req, res, next) => {
     ]);
 
     const today = new Date().toISOString().split("T")[0];
-    const activeToday = await User.countDocuments({ aiCallsDate: today, aiCallsToday: { $gt: 0 } });
+    const activeToday = await User.countDocuments({ lastActiveDate: today });
 
     res.json({
       totalUsers,
@@ -53,8 +53,8 @@ export const getAnalytics = async (req, res, next) => {
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ isPaid: true }),
-      User.countDocuments({ aiCallsDate: today, aiCallsToday: { $gt: 0 } }),
-      User.countDocuments({ aiCallsDate: { $gte: dateStr(d30) } }),
+      User.countDocuments({ lastActiveDate: today }),
+      User.countDocuments({ lastActiveDate: { $gte: dateStr(d30) } }),
 
       // New registrations per day, last 30 days
       User.aggregate([
@@ -78,9 +78,8 @@ export const getAnalytics = async (req, res, next) => {
 
       // 7-day retention: users created before 7 days ago who were active in last 7 days
       User.countDocuments({
-        createdAt:    { $lt: d7 },
-        aiCallsDate:  { $gte: dateStr(d7) },
-        aiCallsToday: { $gt: 0 },
+        createdAt:      { $lt: d7 },
+        lastActiveDate: { $gte: dateStr(d7) },
       }),
 
       // Practice attempts per day, last 30 days

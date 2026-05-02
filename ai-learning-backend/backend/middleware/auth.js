@@ -43,12 +43,19 @@ export const auth = async (req, res, next) => {
     return res.status(401).json({ error: "Password changed — please log in again" });
   }
 
-  // Auto-downgrade expired paid plans — fire-and-forget, does not block the request.
-  // Only run this check occasionally (1-in-20 chance) to avoid a DB hit on every request.
-  if (Math.random() < 0.05) {
-    User.findById(decoded.id).select("isPaid planExpiry").lean().then((user) => {
-      if (user?.isPaid && user?.planExpiry && new Date(user.planExpiry) < new Date()) {
-        User.findByIdAndUpdate(decoded.id, { $set: { isPaid: false, plan: "free" } }).catch(() => {});
+  // Fire-and-forget at 10% sampling — handles plan expiry check + DAU tracking in one DB write
+  if (Math.random() < 0.10) {
+    const today = new Date().toISOString().split("T")[0];
+    User.findById(decoded.id).select("isPaid planExpiry lastActiveDate").lean().then((user) => {
+      if (!user) return;
+      const updates = {};
+      if (user.lastActiveDate !== today) updates.lastActiveDate = today;
+      if (user.isPaid && user.planExpiry && new Date(user.planExpiry) < new Date()) {
+        updates.isPaid = false;
+        updates.plan   = "free";
+      }
+      if (Object.keys(updates).length > 0) {
+        User.findByIdAndUpdate(decoded.id, { $set: updates }).catch(() => {});
       }
     }).catch(() => {});
   }

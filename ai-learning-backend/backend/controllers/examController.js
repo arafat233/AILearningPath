@@ -15,7 +15,7 @@ function currentWeekStr() {
 
 export const listExams = async (req, res, next) => {
   try {
-    const exams = await Exam.find({ isActive: true });
+    const exams = await Exam.find({ isActive: true }).limit(50);
     res.json(exams);
   } catch (err) { next(err); }
 };
@@ -119,12 +119,19 @@ export const submitExam = async (req, res, next) => {
     const rawScore = calculateExamScore(evaluated);
     await ExamAttempt.create({ userId, examId: session.examId, answers: evaluated, rawScore });
 
-    const allAttempts = await ExamAttempt.find({ examId: session.examId });
+    const allAttempts = await ExamAttempt.find({ examId: session.examId }).select("userId rawScore").lean();
     const normalized  = normalizeScores(allAttempts);
     const ranked      = assignRanks(normalized);
 
-    for (const r of ranked) {
-      await ExamAttempt.findByIdAndUpdate(r._id, { normalizedScore: r.normalizedScore, rank: r.rank, percentile: r.percentile });
+    if (ranked.length > 0) {
+      await ExamAttempt.bulkWrite(
+        ranked.map((r) => ({
+          updateOne: {
+            filter: { _id: r._id },
+            update: { $set: { normalizedScore: r.normalizedScore, rank: r.rank, percentile: r.percentile } },
+          },
+        }))
+      );
     }
 
     const userResult = ranked.find((r) => r.userId === userId);

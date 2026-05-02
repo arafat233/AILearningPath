@@ -55,7 +55,11 @@ export const updateUserProfile = async (userId) => {
     .filter((t) => t.accuracy >= 0.75)
     .map((t) => t.topic);
 
-  const thinkingProfile = classifyThinkingProfile(behaviorStats, accuracy);
+  // Require at least 10 attempts before classifying — avoids mislabelling on first try
+  const existingProfile = await UserProfile.findOne({ userId }).select("thinkingProfile").lean();
+  const thinkingProfile = total >= 10
+    ? classifyThinkingProfile(behaviorStats, accuracy)
+    : (existingProfile?.thinkingProfile || "Unclassified");
 
   // Difficulty level per topic (1=basic, 2=application, 3=tricky, 4=exam-level)
   const difficultyLevels = {};

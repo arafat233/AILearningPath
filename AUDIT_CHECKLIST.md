@@ -32,7 +32,7 @@ Check off each item as it is fixed and committed.
 
 - [x] **[ARCH] adminRoutes.js** — Coupon CRUD has business logic + raw Mongoose inside route file; no validation middleware
 - [x] **[PERF] practiceController.js** — `submitAnswer` runs 12-15 sequential DB calls; use Promise.all for independent reads
-- [ ] **[PERF] examController.js** — N+1 bulkWrite inside loop; Exam.find() unbounded
+- [x] **[PERF] examController.js** — N+1 bulkWrite inside loop; Exam.find() unbounded
 - [x] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
 - [x] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
 - [x] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
@@ -45,15 +45,15 @@ Check off each item as it is fixed and committed.
 - [x] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
 - [x] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
 - [x] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
-- [ ] **[ANALYTICS] adminStatsController.js** — DAU / MAU use aiCallsDate proxy; users who log in without AI are invisible
+- [x] **[ANALYTICS] adminStatsController.js** — DAU / MAU use aiCallsDate proxy; users who log in without AI are invisible
 - [x] **[PERF] models/index.js** — Missing TTL index on SeenQuestion.seenAt — collection grows forever
 - [x] **[PERF] models/index.js** — Missing sparse index on pushSubscription.endpoint
 - [x] **[PERF] models/index.js** — Missing compound index on Attempt.(userId, createdAt) and Attempt.topic
 - [x] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
 - [ ] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
-- [ ] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
+- [x] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
 - [x] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
-- [ ] **[SEC] cors** — If FRONTEND_URL unset, no-origin branch returns true — all server requests allowed
+- [x] **[SEC] cors** — If FRONTEND_URL unset, no-origin branch returns true — all server requests allowed
 - [x] **[PERF] MongoDB** — No connection pool config (maxPoolSize) — bottlenecks under load
 - [x] **[OPS] server.js** — No SIGTERM graceful-shutdown handler — in-flight requests dropped on deploy
 - [x] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12

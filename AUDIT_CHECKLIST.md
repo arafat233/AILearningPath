@@ -56,7 +56,7 @@
 - [ ] **No integration tests** — All existing tests mock Mongoose. No tests hit a real test DB.
 - [ ] **No frontend tests** — No Vitest / Playwright setup.
 - [ ] **No load tests** — Unknown behaviour under 100+ concurrent practice sessions.
-- [ ] **No test for AI quota race condition** — Atomicity fix for `checkAndIncrementUsage` needs concurrent-request test.
+- [x] **No test for AI quota race condition** ✅ Fixed: 5 concurrency-simulation tests added to `aiRouter.service.test.js` — stateful mock simulates MongoDB's serial write processing; verifies exactly N slots remain available under concurrent load (free/pro/premium limits, partial slots, already-at-limit).
 - [x] **No test for `revisionService`** ✅ Verified: `revision.service.test.js` covers `getRevisionTopics` (no profile, overdue included, future excluded, priority sort) and `markRevised` (stage advance, stage capped at max).
 
 ---

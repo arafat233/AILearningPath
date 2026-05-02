@@ -179,3 +179,115 @@ describe("getUsageCount", () => {
     expect(result.remaining).toBe(10);
   });
 });
+
+// ── checkAndIncrementUsage — concurrency simulation ───────────────
+// The atomic $cond findOneAndUpdate fix must prevent over-counting when
+// multiple requests race. These tests simulate MongoDB's serial write
+// processing with a stateful mock: the closure counter only advances
+// while below the limit, so concurrent JS calls cannot sneak extra
+// increments through regardless of scheduling order.
+
+describe("checkAndIncrementUsage — concurrency simulation", () => {
+  test("15 concurrent free-user calls at 0/10 → exactly 10 succeed, 5 rejected", async () => {
+    let atomicCount = 0;
+    const LIMIT = 10;
+
+    mockUserFindById.mockReturnValue(
+      selectLeanReturn(userDoc({ aiCallsToday: 0, plan: "free" }))
+    );
+    mockUserFindOneAndUpdate.mockImplementation(async () => {
+      if (atomicCount < LIMIT) { atomicCount++; return { aiCallsToday: atomicCount }; }
+      return null;
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 15 }, () => checkAndIncrementUsage("u1"))
+    );
+
+    expect(results.filter(Boolean)).toHaveLength(LIMIT);
+    expect(results.filter(r => !r)).toHaveLength(5);
+    expect(atomicCount).toBe(LIMIT); // counter never exceeded the limit
+  });
+
+  test("10 concurrent calls with 2 slots remaining (8/10) → exactly 2 succeed", async () => {
+    let atomicCount = 8;
+    const LIMIT = 10;
+
+    mockUserFindById.mockReturnValue(
+      selectLeanReturn(userDoc({ aiCallsToday: 8, plan: "free" }))
+    );
+    mockUserFindOneAndUpdate.mockImplementation(async () => {
+      if (atomicCount < LIMIT) { atomicCount++; return { aiCallsToday: atomicCount }; }
+      return null;
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () => checkAndIncrementUsage("u1"))
+    );
+
+    expect(results.filter(Boolean)).toHaveLength(2);
+    expect(results.filter(r => !r)).toHaveLength(8);
+    expect(atomicCount).toBe(LIMIT);
+  });
+
+  test("15 concurrent pro-user calls at 0/100 → all 15 succeed (well under limit)", async () => {
+    let atomicCount = 0;
+    const LIMIT = 100;
+
+    mockUserFindById.mockReturnValue(
+      selectLeanReturn(userDoc({ aiCallsToday: 0, isPaid: true, plan: "pro" }))
+    );
+    mockUserFindOneAndUpdate.mockImplementation(async () => {
+      if (atomicCount < LIMIT) { atomicCount++; return { aiCallsToday: atomicCount }; }
+      return null;
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 15 }, () => checkAndIncrementUsage("u1"))
+    );
+
+    expect(results.filter(Boolean)).toHaveLength(15);
+    expect(atomicCount).toBe(15);
+  });
+
+  test("user already at free limit → all concurrent calls rejected, counter unchanged", async () => {
+    let atomicCount = 10;
+    const LIMIT = 10;
+
+    mockUserFindById.mockReturnValue(
+      selectLeanReturn(userDoc({ aiCallsToday: 10, plan: "free" }))
+    );
+    mockUserFindOneAndUpdate.mockImplementation(async () => {
+      if (atomicCount < LIMIT) { atomicCount++; return { aiCallsToday: atomicCount }; }
+      return null;
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 5 }, () => checkAndIncrementUsage("u1"))
+    );
+
+    expect(results.every(r => !r)).toBe(true);
+    expect(atomicCount).toBe(LIMIT); // never went above 10
+  });
+
+  test("mixed: 20 concurrent premium-user calls at 490/500 → exactly 10 succeed", async () => {
+    let atomicCount = 490;
+    const LIMIT = 500;
+
+    mockUserFindById.mockReturnValue(
+      selectLeanReturn(userDoc({ aiCallsToday: 490, isPaid: true, plan: "premium" }))
+    );
+    mockUserFindOneAndUpdate.mockImplementation(async () => {
+      if (atomicCount < LIMIT) { atomicCount++; return { aiCallsToday: atomicCount }; }
+      return null;
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 20 }, () => checkAndIncrementUsage("u1"))
+    );
+
+    expect(results.filter(Boolean)).toHaveLength(10);
+    expect(results.filter(r => !r)).toHaveLength(10);
+    expect(atomicCount).toBe(LIMIT);
+  });
+});

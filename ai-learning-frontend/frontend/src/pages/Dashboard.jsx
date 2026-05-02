@@ -40,19 +40,17 @@ export default function Dashboard() {
   const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
   const [scienceSub,    setScienceSub]    = useState(null);
 
-  // initial load — report + advice + ai stats
+  // initial load — report + advice + ai usage (cache-stats is admin-only, fetched separately)
   useEffect(() => {
-    Promise.all([getReport(), getAIAdvice(), getAIUsage(), getAICacheStats()])
-      .then(([r, a, u, cs]) => {
+    Promise.all([getReport(), getAIAdvice(), getAIUsage()])
+      .then(([r, a, u]) => {
         setReport(r.data);
         setAdvice(a.data?.advice || a.data);
         setAiUsage(u.data);
-        setCacheStats(cs.data);
       })
       .catch((err) => {
         const status = err?.response?.status;
-        if (status === 401 || status === 403) {
-          // Session expired — clear stale state and send to login
+        if (status === 401) {
           useAuthStore.getState().logout();
           navigate("/login", { replace: true });
         } else {
@@ -60,6 +58,11 @@ export default function Dashboard() {
         }
       })
       .finally(() => setLoading(false));
+
+    // cache stats are admin-only — fetch silently, ignore 403
+    if (user?.role === "admin") {
+      getAICacheStats().then((r) => setCacheStats(r.data)).catch(() => {});
+    }
   }, []);
 
   // reload topics when subject tab changes

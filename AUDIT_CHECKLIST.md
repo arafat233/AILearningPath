@@ -82,8 +82,8 @@
 
 ## 🟣 PARENT PERSPECTIVE — Missing Features & UX
 
-- [ ] **No consent flow for linking** — Student should receive in-app notification and must accept before data is shared.
-- [ ] **No weekly progress email to parents** — Add weekly digest email (sessions, accuracy trend, topics covered).
+- [x] **No consent flow for linking** ✅ Fixed: `linkStudentDirect` now creates a pending `LinkRequest` instead of immediately linking. Students see an inbox card on their Dashboard (Accept/Decline buttons). On accept, the parent is added to `linkedStudents`. Parent dashboard shows "Pending" badge and waiting state until accepted. New routes: `GET /api/portal/requests`, `POST /api/portal/requests/:id/respond`. Tests: 12 new tests in `portal.controller.test.js` (197 total).
+- [x] **No weekly progress email to parents** ✅ Fixed: `weeklyParentEmailService.js` — for each parent/teacher with linked students, sends a weekly HTML digest with per-student accuracy (with trend arrow vs previous week), topics practised, mastered topics, weak areas, badges earned, and streak. Idempotent: skips parents emailed within the last 7 days via `weeklyParentEmailSentAt` field. Scheduled every 7 days in `server.js`; manually triggerable via `POST /api/admin/run-weekly-parent-emails`.
 - [ ] **No push notification for child milestones** — Parents not notified on badge, streak, or weak-area alert.
 - [ ] **Parent dashboard shows no historical trend** — No chart over time (last 4 weeks).
 - [ ] **No way to set study reminders for child** — Parents cannot schedule notifications or study goals.

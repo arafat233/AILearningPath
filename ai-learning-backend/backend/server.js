@@ -13,6 +13,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { csrfProtect } from "./middleware/csrf.js";
 import { runOnboardingEmails } from "./services/onboardingEmailService.js";
 import { sendRevisionReminders } from "./services/pushService.js";
+import { runWeeklyParentEmails } from "./services/weeklyParentEmailService.js";
 import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
@@ -167,4 +168,9 @@ server.listen(PORT, () => {
   // Revision push notifications: run daily
   sendRevisionReminders().catch(() => {});
   setInterval(() => sendRevisionReminders().catch(() => {}), 24 * 60 * 60 * 1000);
+  // Weekly parent digest: run every 7 days (Monday 8am IST is the natural day, but
+  // the service skips parents whose email was sent within the last 7 days, so the
+  // exact start time doesn't matter — it fires daily and is idempotent).
+  runWeeklyParentEmails().catch(() => {});
+  setInterval(() => runWeeklyParentEmails().catch(() => {}), 7 * 24 * 60 * 60 * 1000);
 });

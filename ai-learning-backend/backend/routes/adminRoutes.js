@@ -8,6 +8,8 @@ import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
 import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
+import { runOnboardingEmails }                                             from "../services/onboardingEmailService.js";
+import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
 
 const r = Router();
 r.use(adminAuth);
@@ -47,6 +49,22 @@ const topicSchema = Joi.object({
 // Stats & Analytics
 r.get("/stats",                      getAdminStats);
 r.get("/analytics",                  getAnalytics);
+
+// Onboarding email sequence — call daily via external cron or manually
+r.post("/run-onboarding-emails", async (req, res, next) => {
+  try {
+    const result = await runOnboardingEmails();
+    res.json({ data: result });
+  } catch (err) { next(err); }
+});
+
+// Weekly parent digest — call weekly via external cron or manually
+r.post("/run-weekly-parent-emails", async (req, res, next) => {
+  try {
+    const result = await runWeeklyParentEmails();
+    res.json({ data: result });
+  } catch (err) { next(err); }
+});
 
 // Users
 r.get("/users",                      listUsers);

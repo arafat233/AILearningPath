@@ -37,6 +37,8 @@ const userSchema = new mongoose.Schema({
   // Onboarding email sequence tracking
   onboardingDay2SentAt: { type: Date, default: null },
   onboardingDay7SentAt: { type: Date, default: null },
+  // Weekly parent digest
+  weeklyParentEmailSentAt: { type: Date, default: null },
   // Web Push subscription (stored server-side; auto-removed on 410 response)
   pushSubscription: {
     endpoint:       { type: String, default: null },
@@ -378,3 +380,19 @@ const paymentRecordSchema = new mongoose.Schema({
 });
 paymentRecordSchema.index({ razorpayPaymentId: 1 });
 export const PaymentRecord = mongoose.model("PaymentRecord", paymentRecordSchema);
+
+// ==================== LinkRequest (parent/teacher consent flow) ====================
+const linkRequestSchema = new mongoose.Schema({
+  requesterId:   { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+  requesterName: { type: String, required: true },
+  requesterRole: { type: String, required: true },
+  studentId:     { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+  status:        { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+  respondedAt:   { type: Date, default: null },
+  createdAt:     { type: Date, default: Date.now },
+});
+// One pending/accepted request per requester+student pair; rejected ones can be re-sent
+linkRequestSchema.index({ requesterId: 1, studentId: 1, status: 1 });
+// Fast lookup for student inbox
+linkRequestSchema.index({ studentId: 1, status: 1 });
+export const LinkRequest = mongoose.model("LinkRequest", linkRequestSchema);

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import FeedbackWidget from "../components/FeedbackWidget";
 
 // ── subject / sub-subject constants ────────────────────────────────
 const SUBJECTS = [
@@ -65,6 +66,7 @@ export default function Practice() {
   const [hintLoading, setHintLoading]   = useState(false);
   const [showSummary, setShowSummary]   = useState(false);
   const [wrongAnswers, setWrongAnswers] = useState([]);
+  const [showFeedback, setShowFeedback] = useState(false);
   const startTimeRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);

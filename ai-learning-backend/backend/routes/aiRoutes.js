@@ -11,6 +11,11 @@ import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
 import logger from "../utils/logger.js";
+import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
+
+const voiceHistoryKey = (userId) => `voice:${userId}`;
+const VOICE_HISTORY_TTL = 7 * 24 * 60 * 60;  // 7 days
+const HISTORY_CAP = 50;                         // max messages stored
 
 const r = express.Router();
 const EVAL_CACHE_TTL = 24 * 60 * 60 * 1000;
@@ -54,13 +59,41 @@ r.get("/usage",       auth,      usageInfo);
 r.get("/cache-stats", adminAuth, cacheStats); // admin only — business metrics
 r.post("/chat",       auth, perUserAILimit, validate(chatSchema), tutorChat);
 
-// VoiceTutor endpoint
+// Voice history CRUD
+r.get("/voice-history", auth, async (req, res, next) => {
+  try {
+    const history = await sessionGet(voiceHistoryKey(req.user.id));
+    res.json({ history: history || [] });
+  } catch (err) { next(err); }
+});
+
+r.delete("/voice-history", auth, async (req, res, next) => {
+  try {
+    await sessionDel(voiceHistoryKey(req.user.id));
+    res.json({ data: { message: "History cleared." } });
+  } catch (err) { next(err); }
+});
+
+// VoiceTutor endpoint — uses + persists per-user history
 r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), async (req, res, next) => {
   try {
     const { transcript, topic, subject } = req.body;
-    logger.info("AI voice call", { userId: req.user.id, topic, subject });
-    const reply = await getChatResponse([], transcript, topic || `General ${subject || "Math"}`, subject || "Math");
-    res.json({ answer: reply || "Could not generate a response. Please try rephrasing your question." });
+    const userId = req.user.id;
+    logger.info("AI voice call", { userId, topic, subject });
+
+    // Load existing history to maintain context across sessions
+    const existing = (await sessionGet(voiceHistoryKey(userId))) || [];
+    const history  = Array.isArray(existing) ? existing : [];
+
+    const reply = await getChatResponse(history, transcript, topic || `General ${subject || "Math"}`, subject || "Math");
+    const answer = reply || "Could not generate a response. Please try rephrasing your question.";
+
+    // Append exchange and persist (cap oldest messages to avoid unbounded growth)
+    const updated = [...history, { role: "user", content: transcript }, { role: "assistant", content: answer }];
+    const capped  = updated.length > HISTORY_CAP ? updated.slice(updated.length - HISTORY_CAP) : updated;
+    sessionSet(voiceHistoryKey(userId), capped, VOICE_HISTORY_TTL).catch(() => {});
+
+    res.json({ answer });
   } catch (err) { next(err); }
 });
 

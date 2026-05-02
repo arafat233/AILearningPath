@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { voiceAnswer, askTutor } from "../services/api";
+import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const QUICK_PROMPTS_BY_SUBJECT = {
@@ -20,6 +20,7 @@ export default function VoiceTutor() {
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking]   = useState(false);
   const [loading, setLoading]     = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [error, setError]         = useState("");
   const recognitionRef = useRef(null);
   const bottomRef      = useRef(null);
@@ -27,9 +28,24 @@ export default function VoiceTutor() {
   const isSupported = "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
   const quickPrompts = QUICK_PROMPTS_BY_SUBJECT[subject] || QUICK_PROMPTS_BY_SUBJECT.Math;
 
+  // Load persisted history on mount
+  useEffect(() => {
+    getVoiceHistory()
+      .then((r) => {
+        if (r.data.history?.length) setChat(r.data.history);
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
+  }, []);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, loading]);
+
+  const handleClearHistory = async () => {
+    await clearVoiceHistory().catch(() => {});
+    setChat([]);
+  };
 
   const speak = (msg) => {
     window.speechSynthesis.cancel();
@@ -96,13 +112,23 @@ export default function VoiceTutor() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Voice Tutor</h1>
-        <p className="text-[14px] text-apple-gray mt-0.5">
-          {isSupported
-            ? `Ask anything about ${subject} — speak or type. Your AI tutor will answer${isHindi ? " in Hindi too" : ""}.`
-            : "Voice requires Chrome or Edge. You can still type below."}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Voice Tutor</h1>
+          <p className="text-[14px] text-apple-gray mt-0.5">
+            {isSupported
+              ? `Ask anything about ${subject} — speak or type. Your AI tutor will answer${isHindi ? " in Hindi too" : ""}.`
+              : "Voice requires Chrome or Edge. You can still type below."}
+          </p>
+        </div>
+        {chat.length > 0 && (
+          <button
+            onClick={handleClearHistory}
+            className="shrink-0 text-[12px] text-apple-gray hover:text-apple-red transition-colors border border-apple-gray5 px-3 py-1.5 rounded-apple mt-1"
+          >
+            Clear history
+          </button>
+        )}
       </div>
 
       {error && (
@@ -113,7 +139,12 @@ export default function VoiceTutor() {
 
       {/* Chat window */}
       <div className="card p-4 h-80 overflow-y-auto flex flex-col gap-3">
-        {chat.length === 0 && (
+        {historyLoading && (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-5 h-5 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
+          </div>
+        )}
+        {!historyLoading && chat.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-14 h-14 rounded-full bg-apple-blue/10 flex items-center justify-center mb-3">
               <span className="text-2xl">🎙️</span>

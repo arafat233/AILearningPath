@@ -58,8 +58,8 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Placement quiz frontend (intro → quiz → results, global timer, Dashboard nudge) | Complete |
 | Dynamic question variants (seeded per-student, 9 topics covered, infinite pool) | Complete |
 | School group system (join code, variant_index, guaranteed unique homework per student) | Complete |
-| Jest backend test suite (22 unit tests) | Complete |
-| Vitest frontend test suite (16 unit tests) | Complete |
+| Jest backend test suite (285 tests — badge, prediction, coupon, admin, GDPR, middleware) | Complete |
+| Vitest frontend test suite (56 tests — Practice, DoubtChat, Layout guards, useFeatureFlags) | Complete |
 | k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |
 | Docker + PM2 deployment configs | Complete |
 | 880 adaptive questions (CBSE Class 10 Math — 43 fine-grained topics) | Complete |
@@ -255,6 +255,7 @@ db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
 | `/admin/analytics` | DAU / MAU / revenue / 30-day charts |
 | `/admin/coupons` | Coupon CRUD |
 | `/placement-quiz` | 20-question diagnostic — intro, timed quiz, results + chapter breakdown |
+| `/school` | School Groups — join via code, get unique homework questions, manage groups |
 
 ---
 
@@ -288,17 +289,17 @@ AILearningPath/
 │   ├── utils/              # AppError, logger, redisClient, sentry, featureFlags
 │   ├── config/             # seed scripts (topics, lessons, CBSE curriculum)
 │   ├── scripts/            # backup.js, restore.js
-│   └── __tests__/          # Jest unit tests (22 tests)
+│   └── __tests__/          # Jest unit tests (285 tests across 29 suites)
 │
 ├── ai-learning-frontend/frontend/
 │   └── src/
-│       ├── pages/          # one file per route
+│       ├── pages/          # one file per route (incl. SchoolGroups)
 │       ├── pages/admin/    # admin-only pages (role-guarded)
 │       ├── components/     # Layout, BadgeToast, DoubtChat, FeedbackWidget
 │       ├── hooks/          # useFeatureFlags
 │       ├── services/       # api.js (axios + CSRF + 401 handler)
 │       ├── store/          # Zustand auth store
-│       └── __tests__/      # Vitest unit tests (16 tests)
+│       └── __tests__/      # Vitest unit tests (56 tests across 7 suites)
 │
 ├── load-tests/             # k6 load test scripts
 │   └── practice-session.js

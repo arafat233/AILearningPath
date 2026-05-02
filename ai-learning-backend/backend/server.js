@@ -42,6 +42,7 @@ import doubtRoutes       from "./routes/doubtRoutes.js";
 import portalRoutes      from "./routes/portalRoutes.js";
 import curriculumRoutes  from "./routes/curriculumRoutes.js";
 import ncertRoutes       from "./routes/ncertRoutes.js";
+import { NcertChapter } from "./models/ncertChapterModel.js";
 import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
 import companyRoutes    from "./routes/companyRoutes.js";
@@ -180,6 +181,39 @@ app.use("/api/push",       pushRoutes);
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {
   setupSwagger(app);
 }
+
+// Dynamic sitemap — public, no auth, includes NCERT chapter slugs for future SEO pages
+app.get("/sitemap.xml", async (_req, res) => {
+  const base = (process.env.SITE_URL || "https://ailearningpath.in").replace(/\/$/, "");
+  const static_pages = [
+    { loc: "/",        priority: "1.0", changefreq: "weekly"  },
+    { loc: "/start",   priority: "0.8", changefreq: "monthly" },
+    { loc: "/pricing", priority: "0.9", changefreq: "monthly" },
+    { loc: "/terms",   priority: "0.3", changefreq: "yearly"  },
+    { loc: "/privacy", priority: "0.3", changefreq: "yearly"  },
+  ];
+  const chapter_pages = [];
+  try {
+    const chapters = await NcertChapter.find({}, { chapterId: 1, _id: 0 }).lean();
+    for (const ch of chapters) {
+      chapter_pages.push({ loc: `/chapters/${ch.chapterId}`, priority: "0.7", changefreq: "monthly" });
+    }
+  } catch { /* skip if DB not ready */ }
+
+  const urls = [...static_pages, ...chapter_pages];
+  const xml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls.map((u) =>
+      `  <url><loc>${base}${u.loc}</loc><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`
+    ),
+    "</urlset>",
+  ].join("\n");
+
+  res.setHeader("Content-Type", "application/xml");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.send(xml);
+});
 
 // Feature flags — public endpoint, user-aware when authenticated
 app.get("/api/flags", (req, res) => {

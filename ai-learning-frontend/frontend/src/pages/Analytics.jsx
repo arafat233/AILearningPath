@@ -5,15 +5,16 @@ import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from "recharts";
-import { getReport, getErrorMemory, getWeeklyLeaderboard, getLastDayRevision } from "../services/api";
+import { getReport, getErrorMemory, getWeeklyLeaderboard, getLastDayRevision, getPrediction } from "../services/api";
 
 export default function Analytics() {
-  const [data, setData]       = useState(null);
-  const [errors, setErrors]   = useState([]);
-  const [weekly, setWeekly]   = useState(null);
-  const [lastDay, setLastDay] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [data, setData]           = useState(null);
+  const [errors, setErrors]       = useState([]);
+  const [weekly, setWeekly]       = useState(null);
+  const [lastDay, setLastDay]     = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -21,6 +22,7 @@ export default function Analytics() {
       getErrorMemory().then((r) => setErrors(r.data || [])).catch(() => {}),
       getWeeklyLeaderboard().then((r) => setWeekly(r.data)).catch(() => {}),
       getLastDayRevision().then((r) => setLastDay(r.data)).catch(() => {}),
+      getPrediction().then((r) => setPrediction(r.data)).catch(() => {}),
     ])
       .catch(() => setError("Could not load analytics. Make sure the backend is running."))
       .finally(() => setLoading(false));
@@ -106,6 +108,57 @@ export default function Analytics() {
               <Bar dataKey="accuracy" fill="#0071e3" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Exam Score Prediction */}
+      {hasData && prediction && (
+        <div className="card p-5">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p className="section-label">Predicted Board Score</p>
+              <p className="text-[12px] text-apple-gray mt-0.5">Based on your practice performance across topics</p>
+            </div>
+            <span className={`badge text-[11px] capitalize ${
+              prediction.confidence === "high"   ? "bg-apple-green/10 text-apple-green" :
+              prediction.confidence === "medium" ? "bg-apple-yellow/10 text-apple-yellow" :
+                                                   "bg-apple-gray5 text-apple-gray"
+            }`}>
+              {prediction.confidence} confidence
+            </span>
+          </div>
+
+          <div className="flex items-end gap-3 mb-4">
+            <span className="text-[42px] font-bold text-[var(--label)] leading-none">
+              {prediction.predictedMin}–{prediction.predictedMax}
+            </span>
+            <span className="text-[16px] text-apple-gray mb-1">/ 80</span>
+            <span className="ml-2 text-[22px] font-semibold text-apple-blue mb-0.5">
+              {prediction.predictedGrade}
+            </span>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full h-2.5 bg-apple-gray5 rounded-full overflow-hidden mb-4">
+            <div
+              className="h-2.5 rounded-full bg-apple-blue transition-all"
+              style={{ width: `${prediction.pctMax ?? 0}%` }}
+            />
+          </div>
+
+          {/* Disclaimer — prominent, always shown */}
+          <div className="flex items-start gap-2 bg-apple-yellow/8 border border-apple-yellow/20 rounded-apple p-3">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                 strokeLinecap="round" strokeLinejoin="round"
+                 className="w-3.5 h-3.5 text-apple-yellow shrink-0 mt-0.5">
+              <path d="M8 2L1 14h14L8 2z"/><path d="M8 6v4M8 11.5v.5"/>
+            </svg>
+            <p className="text-[11px] text-apple-yellow leading-relaxed">
+              This is a <strong>statistical estimate</strong> based solely on in-app practice data —
+              not a guarantee of actual CBSE board results. Actual marks depend on examination
+              conditions, syllabus changes, and many other factors.
+            </p>
+          </div>
         </div>
       )}
 

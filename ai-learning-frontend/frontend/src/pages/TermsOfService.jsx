@@ -64,7 +64,13 @@ export default function TermsOfService() {
       <Section title="9. Disclaimers">
         The Service is provided "as is" without warranties of any kind. AILearn does not guarantee
         specific academic outcomes. AI-generated explanations are for educational purposes and should
-        not replace teacher guidance.
+        not replace teacher guidance.{" "}
+        <strong>AI-generated board exam score predictions are statistical estimates based solely
+        on in-app practice performance and are not a guarantee of actual CBSE board examination
+        results.</strong>{" "}
+        Actual results depend on many factors outside this platform including examination conditions,
+        syllabus changes, and individual performance on the day. Do not rely on predicted scores
+        for any consequential decision.
       </Section>
 
       <Section title="10. Limitation of Liability">

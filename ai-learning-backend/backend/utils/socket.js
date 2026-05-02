@@ -8,6 +8,40 @@ import { sessionGet, sessionSet, sessionDel } from "./redisClient.js";
 let io;
 
 const ROOM_TTL = 4 * 60 * 60; // 4 hours
+
+// Per-IP connection rate limit — prevents connection-flood attacks
+const connAttempts = new Map(); // ip → { count, resetAt }
+const CONN_LIMIT      = 20;       // max new connections per IP per window
+const CONN_WINDOW_MS  = 60_000;   // 1 minute window
+
+function checkConnLimit(ip) {
+  const now = Date.now();
+  let rec = connAttempts.get(ip) || { count: 0, resetAt: now + CONN_WINDOW_MS };
+  if (now > rec.resetAt) { rec = { count: 0, resetAt: now + CONN_WINDOW_MS }; }
+  rec.count++;
+  connAttempts.set(ip, rec);
+  return rec.count <= CONN_LIMIT;
+}
+
+// Prune stale IP entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, rec] of connAttempts) {
+    if (now > rec.resetAt) connAttempts.delete(ip);
+  }
+}, 5 * 60_000);
+
+// Per-user event throttle map — prevents rapid submit_score spam
+const lastEventTs = new Map(); // userId:event → timestamp
+const SUBMIT_COOLDOWN_MS = 500; // max 2 score submits per second per user
+
+function isThrottled(key) {
+  const now = Date.now();
+  const last = lastEventTs.get(key) || 0;
+  if (now - last < SUBMIT_COOLDOWN_MS) return true;
+  lastEventTs.set(key, now);
+  return false;
+}
 const rk = (roomId) => `competition:room:${roomId}`;
 
 const getRoom  = (id)       => sessionGet(rk(id));
@@ -31,6 +65,15 @@ export const initSocket = (server) => {
       logger.warn("Socket.IO Redis adapter init failed — falling back to in-memory adapter", { err: err.message });
     }
   }
+
+  // Connection rate limit — must come before auth middleware
+  io.use((socket, next) => {
+    const ip = socket.handshake.address;
+    if (!checkConnLimit(ip)) {
+      return next(new Error("Too many connections — try again later"));
+    }
+    next();
+  });
 
   // JWT auth on every handshake — anonymous connections are rejected
   // Reads token from: httpOnly cookie (browser), auth.token field, or Authorization header
@@ -82,6 +125,7 @@ export const initSocket = (server) => {
 
     // userId comes from JWT — client cannot forge another user's score
     socket.on("submit_score", async ({ roomId, score }) => {
+      if (isThrottled(`submit:${userId}`)) return; // max 2/s per user
       const room = await getRoom(roomId);
       if (!room?.players[userId]) return;
       room.players[userId].score    += score;

@@ -28,9 +28,9 @@ export const startExam = async (req, res, next) => {
     if (!exam) return next(new AppError("Exam not found", 404));
 
     const [easy, medium, hard] = await Promise.all([
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true } } }, { $sample: { size: exam.questionDistribution.easy } }]),
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true } } }, { $sample: { size: exam.questionDistribution.medium } }]),
-      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true } } }, { $sample: { size: exam.questionDistribution.hard } }]),
+      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.easy } }]),
+      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.medium } }]),
+      Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.hard } }]),
     ]);
 
     const questions = [...easy, ...medium, ...hard].map((q) => ({

@@ -2,13 +2,14 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/index.js";
 import { sessionGet, sessionSet } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
+import { TOKEN_COOKIE } from "../utils/cookieNames.js";
 
 const ROLE_CACHE_TTL = 300; // 5 min — invalidate manually on role change
 
 export const adminAuth = async (req, res, next) => {
   // Mirror auth.js — cookie first (SEC-03), Authorization header as fallback
   const token =
-    req.cookies?.token ||
+    req.cookies?.[TOKEN_COOKIE] ||
     req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token provided" });
 

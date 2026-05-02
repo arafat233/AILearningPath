@@ -27,7 +27,7 @@ export const checkFoundation = async (userId, topic) => {
 
   // Find a foundation question
   const foundationTopic = weakPrereqs[0];
-  const question = await Question.findOne({ topic: foundationTopic });
+  const question = await Question.findOne({ topic: foundationTopic, deletedAt: null });
 
   return {
     redirect: true,

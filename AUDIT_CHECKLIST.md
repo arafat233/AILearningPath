@@ -73,24 +73,24 @@ Check off each item as it is fixed and committed.
 - [ ] **[UX] Onboarding.jsx** — goal field shown but separate capture path never wired up
 - [x] **[UX] Practice.jsx** — DoubtChat does not auto-scroll to newest message
 - [x] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
-- [ ] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
-- [ ] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
+- [x] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
+- [x] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
 - [x] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
 - [ ] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
 - [x] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
-- [ ] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
+- [x] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
 - [ ] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
-- [ ] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
-- [ ] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
-- [ ] **[PERF] AdminQuestions.jsx** — No server-side pagination
+- [x] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
+- [x] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
+- [x] **[PERF] AdminQuestions.jsx** — No server-side pagination
 - [x] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
 - [x] **[ARCH] logger.js** — No request correlation / trace ID in log lines
 - [ ] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
 - [x] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
-- [ ] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history
+- [x] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history
 - [x] **[SEC] authController.js** — passwordResetToken stored as plain text; should be SHA-256 hashed
 - [x] **[SEC] helmet** — No report-uri in CSP — violations go unreported
-- [ ] **[SEC] cookies** — No __Host- prefix on session/CSRF cookies — cookie tossing on subdomains
+- [x] **[SEC] cookies** — No __Host- prefix on session/CSRF cookies — cookie tossing on subdomains
 - [x] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
 - [x] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
 - [x] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
@@ -101,7 +101,7 @@ Check off each item as it is fixed and committed.
 - [ ] **[TEST] __tests__/** — No tests for paymentService or couponService
 - [ ] **[TEST] __tests__/** — No tests for portalController
 - [x] **[DATA] models/index.js** — No max-length validation on weakTopics array
-- [ ] **[DATA] models/index.js** — aiCallsDate is a String not a Date — timezone edge cases at midnight
+- [x] **[DATA] models/index.js** — aiCallsDate is a String not a Date — timezone edge cases at midnight
 - [x] **[DATA] models/index.js** — No compound index on (userId, topic) for Attempt
 - [x] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
 - [x] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
@@ -144,8 +144,8 @@ Check off each item as it is fixed and committed.
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
 | HIGH | 35 | 33 | 2 |
-| MEDIUM | 40 | 17 | 23 |
+| MEDIUM | 40 | 26 | 14 |
 | LOW | 22 | 0 | 22 |
-| **Total** | **113** | **66** | **47** |
+| **Total** | **113** | **75** | **38** |
 
-*Last updated: 2026-05-02*
+*Last updated: 2026-05-03*

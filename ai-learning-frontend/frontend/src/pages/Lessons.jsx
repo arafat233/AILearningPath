@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
 import { useAuthStore } from "../store/authStore";
@@ -63,11 +63,72 @@ function ScienceSubBar({ active, onSelect }) {
   );
 }
 
+const ChapterCard = memo(function ChapterCard({ ch, subjectColor, onChapter, onPractice }) {
+  const topicCount = ch.subchapters?.reduce(
+    (s, sc) => s + sc.concepts?.reduce((cs, c) => cs + (c.topics?.length ?? 0), 0), 0
+  ) ?? 0;
+  return (
+    <div
+      onClick={onChapter}
+      className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-[box-shadow,transform] active:scale-[0.99] group"
+    >
+      <div className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0"
+        style={{ background: subjectColor + "18", color: subjectColor }}>
+        {ch.number}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] font-semibold text-[var(--label)] truncate group-hover:text-apple-blue transition-colors">
+          {ch.title}
+        </p>
+        <p className="text-[12px] text-apple-gray mt-0.5">
+          {ch.subchapters?.length ?? 0} sections · {topicCount} topics
+        </p>
+      </div>
+      <div className="shrink-0 flex items-center gap-2">
+        <button
+          onClick={(e) => { e.stopPropagation(); onPractice(); }}
+          className="btn-secondary text-[12px] py-1.5 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          Practice
+        </button>
+        <span className="text-apple-gray3 text-[18px] group-hover:text-apple-blue transition-colors">›</span>
+      </div>
+    </div>
+  );
+});
+
+const LessonCard = memo(function LessonCard({ lesson, isDue, onLearn, onPractice }) {
+  return (
+    <div className={`card p-5 flex items-center justify-between gap-4 transition-[box-shadow,background-color] ${
+      isDue ? "ring-1 ring-apple-orange/30 bg-apple-orange/4" : "hover:shadow-apple-md"
+    }`}>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-[15px] font-semibold text-[var(--label)] truncate">{lesson.title}</p>
+          {isDue && (
+            <span className="badge bg-apple-orange/10 text-apple-orange text-[11px] shrink-0">Revision due</span>
+          )}
+        </div>
+        <p className="text-[13px] text-apple-gray truncate">{lesson.tagline}</p>
+        <p className="text-[11px] text-apple-gray3 mt-1">~{lesson.shortLesson?.estimatedMinutes} min</p>
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <button onClick={onLearn} className="btn-primary text-[13px] py-2 px-4">Learn →</button>
+        <button onClick={onPractice} className="btn-secondary text-[13px] py-2 px-4">Practice</button>
+      </div>
+    </div>
+  );
+});
+
 // ── main page ──────────────────────────────────────────────────────
 export default function Lessons() {
   const { user }  = useAuthStore();
   const navigate  = useNavigate();
   const grade     = user?.grade || "10";
+
+  const goToPractice = useCallback((topic) => navigate("/practice", { state: { topic } }), [navigate]);
+  const goToLearn    = useCallback((topic) => navigate(`/lessons/${encodeURIComponent(topic)}?mode=short`), [navigate]);
+  const goToChapter  = useCallback((chapterId) => navigate(`/ncert/chapters/${chapterId}`), [navigate]);
 
   const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
   const [scienceSub,    setScienceSub]    = useState(null); // Physics | Chemistry | Biology | null
@@ -163,39 +224,15 @@ export default function Lessons() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5">
-                  {visibleChapters.map((ch) => {
-                    const topicCount = ch.subchapters?.reduce(
-                      (s, sc) => s + sc.concepts?.reduce((cs, c) => cs + (c.topics?.length ?? 0), 0), 0
-                    ) ?? 0;
-                    return (
-                      <div key={ch._id}
-                        onClick={() => navigate(`/ncert/chapters/${ch.chapterId}`)}
-                        className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-apple-md transition-[box-shadow,transform] active:scale-[0.99] group"
-                      >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0"
-                          style={{ background: subjectColor + "18", color: subjectColor }}>
-                          {ch.number}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-semibold text-[var(--label)] truncate group-hover:text-apple-blue transition-colors">
-                            {ch.title}
-                          </p>
-                          <p className="text-[12px] text-apple-gray mt-0.5">
-                            {ch.subchapters?.length ?? 0} sections · {topicCount} topics
-                          </p>
-                        </div>
-                        <div className="shrink-0 flex items-center gap-2">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); navigate("/practice", { state: { topic: ch.title } }); }}
-                            className="btn-secondary text-[12px] py-1.5 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            Practice
-                          </button>
-                          <span className="text-apple-gray3 text-[18px] group-hover:text-apple-blue transition-colors">›</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {visibleChapters.map((ch) => (
+                    <ChapterCard
+                      key={ch._id}
+                      ch={ch}
+                      subjectColor={subjectColor}
+                      onChapter={() => goToChapter(ch.chapterId)}
+                      onPractice={() => goToPractice(ch.title)}
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -240,41 +277,15 @@ export default function Lessons() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {visibleLessons.map((lesson) => {
-                    const isDue = dueTopic.has(lesson.topic);
-                    return (
-                      <div key={lesson._id}
-                        className={`card p-5 flex items-center justify-between gap-4 transition-[box-shadow,background-color] ${
-                          isDue ? "ring-1 ring-apple-orange/30 bg-apple-orange/4" : "hover:shadow-apple-md"
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-[15px] font-semibold text-[var(--label)] truncate">{lesson.title}</p>
-                            {isDue && (
-                              <span className="badge bg-apple-orange/10 text-apple-orange text-[11px] shrink-0">Revision due</span>
-                            )}
-                          </div>
-                          <p className="text-[13px] text-apple-gray truncate">{lesson.tagline}</p>
-                          <p className="text-[11px] text-apple-gray3 mt-1">~{lesson.shortLesson?.estimatedMinutes} min</p>
-                        </div>
-                        <div className="flex gap-2 shrink-0">
-                          <button
-                            onClick={() => navigate(`/lessons/${encodeURIComponent(lesson.topic)}?mode=short`)}
-                            className="btn-primary text-[13px] py-2 px-4"
-                          >
-                            Learn →
-                          </button>
-                          <button
-                            onClick={() => navigate("/practice", { state: { topic: lesson.topic } })}
-                            className="btn-secondary text-[13px] py-2 px-4"
-                          >
-                            Practice
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {visibleLessons.map((lesson) => (
+                    <LessonCard
+                      key={lesson._id}
+                      lesson={lesson}
+                      isDue={dueTopic.has(lesson.topic)}
+                      onLearn={() => goToLearn(lesson.topic)}
+                      onPractice={() => goToPractice(lesson.topic)}
+                    />
+                  ))}
                 </div>
               )}
             </div>

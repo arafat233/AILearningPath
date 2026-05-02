@@ -15,7 +15,7 @@ const roomQuestionsSchema = Joi.object({
 r.post("/room-questions", auth, validate(roomQuestionsSchema), async (req, res, next) => {
   try {
     const { topic, count = 10 } = req.body;
-    const filter = topic ? { topic } : {};
+    const filter = topic ? { topic, deletedAt: null } : { deletedAt: null };
     const questions = await Question.aggregate([
       { $match: filter },
       { $sample: { size: Number(count) } },

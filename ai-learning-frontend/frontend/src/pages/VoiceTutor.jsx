@@ -2,6 +2,28 @@ import { useState, useRef, useEffect } from "react";
 import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
+const BAR_HEIGHTS = [10, 18, 14, 22, 12, 20, 10, 16, 8, 14]; // fixed heights — no random()
+
+function Waveform({ color = "#FF3B30" }) {
+  return (
+    <div className="flex items-center gap-[3px]" aria-hidden>
+      {BAR_HEIGHTS.map((h, i) => (
+        <div
+          key={i}
+          className="rounded-full animate-bounce"
+          style={{
+            width: 3,
+            height: h,
+            background: color,
+            animationDelay: `${i * 60}ms`,
+            animationDuration: `${500 + (i % 3) * 120}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 const QUICK_PROMPTS_BY_SUBJECT = {
   Math:            ["Explain the discriminant", "Why is Pythagoras useful?", "How do I solve quadratics?", "What is the formula for area of a circle?"],
   Science:         ["Explain refraction of light", "What is Ohm's law?", "How does photosynthesis work?", "What is DNA?"],
@@ -178,12 +200,20 @@ export default function VoiceTutor() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Speaking indicator */}
-      {speaking && (
-        <div className="flex items-center gap-2 text-[13px] text-apple-blue">
-          <span className="animate-pulse">🔊</span>
-          <span>AI is speaking…</span>
-          <button onClick={stopSpeaking} className="btn-ghost text-[12px] ml-1">Stop</button>
+      {/* Mic active / speaking indicator */}
+      {(listening || speaking) && (
+        <div className={`flex items-center gap-3 px-4 py-2.5 rounded-apple-lg ${
+          listening ? "bg-apple-red/8 border border-apple-red/20" : "bg-apple-blue/8 border border-apple-blue/20"
+        }`}>
+          <Waveform color={listening ? "#FF3B30" : "#007AFF"} />
+          <span className={`text-[13px] font-medium ${listening ? "text-apple-red" : "text-apple-blue"}`}>
+            {listening ? "Listening…" : "AI is speaking…"}
+          </span>
+          {speaking && (
+            <button onClick={stopSpeaking} className="ml-auto text-[12px] text-apple-gray hover:text-apple-red transition-colors">
+              Stop
+            </button>
+          )}
         </div>
       )}
 
@@ -195,7 +225,7 @@ export default function VoiceTutor() {
             disabled={loading}
             className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-[background-color,opacity,transform] active:scale-[0.93] shrink-0 shadow-apple
               ${listening
-                ? "bg-apple-red text-white animate-pulse"
+                ? "bg-apple-red text-white"
                 : "bg-apple-blue text-white hover:opacity-90 disabled:opacity-50"
               }`}
           >

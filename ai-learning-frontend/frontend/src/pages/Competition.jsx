@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { listExams, startExam, submitExam, getLeaderboard } from "../services/api";
 
-const STATES = { LIST: "list", EXAM: "exam", RESULT: "result", BOARD: "board" };
+const STATES = { LIST: "list", COUNTDOWN: "countdown", EXAM: "exam", RESULT: "result", BOARD: "board" };
 
 export default function Competition() {
   const navigate                      = useNavigate();
@@ -15,6 +15,7 @@ export default function Competition() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [activeExamId, setActiveExamId] = useState(null);
   const [timeLeft, setTimeLeft]       = useState(0);
+  const [countdown, setCountdown]     = useState(3);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState("");
 
@@ -51,6 +52,13 @@ export default function Competition() {
     };
   }, [state]);
 
+  useEffect(() => {
+    if (state !== STATES.COUNTDOWN) return;
+    if (countdown <= 0) { setState(STATES.EXAM); return; }
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [state, countdown]);
+
   const handleJoin = async (exam) => {
     setLoading(true); setError("");
     try {
@@ -65,7 +73,8 @@ export default function Competition() {
       const elapsed = Math.floor((Date.now() - data.startedAt) / 1000);
       setTimeLeft(Math.max(0, data.durationSeconds - elapsed));
       questionStartRef.current = Date.now();
-      setState(STATES.EXAM);
+      setCountdown(3);
+      setState(STATES.COUNTDOWN);
     } catch (err) {
       setError(err.response?.data?.error || "Could not start exam.");
     } finally {
@@ -122,6 +131,28 @@ export default function Competition() {
 
   const fmt = (s) =>
     `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  // ── COUNTDOWN ────────────────────────────────────────────
+  if (state === STATES.COUNTDOWN) return (
+    <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-sm z-50">
+      <div className="text-center space-y-4">
+        <p className="text-[16px] font-semibold text-apple-gray uppercase tracking-widest">
+          Get ready — {activeExam?.title}
+        </p>
+        <div
+          key={countdown}
+          className="text-[120px] font-black text-apple-blue leading-none"
+          style={{ animation: "scaleIn 0.4s ease-out" }}
+        >
+          {countdown > 0 ? countdown : "GO!"}
+        </div>
+        <p className="text-[14px] text-apple-gray">
+          {activeExam?.questions?.length} questions · {activeExam?.duration} min
+        </p>
+        <style>{`@keyframes scaleIn { from { transform: scale(1.6); opacity: 0 } to { transform: scale(1); opacity: 1 } }`}</style>
+      </div>
+    </div>
+  );
 
   // ── LIST ─────────────────────────────────────────────────
   if (state === STATES.LIST) return (

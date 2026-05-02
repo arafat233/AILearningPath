@@ -9,6 +9,7 @@ import { sendEmail } from "../utils/email.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
 import { setCsrfCookie } from "../middleware/csrf.js";
+import { TOKEN_COOKIE, REFRESH_COOKIE } from "../utils/cookieNames.js";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,7 @@ const COOKIE_OPTS = {
   get secure()   { return isProd(); },
   get sameSite() { return isProd() ? "none" : "lax"; },
   maxAge:   24 * 60 * 60 * 1000,
+  path:     "/",   // required for __Host- prefix
 };
 
 const REFRESH_COOKIE_OPTS = {
@@ -54,8 +56,8 @@ async function issueTokens(user, res, familyId) {
     sessionSet(`refresh:${hash}`, JSON.stringify({ userId: user._id.toString(), familyId: fid }), REFRESH_TTL),
     sessionSet(`family:${fid}`, user._id.toString(), REFRESH_TTL),
   ]);
-  res.cookie("token",        accessToken, COOKIE_OPTS);
-  res.cookie("refreshToken", raw,         REFRESH_COOKIE_OPTS);
+  res.cookie(TOKEN_COOKIE,   accessToken, COOKIE_OPTS);
+  res.cookie(REFRESH_COOKIE, raw,         REFRESH_COOKIE_OPTS);
 
   try {
     const setCookie = res.getHeader?.("set-cookie");
@@ -206,7 +208,7 @@ export const login = async (req, res, next) => {
 
 export const refresh = async (req, res, next) => {
   try {
-    const raw = req.cookies?.refreshToken;
+    const raw = req.cookies?.[REFRESH_COOKIE];
     if (!raw) return res.status(401).json({ error: "No refresh token" });
 
     const { familyId } = parseRefreshToken(raw);
@@ -257,7 +259,7 @@ export const logout = async (req, res, next) => {
       if (ttl > 0) await sessionSet(`token_blacklist:${req.user.jti}`, "1", ttl);
     }
 
-    const rawRefresh = req.cookies?.refreshToken;
+    const rawRefresh = req.cookies?.[REFRESH_COOKIE];
     if (rawRefresh) {
       const hash   = crypto.createHash("sha256").update(rawRefresh).digest("hex");
       const stored = await sessionGet(`refresh:${hash}`);
@@ -269,8 +271,8 @@ export const logout = async (req, res, next) => {
       } catch {}
     }
 
-    res.clearCookie("token",        { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd() });
-    res.clearCookie("refreshToken", { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd(), path: "/api/auth" });
+    res.clearCookie(TOKEN_COOKIE,   { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd(), path: "/" });
+    res.clearCookie(REFRESH_COOKIE, { httpOnly: true, sameSite: isProd() ? "none" : "lax", secure: isProd(), path: "/api/auth" });
     res.json({ data: { message: "Logged out successfully." } });
   } catch (err) {
     next(err);

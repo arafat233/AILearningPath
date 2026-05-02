@@ -2,11 +2,12 @@ import jwt from "jsonwebtoken";
 import { sessionGet } from "../utils/redisClient.js";
 import { User } from "../models/index.js";
 import logger from "../utils/logger.js";
+import { TOKEN_COOKIE } from "../utils/cookieNames.js";
 
 export const auth = async (req, res, next) => {
   // Accept token from httpOnly cookie (primary) or Authorization header (fallback for API tools / curl)
   const token =
-    req.cookies?.token ||
+    req.cookies?.[TOKEN_COOKIE] ||
     req.headers.authorization?.split(" ")[1];
 
   if (!token) {

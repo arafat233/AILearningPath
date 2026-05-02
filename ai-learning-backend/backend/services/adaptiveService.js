@@ -27,6 +27,7 @@ export const getNextQuestion = async (userId, topic) => {
           topic,
           isAIGenerated: true,
           isFlagged: { $ne: true },
+          deletedAt: null,
           ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
         }).lean();
 
@@ -71,6 +72,7 @@ export const getNextQuestion = async (userId, topic) => {
   let questions = await Question.find({
     topic,
     isFlagged: { $ne: true },
+    deletedAt: null,
     difficultyScore: { $gte: targetDifficulty - 0.2, $lte: targetDifficulty + 0.2 },
     ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
   }).lean();
@@ -80,13 +82,14 @@ export const getNextQuestion = async (userId, topic) => {
     questions = await Question.find({
       topic,
       isFlagged: { $ne: true },
+      deletedAt: null,
       ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
     }).lean();
   }
 
   // If truly all seen, reset and serve any
   if (!questions.length) {
-    questions = await Question.find({ topic, isFlagged: { $ne: true } }).lean();
+    questions = await Question.find({ topic, isFlagged: { $ne: true }, deletedAt: null }).lean();
   }
 
   if (!questions.length) return null;

@@ -21,6 +21,7 @@ import { connectRedis, isUsingFallback, acquireCronLock, pingRedis } from "./uti
 import { initSentry } from "./utils/sentry.js";
 import { getFlagsForUser } from "./utils/featureFlags.js";
 import jwt from "jsonwebtoken";
+import { TOKEN_COOKIE } from "./utils/cookieNames.js";
 
 import authRoutes        from "./routes/authRoutes.js";
 import { initPassport }  from "./controllers/authController.js";
@@ -170,7 +171,7 @@ app.use("/api/push",       pushRoutes);
 app.get("/api/flags", (req, res) => {
   let user = null;
   try {
-    const token = req.cookies?.token;
+    const token = req.cookies?.[TOKEN_COOKIE];
     if (token) {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       user = { id: payload.id, role: payload.role };

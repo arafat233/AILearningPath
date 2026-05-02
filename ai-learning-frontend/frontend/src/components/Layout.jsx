@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useThemeStore } from "../store/themeStore";
 import { logoutApi } from "../services/api";
@@ -56,7 +56,12 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { dark, toggle: toggleDark } = useThemeStore();
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen]   = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  // Close mobile sidebar on route change
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -81,9 +86,21 @@ export default function Layout() {
   return (
     <div className="flex h-screen overflow-hidden bg-apple-gray6">
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-      {/* Sidebar */}
-      <aside className="w-56 flex flex-col shrink-0 backdrop-blur-apple border-r border-apple-gray5 dark:border-apple-gray/20 transition-colors"
-             style={{ background: "var(--sidebar-bg)" }}>
+
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 sm:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden
+        />
+      )}
+
+      {/* Sidebar — fixed overlay on mobile, static on sm+ */}
+      <aside
+        className={`fixed sm:static inset-y-0 left-0 z-40 w-56 flex flex-col shrink-0 backdrop-blur-apple border-r border-apple-gray5 dark:border-apple-gray/20 transition-transform duration-200 ease-out sm:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ background: "var(--sidebar-bg)" }}
+      >
         {/* App header */}
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center gap-2.5 mb-0.5">
@@ -222,8 +239,24 @@ export default function Layout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
+        {/* Mobile header with hamburger */}
+        <div className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-apple-gray5 sticky top-0 z-20" style={{ background: "var(--sidebar-bg)" }}>
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="w-8 h-8 flex flex-col items-center justify-center gap-1.5"
+            aria-label="Open menu"
+          >
+            <span className="w-5 h-0.5 bg-[var(--label)] rounded-full" />
+            <span className="w-5 h-0.5 bg-[var(--label)] rounded-full" />
+            <span className="w-3.5 h-0.5 bg-[var(--label)] rounded-full" />
+          </button>
+          <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
+            <span className="text-white text-[10px] font-bold">A</span>
+          </div>
+          <span className="text-[13px] font-semibold text-[var(--label)]">AI Learning</span>
+        </div>
         <OfflineBanner />
-        <div className="max-w-5xl mx-auto px-8 py-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
           <Outlet />
         </div>
       </main>

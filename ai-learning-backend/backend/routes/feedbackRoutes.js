@@ -40,15 +40,19 @@ r.post("/", auth, validate(submitSchema), async (req, res, next) => {
 // Eligible if: 5+ attempts AND (never shown OR last shown > 30 days ago)
 r.get("/nps-eligible", auth, async (req, res, next) => {
   try {
-    const { Attempt } = await import("../models/index.js");
+    const { Attempt, User: UserModel } = await import("../models/index.js");
     const [user, attempts] = await Promise.all([
-      User.findById(req.user.id).select("npsLastShownAt").lean(),
+      UserModel.findById(req.user.id).select("npsLastShownAt createdAt").lean(),
       Attempt.countDocuments({ userId: req.user.id }),
     ]);
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400_000);
+    const sevenDaysAgo  = new Date(Date.now() -  7 * 86400_000);
+    const accountAgeOk  = !user?.createdAt || new Date(user.createdAt) < sevenDaysAgo;
+
     const eligible =
-      attempts >= 5 &&
+      attempts >= 20 &&
+      accountAgeOk &&
       (!user?.npsLastShownAt || new Date(user.npsLastShownAt) < thirtyDaysAgo);
 
     res.json({ data: { eligible } });

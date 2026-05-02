@@ -23,7 +23,7 @@
 
 - [x] **Subject filter ignored in Dashboard topics** ✅ Fixed: `GET /topics` now filters by `req.query.subject` and `req.query.grade`.
 - [x] **Settings.jsx only saves `name` to Zustand** — `setAuth` now spreads all changed fields (grade, subject, goal, examDate). ✅ Fixed + Delete Account UI added.
-- [ ] **Socket rooms lost on server restart** `socket.js:38` — `rooms` is in-memory. Live competition lost on restart. Fix: Redis adapter for `socket.io-redis`.
+- [x] **Socket rooms lost on server restart** `socket.js:38` — `rooms` is in-memory. Live competition lost on restart. ✅ Fixed: `@socket.io/redis-adapter` attached when `REDIS_URL` is set; room state persisted in Redis via `sessionGet`/`sessionSet` (key `competition:room:<id>`, 4h TTL) so rooms survive restarts and work across pods.
 - [x] **Mixed practice start doesn't set session** — `/practice/mixed` now calls `sessionSet` after fetching question. ✅ Fixed.
 - [x] **planExpiry never auto-downgrades** — Auth middleware now fire-and-forget downgrades expired paid users. ✅ Fixed.
 - [x] **Revision mark doesn't update Planner state** ✅ Verified: `revisionService.markRevised` increments `revisionStage` and sets `nextRevision` atomically; Planner UI removes item optimistically on success.
@@ -35,7 +35,7 @@
 
 ## 🟡 MEDIUM — Security Hardening
 
-- [ ] **No CSRF protection on state-changing routes** — Production uses `SameSite: none`. Add CSRF token for POST/PUT/DELETE in production.
+- [x] **No CSRF protection on state-changing routes** ✅ Fixed: double-submit cookie pattern — `setCsrfCookie()` called on login/register/refresh/Google OAuth, sets a non-httpOnly `csrf` cookie; `csrfProtect` middleware validates `X-CSRF-Token` header === cookie on all POST/PUT/DELETE (skips auth routes which issue the token, and webhooks). Frontend axios request interceptor reads `csrf` cookie and injects the header automatically. Only enforced in `NODE_ENV=production`.
 - [x] **Rate limit missing on `/api/user/me` PUT** ✅ Fixed: 20 updates/hour per user via `express-rate-limit`.
 - [x] **No input sanitisation on `name` field** ✅ Verified: `escHtml(user.name)` used in both the welcome email and forgot-password email in `authController.js:97,242`.
 - [x] **Admin delete endpoints have no soft-delete** ✅ Fixed: `deletedAt` soft-delete for Questions and Topics; list queries filter `deletedAt: { $exists: false }`.
@@ -57,7 +57,7 @@
 - [ ] **No frontend tests** — No Vitest / Playwright setup.
 - [ ] **No load tests** — Unknown behaviour under 100+ concurrent practice sessions.
 - [ ] **No test for AI quota race condition** — Atomicity fix for `checkAndIncrementUsage` needs concurrent-request test.
-- [ ] **No test for `revisionService`** — Spaced-repetition interval and `markRevised` stage progression untested.
+- [x] **No test for `revisionService`** ✅ Verified: `revision.service.test.js` covers `getRevisionTopics` (no profile, overdue included, future excluded, priority sort) and `markRevised` (stage advance, stage capped at max).
 
 ---
 
@@ -71,7 +71,7 @@
 - [x] **No bookmark / favourite questions** ✅ Fixed: ☆ Bookmark toggle on every feedback card; `POST /api/user/bookmarks/:id` (toggle), `GET /api/user/bookmarks`; dedicated Bookmarks page in sidebar with remove & "Practice this topic" links.
 - [x] **No dark mode** ✅ Fixed: `html.dark` class with CSS variable overrides for all tokens (card-bg, sidebar-bg, input, labels); `themeStore.js` persists preference in localStorage and respects `prefers-color-scheme`; moon/sun toggle button in sidebar.
 - [ ] **No offline support** — Service worker caches only `index.html`. No offline questions/lessons.
-- [ ] **Voice tutor has no history** — Each voice session starts fresh.
+- [x] **Voice tutor has no history** ✅ Fixed: `GET /api/ai/voice-history` and `DELETE /api/ai/voice-history` added; voice-answer now loads Redis history for context and appends each exchange (capped at 50 messages, 7-day TTL); VoiceTutor.jsx loads history on mount and shows a "Clear history" button.
 - [x] **No manual weak-topic override UI** ✅ Fixed: Tag-style input in Settings (type + Enter or Add button); red pill tags with × to remove; loaded from `profile.weakAreas` on mount; submitted as `weakTopics` array to `PUT /user/me` which persists to `UserProfile.weakAreas`.
 - [x] **Exam timer doesn't sync on tab switch** ✅ Fixed: `startedAt` (epoch ms) and `durationSeconds` returned from `startExam`; stored in Redis session; client computes `timeLeft = max(0, durationSeconds - elapsed)` on start and on `visibilitychange` resume; server validates elapsed on submit with 30s grace.
 - [ ] **No notification when revision is due** — PWA push stubbed but never triggered.
@@ -106,9 +106,9 @@
 - [x] **No CI/CD pipeline** ✅ Fixed: `.github/workflows/ci.yml` — backend Jest tests + frontend build on push to main and cursor/** branches.
 - [ ] **No error monitoring** — No Sentry / Datadog integration.
 - [ ] **No database backup strategy** — No automated snapshot or offsite backup documented.
-- [ ] **No onboarding email sequence** — No day-2 / day-7 re-engagement emails.
+- [x] **No onboarding email sequence** ✅ Fixed: `onboardingEmailService.js` — day-2 nudge (registered 2-3 days ago, < 3 attempts) and day-7 re-engagement (registered 7-9 days ago, inactive 5+ days); both track sent state via `onboardingDay2SentAt`/`onboardingDay7SentAt` on User; auto-runs on server boot + every 24h; also callable via `POST /api/admin/run-onboarding-emails`.
 - [ ] **No NPS or in-app feedback** — No mechanism to collect satisfaction scores or feature requests.
-- [ ] **Socket.IO `rooms` object is single-instance** — Competition fails in multi-pod deployments. Fix: `socket.io-redis` adapter.
+- [x] **Socket.IO `rooms` object is single-instance** — Competition fails in multi-pod deployments. ✅ Fixed: same as above — Redis adapter + Redis-backed room state.
 - [x] **`CLAUDE_MODEL` hardcoded fallback** ✅ Verified: fallback is `claude-haiku-4-5-20251001` — current latest Haiku. Overridable via `CLAUDE_MODEL` env var.
 - [ ] **No A/B testing infrastructure** — No feature flags or experiment framework.
 

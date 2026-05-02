@@ -594,7 +594,7 @@ DELETE /api/push/subscribe             ← unsubscribe
 GET    /api/flags                      ← user-aware feature flag map; decodes cookie token if present
 
 POST   /api/feedback                ← submit NPS score (0-10) + optional comment; sets npsLastShownAt
-GET    /api/feedback/nps-eligible   ← returns { eligible: bool } — true if 5+ attempts AND 30-day cooldown passed
+GET    /api/feedback/nps-eligible   ← returns { eligible: bool } — true if 20+ attempts AND 7-day account age AND 30-day cooldown
 GET    /api/feedback                ← admin only: NPS score (% promoters minus % detractors), avg, raw items
 
 PATCH  /api/planner/reorder         ← save drag-reordered topic order
@@ -671,7 +671,7 @@ Server → Client:
 
 ### Key page updates
 ```
-Dashboard.jsx   — NPSSurveyBanner (0-10 score, 30-day cooldown, 5+ attempts)
+Dashboard.jsx   — NPSSurveyBanner (0-10 score, 30-day cooldown, 20+ attempts + 7-day account age)
                   LinkRequestsCard (pending parent/teacher link requests)
 Settings.jsx    — CouponInput (validate + apply coupon before checkout)
                   ReferralCard (shareable /register?ref=<inviteCode>, shows referralCount)
@@ -682,7 +682,8 @@ Practice.jsx    — FeedbackWidget shown after session (rate question quality)
 
 ### Components
 ```
-Layout.jsx           — sidebar nav + outlet; responsive mobile hamburger (fixed sm:static)
+Layout.jsx           — sidebar nav + outlet; fixed drawer on mobile (hamburger opens,
+                        backdrop closes, auto-closes on route change); static on sm+
 BadgeToast.jsx       — floating toast when newBadges[] returned from practice submit
 DoubtChat.jsx        — expandable multi-turn chat below wrong answers in Practice
 FeedbackWidget.jsx   — inline 1-5 star + comment widget (used after practice sessions)
@@ -1266,6 +1267,14 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 ```
 AILearningPath/
 ├── BLUEPRINT.md               ← this file — always up to date
+├── AUDIT_CHECKLIST.md         ← 113/113 items fixed
+├── CONTRIBUTING.md            ← setup, folder rules, PR checklist, commit style
+├── CHANGELOG.md               ← full change history
+├── docker-compose.yml         ← mongo + redis + api services
+├── load-tests/practice-session.js ← k6 100VU load test
+├── .github/workflows/
+│   ├── ci.yml                 ← backend-test, frontend-build, e2e, deploy
+│   └── backup.yml             ← nightly mongodump to gzip + optional S3
 │
 ├── ai-learning-backend/backend/
 │   ├── server.js              ← Express + Socket.IO + all routes mounted
@@ -1347,32 +1356,45 @@ AILearningPath/
 │   ├── utils/
 │   │   ├── AppError.js          ← operational error class
 │   │   ├── cache.js             ← in-memory LRU (24h TTL)
+│   │   ├── cookieNames.js       ← __Host-token / __Secure-refreshToken / __Host-csrf (env-aware)
 │   │   ├── email.js             ← nodemailer wrapper (console fallback)
 │   │   ├── featureFlags.js      ← flag registry, env overrides, rollout %, getFlagsForUser
 │   │   ├── logger.js            ← structured logger (pretty dev / JSON prod)
 │   │   ├── questionGenerator.js
 │   │   ├── redisClient.js       ← ioredis singleton + in-memory fallback
 │   │   ├── sentry.js            ← Sentry init, no-op without DSN
-│   │   ├── socket.js            ← Socket.IO competition rooms
+│   │   ├── socket.js            ← Socket.IO rooms + per-IP conn limit + per-user submit throttle
+│   │   ├── swagger.js           ← OpenAPI 3.0 spec + setupSwagger(app) → /api-docs
 │   │   └── validateEnv.js       ← startup crash if required env vars missing
 │   │
 │   ├── config/
 │   │   ├── seed.js
 │   │   ├── seedLessons.js
-│   │   ├── seedSubjects.js      ← NEW: 50+ Science/English/SocSci/Hindi topics
-│   │   └── seedMathCurriculum.js ← NEW: 14 CBSE Class 10 Math chapters
+│   │   ├── seedSubjects.js        ← 50+ Science/English/SocSci/Hindi topics
+│   │   ├── seedMathCurriculum.js  ← 14 CBSE Class 10 Math chapters
+│   │   ├── seedNcertContent.js    ← NCERT chapter content (all 14 Math chapters, ch1-4 detailed)
+│   │   └── seedPYQ.js             ← 38 CBSE board exam PYQ MCQs (2020-2024, 9 topics)
 │   │
-│   ├── __tests__/               ← Jest ESM test suite (22 backend tests)
+│   ├── migrations/
+│   │   └── 20260503000000-add-indexes-and-soft-delete.js ← TTL/compound indexes + question soft-delete
+│   │
+│   ├── migrate-mongo-config.js  ← ESM migrate-mongo config (MONGO_URI, migrationsDir: "migrations")
+│   │
+│   ├── __tests__/               ← Jest ESM test suite (22+ backend tests)
 │   │   ├── analysisService.test.js   (7 tests)
 │   │   ├── scoringService.test.js    (6 tests)
 │   │   ├── plannerService.test.js    (4 tests, mocked)
-│   │   └── aiRouter.test.js          (5 tests, mocked)
+│   │   ├── aiRouter.test.js          (5 tests, mocked)
+│   │   └── integration/
+│   │       ├── _setup.js             ← real DB (MONGO_URI) or MongoMemoryServer fallback
+│   │       ├── auth.integration.test.js
+│   │       └── aiQuota.integration.test.js
 │   │
 │   ├── scripts/
 │   │   ├── backup.js            ← mongodump + gzip + optional S3 + prune
 │   │   └── restore.js           ← mongorestore from local or S3, 5s abort window
 │   │
-│   └── package.json             ← jest config + npm test + npm run backup/restore
+│   └── package.json             ← jest config + npm test / test:integration + backup/restore
 │
 └── ai-learning-frontend/frontend/
     ├── index.html               ← UPDATED: manifest link + theme-color meta
@@ -1389,11 +1411,19 @@ AILearningPath/
         ├── store/authStore.js   ← user now has role field
         ├── services/api.js      ← UPDATED: port 5001, all new functions
         │
+        ├── playwright.config.js ← Chromium, PLAYWRIGHT_BASE_URL, 2 retries in CI
+        ├── e2e/
+        │   ├── auth.spec.js         ← landing CTA, register, login, forgot-password, pricing, TOS
+        │   └── practice.spec.js     ← authenticated: practice, dashboard, analytics, settings, nav, sign-out
+        │
         ├── components/
-        │   ├── Layout.jsx
+        │   ├── Layout.jsx           ← mobile drawer (hamburger + backdrop + auto-close on nav)
         │   ├── BadgeToast.jsx       ← toast when badge awarded
         │   ├── DoubtChat.jsx        ← multi-turn chat below wrong answers
-        │   └── FeedbackWidget.jsx   ← 1-5 star + comment (after practice sessions)
+        │   ├── FeedbackWidget.jsx   ← 1-5 star + comment (after practice sessions)
+        │   ├── OfflineBanner.jsx    ← shows when navigator.onLine is false
+        │   ├── SearchOverlay.jsx    ← ⌘K global search
+        │   └── Skeleton.jsx         ← DashboardSkeleton, AnalyticsSkeleton, LessonsSkeleton, etc.
         │
         ├── hooks/
         │   └── useFeatureFlags.js   ← fetches /api/flags once per page load

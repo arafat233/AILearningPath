@@ -1,19 +1,20 @@
 ---
 type: community
-members: 6
+members: 7
 ---
 
 # Community 21
 
-**Members:** 6 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[Auth Routes (apiauth)]] - document - BLUEPRINT.md
-- [[Backend API Routes (README listing)]] - document - ai-learning-backend/backend/README.md
-- [[E2E Issue Auth login click timeout (20000ms exceeded)]] - document - e2e-bot/reports/auth.md
-- [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - document - e2e-bot/reports/auth.md
-- [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - document - e2e-bot/reports/auth.md
-- [[Practice Routes (apipractice)]] - document - BLUEPRINT.md
+- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -21,3 +22,12 @@ members: 6
 TABLE source_file, type FROM #community/Community_21
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 5]]
+
+## Top bridge nodes
+- [[updateStreak()]] - degree 3, connects to 2 communities
+- [[getReport()]] - degree 5, connects to 1 community

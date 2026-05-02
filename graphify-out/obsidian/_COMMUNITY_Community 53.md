@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
-- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
-- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
+- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[submitFeedback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
 
 ## Live Query (requires Dataview plugin)
 

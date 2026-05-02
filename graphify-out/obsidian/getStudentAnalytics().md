@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js"
 type: "code"
-community: "Community 12"
-location: "L80"
+community: "Community 10"
+location: "L245"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_12
+  - community/Community_10
 ---
 
 # getStudentAnalytics()
@@ -15,4 +15,4 @@ tags:
 - [[portalController.js]] - `contains` [EXTRACTED]
 - [[verifyOwnership()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_12
+#graphify/code #graphify/EXTRACTED #community/Community_10

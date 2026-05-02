@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Seed Math Topics + Questions (seed.js)]] - document - BLUEPRINT.md
+- [[Save-Checkpoint.ps1]] - code - E:\AILearningPath\ClaudeTools\Save-Checkpoint.ps1
 
 ## Live Query (requires Dataview plugin)
 

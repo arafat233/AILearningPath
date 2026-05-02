@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
+- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
 
 ## Live Query (requires Dataview plugin)
 

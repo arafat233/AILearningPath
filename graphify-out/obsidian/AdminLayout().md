@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx"
 type: "code"
-community: "Community 81"
-location: "L12"
+community: "Community 96"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_81
+  - community/Community_96
 ---
 
 # AdminLayout()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[AdminLayout.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_81
+#graphify/code #graphify/EXTRACTED #community/Community_96

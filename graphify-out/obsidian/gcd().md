@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js"
 type: "code"
-community: "Community 11"
+community: "Community 12"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_12
 ---
 
 # gcd()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[questionGenerator.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_12

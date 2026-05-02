@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js"
 type: "code"
-community: "Community 65"
+community: "Community 77"
 location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_65
+  - community/Community_77
 ---
 
 # validateEnv()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[validateEnv.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_65
+#graphify/code #graphify/EXTRACTED #community/Community_77

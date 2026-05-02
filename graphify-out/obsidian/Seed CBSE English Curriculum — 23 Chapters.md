@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 5"
+community: "Community 7"
 location: "section 11"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_7
 ---
 
 # Seed: CBSE English Curriculum — 23 Chapters
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Chapter Collection — CBSE Textbook Curriculum]] - `shares_data_with` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_5
+#graphify/document #graphify/EXTRACTED #community/Community_7

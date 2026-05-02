@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js"
 type: "code"
-community: "Community 61"
+community: "Community 72"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_61
+  - community/Community_72
 ---
 
 # errorHandler()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[errorHandler.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_61
+#graphify/code #graphify/EXTRACTED #community/Community_72

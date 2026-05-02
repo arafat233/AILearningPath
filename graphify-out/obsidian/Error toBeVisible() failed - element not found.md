@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/profile.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # Error: toBeVisible() failed - element not found
@@ -17,4 +17,4 @@ tags:
 - [[Test Settings Save changes shows success message]] - `references` [EXTRACTED]
 - [[Test Settings Subscriptionplan info is visible]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_3

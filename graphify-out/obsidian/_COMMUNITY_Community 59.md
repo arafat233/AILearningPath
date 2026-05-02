@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 59
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
-- [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[PrivacyPolicy()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
+- [[PrivacyPolicy.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
+- [[Section()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
 
 ## Live Query (requires Dataview plugin)
 

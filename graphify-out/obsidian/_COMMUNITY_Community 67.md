@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[makeSignature()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
-- [[payment.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
+- [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

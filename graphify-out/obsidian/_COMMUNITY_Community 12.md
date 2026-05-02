@@ -1,27 +1,32 @@
 ---
 type: community
-members: 14
+members: 19
 ---
 
 # Community 12
 
-**Members:** 14 nodes
+**Members:** 19 nodes
 
 ## Members
-- [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[getStudentDashboard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
-- [[getStudentDashboardCtrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[linkStudentDirect()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -31,7 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
-- [[getStudentDashboard()_1]] - degree 2, connects to 1 community
+- [[questionGenerator.js]] - degree 19, connects to 1 community

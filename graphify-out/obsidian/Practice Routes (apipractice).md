@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 21"
+community: "Community 23"
 location: "section 5"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_21
+  - community/Community_23
 ---
 
 # Practice Routes (/api/practice/*)
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Backend API Routes (README listing)]] - `references` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_21
+#graphify/document #graphify/INFERRED #community/Community_23

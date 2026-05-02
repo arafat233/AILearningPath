@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[makeToken()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[mockReqRes()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
+- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
 
 ## Live Query (requires Dataview plugin)
 

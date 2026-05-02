@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx"
 type: "code"
-community: "Community 15"
-location: "L64"
+community: "Community 16"
+location: "L69"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_15
+  - community/Community_16
 ---
 
 # Protected()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[App.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_15
+#graphify/code #graphify/EXTRACTED #community/Community_16

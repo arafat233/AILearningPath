@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 101
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[badgeRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\badgeRoutes.js
+- [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[globalSetup()]] - code - E:\AILearningPath\e2e-bot\global-setup.js
 
 ## Live Query (requires Dataview plugin)
 

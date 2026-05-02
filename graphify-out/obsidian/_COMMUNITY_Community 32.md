@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 32
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
-- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
-- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
-- [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
+- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

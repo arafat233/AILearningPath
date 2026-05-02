@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
-- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
 
 ## Live Query (requires Dataview plugin)
 

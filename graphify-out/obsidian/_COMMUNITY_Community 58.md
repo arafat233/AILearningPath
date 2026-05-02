@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 58
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
-- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[Pricing()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
 
 ## Live Query (requires Dataview plugin)
 

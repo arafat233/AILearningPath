@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 60
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[companyAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
-- [[companyAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
+- [[Register()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[Register.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
+- [[passwordStrength()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Register.jsx
 
 ## Live Query (requires Dataview plugin)
 

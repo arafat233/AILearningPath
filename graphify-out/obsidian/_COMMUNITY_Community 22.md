@@ -1,18 +1,20 @@
 ---
 type: community
-members: 5
+members: 7
 ---
 
 # Community 22
 
-**Members:** 5 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
-- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[NotificationsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[urlBase64ToUint8Array()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
 
 ## Live Query (requires Dataview plugin)
 

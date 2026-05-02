@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[05_analytics.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\05_analytics.spec.js
+- [[scoringService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\scoringService.test.js
 
 ## Live Query (requires Dataview plugin)
 

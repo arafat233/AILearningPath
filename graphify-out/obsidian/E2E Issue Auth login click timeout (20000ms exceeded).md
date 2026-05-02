@@ -1,12 +1,12 @@
 ---
 source_file: "e2e-bot/reports/auth.md"
 type: "document"
-community: "Community 21"
+community: "Community 23"
 location: "Issues 2 and 3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_23
 ---
 
 # E2E Issue: Auth login click timeout (20000ms exceeded)
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_21
+#graphify/document #graphify/EXTRACTED #community/Community_23

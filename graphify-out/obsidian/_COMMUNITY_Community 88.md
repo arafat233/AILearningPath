@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 88
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[CompanyLogin()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
+- [[CompanyLogin.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
 
 ## Live Query (requires Dataview plugin)
 

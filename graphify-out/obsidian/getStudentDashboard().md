@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\portalService.js"
 type: "code"
-community: "Community 12"
+community: "Community 10"
 location: "L24"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_12
+  - community/Community_10
 ---
 
 # getStudentDashboard()
@@ -16,4 +16,4 @@ tags:
 - [[gradeFromAccuracy()]] - `calls` [EXTRACTED]
 - [[portalService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_12
+#graphify/code #graphify/EXTRACTED #community/Community_10

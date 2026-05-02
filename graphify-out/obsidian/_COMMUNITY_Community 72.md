@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[CompanyLogin()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
-- [[CompanyLogin.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
+- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
 
 ## Live Query (requires Dataview plugin)
 

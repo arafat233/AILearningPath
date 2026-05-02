@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Attempt Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[companyStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\companyStore.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -64,7 +64,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 5]]
+- 4 edges to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
 - [[Backend (Express + Node, port 5001)]] - degree 25, connects to 1 community

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
-- [[AdminTopics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
+- [[GoogleSignInButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
+- [[GoogleSignInButton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
 
 ## Live Query (requires Dataview plugin)
 

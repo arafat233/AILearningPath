@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[companyStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\companyStore.js
+- [[topicRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\topicRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

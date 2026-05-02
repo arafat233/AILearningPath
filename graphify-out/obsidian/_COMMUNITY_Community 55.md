@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 55
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
-- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[ChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[ChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[SectionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

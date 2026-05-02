@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 8"
+community: "Community 5"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_5
 ---
 
 # authController.js
@@ -21,6 +21,7 @@ tags:
 - [[login()]] - `contains` [EXTRACTED]
 - [[logout()]] - `contains` [EXTRACTED]
 - [[makeRefreshToken()]] - `contains` [EXTRACTED]
+- [[parseRefreshToken()]] - `contains` [EXTRACTED]
 - [[queueWelcomeEmail()]] - `contains` [EXTRACTED]
 - [[refresh()]] - `contains` [EXTRACTED]
 - [[register()]] - `contains` [EXTRACTED]
@@ -28,4 +29,4 @@ tags:
 - [[safeUser()]] - `contains` [EXTRACTED]
 - [[signToken()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_5

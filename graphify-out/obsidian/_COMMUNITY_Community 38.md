@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 38
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[_setup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[clearCollections()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[connectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[disconnectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
 
 ## Live Query (requires Dataview plugin)
 

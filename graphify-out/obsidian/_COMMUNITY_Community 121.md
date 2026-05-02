@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[plannerService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\plannerService.test.js
+- [[lessonRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\lessonRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

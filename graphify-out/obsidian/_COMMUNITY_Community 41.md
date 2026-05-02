@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 41
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[adaptive.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[leanResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[seenResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
+- [[Certificate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[Certificate.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[Stat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[usePrintStyles()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
 
 ## Live Query (requires Dataview plugin)
 

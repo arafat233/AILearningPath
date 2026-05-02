@@ -1,21 +1,21 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 8"
-location: "L194"
+community: "Community 5"
+location: "L239"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_8
+  - community/Community_5
 ---
 
 # logout()
 
 ## Connections
 - [[authController.js]] - `contains` [EXTRACTED]
-- [[handleDeleteAccount()]] - `calls` [INFERRED]
 - [[isProd()]] - `calls` [EXTRACTED]
 - [[sessionDel()]] - `calls` [INFERRED]
+- [[sessionGet()]] - `calls` [INFERRED]
 - [[sessionSet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_8
+#graphify/code #graphify/INFERRED #community/Community_5

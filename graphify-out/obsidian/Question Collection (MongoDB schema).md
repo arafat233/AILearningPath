@@ -1,14 +1,14 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 145"
+community: "Community 161"
 location: "section 3.3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_145
+  - community/Community_161
 ---
 
 # Question Collection (MongoDB schema)
 
-#graphify/document #graphify/EXTRACTED #community/Community_145
+#graphify/document #graphify/EXTRACTED #community/Community_161

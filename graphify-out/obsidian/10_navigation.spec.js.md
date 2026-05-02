@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\tests\10_navigation.spec.js"
 type: "code"
-community: "Community 144"
+community: "Community 160"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_144
+  - community/Community_160
 ---
 
 # 10_navigation.spec.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_144
+#graphify/code #graphify/EXTRACTED #community/Community_160

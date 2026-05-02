@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[ChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[SectionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[auth.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[makeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[mockReqRes()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,11 +1,11 @@
 ---
 type: community
-members: 33
+members: 34
 ---
 
 # Community 6
 
-**Members:** 33 nodes
+**Members:** 34 nodes
 
 ## Members
 - [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
@@ -21,6 +21,7 @@ members: 33
 - [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
 - [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
@@ -50,8 +51,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 8]]
+- 4 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 21]]
+- 1 edge to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
 - [[smartAIExplanation()]] - degree 11, connects to 1 community

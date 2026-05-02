@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 96
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[ncertTopicContentModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\ncertTopicContentModel.js
+- [[AdminLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
+- [[AdminLayout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
 
 ## Live Query (requires Dataview plugin)
 

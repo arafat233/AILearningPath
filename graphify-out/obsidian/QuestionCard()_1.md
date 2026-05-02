@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx"
 type: "code"
-community: "Community 28"
+community: "Community 31"
 location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_28
+  - community/Community_31
 ---
 
 # QuestionCard()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[PYQBank.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_28
+#graphify/code #graphify/EXTRACTED #community/Community_31

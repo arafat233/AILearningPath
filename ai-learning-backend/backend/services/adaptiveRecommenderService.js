@@ -11,6 +11,7 @@
  */
 
 import { Question, Topic, UserTopicMastery } from "../models/index.js";
+import { getDynamicQuestion, hasDynamicTemplate } from "./questionTemplateService.js";
 
 // ── Mastery thresholds (from recommender_config.json) ────────────────────────
 const MASTERY_CFG = {
@@ -88,7 +89,21 @@ function stripQuestion(q) {
   };
 }
 
-async function serveAtDifficulty(topicId, difficulty, reason, excludeIds = []) {
+async function serveAtDifficulty(topicId, difficulty, reason, excludeIds = [], userId = null) {
+  // Prefer dynamic variant when a template exists — each student gets a unique question
+  if (userId && hasDynamicTemplate(topicId, difficulty)) {
+    const tm         = await UserTopicMastery.findOne({ userId, topicId }).lean();
+    const attemptN   = (tm?.attempts ?? []).filter((a) => a.difficulty === difficulty).length;
+    const dynQ       = getDynamicQuestion(topicId, difficulty, String(userId), attemptN);
+    if (dynQ) {
+      return {
+        action:   "serve_question",
+        question: { ...dynQ, _isDynamic: true },
+        reason:   `${reason} [dynamic variant]`,
+      };
+    }
+  }
+
   const q = await Question.findOne({
     topicId,
     difficulty,
@@ -108,30 +123,30 @@ async function serveAtDifficulty(topicId, difficulty, reason, excludeIds = []) {
 
 // ── Routing token resolution ─────────────────────────────────────────────────
 
-async function resolveRouting(target, topicId, tm, reason, excludeIds) {
+async function resolveRouting(target, topicId, tm, reason, excludeIds, userId = null) {
   if (target === "next_difficulty_up") {
     const cur = tm.currentDifficulty;
     if (cur === "easy" && tm.mastery.easy) {
-      return serveAtDifficulty(topicId, "medium", `${reason} Mastered easy → medium.`, excludeIds);
+      return serveAtDifficulty(topicId, "medium", `${reason} Mastered easy → medium.`, excludeIds, userId);
     }
     if (cur === "medium" && tm.mastery.medium) {
-      return serveAtDifficulty(topicId, "hard", `${reason} Mastered medium → hard.`, excludeIds);
+      return serveAtDifficulty(topicId, "hard", `${reason} Mastered medium → hard.`, excludeIds, userId);
     }
     if (cur === "hard" && tm.mastery.hard) {
       return { action: "topic_mastered", topicId, reason: `${reason} Topic fully mastered.` };
     }
-    return serveAtDifficulty(topicId, cur, `${reason} Continuing same difficulty.`, excludeIds);
+    return serveAtDifficulty(topicId, cur, `${reason} Continuing same difficulty.`, excludeIds, userId);
   }
 
   if (target === "topic_mastery_check") {
     if (tm.mastery.easy && tm.mastery.medium && tm.mastery.hard) {
       return { action: "topic_mastered", topicId, reason };
     }
-    return serveAtDifficulty(topicId, tm.currentDifficulty, `${reason} Revising.`, excludeIds);
+    return serveAtDifficulty(topicId, tm.currentDifficulty, `${reason} Revising.`, excludeIds, userId);
   }
 
   if (target?.startsWith("next_hard_different_subtype")) {
-    return serveAtDifficulty(topicId, "hard", `${reason} Different hard subtype.`, excludeIds);
+    return serveAtDifficulty(topicId, "hard", `${reason} Different hard subtype.`, excludeIds, userId);
   }
 
   // Direct question ID pointer
@@ -146,7 +161,7 @@ async function resolveRouting(target, topicId, tm, reason, excludeIds) {
   }
 
   // Unknown — fall back to current difficulty
-  return serveAtDifficulty(topicId, tm.currentDifficulty, `${reason} (unknown routing target)`, excludeIds);
+  return serveAtDifficulty(topicId, tm.currentDifficulty, `${reason} (unknown routing target)`, excludeIds, userId);
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -213,14 +228,17 @@ export async function nextQuestion(userId, topicId) {
 
   // No attempts yet — start with first easy question
   if (tm.attempts.length === 0) {
-    return serveAtDifficulty(topicId, "easy", "Starting topic — first easy question.", recentIds);
+    return serveAtDifficulty(topicId, "easy", "Starting topic — first easy question.", recentIds, userId);
   }
 
   const lastAttempt  = tm.attempts[tm.attempts.length - 1];
-  const lastQuestion = await Question.findOne({ questionId: lastAttempt.questionId }).lean();
+  // Dynamic questions don't have a DB questionId — skip DB lookup if it's a dynamic attempt
+  const lastQuestion = lastAttempt.questionId?.startsWith("t_")
+    ? null
+    : await Question.findOne({ questionId: lastAttempt.questionId }).lean();
 
   if (!lastQuestion) {
-    return serveAtDifficulty(topicId, tm.currentDifficulty, "Fallback — last question not found.", recentIds);
+    return serveAtDifficulty(topicId, tm.currentDifficulty, "Fallback — last question not found.", recentIds, userId);
   }
 
   const routing = lastQuestion.routing || {};
@@ -228,7 +246,7 @@ export async function nextQuestion(userId, topicId) {
   // Priority order (from algorithm_spec / recommender_config):
   // 1. Fluke detected
   if (lastAttempt.flukeDetected && routing.ifFlukeDetected) {
-    return resolveRouting(routing.ifFlukeDetected, topicId, tm, "Fluke detected — verify.", recentIds);
+    return resolveRouting(routing.ifFlukeDetected, topicId, tm, "Fluke detected — verify.", recentIds, userId);
   }
   // 2. Stuck (3+ hints used and wrong)
   if (!lastAttempt.correct && lastAttempt.hintsUsed >= 3 && routing.ifStuck) {
@@ -236,15 +254,15 @@ export async function nextQuestion(userId, topicId) {
   }
   // 3. Correct
   if (lastAttempt.correct && routing.ifCorrect) {
-    return resolveRouting(routing.ifCorrect, topicId, tm, "Correct — advancing.", recentIds);
+    return resolveRouting(routing.ifCorrect, topicId, tm, "Correct — advancing.", recentIds, userId);
   }
   // 4. Wrong
   if (!lastAttempt.correct && routing.ifWrong) {
-    return resolveRouting(routing.ifWrong, topicId, tm, "Wrong — practicing easier/prereq.", recentIds);
+    return resolveRouting(routing.ifWrong, topicId, tm, "Wrong — practicing easier/prereq.", recentIds, userId);
   }
 
   // No routing rule — serve next at current difficulty
-  return serveAtDifficulty(topicId, tm.currentDifficulty, "No routing rule matched.", recentIds);
+  return serveAtDifficulty(topicId, tm.currentDifficulty, "No routing rule matched.", recentIds, userId);
 }
 
 /**

@@ -56,6 +56,8 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Placement quiz (20-question diagnostic, 4-label mastery seeding, one-time) | Complete |
 | Fine-grained topic DAG recommender (43 nodes, routing tokens, fluke detection) | Complete |
 | Placement quiz frontend (intro → quiz → results, global timer, Dashboard nudge) | Complete |
+| Dynamic question variants (seeded per-student, 9 topics covered, infinite pool) | Complete |
+| School group system (join code, variant_index, guaranteed unique homework per student) | Complete |
 | Jest backend test suite (22 unit tests) | Complete |
 | Vitest frontend test suite (16 unit tests) | Complete |
 | k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |

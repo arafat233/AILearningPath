@@ -697,9 +697,22 @@ POST   /api/v1/placement-quiz/score       ← score answers; returns placementBy
 
 GET    /api/v1/recommender/next-topic              ← DAG-gated topic recommendation
 GET    /api/v1/recommender/next-question/:topicId  ← routing-based next question
+                                                     (prefers dynamic variant if template exists)
 GET    /api/v1/recommender/mastery/:topicId        ← mastery state for a topic
 POST   /api/v1/recommender/record-attempt          ← body: { topicId, questionId,
                                                      correct, timeSec, selectedOptionIndex?, hintsUsed? }
+
+POST   /api/v1/schools                             ← create school group (teacher/admin)
+GET    /api/v1/schools                             ← list my school groups
+GET    /api/v1/schools/dynamic-topics              ← which topics have dynamic templates
+GET    /api/v1/schools/my-enrollment               ← student's variant_index + school name
+POST   /api/v1/schools/join                        ← student self-enroll via join code
+GET    /api/v1/schools/homework                    ← ?topicId=&difficulty=&assessmentId=&slotId=
+                                                     returns unique question for this student
+POST   /api/v1/schools/homework-set                ← body: { assessmentId, slots:[{topicId,difficulty,slotId}] }
+                                                     returns full homework set, one unique Q per slot
+GET    /api/v1/schools/:schoolGroupId              ← school roster + variant indices
+POST   /api/v1/schools/:schoolGroupId/enroll       ← enroll student by userId (teacher/admin)
 ```
 
 ### Socket.IO Events (port 5001)

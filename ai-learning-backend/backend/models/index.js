@@ -67,9 +67,24 @@ const userSchema = new mongoose.Schema({
     },
   },
   createdAt: { type: Date, default: Date.now },
+  // School group membership (for school-aware question variants — no two classmates share a question)
+  schoolGroupId: { type: mongoose.Schema.Types.ObjectId, ref: "SchoolGroup", default: null },
 });
 userSchema.index({ "pushSubscription.endpoint": 1 }, { sparse: true });
 export const User = mongoose.model("User", userSchema);
+
+// ==================== SchoolGroup ====================
+// Groups students so no two in the same school get the same homework question.
+// Each student is assigned a variant_index (their position in enrolledStudentIds).
+const schoolGroupSchema = new mongoose.Schema({
+  schoolName:        { type: String, required: true },
+  createdBy:         { type: String, required: true }, // userId of admin/teacher who created it
+  enrolledStudentIds: [{ type: String }],               // ordered — position = variant_index
+  joinCode:          { type: String, unique: true, sparse: true }, // students self-enroll with this
+  createdAt:         { type: Date, default: Date.now },
+});
+schoolGroupSchema.index({ createdBy: 1 });
+export const SchoolGroup = mongoose.model("SchoolGroup", schoolGroupSchema);
 
 // ==================== Topic ====================
 const topicSchema = new mongoose.Schema({

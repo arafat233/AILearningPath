@@ -733,6 +733,12 @@ Server → Client:
                                   Each tab fetches chapters/lessons for that subject only
 /lessons/:t    → LessonView     — short/long lesson, mark complete
 /chapters/:n   → ChapterView    — full chapter: sections, formulas, theorems, tips, exercises ← NEW
+/placement-quiz → PlacementQuiz — one-time 20-question diagnostic; intro screen → timed quiz
+                                  (global countdown, per-question timer); MCQ + text answer;
+                                  skip + next controls; results screen (score ring, chapter
+                                  breakdown: aced/practise/novice, recommended first topic);
+                                  sets UserTopicMastery via 4-label system; Dashboard shows
+                                  nudge banner until placementCompletedAt is set; once-only guard
 /practice      → Practice       — Subject tabs + Science sub-tabs; adaptive quiz per subject
                                   confidence, AI explain, DoubtChat; End Session button after
                                   first answer; session summary screen (score, accuracy bar,

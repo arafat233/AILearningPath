@@ -155,3 +155,12 @@ export const adminGetCoupons    = ()          => api.get("/admin/coupons");
 export const adminCreateCoupon  = (data)      => api.post("/admin/coupons", data);
 export const adminUpdateCoupon  = (id, data)  => api.put(`/admin/coupons/${id}`, data);
 export const adminDeleteCoupon  = (id)        => api.delete(`/admin/coupons/${id}`);
+
+export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
+export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");
+export const scorePlacementQuiz = (answers)   => api.post("/v1/placement-quiz/score", { answers });
+
+export const getNextTopic       = ()          => api.get("/v1/recommender/next-topic");
+export const getNextQuestion    = (topicId)   => api.get(`/v1/recommender/next-question/${topicId}`);
+export const getTopicMastery    = (topicId)   => api.get(`/v1/recommender/mastery/${topicId}`);
+export const recordAdaptiveAttempt = (data)   => api.post("/v1/recommender/record-attempt", data);

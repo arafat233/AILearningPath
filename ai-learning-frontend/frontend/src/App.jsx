@@ -64,6 +64,7 @@ import ParentDashboard  from "./pages/ParentDashboard";
 import TermsOfService   from "./pages/TermsOfService";
 import PrivacyPolicy    from "./pages/PrivacyPolicy";
 import Certificate      from "./pages/Certificate";
+import PlacementQuiz   from "./pages/PlacementQuiz";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -135,6 +136,7 @@ export default function App() {
           <Route path="/forgot-password"      element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
+          <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />
 
           {/* Admin panel — AdminLayout handles role guard internally */}
           <Route path="/admin" element={<Protected><AdminLayout /></Protected>}>

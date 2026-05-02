@@ -101,6 +101,27 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Placement quiz nudge — shown once to users who haven't taken it yet */}
+      {!user?.placementCompletedAt && (
+        <div className="rounded-apple-lg border border-apple-blue/30 bg-apple-blue/5 px-5 py-4 flex items-start gap-4">
+          <div className="w-9 h-9 rounded-xl bg-apple-blue/10 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-apple-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[14px] font-semibold text-apple-blue">Take your Placement Quiz</p>
+            <p className="text-[12px] text-apple-gray mt-0.5">A 20-question diagnostic that sets your practice difficulty automatically. Takes ~15 min.</p>
+          </div>
+          <button
+            onClick={() => navigate("/placement-quiz")}
+            className="shrink-0 px-4 py-2 bg-apple-blue text-white rounded-apple text-[13px] font-medium hover:bg-apple-blue/90 transition-colors"
+          >
+            Start
+          </button>
+        </div>
+      )}
+
       {/* Link requests — shown only to students */}
       {user?.role === "student" && <LinkRequestsCard />}
 

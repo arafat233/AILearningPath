@@ -53,6 +53,9 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Admin analytics dashboard (DAU / MAU / revenue / 30-day charts) | Complete |
 | Admin coupon CRUD | Complete |
 | Question bookmarks | Complete |
+| Placement quiz (20-question diagnostic, 4-label mastery seeding, one-time) | Complete |
+| Fine-grained topic DAG recommender (43 nodes, routing tokens, fluke detection) | Complete |
+| Placement quiz frontend (intro → quiz → results, global timer, Dashboard nudge) | Complete |
 | Jest backend test suite (22 unit tests) | Complete |
 | Vitest frontend test suite (16 unit tests) | Complete |
 | k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |
@@ -249,6 +252,7 @@ db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
 | `/admin/cache` | AI cache hit rates + cost estimate |
 | `/admin/analytics` | DAU / MAU / revenue / 30-day charts |
 | `/admin/coupons` | Coupon CRUD |
+| `/placement-quiz` | 20-question diagnostic — intro, timed quiz, results + chapter breakdown |
 
 ---
 

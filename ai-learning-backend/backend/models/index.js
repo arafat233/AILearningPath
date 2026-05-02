@@ -44,6 +44,8 @@ const userSchema = new mongoose.Schema({
   weeklyParentEmailSentAt: { type: Date, default: null },
   // NPS survey throttle — don't resurface for 30 days after submission
   npsLastShownAt: { type: Date, default: null },
+  // Placement quiz completion
+  placementCompletedAt: { type: Date, default: null },
   // Referral
   referredBy:       { type: String, default: null },  // userId of the user who referred them
   referralCount:    { type: Number, default: 0 },     // paid conversions from this user's referral code
@@ -463,6 +465,35 @@ const couponSchema = new mongoose.Schema({
 });
 couponSchema.index({ code: 1 });
 export const Coupon = mongoose.model("Coupon", couponSchema);
+
+// ==================== UserTopicMastery (fine-grained adaptive engine state) ====================
+const userTopicMasterySchema = new mongoose.Schema({
+  userId:  { type: String, required: true },
+  topicId: { type: String, required: true }, // "ch1_s1_c1_t1"
+  chapterNumber: { type: Number },
+  currentDifficulty: { type: String, enum: ["easy", "medium", "hard"], default: "easy" },
+  mastery: {
+    easy:   { type: Boolean, default: false },
+    medium: { type: Boolean, default: false },
+    hard:   { type: Boolean, default: false },
+  },
+  secondsOnTopic: { type: Number, default: 0 },
+  attempts: [{
+    questionId:      String,
+    correct:         Boolean,
+    timeTakenSec:    Number,
+    difficulty:      { type: String, enum: ["easy", "medium", "hard"] },
+    hintsUsed:       { type: Number, default: 0 },
+    flukeDetected:   { type: Boolean, default: false },
+    misconceptionId: { type: String, default: null },
+    createdAt:       { type: Date, default: Date.now },
+    _id: false,
+  }],
+  updatedAt: { type: Date, default: Date.now },
+});
+userTopicMasterySchema.index({ userId: 1, topicId: 1 }, { unique: true });
+userTopicMasterySchema.index({ userId: 1 });
+export const UserTopicMastery = mongoose.model("UserTopicMastery", userTopicMasterySchema);
 
 // ==================== LinkRequest (parent/teacher consent flow) ====================
 const linkRequestSchema = new mongoose.Schema({

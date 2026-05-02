@@ -47,7 +47,9 @@ import paymentRoutes    from "./routes/paymentRoutes.js";
 import webhookRoutes    from "./routes/webhookRoutes.js";
 import companyRoutes    from "./routes/companyRoutes.js";
 import pyqRoutes        from "./routes/pyqRoutes.js";
-import feedbackRoutes   from "./routes/feedbackRoutes.js";
+import feedbackRoutes     from "./routes/feedbackRoutes.js";
+import placementRoutes    from "./routes/placementRoutes.js";
+import recommenderRoutes  from "./routes/recommenderRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
 dotenv.config();
@@ -174,8 +176,10 @@ app.use("/api/v1/ncert",      ncertRoutes);
 app.use("/api/v1/payment",   paymentRoutes);
 app.use("/api/company",     companyRoutes);
 app.use("/api/v1/pyq",      pyqRoutes);
-app.use("/api/feedback",   feedbackRoutes);
-app.use("/api/push",       pushRoutes);
+app.use("/api/feedback",         feedbackRoutes);
+app.use("/api/push",             pushRoutes);
+app.use("/api/v1/placement-quiz", placementRoutes);
+app.use("/api/v1/recommender",    recommenderRoutes);
 
 // API docs — only in non-production or when ENABLE_SWAGGER=true
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {

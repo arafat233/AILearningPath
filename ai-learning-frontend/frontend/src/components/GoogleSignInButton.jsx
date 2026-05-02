@@ -1,11 +1,11 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
 export default function GoogleSignInButton({ redirectTo = "/" }) {
   const handleGoogle = () => {
     try {
       sessionStorage.setItem("postGoogleRedirect", redirectTo);
     } catch { /* ignore */ }
-    window.location.href = `${API_URL}/api/auth/google`;
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   return (

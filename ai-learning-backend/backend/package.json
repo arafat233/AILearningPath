@@ -15,7 +15,8 @@
     "seed:social-science-curriculum": "node config/seedSocialScienceCurriculum.js",
     "import:ncert": "node config/importNcert.js",
     "generate:questions": "node utils/questionGenerator.js",
-    "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__"
+    "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__ --testPathIgnorePatterns=__tests__/integration",
+    "test:integration": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__/integration --testTimeout=60000 --forceExit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",
+    "mongodb-memory-server": "^11.1.0",
     "nodemon": "^3.0.2"
   },
   "jest": {
@@ -48,6 +50,13 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "_setup\\.js$"
+    ]
+  },
+  "mongoms": {
+    "useHttps": false
   }
 }

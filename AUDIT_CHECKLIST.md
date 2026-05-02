@@ -53,7 +53,7 @@
 - [x] **No test for `paymentService`** ✅ Verified: `payment.service.test.js` covers createOrder, verifyPayment (signature check, plan upgrade), getSubscription; PaymentRecord mock added.
 - [x] **No test for `portalController`** ✅ Verified: `portal.controller.test.js` covers linkStudentDirect (role check, invalid ID, self-link, not found, teacher allowed), getStudentAnalytics (IDOR, owner, admin bypass).
 - [x] **No test for `examController`** ✅ Fixed: `exam.controller.test.js` covers listExams, startExam (404, questions returned, type stripped from options, startedAt/durationSeconds in session), submitExam (correct/wrong/blank answers, negative marking, time-expired auto-fill, session deletion, 400 on no session), getExamReview (owner/IDOR/404), getLeaderboard. Also fixed: `type` field was still exposed in exam questions (parallel bug to competition fix).
-- [ ] **No integration tests** — All existing tests mock Mongoose. No tests hit a real test DB.
+- [x] **No integration tests** ✅ Fixed: `mongodb-memory-server` added; `__tests__/integration/` with `aiQuota.integration.test.js` (11 tests — real concurrent $cond atomicity, all plan limits) and `auth.integration.test.js` (7 tests — bcrypt hashing, duplicate email, lockout, soft-delete); `npm run test:integration` script added.
 - [ ] **No frontend tests** — No Vitest / Playwright setup.
 - [ ] **No load tests** — Unknown behaviour under 100+ concurrent practice sessions.
 - [x] **No test for AI quota race condition** ✅ Fixed: 5 concurrency-simulation tests added to `aiRouter.service.test.js` — stateful mock simulates MongoDB's serial write processing; verifies exactly N slots remain available under concurrent load (free/pro/premium limits, partial slots, already-at-limit).

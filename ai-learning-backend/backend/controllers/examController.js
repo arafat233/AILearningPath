@@ -79,7 +79,7 @@ export const submitExam = async (req, res, next) => {
     const finalAnswers = timeExpired
       ? session.questions.map((q) => {
           const submitted = answers.find((a) => a.questionId === q._id.toString());
-          return submitted || { questionId: q._id.toString(), selectedType: "", timeTaken: 0 };
+          return submitted || { questionId: q._id.toString(), selectedOptionIndex: null, timeTaken: 0 };
         })
       : answers;
 
@@ -87,15 +87,17 @@ export const submitExam = async (req, res, next) => {
       const fullQ = session.questions.find((q) => q._id.toString() === a.questionId);
       if (!fullQ) return null;
 
+      // Derive answer server-side from index — client never sends type
+      const selectedOpt = (a.selectedOptionIndex != null) ? fullQ.options[a.selectedOptionIndex] : null;
+      const selectedType = selectedOpt?.type || "";
       const correctOpt = fullQ.options.find((o) => o.type === "correct");
-      const selectedOpt = fullQ.options.find((o) => o.type === a.selectedType);
-      const isCorrect = a.selectedType === "correct";
+      const isCorrect = selectedType === "correct";
       const marks = fullQ.marks || 1;
 
       let marksAwarded = 0;
       if (isCorrect) {
         marksAwarded = marks;
-      } else if (a.selectedType && session.negativeMarking) {
+      } else if (selectedType && session.negativeMarking) {
         marksAwarded = -(session.negativeValue || 0.25);
       }
 
@@ -104,7 +106,7 @@ export const submitExam = async (req, res, next) => {
         questionText:  fullQ.questionText,
         isCorrect,
         difficulty:    fullQ.difficultyScore,
-        selectedType:  a.selectedType,
+        selectedType,
         selectedText:  selectedOpt?.text || "Not answered",
         correctText:   correctOpt?.text || "",
         solutionSteps: fullQ.solutionSteps || [],

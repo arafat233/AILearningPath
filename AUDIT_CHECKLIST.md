@@ -34,8 +34,8 @@ Check off each item as it is fixed and committed.
 - [x] **[PERF] practiceController.js** — `submitAnswer` runs 12-15 sequential DB calls; use Promise.all for independent reads
 - [ ] **[PERF] examController.js** — N+1 bulkWrite inside loop; Exam.find() unbounded
 - [x] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
-- [ ] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
-- [ ] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
+- [x] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
+- [x] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
 - [ ] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
 - [x] **[ARCH] models/index.js** — PaymentRecord.amount stored in paise with no code comment
 - [x] **[PERF] profileService.js** — Attempt.find({ userId }) fetches full attempt history on every answer
@@ -52,16 +52,16 @@ Check off each item as it is fixed and committed.
 - [x] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
 - [ ] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
 - [ ] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
-- [ ] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
+- [x] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
 - [ ] **[SEC] cors** — If FRONTEND_URL unset, no-origin branch returns true — all server requests allowed
-- [ ] **[PERF] MongoDB** — No connection pool config (maxPoolSize) — bottlenecks under load
-- [ ] **[OPS] server.js** — No SIGTERM graceful-shutdown handler — in-flight requests dropped on deploy
-- [ ] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12
-- [ ] **[INFRA] docker-compose.yml** — No memory limits — one runaway process OOMs the host
+- [x] **[PERF] MongoDB** — No connection pool config (maxPoolSize) — bottlenecks under load
+- [x] **[OPS] server.js** — No SIGTERM graceful-shutdown handler — in-flight requests dropped on deploy
+- [x] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12
+- [x] **[INFRA] docker-compose.yml** — No memory limits — one runaway process OOMs the host
 - [ ] **[TEST] __tests__/** — No integration tests with real DB; mock/prod divergence risk
 - [ ] **[OPS] logger.js** — No log-level env var — cannot tune verbosity without code change
-- [ ] **[SEC] JWT** — Access token TTL 1d — stolen token valid 24 h; reduce to 15-60 min
-- [ ] **[BUG] aiRouter.js** — Free-plan check reads isPaid not plan — edge case after expiry bypasses limit
+- [x] **[SEC] JWT** — Access token TTL 1d — stolen token valid 24 h; reduce to 15-60 min
+- [x] **[BUG] aiRouter.js** — Free-plan check reads isPaid not plan — edge case after expiry bypasses limit
 - [ ] **[OPS] ci.yml** — Frontend Vitest suite not run in CI — test regressions ship silently
 - [ ] **[OPS] ci.yml** — No deploy stage — CD is fully manual
 - [ ] **[SEC] models/index.js** — linkedStudents: [String] — no referential integrity; orphan IDs accumulate
@@ -92,7 +92,7 @@ Check off each item as it is fixed and committed.
 - [ ] **[SEC] helmet** — No report-uri in CSP — violations go unreported
 - [ ] **[SEC] cookies** — No __Host- prefix on session/CSRF cookies — cookie tossing on subdomains
 - [ ] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
-- [ ] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
+- [x] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
 - [ ] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
 - [ ] **[OPS] docker/** — No Dockerfile for frontend
 - [ ] **[OPS] docker/** — No .dockerignore — node_modules copied into build context

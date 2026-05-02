@@ -67,11 +67,16 @@ export default function Practice() {
   const [showSummary, setShowSummary]   = useState(false);
   const [wrongAnswers, setWrongAnswers] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
-  const startTimeRef = useRef(null);
+  const [error, setError]               = useState("");
+  const startTimeRef   = useRef(null);
+  const handleAnswerRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
   const [timeLimit, setTimeLimit]   = useState(null);
   const [timeWarning, setTimeWarning] = useState(false);
   const timerRef = useRef(null);
+
+  // Keep ref current so the timer closure never captures a stale handleAnswer
+  handleAnswerRef.current = handleAnswer;
 
   useEffect(() => {
     if (question && !feedback) {
@@ -87,7 +92,7 @@ export default function Practice() {
           if (secs >= limit - 5) setTimeWarning(true);
           if (secs >= limit) {
             clearInterval(timerRef.current);
-            handleAnswer(-1); // timeout — backend treats as guessing
+            handleAnswerRef.current(-1); // timeout — backend treats as guessing
           }
         }
       }, 1000);
@@ -102,6 +107,8 @@ export default function Practice() {
       : selectedTopic;
     if (!topic) return;
     setLoading(true);
+    setError("");
+    setQuestion(null);
     setFeedback(null);
     setFoundationMsg(null);
     setFlagged(false);
@@ -115,7 +122,7 @@ export default function Practice() {
       }
       if (mixTopics) setSelectedTopic(topic);
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to start topic");
+      setError(err.response?.data?.error || "Failed to start topic");
     } finally {
       setLoading(false);
     }
@@ -148,7 +155,7 @@ export default function Practice() {
         }]);
       }
     } catch (err) {
-      alert(err.response?.data?.error || "Submit failed");
+      setError(err.response?.data?.error || "Submit failed");
     } finally {
       setAnswering(false);
     }
@@ -303,6 +310,12 @@ export default function Practice() {
           )}
         </div>
 
+        {error && (
+          <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">
+            {error}
+          </div>
+        )}
+
         <button onClick={handleStart} disabled={!selectedTopic || loading}
           className="btn-primary w-full py-3 text-[15px]"
           style={selectedTopic ? { background: subjectColor } : {}}
@@ -399,10 +412,21 @@ export default function Practice() {
           <button
             onClick={() => {
               setShowSummary(false);
+              setQuestion(null);
               setFeedback(null);
               setSessionStats({ correct: 0, total: 0 });
               setWrongAnswers([]);
               setFoundationMsg(null);
+              setRecallMode(true);
+              setRecallAttempt("");
+              setEvalFeedback(null);
+              setShowSteps(false);
+              setFlagged(false);
+              setBookmarked(false);
+              setHint(null);
+              setHintLoading(false);
+              setConfidence("");
+              setError("");
               handleStart();
             }}
             className="btn-primary flex-1 py-3 text-[15px]"
@@ -456,6 +480,12 @@ export default function Practice() {
           )}
         </div>
       </div>
+
+      {error && (
+        <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">
+          {error}
+        </div>
+      )}
 
       {/* Timer progress bar — only when there's a time limit and no feedback yet */}
       {timeLimit && !feedback && (

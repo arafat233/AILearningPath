@@ -57,11 +57,14 @@ export async function checkAndIncrementUsage(userId) {
   const today = todayStr();
 
   // First read plan to determine limit (plan doesn't change mid-session)
-  const planDoc = await User.findById(userId).select("isPaid plan trialExpiry").lean();
+  const planDoc = await User.findById(userId).select("isPaid plan trialExpiry planExpiry").lean();
   if (!planDoc) return false;
 
-  const trialActive = !planDoc.isPaid && planDoc.trialExpiry && planDoc.trialExpiry > new Date();
-  const planKey = planDoc.isPaid ? (planDoc.plan || "pro") : trialActive ? "pro" : "free";
+  const now = new Date();
+  const planExpired    = planDoc.planExpiry && new Date(planDoc.planExpiry) < now;
+  const effectivelyPaid = planDoc.isPaid && !planExpired;
+  const trialActive    = !effectivelyPaid && planDoc.trialExpiry && new Date(planDoc.trialExpiry) > now;
+  const planKey = effectivelyPaid ? (planDoc.plan || "pro") : trialActive ? "pro" : "free";
   const limit   = PLAN_LIMITS[planKey] ?? FREE_DAILY_LIMIT;
 
   // Atomic conditional increment — only succeeds if currently under the limit
@@ -229,12 +232,15 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
 
 // ── Usage info (for frontend display) ─────────────────────────────
 export const getUsageCount = async (userId) => {
-  const user = await User.findById(userId).select("aiCallsToday aiCallsDate isPaid plan trialExpiry").lean();
+  const user = await User.findById(userId).select("aiCallsToday aiCallsDate isPaid plan trialExpiry planExpiry").lean();
   if (!user) return { used: 0, limit: FREE_DAILY_LIMIT, remaining: FREE_DAILY_LIMIT };
   const today       = todayStr();
   const used        = user.aiCallsDate === today ? (user.aiCallsToday || 0) : 0;
-  const trialActive = !user.isPaid && user.trialExpiry && user.trialExpiry > new Date();
-  const planKey     = user.isPaid ? (user.plan || "pro") : trialActive ? "pro" : "free";
+  const now = new Date();
+  const planExpired     = user.planExpiry && new Date(user.planExpiry) < now;
+  const effectivelyPaid = user.isPaid && !planExpired;
+  const trialActive     = !effectivelyPaid && user.trialExpiry && new Date(user.trialExpiry) > now;
+  const planKey         = effectivelyPaid ? (user.plan || "pro") : trialActive ? "pro" : "free";
   const limit       = PLAN_LIMITS[planKey] ?? FREE_DAILY_LIMIT;
   return { used, limit, remaining: limit - used };
 };

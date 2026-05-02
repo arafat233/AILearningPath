@@ -9,6 +9,10 @@ services:
       - mongo_data:/data/db
     environment:
       MONGO_INITDB_DATABASE: ai_learning
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -22,6 +26,10 @@ services:
     command: redis-server --appendonly yes  # persistence enabled
     volumes:
       - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 128m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -36,6 +44,10 @@ services:
     restart: unless-stopped
     ports:
       - "5001:5001"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     environment:
       NODE_ENV: production
       PORT: 5001

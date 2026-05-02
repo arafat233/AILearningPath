@@ -100,13 +100,21 @@ app.use(express.json());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { maxPoolSize: 10, minPoolSize: 2, serverSelectionTimeoutMS: 5000 })
   .then(() => logger.info("MongoDB connected"))
   .catch((err) => { logger.error("MongoDB connection failed", { err: err.message }); process.exit(1); });
 
 connectRedis();
 
 initSocket(server);
+
+// Gate: return 503 until MongoDB is ready so early requests don't hit unhandled rejections
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ error: "Service starting — please retry in a moment" });
+  }
+  next();
+});
 
 // CSRF: skip safe methods and auth/webhook routes (auth routes issue the token)
 app.use((req, res, next) => {

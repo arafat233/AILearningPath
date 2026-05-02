@@ -78,7 +78,7 @@ function signToken(user) {
       jti:          crypto.randomUUID(),
     },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "15m" }
   );
 }
 
@@ -143,7 +143,7 @@ export const register = async (req, res, next) => {
     const existing = await User.findOne({ email });
     if (existing) return next(new AppError("Email already registered", 409));
 
-    const hashed     = await bcrypt.hash(password, 10);
+    const hashed     = await bcrypt.hash(password, 12);
     const trialExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7-day Pro trial
 
     // Referral: look up the user whose inviteCode matches
@@ -339,7 +339,7 @@ export const resetPassword = async (req, res, next) => {
 
     if (!user) return next(new AppError("Reset link is invalid or has expired. Please request a new one.", 400));
 
-    user.password             = await bcrypt.hash(password, 10);
+    user.password             = await bcrypt.hash(password, 12);
     user.passwordResetToken   = null;
     user.passwordResetExpires = null;
     user.pwdChangedAt         = new Date();

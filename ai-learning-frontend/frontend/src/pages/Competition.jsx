@@ -23,6 +23,7 @@ export default function Competition() {
   const questionStartRef = useRef(Date.now());
   const startedAtRef     = useRef(0);
   const durationSecsRef  = useRef(0);
+  const submittingRef    = useRef(false);
 
   useEffect(() => {
     listExams().then((r) => setExams(r.data)).catch(() => setError("Could not load exams."));
@@ -73,14 +74,12 @@ export default function Competition() {
   };
 
   const handleConfirm = () => {
-    if (!selected || !activeExam) return;
+    if (selected === null || selected === undefined || !activeExam) return;
     const q = activeExam.questions[currentIdx];
     const timeTaken = Math.floor((Date.now() - questionStartRef.current) / 1000);
     answersRef.current.push({
-      questionId: q._id,
-      isCorrect:  selected === "correct",
-      difficulty: q.difficultyScore ?? 0.5,
-      selectedType: selected,
+      questionId:          q._id,
+      selectedOptionIndex: selected,
       timeTaken,
     });
     const next = currentIdx + 1;
@@ -94,6 +93,8 @@ export default function Competition() {
   };
 
   const doSubmit = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     clearInterval(timerRef.current);
     setLoading(true);
     try {
@@ -105,6 +106,7 @@ export default function Competition() {
       setState(STATES.LIST);
     } finally {
       setLoading(false);
+      submittingRef.current = false;
     }
   };
 
@@ -212,9 +214,9 @@ export default function Competition() {
             {q.options?.map((opt, i) => (
               <button
                 key={i}
-                onClick={() => setSelected(opt.type)}
+                onClick={() => setSelected(i)}
                 className={`w-full text-left px-4 py-3.5 rounded-apple-lg border text-[14px] font-medium transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.99] ${
-                  selected === opt.type
+                  selected === i
                     ? "border-apple-blue bg-apple-blue/8 text-apple-blue"
                     : "border-apple-gray5 bg-apple-gray6 hover:border-apple-blue/30 text-[var(--label)]"
                 }`}

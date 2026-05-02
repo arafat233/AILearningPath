@@ -76,7 +76,7 @@
 - [x] **Exam timer doesn't sync on tab switch** ✅ Fixed: `startedAt` (epoch ms) and `durationSeconds` returned from `startExam`; stored in Redis session; client computes `timeLeft = max(0, durationSeconds - elapsed)` on start and on `visibilitychange` resume; server validates elapsed on submit with 30s grace.
 - [x] **No notification when revision is due** ✅ Fixed: `web-push` installed; `pushService.js` sends push to all subscribed users with due revisions (runs at startup + every 24h); `pushRoutes.js` adds `POST /api/push/subscribe`, `DELETE /api/push/subscribe`, `GET /api/push/vapid-public-key`; `pushSubscription` field added to User model; expired subscriptions (410) auto-cleaned; frontend `usePushNotifications` hook + toggle card in Settings.
 - [x] **Competition room has no shareable link** ✅ Fixed: "Copy invite link" button in waiting room copies `?room=<id>` URL; visiting the link pre-fills the room input.
-- [ ] **No progress certificate / achievement download** — No printable proof of completion.
+- [x] **No progress certificate / achievement download** ✅ Fixed: `Certificate.jsx` page at `/certificate` — fetches live analytics, renders gold-bordered achievement certificate (accuracy, questions answered, topics mastered, longest streak, strong areas, student name/grade/subject, issue date); "Save as PDF" calls `window.print()` with injected print styles that hide sidebar; empty state if no practice done yet; "Certificate" gold link added to Analytics header.
 
 ---
 

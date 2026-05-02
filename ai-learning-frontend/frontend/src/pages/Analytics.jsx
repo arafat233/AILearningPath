@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
@@ -47,9 +48,23 @@ export default function Analytics() {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Analytics</h1>
-        <p className="text-[14px] text-apple-gray mt-0.5">Your thinking patterns and performance breakdown</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Analytics</h1>
+          <p className="text-[14px] text-apple-gray mt-0.5">Your thinking patterns and performance breakdown</p>
+        </div>
+        {hasData && (
+          <Link
+            to="/certificate"
+            className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-apple border border-[#c9aa71]/50 bg-[#faf7f0] text-[13px] font-medium text-[#8b6914] hover:bg-[#f5f0e4] transition-colors"
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                 strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+              <path d="M8 1l1.8 5.5H15l-4.6 3.4 1.8 5.5L8 12l-4.2 3.4 1.8-5.5L1 6.5h5.2z"/>
+            </svg>
+            Certificate
+          </Link>
+        )}
       </div>
 
       {/* Top stats */}

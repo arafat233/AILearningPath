@@ -63,6 +63,7 @@ import PYQBank          from "./pages/PYQBank";
 import ParentDashboard  from "./pages/ParentDashboard";
 import TermsOfService   from "./pages/TermsOfService";
 import PrivacyPolicy    from "./pages/PrivacyPolicy";
+import Certificate      from "./pages/Certificate";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -168,6 +169,7 @@ export default function App() {
             <Route path="pricing"                     element={<Pricing />} />
             <Route path="terms"                       element={<TermsOfService />} />
             <Route path="privacy"                     element={<PrivacyPolicy />} />
+            <Route path="certificate"                 element={<Certificate />} />
           </Route>
         </Routes>
     </ErrorBoundary>

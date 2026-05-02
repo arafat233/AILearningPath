@@ -89,9 +89,10 @@ export const searchTopics    = (q, grade) => api.get("/topics", { params: { q, g
 export const toggleBookmark  = (questionId) => api.post(`/user/bookmarks/${questionId}`);
 export const getBookmarks    = ()            => api.get("/user/bookmarks");
 
-export const listLessons  = (subject, grade) => api.get("/lessons", { params: { subject, grade } });
-export const getLesson    = (topic) => api.get(`/lessons/${encodeURIComponent(topic)}`);
-export const saveProgress = (data)  => api.post("/lessons/progress", data);
+export const listLessons       = (subject, grade) => api.get("/lessons", { params: { subject, grade } });
+export const getLesson         = (topic) => api.get(`/lessons/${encodeURIComponent(topic)}`);
+export const saveProgress      = (data)  => api.post("/lessons/progress", data);
+export const getCompletedLessons = ()    => api.get("/lessons/completed");
 
 export const startTopic         = (topicId)    => api.post("/practice/start", { topicId });
 export const submitAnswer       = (data)       => api.post("/practice/submit", data);

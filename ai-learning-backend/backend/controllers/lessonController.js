@@ -68,3 +68,15 @@ export const saveProgress = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getCompletedLessons = async (req, res, next) => {
+  try {
+    const records = await LessonProgress.find(
+      { userId: req.user.id, completedAt: { $ne: null } },
+      "topic completedAt -_id"
+    ).lean();
+    res.json({ data: records });
+  } catch (err) {
+    next(err);
+  }
+};

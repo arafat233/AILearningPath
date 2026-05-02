@@ -1,6 +1,6 @@
 import express from "express";
 import Joi from "joi";
-import { getLesson, listLessons, saveProgress } from "../controllers/lessonController.js";
+import { getLesson, listLessons, saveProgress, getCompletedLessons } from "../controllers/lessonController.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 
@@ -13,8 +13,9 @@ const progressSchema = Joi.object({
   completed:  Joi.boolean().optional(),
 });
 
-r.get("/",         auth, listLessons);
-r.get("/:topic",   auth, getLesson);
+r.get("/",          auth, listLessons);
+r.get("/completed", auth, getCompletedLessons);
+r.get("/:topic",    auth, getLesson);
 r.post("/progress", auth, validate(progressSchema), saveProgress);
 
 export default r;

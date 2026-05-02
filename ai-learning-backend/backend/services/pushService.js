@@ -71,6 +71,56 @@ export async function notifyParentsOfMilestone(studentId, badgeType, meta = {}) 
   }
 }
 
+const DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// Runs every hour: finds parents whose study reminder HH:MM matches the current hour
+// and sends a push to themselves (to remind them to tell the student to study).
+export async function sendStudyReminders() {
+  if (!ensureVapid()) return { sent: 0 };
+
+  const now      = new Date();
+  const HH       = String(now.getHours()).padStart(2, "0");
+  const MM       = String(now.getMinutes()).padStart(2, "0");
+  const todayAbbr = DAY_ABBR[now.getDay()];
+  const currentTime = `${HH}:${MM}`;
+
+  const parents = await User.find({
+    "studyReminders.0":               { $exists: true },
+    "pushSubscription.endpoint":      { $exists: true, $ne: null },
+  }).select("_id name pushSubscription studyReminders linkedStudents").lean();
+
+  let sent = 0;
+  for (const parent of parents) {
+    for (const reminder of (parent.studyReminders || [])) {
+      // Check time matches current HH:MM (within the current clock minute)
+      if (reminder.time !== currentTime) continue;
+      // Check day if specified
+      if (reminder.days?.length > 0 && !reminder.days.includes(todayAbbr)) continue;
+
+      const student = await User.findById(reminder.studentId).select("name").lean();
+      const studentName = student?.name || "your child";
+
+      try {
+        await sendPush(parent.pushSubscription, {
+          title:  `📚 Study time for ${studentName}!`,
+          body:   "Time for today's practice session →",
+          icon:   "/icon-192.png",
+          url:    "/parent",
+          tag:    `study-reminder-${reminder.studentId}`,
+        });
+        sent++;
+      } catch (err) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await User.findByIdAndUpdate(parent._id, { $unset: { pushSubscription: 1 } }).catch(() => {});
+        }
+      }
+    }
+  }
+
+  if (sent > 0) logger.info("Study reminder pushes sent", { sent });
+  return { sent };
+}
+
 // Daily job: find users with push subscriptions whose revisions are due and notify them
 export async function sendRevisionReminders() {
   if (!ensureVapid()) {

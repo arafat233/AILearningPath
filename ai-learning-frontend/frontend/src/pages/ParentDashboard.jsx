@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent } from "../services/api";
+import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder } from "../services/api";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const daysSince = (iso) => {
@@ -15,6 +15,90 @@ const hoursMinutes = (totalMin) => {
 };
 
 const gradeColor = { A1: "#AF52DE", A2: "#AF52DE", B1: "#007AFF", B2: "#007AFF", C1: "#FF9500", C2: "#FF9500", D: "#FF3B30" };
+
+const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// ── study reminder card ───────────────────────────────────────────────────
+function StudyReminderCard({ studentId }) {
+  const [reminders, setReminders] = useState([]);
+  const [time,      setTime]      = useState("18:00");
+  const [days,      setDays]      = useState(["Mon","Tue","Wed","Thu","Fri"]);
+  const [saving,    setSaving]    = useState(false);
+  const [saved,     setSaved]     = useState(false);
+
+  useEffect(() => {
+    getStudyReminders()
+      .then(({ data }) => {
+        setReminders(data);
+        const mine = data.find((r) => r.studentId === studentId);
+        if (mine) { setTime(mine.time); setDays(mine.days || []); }
+      })
+      .catch(() => {});
+  }, [studentId]);
+
+  const toggleDay = (d) => setDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await setStudyReminder({ studentId, time, days });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async () => {
+    await deleteStudyReminder(studentId).catch(() => {});
+    setReminders((prev) => prev.filter((r) => r.studentId !== studentId));
+    setTime("18:00");
+    setDays(["Mon","Tue","Wed","Thu","Fri"]);
+  };
+
+  const existing = reminders.find((r) => r.studentId === studentId);
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide">Study Reminder</p>
+        {existing && (
+          <button onClick={handleDelete} className="text-[11px] text-apple-red hover:underline">Remove</button>
+        )}
+      </div>
+      <div className="flex items-center gap-3 mb-3">
+        <label className="text-[13px] text-[var(--label)] shrink-0">Remind at</label>
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          className="px-3 py-1.5 rounded-xl bg-apple-gray6 border border-apple-gray5 text-[13px] text-[var(--label)] focus:outline-none focus:border-[var(--accent,#007AFF)]"
+        />
+      </div>
+      <div className="flex gap-1.5 flex-wrap mb-3">
+        {ALL_DAYS.map((d) => (
+          <button
+            key={d}
+            onClick={() => toggleDay(d)}
+            className={`px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-colors ${
+              days.includes(d)
+                ? "bg-[var(--accent,#007AFF)] text-white"
+                : "bg-apple-gray6 text-apple-gray"
+            }`}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={handleSave}
+        disabled={saving || saved}
+        className="btn-primary text-[12px] px-4 py-1.5"
+      >
+        {saved ? "Saved ✓" : saving ? "Saving…" : existing ? "Update" : "Set Reminder"}
+      </button>
+    </div>
+  );
+}
 
 // ── activity icon ──────────────────────────────────────────────────────────
 function ActivityIcon({ type }) {
@@ -308,6 +392,9 @@ function StudentView({ data }) {
           </div>
         )}
       </div>
+
+      {/* study reminder */}
+      <StudyReminderCard studentId={data.student.id} />
 
       {/* privacy note */}
       <div className="flex items-center gap-1.5 justify-center py-2">

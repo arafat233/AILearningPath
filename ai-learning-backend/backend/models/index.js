@@ -39,6 +39,13 @@ const userSchema = new mongoose.Schema({
   onboardingDay7SentAt: { type: Date, default: null },
   // Weekly parent digest
   weeklyParentEmailSentAt: { type: Date, default: null },
+  // Study reminders set by parent for linked students
+  studyReminders: [{
+    studentId: { type: String, required: true },
+    time:      { type: String, required: true }, // "HH:MM" in 24h, e.g. "18:30"
+    days:      [{ type: String }],              // ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+    _id: false,
+  }],
   // Web Push subscription (stored server-side; auto-removed on 410 response)
   pushSubscription: {
     endpoint:       { type: String, default: null },

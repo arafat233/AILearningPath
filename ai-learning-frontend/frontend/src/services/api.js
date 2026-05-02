@@ -114,6 +114,9 @@ export const getStudentAnalytics   = (studentId)  => api.get(`/portal/students/$
 export const getStudentDashboard   = (studentId)  => api.get(`/portal/students/${studentId}/dashboard`);
 export const getLinkRequests       = ()           => api.get("/portal/requests");
 export const respondToLinkRequest  = (id, action) => api.post(`/portal/requests/${id}/respond`, { action });
+export const getStudyReminders     = ()           => api.get("/portal/reminders");
+export const setStudyReminder      = (data)       => api.post("/portal/reminders", data);
+export const deleteStudyReminder   = (studentId)  => api.delete(`/portal/reminders/${studentId}`);
 
 export const getRoomQuestions = (topic, count) => api.post("/competition/room-questions", { topic, count });
 

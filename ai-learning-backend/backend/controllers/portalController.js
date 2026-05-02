@@ -167,3 +167,44 @@ export const getStudentDashboardCtrl = async (req, res, next) => {
     res.json(data);
   } catch (err) { next(err); }
 };
+
+// Parent sets/updates a study reminder for one of their linked students.
+// Days is optional; if omitted the reminder fires every day.
+export const setStudyReminder = async (req, res, next) => {
+  try {
+    const { studentId, time, days } = req.body;
+    if (!mongoose.isValidObjectId(studentId))
+      return next(new AppError("Invalid student ID", 400));
+    if (!(await verifyOwnership(req.user.id, studentId)))
+      return next(new AppError("Not authorized", 403));
+
+    // Remove any existing reminder for this student, then push new one
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { studyReminders: { studentId } },
+    });
+    await User.findByIdAndUpdate(req.user.id, {
+      $push: { studyReminders: { studentId, time, days: days || [] } },
+    });
+
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
+// Returns all study reminders set by the current parent.
+export const getStudyReminders = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("studyReminders").lean();
+    res.json(user?.studyReminders || []);
+  } catch (err) { next(err); }
+};
+
+// Delete a study reminder for a specific student.
+export const deleteStudyReminder = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { studyReminders: { studentId } },
+    });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};

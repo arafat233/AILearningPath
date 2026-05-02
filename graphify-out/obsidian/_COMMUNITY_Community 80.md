@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[mockReqRes()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\practice.controller.test.js
-- [[practice.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\practice.controller.test.js
+- [[OfflineBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
+- [[OfflineBanner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
 
 ## Live Query (requires Dataview plugin)
 

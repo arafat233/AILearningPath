@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "section 7"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # AppError.js — Operational Error Class
@@ -15,4 +15,4 @@ tags:
 - [[Rule Standardised error responses via AppError]] - `references` [INFERRED]
 - [[errorHandler.js Middleware — Centralised Error Handler]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_4
+#graphify/document #graphify/EXTRACTED #community/Community_2

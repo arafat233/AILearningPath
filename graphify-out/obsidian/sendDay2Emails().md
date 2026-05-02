@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js"
 type: "code"
-community: "Community 5"
+community: "Community 8"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_8
 ---
 
 # sendDay2Emails()
@@ -18,4 +18,4 @@ tags:
 - [[runOnboardingEmails()]] - `calls` [EXTRACTED]
 - [[sendEmail()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_8

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
-- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[doubtRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
+- [[isValidQuestionId()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

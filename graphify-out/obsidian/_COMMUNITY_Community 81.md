@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
-- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[SearchOverlay()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
+- [[SearchOverlay.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
 
 ## Live Query (requires Dataview plugin)
 

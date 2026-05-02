@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 100
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[AdminUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
-- [[AdminUsers.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
+- [[seed.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seed.js
 
 ## Live Query (requires Dataview plugin)
 

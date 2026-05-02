@@ -1,17 +1,18 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
 type: "code"
-community: "Community 53"
-location: "L4"
+community: "Community 0"
+location: "L90"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_53
+  - community/Community_0
 ---
 
 # submitFeedback()
 
 ## Connections
-- [[FeedbackWidget.jsx]] - `contains` [EXTRACTED]
+- [[api.js]] - `contains` [EXTRACTED]
+- [[post()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_53
+#graphify/code #graphify/EXTRACTED #community/Community_0

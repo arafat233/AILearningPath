@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "section 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # Backend (Express + Node, port 5001)
@@ -38,4 +38,4 @@ tags:
 - [[streakService.js — Daily Streaks]] - `references` [EXTRACTED]
 - [[validate.js Middleware — Joi Schema Validation]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_4
+#graphify/document #graphify/EXTRACTED #community/Community_2

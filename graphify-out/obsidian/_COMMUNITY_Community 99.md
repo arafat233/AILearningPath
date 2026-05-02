@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 99
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[AdminTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
-- [[AdminTopics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 

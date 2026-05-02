@@ -1,11 +1,11 @@
 ---
 source_file: "ai-learning-frontend/frontend/index.html"
 type: "document"
-community: "Community 7"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_2
 ---
 
 # index.html — PWA manifest + theme-color meta
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[PWA — Service Worker + Push Notifications]] - `implements` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_7
+#graphify/document #graphify/EXTRACTED #community/Community_2

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[validateEnv()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
-- [[validateEnv.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
+- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
 
 ## Live Query (requires Dataview plugin)
 

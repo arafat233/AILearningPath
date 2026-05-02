@@ -1,47 +1,52 @@
 ---
 type: community
-members: 34
+members: 39
 ---
 
 # Community 6
 
-**Members:** 34 nodes
+**Members:** 39 nodes
 
 ## Members
-- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[backup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[err()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[err()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[globalSetup()]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[log()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[log()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[respondToLinkRequest()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[restore.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -51,13 +56,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 21]]
-- 1 edge to [[_COMMUNITY_Community 5]]
+- 2 edges to [[_COMMUNITY_Community 8]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 10]]
+- 1 edge to [[_COMMUNITY_Community 4]]
+- 1 edge to [[_COMMUNITY_Community 12]]
 
 ## Top bridge nodes
-- [[smartAIExplanation()]] - degree 11, connects to 1 community
-- [[smartStudyAdvice()]] - degree 8, connects to 1 community
-- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
-- [[getUsageCount()]] - degree 5, connects to 1 community
-- [[generateAIQuestion()]] - degree 3, connects to 1 community
+- [[save()]] - degree 9, connects to 4 communities
+- [[resetPassword()]] - degree 2, connects to 1 community
+- [[respondToLinkRequest()]] - degree 2, connects to 1 community

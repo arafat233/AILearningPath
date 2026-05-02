@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 7"
+community: "Community 2"
 location: "section 6"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_2
 ---
 
 # Portal Page (/portal) — Parent/Teacher
@@ -15,4 +15,4 @@ tags:
 - [[Frontend (React + Vite, port 5173)]] - `references` [EXTRACTED]
 - [[Portal Routes (apiportal)]] - `calls` [INFERRED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_7
+#graphify/document #graphify/EXTRACTED #community/Community_2

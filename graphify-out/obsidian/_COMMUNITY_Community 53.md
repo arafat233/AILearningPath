@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
-- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
-- [[submitFeedback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

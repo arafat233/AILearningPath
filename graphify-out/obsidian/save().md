@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js"
 type: "code"
-community: "Community 5"
+community: "Community 6"
 location: "L6"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_6
 ---
 
 # save()
@@ -14,10 +14,12 @@ tags:
 ## Connections
 - [[checkAndIncrementUsage()]] - `calls` [INFERRED]
 - [[forgotPassword()]] - `calls` [INFERRED]
+- [[log()]] - `calls` [INFERRED]
+- [[log()_1]] - `calls` [INFERRED]
 - [[questionGenerator.js]] - `contains` [EXTRACTED]
 - [[resetPassword()]] - `calls` [INFERRED]
 - [[respondToLinkRequest()]] - `calls` [INFERRED]
 - [[updateQuestionStats()]] - `calls` [INFERRED]
 - [[updateStreak()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_6

@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "Folder Structure section"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # Enforced Folder Structure
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Architecture Rules (CLAUDE.md)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_4
+#graphify/document #graphify/EXTRACTED #community/Community_2

@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "Rules rule 1"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # Rule: Always validate inputs with Joi middleware
@@ -15,4 +15,4 @@ tags:
 - [[Architecture Rules (CLAUDE.md)]] - `references` [EXTRACTED]
 - [[validate.js Middleware — Joi Schema Validation]] - `references` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_4
+#graphify/document #graphify/INFERRED #community/Community_2

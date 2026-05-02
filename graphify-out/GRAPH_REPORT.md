@@ -1,7 +1,7 @@
 # Graph Report - E:\AILearningPath  (2026-05-02)
 
 ## Corpus Check
-- 202 files · ~432,087 words
+- 202 files · ~435,729 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -1076,11 +1076,11 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `Root Issue: Auth state not injected - practice page shows landing page instead` and `Root Issue: Login Submit button lacks type=submit attribute`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `save()` connect `Community 6` to `Community 8`, `Community 5`, `Community 12`, `Community 4`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `submitAnswer()` connect `Community 4` to `Community 5`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
 - **Why does `sessionSet()` connect `Community 4` to `Community 8`, `Community 15`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `submitAnswer()` connect `Community 4` to `Community 5`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Are the 32 inferred relationships involving `post()` (e.g. with `register()` and `login()`) actually correct?**
   _`post()` has 32 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 2 inferred relationships involving `Frontend (React + Vite, port 5173)` (e.g. with `Frontend Stack (README): React 18 + Vite + Tailwind + Zustand + Recharts` and `E2E Report: Navigation (all 15 checks passed)`) actually correct?**

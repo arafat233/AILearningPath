@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
-- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[Bookmarks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
+- [[Bookmarks.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
 
 ## Live Query (requires Dataview plugin)
 

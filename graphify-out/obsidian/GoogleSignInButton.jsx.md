@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx"
 type: "code"
-community: "Community 84"
+community: "Community 79"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_84
+  - community/Community_79
 ---
 
 # GoogleSignInButton.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[GoogleSignInButton()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_84
+#graphify/code #graphify/EXTRACTED #community/Community_79

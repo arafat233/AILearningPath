@@ -13,5 +13,6 @@ tags:
 
 ## Connections
 - [[api.js]] - `contains` [EXTRACTED]
+- [[post()]] - `calls` [INFERRED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_0

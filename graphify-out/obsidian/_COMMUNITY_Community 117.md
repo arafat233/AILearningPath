@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[competitionRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\competitionRoutes.js
+- [[lessonRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\lessonRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

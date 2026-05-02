@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js"
 type: "code"
-community: "Community 34"
+community: "Community 33"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_34
+  - community/Community_33
 ---
 
 # ncertController.js
@@ -16,4 +16,4 @@ tags:
 - [[getNcertTopicContent()]] - `contains` [EXTRACTED]
 - [[listNcertChapters()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_34
+#graphify/code #graphify/EXTRACTED #community/Community_33

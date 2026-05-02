@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Attempt Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "section 4.2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # aiRouter.js — 7-Layer Cost Minimisation
@@ -19,4 +19,4 @@ tags:
 - [[Rationale Subject in AI Cache Key to Prevent Collisions]] - `rationale_for` [EXTRACTED]
 - [[aiService.js — Claude API Calls]] - `calls` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_4
+#graphify/document #graphify/EXTRACTED #community/Community_2

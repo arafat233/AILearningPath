@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 7"
+community: "Community 2"
 location: "section 6"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_2
 ---
 
 # DoubtChat.jsx Component — Multi-Turn Chat
@@ -15,4 +15,4 @@ tags:
 - [[Doubt Routes (apidoubtquestionId)]] - `calls` [INFERRED]
 - [[Frontend (React + Vite, port 5173)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_7
+#graphify/document #graphify/EXTRACTED #community/Community_2

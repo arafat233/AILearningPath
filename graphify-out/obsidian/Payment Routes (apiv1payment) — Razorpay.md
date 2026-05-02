@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 4"
+community: "Community 2"
 location: "section 15"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # Payment Routes (/api/v1/payment/*) — Razorpay
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Rule New route groups use apiv1 prefix]] - `conceptually_related_to` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_4
+#graphify/document #graphify/INFERRED #community/Community_2

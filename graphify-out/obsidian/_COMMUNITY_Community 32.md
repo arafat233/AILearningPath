@@ -1,18 +1,17 @@
 ---
 type: community
-members: 5
+members: 4
 ---
 
 # Community 32
 
-**Members:** 5 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
-- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
-- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
-- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
-- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
 
 ## Live Query (requires Dataview plugin)
 

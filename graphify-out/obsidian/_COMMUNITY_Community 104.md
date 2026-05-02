@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[seed.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seed.js
+- [[index.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\index.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/competition.md"
 type: "document"
-community: "Community 7"
+community: "Community 2"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_2
 ---
 
 # E2E Report: Competition (all 6 checks passed)
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Competition Page (competition)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_7
+#graphify/document #graphify/EXTRACTED #community/Community_2

@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 101
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
-- [[globalSetup()]] - code - E:\AILearningPath\e2e-bot\global-setup.js
+- [[seedLessons.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedLessons.js
 
 ## Live Query (requires Dataview plugin)
 

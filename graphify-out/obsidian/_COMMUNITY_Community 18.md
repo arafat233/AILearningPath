@@ -8,15 +8,15 @@ members: 9
 **Members:** 9 nodes
 
 ## Members
-- [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._name()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[._summary()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.constructor()_1]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onBegin()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
-- [[issue-reporter.js]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
+- [[CouponInput()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[NotificationsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[ReferralCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[urlBase64ToUint8Array()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listLessons, getRevisionDue, listNcertChapters, getCompletedLessons } from "../services/api";
+import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { LessonsSkeleton } from "../components/Skeleton";
 
@@ -98,16 +98,13 @@ const ChapterCard = memo(function ChapterCard({ ch, subjectColor, onChapter, onP
   );
 });
 
-const LessonCard = memo(function LessonCard({ lesson, isDue, isDone, onLearn, onPractice }) {
+const LessonCard = memo(function LessonCard({ lesson, isDue, onLearn, onPractice }) {
   return (
     <div className={`card p-5 flex items-center justify-between gap-4 transition-[box-shadow,background-color] ${
       isDue ? "ring-1 ring-apple-orange/30 bg-apple-orange/4" : "hover:shadow-apple-md"
     }`}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          {isDone && (
-            <span className="w-5 h-5 rounded-full bg-apple-green/15 text-apple-green text-[11px] flex items-center justify-center shrink-0 font-bold">✓</span>
-          )}
           <p className="text-[15px] font-semibold text-[var(--label)] truncate">{lesson.title}</p>
           {isDue && (
             <span className="badge bg-apple-orange/10 text-apple-orange text-[11px] shrink-0">Revision due</span>
@@ -117,7 +114,7 @@ const LessonCard = memo(function LessonCard({ lesson, isDue, isDone, onLearn, on
         <p className="text-[11px] text-apple-gray3 mt-1">~{lesson.shortLesson?.estimatedMinutes} min</p>
       </div>
       <div className="flex gap-2 shrink-0">
-        <button onClick={onLearn} className="btn-primary text-[13px] py-2 px-4">{isDone ? "Revisit" : "Learn →"}</button>
+        <button onClick={onLearn} className="btn-primary text-[13px] py-2 px-4">Learn →</button>
         <button onClick={onPractice} className="btn-secondary text-[13px] py-2 px-4">Practice</button>
       </div>
     </div>
@@ -138,18 +135,10 @@ export default function Lessons() {
   const [scienceSub,    setScienceSub]    = useState(null); // Physics | Chemistry | Biology | null
   const [contentTab,    setContentTab]    = useState("curriculum"); // curriculum | ai-lessons
 
-  const [chapters,        setChapters]        = useState([]);
-  const [lessons,         setLessons]         = useState([]);
-  const [revisionDue,     setRevisionDue]     = useState([]);
-  const [completedTopics, setCompletedTopics] = useState(new Set());
-  const [loading,         setLoading]         = useState(true);
-
-  // fetch completed lessons once on mount
-  useEffect(() => {
-    getCompletedLessons()
-      .then((r) => setCompletedTopics(new Set(r.data.data.map((d) => d.topic))))
-      .catch(() => {});
-  }, []);
+  const [chapters,    setChapters]    = useState([]);
+  const [lessons,     setLessons]     = useState([]);
+  const [revisionDue, setRevisionDue] = useState([]);
+  const [loading,     setLoading]     = useState(true);
 
   // reload when subject changes
   useEffect(() => {
@@ -255,32 +244,28 @@ export default function Lessons() {
           {/* ── AI Lessons ── */}
           {contentTab === "ai-lessons" && (
             <div className="space-y-4">
-              {/* practice learned topics banner */}
-              {(() => {
-                const learnedInView = visibleLessons.filter((l) => completedTopics.has(l.topic));
-                if (learnedInView.length === 0) return null;
-                return (
-                  <div className="bg-apple-green/8 border border-apple-green/20 rounded-apple-lg p-4 flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-[14px] font-semibold text-apple-green">
-                        {learnedInView.length} topic{learnedInView.length > 1 ? "s" : ""} learned
-                      </p>
-                      <p className="text-[12px] text-apple-green/70 mt-0.5">
-                        Practice only what you've studied so far
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate("/practice", {
-                        state: { mixTopics: learnedInView.map((l) => l.topic), autoStart: true },
-                      })}
-                      className="shrink-0 px-4 py-2 rounded-apple text-[13px] font-semibold text-white transition-colors"
-                      style={{ background: "#34C759" }}
-                    >
-                      Practice Learned →
-                    </button>
+              {/* practice all topics in this subject */}
+              {visibleLessons.length > 0 && (
+                <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[14px] font-semibold text-[var(--label)]">
+                      Practice {scienceSub || activeSubject} topics
+                    </p>
+                    <p className="text-[12px] text-apple-gray mt-0.5">
+                      {visibleLessons.length} topic{visibleLessons.length > 1 ? "s" : ""} available · random questions from all of them
+                    </p>
                   </div>
-                );
-              })()}
+                  <button
+                    onClick={() => navigate("/practice", {
+                      state: { mixTopics: visibleLessons.map((l) => l.topic), autoStart: true },
+                    })}
+                    className="shrink-0 px-4 py-2 rounded-apple text-[13px] font-semibold text-white transition-colors"
+                    style={{ background: subjectColor }}
+                  >
+                    Practice All →
+                  </button>
+                </div>
+              )}
 
               {/* revision due alert */}
               {revisionDue.length > 0 && (
@@ -325,7 +310,7 @@ export default function Lessons() {
                       isDue={dueTopic.has(lesson.topic)}
                       isDone={completedTopics.has(lesson.topic)}
                       onLearn={() => goToLearn(lesson.topic)}
-                      onPractice={() => navigate("/practice", { state: { topic: lesson.topic, autoStart: true } })}
+                      onPractice={() => goToPractice(lesson.topic)}
                     />
                   ))}
                 </div>

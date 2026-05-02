@@ -106,8 +106,8 @@ Check off each item as it is fixed and committed.
 - [x] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
 - [x] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
 - [x] **[ANALYTICS] predictionService.js** — No documentation, confidence interval, or historical validation
-- [ ] **[CONTENT] ncertRoutes.js** — NCERT content is placeholder text; not real CBSE content
-- [ ] **[CONTENT] pyqRoutes.js** — PYQ routes exist but no seed data — always returns empty arrays
+- [x] **[CONTENT] ncertRoutes.js** — NCERT content is placeholder text; not real CBSE content
+- [x] **[CONTENT] pyqRoutes.js** — PYQ routes exist but no seed data — always returns empty arrays
 
 ---
 
@@ -144,8 +144,8 @@ Check off each item as it is fixed and committed.
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
 | HIGH | 35 | 35 | 0 |
-| MEDIUM | 40 | 38 | 2 |
-| LOW | 22 | 18 | 4 |
-| **Total** | **113** | **107** | **6** |
+| MEDIUM | 40 | 40 | 0 |
+| LOW | 22 | 22 | 0 |
+| **Total** | **113** | **113** | **0** |
 
 *Last updated: 2026-05-03*

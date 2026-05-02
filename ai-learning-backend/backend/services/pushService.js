@@ -89,20 +89,26 @@ export async function sendStudyReminders() {
     "pushSubscription.endpoint":      { $exists: true, $ne: null },
   }).select("_id name pushSubscription studyReminders linkedStudents").lean();
 
+  // Batch-fetch all student names in one query instead of N×M individual lookups
+  const allStudentIds = [...new Set(
+    parents.flatMap((p) => (p.studyReminders || []).map((r) => r.studentId))
+  )];
+  const studentDocs = allStudentIds.length
+    ? await User.find({ _id: { $in: allStudentIds } }).select("_id name").lean()
+    : [];
+  const studentNameMap = Object.fromEntries(studentDocs.map((s) => [s._id.toString(), s.name]));
+
   let sent = 0;
   for (const parent of parents) {
     for (const reminder of (parent.studyReminders || [])) {
-      // Check time matches current HH:MM (within the current clock minute)
       if (reminder.time !== currentTime) continue;
-      // Check day if specified
       if (reminder.days?.length > 0 && !reminder.days.includes(todayAbbr)) continue;
 
-      const student = await User.findById(reminder.studentId).select("name").lean();
-      const studentName = student?.name || "your child";
+      const studentName = studentNameMap[reminder.studentId] || "your child";
 
       try {
         await sendPush(parent.pushSubscription, {
-          title:  `📚 Study time for ${studentName}!`,
+          title:  `Study time for ${studentName}!`,
           body:   "Time for today's practice session →",
           icon:   "/icon-192.png",
           url:    "/parent",

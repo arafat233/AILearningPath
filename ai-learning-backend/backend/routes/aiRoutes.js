@@ -33,20 +33,20 @@ const perUserAILimit = rateLimit({
 });
 
 const chatSchema = Joi.object({
-  message: Joi.string().trim().min(1).required(),
-  history: Joi.array().optional(),
-  topic:   Joi.string().optional().allow(""),
+  message: Joi.string().trim().min(1).max(2000).required(),
+  history: Joi.array().max(20).optional(),
+  topic:   Joi.string().max(200).optional().allow(""),
 });
 
 const voiceSchema = Joi.object({
-  transcript: Joi.string().trim().min(1).required(),
-  topic:      Joi.string().optional().allow(""),
-  subject:    Joi.string().optional().allow(""),
+  transcript: Joi.string().trim().min(1).max(3000).required(),
+  topic:      Joi.string().max(200).optional().allow(""),
+  subject:    Joi.string().max(100).optional().allow(""),
 });
 
 const evalSchema = Joi.object({
-  concept:         Joi.string().required(),
-  userExplanation: Joi.string().required(),
+  concept:         Joi.string().min(1).max(500).required(),
+  userExplanation: Joi.string().min(1).max(2000).required(),
 });
 
 const hintSchema = Joi.object({

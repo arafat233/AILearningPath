@@ -17,7 +17,7 @@ import { runWeeklyParentEmails } from "./services/weeklyParentEmailService.js";
 import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
-import { connectRedis, isUsingFallback } from "./utils/redisClient.js";
+import { connectRedis, isUsingFallback, acquireCronLock } from "./utils/redisClient.js";
 import { initSentry } from "./utils/sentry.js";
 import { getFlagsForUser } from "./utils/featureFlags.js";
 import jwt from "jsonwebtoken";
@@ -175,19 +175,52 @@ app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} n
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+const httpServer = server.listen(PORT, () => {
   logger.info("Server + WebSocket started", { port: PORT, env: process.env.NODE_ENV || "development" });
-  // Onboarding emails: run at startup + every 24 hours
-  runOnboardingEmails().catch(() => {});
-  setInterval(() => runOnboardingEmails().catch(() => {}), 24 * 60 * 60 * 1000);
-  // Revision push notifications: run daily
-  sendRevisionReminders().catch(() => {});
-  setInterval(() => sendRevisionReminders().catch(() => {}), 24 * 60 * 60 * 1000);
-  // Study reminders: check every minute (fires push when parent's HH:MM matches)
-  setInterval(() => sendStudyReminders().catch(() => {}), 60 * 1000);
-  // Weekly parent digest: run every 7 days (Monday 8am IST is the natural day, but
-  // the service skips parents whose email was sent within the last 7 days, so the
-  // exact start time doesn't matter — it fires daily and is idempotent).
-  runWeeklyParentEmails().catch(() => {});
-  setInterval(() => runWeeklyParentEmails().catch(() => {}), 7 * 24 * 60 * 60 * 1000);
+
+  // Each cron acquires a Redis distributed lock so only one pod runs it.
+  // TTL is set slightly shorter than the interval so the next pod can acquire on time.
+
+  // Onboarding emails: daily — lock for 23 h so pod picks it up the next day
+  const runOnboarding = async () => {
+    if (await acquireCronLock("onboarding_emails", 23 * 60 * 60))
+      runOnboardingEmails().catch(() => {});
+  };
+  runOnboarding();
+  setInterval(runOnboarding, 24 * 60 * 60 * 1000);
+
+  // Revision push notifications: daily — lock for 23 h
+  const runRevision = async () => {
+    if (await acquireCronLock("revision_reminders", 23 * 60 * 60))
+      sendRevisionReminders().catch(() => {});
+  };
+  runRevision();
+  setInterval(runRevision, 24 * 60 * 60 * 1000);
+
+  // Study reminders: per-minute — lock for 55 s so it re-fires each minute
+  setInterval(async () => {
+    if (await acquireCronLock("study_reminders", 55))
+      sendStudyReminders().catch(() => {});
+  }, 60 * 1000);
+
+  // Weekly parent digest: every 7 days — lock for 6 d 23 h
+  const runWeekly = async () => {
+    if (await acquireCronLock("weekly_parent_emails", 6 * 24 * 60 * 60 + 23 * 60 * 60))
+      runWeeklyParentEmails().catch(() => {});
+  };
+  runWeekly();
+  setInterval(runWeekly, 7 * 24 * 60 * 60 * 1000);
 });
+
+// Graceful shutdown — drain in-flight requests before exiting
+function shutdown(signal) {
+  logger.info(`${signal} received — shutting down gracefully`);
+  httpServer.close(() => {
+    logger.info("HTTP server closed");
+    process.exit(0);
+  });
+  // Force exit after 10 s if connections are still open
+  setTimeout(() => { logger.error("Forced exit after timeout"); process.exit(1); }, 10_000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT",  () => shutdown("SIGINT"));

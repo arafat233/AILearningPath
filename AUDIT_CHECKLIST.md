@@ -20,20 +20,20 @@ Check off each item as it is fixed and committed.
 - [x] **[BUG] adminStatsController.js:110** — `totalRevenue` returned in paise — Rs.199 payment shown as Rs.19900 in dashboard
 - [x] **[SEC] ci.yml** — No `npm audit` step — known CVEs ship undetected
 - [x] **[OPS] docker-compose.yml:45** — API container mapped as `5000:5000` but app listens on `5001`
-- [ ] **[OPS] server.js** — `setInterval` crons run inside web process — with 2+ pods every cron fires N times (N times emails, N times push)
-- [ ] **[ARCH] paymentService.js** — Order state only in Redis — Redis restart between create-order and verify = user charged, not upgraded
-- [ ] **[BUG] authController.js:430+** — Clerk stub calls `verifyToken` / `createClerkClient` never imported — ReferenceError at runtime
-- [ ] **[PERF] pushService.js** — O(N x M) DB queries every 60 s + sequential push loop blocks the event loop
-- [ ] **[ARCH] practiceController.js** — `sessions = {}` in-memory — lost on restart; unsafe for PM2 cluster
+- [x] **[OPS] server.js** — `setInterval` crons run inside web process — with 2+ pods every cron fires N times (N times emails, N times push)
+- [x] **[ARCH] paymentService.js** — Order state only in Redis — Redis restart between create-order and verify = user charged, not upgraded
+- [x] **[BUG] authController.js:430+** — Clerk stub calls `verifyToken` / `createClerkClient` never imported — ReferenceError at runtime
+- [x] **[PERF] pushService.js** — O(N x M) DB queries every 60 s + sequential push loop blocks the event loop
+- [x] **[ARCH] practiceController.js** — `sessions = {}` in-memory — lost on restart; unsafe for PM2 cluster (already uses Redis)
 
 ---
 
 ## HIGH — Fix within Week 2
 
 - [x] **[ARCH] adminRoutes.js** — Coupon CRUD has business logic + raw Mongoose inside route file; no validation middleware
-- [ ] **[PERF] practiceController.js** — `submitAnswer` runs 12-15 sequential DB calls; use Promise.all for independent reads
+- [x] **[PERF] practiceController.js** — `submitAnswer` runs 12-15 sequential DB calls; use Promise.all for independent reads
 - [ ] **[PERF] examController.js** — N+1 bulkWrite inside loop; Exam.find() unbounded
-- [ ] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
+- [x] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
 - [ ] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
 - [ ] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
 - [ ] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
@@ -42,14 +42,14 @@ Check off each item as it is fixed and committed.
 - [ ] **[PERF] adaptiveService.js** — $nin exclusion list grows to 500+ ObjectIds — forces collection scan
 - [ ] **[ARCH] aiRouter.js** — tokensUsed always 0 in AIUsageStats — token cost tracking broken
 - [ ] **[ARCH] aiRouter.js** — Cached AI responses can never be invalidated without direct DB access
-- [ ] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
+- [x] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
 - [ ] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
-- [ ] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
+- [x] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
 - [ ] **[ANALYTICS] adminStatsController.js** — DAU / MAU use aiCallsDate proxy; users who log in without AI are invisible
 - [x] **[PERF] models/index.js** — Missing TTL index on SeenQuestion.seenAt — collection grows forever
 - [x] **[PERF] models/index.js** — Missing sparse index on pushSubscription.endpoint
 - [x] **[PERF] models/index.js** — Missing compound index on Attempt.(userId, createdAt) and Attempt.topic
-- [ ] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
+- [x] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
 - [ ] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
 - [ ] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
 - [ ] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
@@ -142,10 +142,10 @@ Check off each item as it is fixed and committed.
 
 | Severity | Total | Fixed | Remaining |
 |----------|-------|-------|-----------|
-| CRITICAL | 16 | 11 | 5 |
-| HIGH | 35 | 4 | 31 |
+| CRITICAL | 16 | 16 | 0 |
+| HIGH | 35 | 10 | 25 |
 | MEDIUM | 40 | 0 | 40 |
 | LOW | 22 | 0 | 22 |
-| **Total** | **113** | **15** | **98** |
+| **Total** | **113** | **26** | **87** |
 
 *Last updated: 2026-05-02*

@@ -46,11 +46,23 @@ export const getRevisionTopics = async (userId) => {
   return due.sort((a, b) => b.priority - a.priority);
 };
 
-export const markRevised = async (userId, topic) => {
+// Accuracy threshold: below 50% the student hasn't mastered this topic yet — demote.
+const MASTERY_THRESHOLD = 0.5;
+
+export const markRevised = async (userId, topic, accuracy = null) => {
   const profile = await UserProfile.findOne({ userId });
   const tp = profile?.topicProgress?.find((t) => t.topic === topic);
   const currentStage = tp?.revisionStage ?? 0;
-  const nextStage = Math.min(currentStage + 1, INTERVALS.length - 1);
+
+  // Promote if accuracy meets threshold (or unknown); demote one stage if struggling
+  const topicAccuracy = accuracy ?? tp?.accuracy ?? 1;
+  let nextStage;
+  if (topicAccuracy >= MASTERY_THRESHOLD) {
+    nextStage = Math.min(currentStage + 1, INTERVALS.length - 1);
+  } else {
+    nextStage = Math.max(currentStage - 1, 0); // demote — revisit sooner
+  }
+
   const nextRevision = new Date(Date.now() + INTERVALS[nextStage] * 864e5);
 
   await UserProfile.findOneAndUpdate(

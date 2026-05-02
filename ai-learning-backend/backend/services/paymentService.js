@@ -130,8 +130,20 @@ export async function createOrder(userId, planKey, couponCode = null) {
 }
 
 export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId, razorpaySignature }) {
-  // SEC-07: Fetch planKey from Redis — never trust client-supplied planKey
-  const planKey = await sessionGet(orderPlanKey(razorpayOrderId));
+  // SEC-07: Fetch planKey from Redis — never trust client-supplied planKey.
+  // Fallback: if Redis was restarted between create-order and verify, recover
+  // planKey from the Razorpay order notes (set at order creation time).
+  let planKey = await sessionGet(orderPlanKey(razorpayOrderId));
+  if (!planKey) {
+    try {
+      const razorpay = getRazorpay();
+      const order = await razorpay.orders.fetch(razorpayOrderId);
+      planKey = order?.notes?.planKey || null;
+      if (planKey) logger.warn("planKey recovered from Razorpay notes after Redis miss", { razorpayOrderId, planKey });
+    } catch (e) {
+      logger.error("Failed to recover planKey from Razorpay", { razorpayOrderId, err: e.message });
+    }
+  }
   if (!planKey) throw new AppError("Order not found or expired. Please create a new order.", 400);
 
   const plan = PLANS[planKey];

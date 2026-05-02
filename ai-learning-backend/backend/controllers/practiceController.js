@@ -143,11 +143,15 @@ export const submitAnswer = async (req, res, next) => {
         ).catch(() => null);
     }
 
-    const profileBefore = await UserProfile.findOne({ userId }).catch(() => null);
-    const prevLevel = profileBefore?.difficultyLevels?.get?.(session.topic) || 1;
+    const [profileBefore, userDoc, aiUsage, streakDoc] = await Promise.all([
+      UserProfile.findOne({ userId }).catch(() => null),
+      User.findById(userId).select("goal").catch(() => null),
+      getUsageCount(userId).catch(() => null),
+      Streak.findOne({ userId }).lean().catch(() => null),
+    ]);
 
+    const prevLevel = profileBefore?.difficultyLevels?.get?.(session.topic) || 1;
     const profile = profileBefore;
-    const userDoc = await User.findById(userId).select("goal").catch(() => null);
     const teacherMessage = profile
       ? generateTeacherMessage(
           profile,
@@ -155,10 +159,6 @@ export const submitAnswer = async (req, res, next) => {
           userDoc?.goal || "distinction"
         )
       : null;
-
-    const aiUsage = await getUsageCount(userId).catch(() => null);
-
-    const streakDoc = await Streak.findOne({ userId }).lean().catch(() => null);
     const newBadges = await checkAndAwardBadges(userId, {
       streak:       streakDoc?.currentStreak || 0,
       totalAttempts: (profileBefore?.totalAttempts || 0) + 1,

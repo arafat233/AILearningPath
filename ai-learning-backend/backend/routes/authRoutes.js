@@ -16,6 +16,15 @@ const loginLimiter = rateLimit({
   message: { error: "Too many login attempts. Please try again in 15 minutes." },
 });
 
+// Prevent account-creation spam / enumeration — 5 registrations per hour per IP
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many registration attempts. Please try again in an hour." },
+});
+
 // SEC-19: Tight limiter for forgot-password — 5 per hour per IP
 const forgotLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -47,7 +56,7 @@ const resetSchema = Joi.object({
   password: Joi.string().min(8).required(),
 });
 
-r.post("/register",              validate(registerSchema),             register);
+r.post("/register",              registerLimiter, validate(registerSchema), register);
 r.post("/login",                 loginLimiter, validate(loginSchema),  login);
 r.post("/logout",                auth,                                  logout);
 r.post("/refresh",                                                      refresh); // no auth — access token may be expired

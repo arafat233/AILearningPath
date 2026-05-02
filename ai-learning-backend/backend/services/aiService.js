@@ -72,6 +72,7 @@ Be direct and helpful like a good tutor.`;
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 320,
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
@@ -111,6 +112,7 @@ Format:
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 600,
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
@@ -148,6 +150,7 @@ Keep it practical and direct.`;
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 280,
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
@@ -173,6 +176,7 @@ Be a good tutor — guide, don't solve.`;
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 120,
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
@@ -274,6 +278,7 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 1800,
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
@@ -298,6 +303,7 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
   try {
     const res = await client.messages.create({
       model: MODEL,
+      temperature: 0.3,
       max_tokens: 400,
       system: `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.`,
       messages,

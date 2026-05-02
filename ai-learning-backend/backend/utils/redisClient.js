@@ -77,3 +77,15 @@ export async function sessionDel(key) {
 }
 
 export function isUsingFallback() { return usingFallback || !client; }
+
+// Distributed cron lock — prevents duplicate cron runs in multi-pod deployments.
+// Returns true if this pod acquired the lock (should run the cron).
+// Returns false if another pod already holds the lock (skip this run).
+// When using the in-memory fallback (single process), always returns true.
+export async function acquireCronLock(name, ttlSeconds = 3600) {
+  if (!client) return true; // single-process dev mode — always run
+  const key = `cron_lock:${name}`;
+  // SET key value NX EX ttl — atomic acquire, expires automatically
+  const result = await client.set(key, "1", "NX", "EX", ttlSeconds);
+  return result === "OK"; // null means another pod already holds it
+}

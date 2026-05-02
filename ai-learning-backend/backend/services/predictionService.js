@@ -1,7 +1,25 @@
 // ============================================================
-// EXAM SCORE PREDICTION
-// Weighs each topic by examMarks × examFrequency, applies
-// time-to-exam adjustment, returns a score range + grade.
+// EXAM SCORE PREDICTION  (heuristic — not a trained ML model)
+//
+// Formula
+//   weightedAccuracy = Σ(topicAccuracy × examMarks × examFrequency)
+//                      ─────────────────────────────────────────────
+//                      Σ(examMarks × examFrequency)
+//   base  = weightedAccuracy × 80  (CBSE theory paper total)
+//   score = base ± time-adjustment (±5 based on days to exam)
+//   range = score ± 8 margin  (confidence interval ≈ ±10%)
+//
+// Confidence tiers
+//   low    — fewer than  3 topics practiced
+//   medium — 3–7 topics
+//   high   — 8+ topics
+//
+// Limitations / historical validation
+//   - No backtesting against real CBSE results (no labelled data yet)
+//   - Formula assumes topic weights in Topic.examMarks are calibrated;
+//     if the Topic collection is sparse the weights default to 5×0.5
+//   - Time adjustment (±5) is a constant, not a learning-rate estimate
+//   - All outputs carry isHeuristic:true and a disclaimer in the response
 // ============================================================
 import { UserProfile, Topic, User } from "../models/index.js";
 

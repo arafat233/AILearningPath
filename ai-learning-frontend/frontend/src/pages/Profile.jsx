@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getMe, updateMe } from "../services/api";
+import { getMe, updateMe, getBadges } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const GRADES   = ["8","9","10","11","12"];
@@ -38,9 +38,25 @@ function PlanBadge({ plan }) {
   );
 }
 
+const BADGE_META = {
+  streak_7:           { icon: "🔥", label: "7-Day Streak",      desc: "Practiced 7 days in a row" },
+  streak_30:          { icon: "🔥", label: "30-Day Streak",     desc: "Practiced 30 days in a row" },
+  streak_100:         { icon: "🏅", label: "100-Day Streak",    desc: "Practiced 100 days in a row" },
+  first_perfect_exam: { icon: "💯", label: "Perfect Exam",      desc: "Scored 100% on a competition exam" },
+  questions_100:      { icon: "💪", label: "100 Questions",     desc: "Answered 100 questions" },
+  questions_500:      { icon: "🏆", label: "500 Questions",     desc: "Answered 500 questions" },
+  top10_leaderboard:  { icon: "⭐", label: "Top 10 This Week",  desc: "Finished in the top 10 on the weekly leaderboard" },
+};
+const badgeMeta = (type) => BADGE_META[type] || {
+  icon:  type.startsWith("concept_master_") ? "🎓" : "🏅",
+  label: type.startsWith("concept_master_") ? `Mastered: ${type.replace("concept_master_", "")}` : type,
+  desc:  type.startsWith("concept_master_") ? "Consistently correct on this concept" : "Achievement unlocked",
+};
+
 export default function Profile() {
   const { user, setAuth } = useAuthStore();
   const [profile, setProfile]   = useState(null);
+  const [badges, setBadges]     = useState([]);
   const [form, setForm]         = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "pass" });
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
@@ -50,6 +66,7 @@ export default function Profile() {
   const timerRef                = useRef(null);
 
   useEffect(() => {
+    getBadges().then(({ data }) => setBadges(data || [])).catch(() => {});
     getMe()
       .then(({ data }) => {
         const u = data.data.user;
@@ -289,6 +306,37 @@ export default function Profile() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Badges */}
+      {badges.length > 0 && (
+        <div className="card p-6">
+          <h3 className="text-[13px] font-semibold text-[var(--label)] mb-4">
+            Achievements <span className="text-apple-gray font-normal">({badges.length})</span>
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {badges.map((type) => {
+              const m = badgeMeta(type);
+              return (
+                <div
+                  key={type}
+                  className="group relative flex flex-col items-center gap-1.5 w-16 cursor-default"
+                >
+                  <div className="w-12 h-12 rounded-full bg-apple-yellow/10 border border-apple-yellow/20 flex items-center justify-center text-[22px]">
+                    {m.icon}
+                  </div>
+                  <p className="text-[10px] text-apple-gray text-center leading-tight">{m.label}</p>
+                  {/* Hover tooltip */}
+                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10 w-40 pointer-events-none">
+                    <div className="bg-[var(--label)] text-white text-[11px] rounded-apple px-2.5 py-1.5 text-center shadow-apple-md">
+                      {m.desc}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

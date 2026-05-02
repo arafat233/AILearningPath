@@ -17,7 +17,7 @@
     "generate:questions": "node utils/questionGenerator.js",
     "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__ --testPathIgnorePatterns=__tests__/integration",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__/integration --testTimeout=60000 --forceExit",
-    "backup":  "node scripts/backup.js",
+    "backup": "node scripts/backup.js",
     "restore": "node scripts/restore.js"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@sentry/node": "^10.51.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

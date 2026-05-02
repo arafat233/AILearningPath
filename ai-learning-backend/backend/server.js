@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import mongoose from "mongoose";
@@ -55,7 +56,14 @@ initPassport(); // register Google strategy after env vars are loaded
 const app    = express();
 const server = http.createServer(app);
 
+app.use(compression());
+
 app.use(helmet({
+  hsts: {
+    maxAge:            63072000, // 2 years
+    includeSubDomains: true,
+    preload:           true,
+  },
   contentSecurityPolicy: {
     directives: {
       defaultSrc:     ["'self'"],

@@ -1,11 +1,33 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import mongoose from "mongoose";
 import { User, PaymentRecord } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionSet, sessionGet, sessionDel } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
 import { sendReceiptEmail } from "../utils/email.js";
 import { validateCoupon, computeDiscount, redeemCoupon } from "./couponService.js";
+
+// Run fn(session) inside a MongoDB transaction when replica set is available.
+// Falls back to no-transaction on standalone MongoDB (error code 20 / 51 / "not supported").
+async function withTransaction(fn) {
+  let session;
+  try {
+    session = await mongoose.connection.startSession();
+    let result;
+    await session.withTransaction(async () => { result = await fn(session); });
+    return result;
+  } catch (err) {
+    const isStandalone = err.code === 20 || err.code === 51 || /transaction/i.test(err.message);
+    if (isStandalone) {
+      logger.warn("MongoDB transactions not available (standalone mode) — running without transaction", { err: err.message });
+      return fn(null);
+    }
+    throw err;
+  } finally {
+    session?.endSession().catch(() => {});
+  }
+}
 
 // Plan definitions — single source of truth
 export const PLANS = {
@@ -180,12 +202,26 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
   const fullUser = await User.findById(userId).select("name email plan planExpiry isPaid referredBy referralRewarded");
   if (!fullUser) throw new AppError("User not found", 404);
 
-  await User.findByIdAndUpdate(userId, {
-    isPaid:           true,
-    plan:             planKey,
-    planExpiry:       expiry,
-    aiCallsToday:     0,
-    referralRewarded: true,
+  // Wrap both writes in a transaction — on standalone MongoDB this falls back
+  // to write-ordering (PaymentRecord first) which still allows manual recovery.
+  const paymentAmount = couponData?.discountAmount
+    ? plan.price - couponData.discountAmount
+    : plan.price;
+
+  await withTransaction(async (session) => {
+    const opts = session ? { session } : {};
+    await PaymentRecord.findOneAndUpdate(
+      { razorpayOrderId },
+      { userId, razorpayOrderId, razorpayPaymentId, planKey, amount: paymentAmount, status: "captured" },
+      { upsert: true, new: true, ...opts }
+    );
+    await User.findByIdAndUpdate(userId, {
+      isPaid:           true,
+      plan:             planKey,
+      planExpiry:       expiry,
+      aiCallsToday:     0,
+      referralRewarded: true,
+    }, opts);
   });
 
   // Referral reward — 30 free days added to referrer when referred user first upgrades
@@ -213,17 +249,6 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
 
   const user = await User.findById(userId).select("name email plan planExpiry isPaid");
   if (!user) throw new AppError("User not found", 404);
-
-  await PaymentRecord.create({
-    userId,
-    razorpayOrderId,
-    razorpayPaymentId,
-    planKey,
-    amount: couponData?.discountAmount
-      ? plan.price - couponData.discountAmount
-      : plan.price,
-    status: "captured",
-  });
 
   // Fire-and-forget receipt email — don't block the response if email fails
   Promise.resolve(

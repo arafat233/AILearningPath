@@ -70,13 +70,13 @@ Check off each item as it is fixed and committed.
 
 ## MEDIUM — Fix in Week 3-4
 
-- [ ] **[UX] Onboarding.jsx** — goal field shown but separate capture path never wired up
+- [x] **[UX] Onboarding.jsx** — goal field shown but separate capture path never wired up
 - [x] **[UX] Practice.jsx** — DoubtChat does not auto-scroll to newest message
 - [x] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
 - [x] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
 - [x] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
 - [x] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
-- [ ] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
+- [x] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
 - [x] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
 - [x] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
 - [ ] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
@@ -85,7 +85,7 @@ Check off each item as it is fixed and committed.
 - [x] **[PERF] AdminQuestions.jsx** — No server-side pagination
 - [x] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
 - [x] **[ARCH] logger.js** — No request correlation / trace ID in log lines
-- [ ] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
+- [x] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
 - [x] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
 - [x] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history
 - [x] **[SEC] authController.js** — passwordResetToken stored as plain text; should be SHA-256 hashed
@@ -94,18 +94,18 @@ Check off each item as it is fixed and committed.
 - [x] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
 - [x] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
 - [x] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
-- [ ] **[OPS] docker/** — No Dockerfile for frontend
+- [x] **[OPS] docker/** — No Dockerfile for frontend
 - [x] **[OPS] docker/** — No .dockerignore — node_modules copied into build context
 - [ ] **[TEST] __tests__/** — No E2E tests (Playwright / Cypress) for critical flows
-- [ ] **[TEST] __tests__/** — No tests for authController
-- [ ] **[TEST] __tests__/** — No tests for paymentService or couponService
-- [ ] **[TEST] __tests__/** — No tests for portalController
+- [x] **[TEST] __tests__/** — No tests for authController
+- [x] **[TEST] __tests__/** — No tests for paymentService or couponService
+- [x] **[TEST] __tests__/** — No tests for portalController
 - [x] **[DATA] models/index.js** — No max-length validation on weakTopics array
 - [x] **[DATA] models/index.js** — aiCallsDate is a String not a Date — timezone edge cases at midnight
 - [x] **[DATA] models/index.js** — No compound index on (userId, topic) for Attempt
 - [x] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
 - [x] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
-- [ ] **[ANALYTICS] predictionService.js** — No documentation, confidence interval, or historical validation
+- [x] **[ANALYTICS] predictionService.js** — No documentation, confidence interval, or historical validation
 - [ ] **[CONTENT] ncertRoutes.js** — NCERT content is placeholder text; not real CBSE content
 - [ ] **[CONTENT] pyqRoutes.js** — PYQ routes exist but no seed data — always returns empty arrays
 
@@ -113,21 +113,21 @@ Check off each item as it is fixed and committed.
 
 ## LOW — Fix in Month 2
 
-- [ ] **[CODE] Competition.jsx** — console.log statements in production code
-- [ ] **[CODE] authController.js:430+** — Dead Clerk stub (~80 lines) should be removed
+- [x] **[CODE] Competition.jsx** — console.log statements in production code
+- [x] **[CODE] authController.js:430+** — Dead Clerk stub (~80 lines) should be removed
 - [ ] **[CODE] codebase-wide** — Multiple // TODO: comments with no linked tickets
-- [ ] **[UX] Login.jsx** — No visible "Forgot password?" link on login page
-- [ ] **[UX] Settings.jsx** — Dark mode toggle state not persisted across sessions
+- [x] **[UX] Login.jsx** — No visible "Forgot password?" link on login page
+- [x] **[UX] Settings.jsx** — Dark mode toggle state not persisted across sessions
 - [ ] **[UX] Layout.jsx** — Sidebar overlaps content on screens < 375 px
 - [ ] **[UX] App.jsx** — No full-page spinner on initial bundle load
-- [ ] **[UX] Profile.jsx** — Badge grid shows no description on hover
+- [x] **[UX] Profile.jsx** — Badge grid shows no description on hover
 - [ ] **[UX] Practice.jsx** — Confidence slider label too small to read on mobile
-- [ ] **[OPS] server.js** — No gzip / brotli compression middleware
-- [ ] **[OPS] public/** — No robots.txt
+- [x] **[OPS] server.js** — No gzip / brotli compression middleware
+- [x] **[OPS] public/** — No robots.txt
 - [ ] **[OPS] public/** — No sitemap.xml
-- [ ] **[OPS] ecosystem.config.cjs** — PM2 config references wrong app entry path
-- [ ] **[OPS] Dockerfile** — No multi-stage build — dev node_modules in production image
-- [ ] **[SEC] helmet** — No HSTS preload directive
+- [x] **[OPS] ecosystem.config.cjs** — PM2 config references wrong app entry path
+- [x] **[OPS] Dockerfile** — No multi-stage build — dev node_modules in production image
+- [x] **[SEC] helmet** — No HSTS preload directive
 - [ ] **[SEC] cookies** — Cookie domain not set — breaks subdomains
 - [ ] **[DOCS] API** — No Swagger / OpenAPI spec
 - [ ] **[DOCS] repo root** — No CONTRIBUTING.md
@@ -144,8 +144,8 @@ Check off each item as it is fixed and committed.
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
 | HIGH | 35 | 33 | 2 |
-| MEDIUM | 40 | 26 | 14 |
-| LOW | 22 | 0 | 22 |
-| **Total** | **113** | **75** | **38** |
+| MEDIUM | 40 | 34 | 6 |
+| LOW | 22 | 11 | 11 |
+| **Total** | **113** | **94** | **19** |
 
 *Last updated: 2026-05-03*

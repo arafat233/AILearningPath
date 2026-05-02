@@ -1,8 +1,14 @@
 import { Attempt, UserProfile } from "../models/index.js";
 import { classifyThinkingProfile } from "./analysisService.js";
 
+const PROFILE_WINDOW = 500; // use the most recent 500 attempts for profile computation
+
 export const updateUserProfile = async (userId) => {
-  const attempts = await Attempt.find({ userId });
+  const attempts = await Attempt.find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(PROFILE_WINDOW)
+    .select("isCorrect timeTaken selectedType confidence topic")
+    .lean();
   if (!attempts.length) return;
 
   const total = attempts.length;

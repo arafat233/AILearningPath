@@ -37,13 +37,13 @@ Check off each item as it is fixed and committed.
 - [ ] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
 - [ ] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
 - [ ] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
-- [ ] **[ARCH] models/index.js** — PaymentRecord.amount stored in paise with no code comment
-- [ ] **[PERF] profileService.js** — Attempt.find({ userId }) fetches full attempt history on every answer
-- [ ] **[PERF] adaptiveService.js** — $nin exclusion list grows to 500+ ObjectIds — forces collection scan
-- [ ] **[ARCH] aiRouter.js** — tokensUsed always 0 in AIUsageStats — token cost tracking broken
+- [x] **[ARCH] models/index.js** — PaymentRecord.amount stored in paise with no code comment
+- [x] **[PERF] profileService.js** — Attempt.find({ userId }) fetches full attempt history on every answer
+- [x] **[PERF] adaptiveService.js** — $nin exclusion list grows to 500+ ObjectIds — forces collection scan
+- [x] **[ARCH] aiRouter.js** — tokensUsed always 0 in AIUsageStats — token cost tracking broken
 - [ ] **[ARCH] aiRouter.js** — Cached AI responses can never be invalidated without direct DB access
 - [x] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
-- [ ] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
+- [x] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
 - [x] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
 - [ ] **[ANALYTICS] adminStatsController.js** — DAU / MAU use aiCallsDate proxy; users who log in without AI are invisible
 - [x] **[PERF] models/index.js** — Missing TTL index on SeenQuestion.seenAt — collection grows forever
@@ -143,9 +143,9 @@ Check off each item as it is fixed and committed.
 | Severity | Total | Fixed | Remaining |
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
-| HIGH | 35 | 10 | 25 |
+| HIGH | 35 | 17 | 18 |
 | MEDIUM | 40 | 0 | 40 |
 | LOW | 22 | 0 | 22 |
-| **Total** | **113** | **26** | **87** |
+| **Total** | **113** | **33** | **80** |
 
 *Last updated: 2026-05-02*

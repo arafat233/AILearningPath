@@ -70,7 +70,13 @@ async function issueTokens(user, res, familyId) {
 
 function signToken(user) {
   return jwt.sign(
-    { id: user._id, jti: crypto.randomUUID() },
+    {
+      id:           user._id,
+      role:         user.role || "student",
+      // Embed pwdChangedAt so auth middleware can validate without a DB call
+      pwdChangedAt: user.pwdChangedAt ? Math.floor(new Date(user.pwdChangedAt).getTime() / 1000) : 0,
+      jti:          crypto.randomUUID(),
+    },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );

@@ -57,8 +57,14 @@ export const getNextQuestion = async (userId, topic) => {
     }
   }
 
-  // Get already-seen question IDs for this user+topic
-  const seen = await SeenQuestion.find({ userId, topic }).select("questionId").lean();
+  // Get already-seen question IDs for this user+topic.
+  // Cap at 100 most-recent to keep the $nin list small — beyond this the
+  // SeenQuestion TTL index (60-day expiry) handles long-term reset automatically.
+  const seen = await SeenQuestion.find({ userId, topic })
+    .sort({ seenAt: -1 })
+    .limit(100)
+    .select("questionId")
+    .lean();
   const seenIds = seen.map((s) => s.questionId);
 
   // Try unseen questions near target difficulty

@@ -177,17 +177,17 @@ export const smartAIExplanation = async (
   }
 
   // Layer 7: Call Claude — this only happens for brand-new question+mistake combos
-  const response = await getAIExplanation(questionText, selectedType, correctAnswer, subject);
+  const { text: response, tokens } = await getAIExplanation(questionText, selectedType, correctAnswer, subject);
 
   if (response) {
     // Store permanently — next student who gets this wrong pays nothing
     await storeCacheResult(cacheKey, questionText, selectedType, response);
 
-    // Track actual Claude call in usage stats
+    // Track actual Claude call + token cost in usage stats
     const today = todayStr();
     AIUsageStats.findOneAndUpdate(
       { userId, date: today },
-      { $inc: { callsMade: 1 } },
+      { $inc: { callsMade: 1, tokensUsed: tokens } },
       { upsert: true }
     ).catch(() => {});
   }

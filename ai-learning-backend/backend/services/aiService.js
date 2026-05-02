@@ -77,10 +77,12 @@ Be direct and helpful like a good tutor.`;
       system: getSystemPrompt(subject),
       messages: [{ role: "user", content: prompt }],
     });
-    return res.content[0]?.text?.trim() || null;
+    const text   = res.content[0]?.text?.trim() || null;
+    const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
+    return { text, tokens };
   } catch (err) {
     logger.error("Claude explanation error", { err: err.message, topic: question?.slice(0, 60), subject });
-    return null;
+    return { text: null, tokens: 0 };
   }
 };
 

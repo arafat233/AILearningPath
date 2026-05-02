@@ -49,7 +49,16 @@ export default function Dashboard() {
         setAiUsage(u.data);
         setCacheStats(cs.data);
       })
-      .catch(() => setError("Could not connect to backend. Is it running?"))
+      .catch((err) => {
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+          // Session expired — clear stale state and send to login
+          useAuthStore.getState().logout();
+          navigate("/login", { replace: true });
+        } else {
+          setError("Could not connect to backend. Is it running?");
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 

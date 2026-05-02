@@ -502,11 +502,103 @@ function AddChildPanel({ onAdded }) {
   );
 }
 
+// ── multi-child overview ───────────────────────────────────────────────────
+function MultiChildOverview({ students, dashboards }) {
+  const activeDashboards = students
+    .filter((s) => !s._pendingConsent)
+    .map((s) => ({ ...dashboards[(s._id || s.id)], _student: s }))
+    .filter(Boolean);
+
+  const totalQ   = activeDashboards.reduce((sum, d) => sum + (d.totalAttempts || 0), 0);
+  const avgAcc   = activeDashboards.length > 0
+    ? Math.round(activeDashboards.reduce((sum, d) => sum + (d.accuracy || 0), 0) / activeDashboards.length)
+    : 0;
+  const active   = activeDashboards.filter((d) => d.isLearningNow).length;
+
+  return (
+    <div className="space-y-4">
+      {/* combined stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Avg Accuracy</p>
+          <p className="text-[28px] font-bold text-apple-blue">{avgAcc}%</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Total Questions</p>
+          <p className="text-[28px] font-bold text-apple-green">{totalQ}</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Learning Now</p>
+          <p className="text-[28px] font-bold text-apple-orange">{active}</p>
+        </div>
+      </div>
+
+      {/* per-student comparison */}
+      <div className="card p-5">
+        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Children at a Glance</p>
+        <div className="flex flex-col gap-4">
+          {activeDashboards.map((d) => {
+            const sid = d._student._id || d._student.id;
+            return (
+              <div key={sid}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-[var(--accent,#007AFF)] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                      {(d.student?.name || d._student?.name)?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-[13px] font-semibold text-[var(--label)]">
+                      {d.student?.name || d._student?.name}
+                    </span>
+                    {d.isLearningNow && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-right">
+                    <span className="text-[13px] font-bold text-[var(--label)]">{d.accuracy ?? 0}%</span>
+                    {d.streak?.current > 0 && (
+                      <span className="text-[11px] text-apple-orange">🔥{d.streak.current}d</span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-apple-gray5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width:      `${d.accuracy ?? 0}%`,
+                      background: (d.accuracy ?? 0) >= 70 ? "#34C759" : (d.accuracy ?? 0) >= 50 ? "#FF9500" : "#FF3B30",
+                    }}
+                  />
+                </div>
+                {(d.weeklyTrend?.some((w) => w.sessions > 0)) && (
+                  <p className="text-[11px] text-apple-gray mt-1">
+                    This week: {d.weeklyTrend?.[3]?.sessions ?? 0} questions,{" "}
+                    {d.weeklyTrend?.[3]?.accuracy != null ? `${d.weeklyTrend[3].accuracy}% acc` : "no data"}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* pending consent note */}
+      {students.some((s) => s._pendingConsent) && (
+        <p className="text-[12px] text-apple-gray text-center">
+          {students.filter((s) => s._pendingConsent).length} student(s) still pending consent — not included above.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── page root ──────────────────────────────────────────────────────────────
+const OVERVIEW_ID = "__overview__";
+
 export default function ParentDashboard() {
   const [students,    setStudents]    = useState([]);
   const [selectedId,  setSelectedId]  = useState(null);
   const [dashboard,   setDashboard]   = useState(null);
+  const [allDashboards, setAllDashboards] = useState({});
   const [loading,     setLoading]     = useState(true);
   const [dashLoading, setDashLoading] = useState(false);
   const [showSearch,  setShowSearch]  = useState(false);
@@ -516,25 +608,43 @@ export default function ParentDashboard() {
     getLinkedStudents()
       .then(({ data }) => {
         setStudents(data);
-        if (data.length > 0) setSelectedId(data[0]._id || data[0].id);
-        if (data.length === 0) setShowSearch(true);
+        if (data.length >= 2) setSelectedId(OVERVIEW_ID);
+        else if (data.length === 1) setSelectedId(data[0]._id || data[0].id);
+        else setShowSearch(true);
       })
       .catch(() => { setShowSearch(true); })
       .finally(() => setLoading(false));
   }, []);
 
-  // load dashboard whenever selected child changes (skip if consent is pending)
+  // load dashboard whenever selected child changes (skip if consent is pending or overview)
   const loadDashboard = useCallback((id) => {
-    if (!id) return;
+    if (!id || id === OVERVIEW_ID) return;
     const isPending = students.find((s) => (s._id || s.id) === id)?._pendingConsent;
     if (isPending) return;
     setDashLoading(true);
     setDashboard(null);
     getStudentDashboard(id)
-      .then(({ data }) => setDashboard(data))
+      .then(({ data }) => {
+        setDashboard(data);
+        setAllDashboards((prev) => ({ ...prev, [id]: data }));
+      })
       .catch(() => setDashboard(null))
       .finally(() => setDashLoading(false));
   }, [students]);
+
+  // When overview is selected, pre-load all non-pending students
+  useEffect(() => {
+    if (selectedId !== OVERVIEW_ID) return;
+    students
+      .filter((s) => !s._pendingConsent)
+      .forEach((s) => {
+        const sid = s._id || s.id;
+        if (allDashboards[sid]) return; // already cached
+        getStudentDashboard(sid)
+          .then(({ data }) => setAllDashboards((prev) => ({ ...prev, [sid]: data })))
+          .catch(() => {});
+      });
+  }, [selectedId, students]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { loadDashboard(selectedId); }, [selectedId, loadDashboard]);
 
@@ -599,6 +709,26 @@ export default function ParentDashboard() {
       {/* child tabs — shown when ≥1 child tracked */}
       {!showSearch && students.length > 0 && (
         <div className="flex gap-2 flex-wrap">
+          {/* Overview tab — shown when 2+ students */}
+          {students.length >= 2 && (
+            <button
+              onClick={() => setSelectedId(OVERVIEW_ID)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[13px] transition-all ${
+                selectedId === OVERVIEW_ID
+                  ? "border-[var(--accent,#007AFF)] bg-[var(--accent,#007AFF)]/8 text-[var(--accent,#007AFF)] font-semibold"
+                  : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
+              }`}
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+                <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+                <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+                <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+              </svg>
+              Overview
+            </button>
+          )}
           {students.map((s) => {
             const sid = s._id || s.id;
             const isActive = selectedId === sid;
@@ -659,6 +789,8 @@ export default function ParentDashboard() {
               Find my child
             </button>
           </div>
+        ) : selectedId === OVERVIEW_ID ? (
+          <MultiChildOverview students={students} dashboards={allDashboards} />
         ) : students.find((s) => (s._id || s.id) === selectedId)?._pendingConsent ? (
           <div className="card p-10 text-center space-y-3">
             <div className="w-12 h-12 rounded-full bg-apple-orange/10 flex items-center justify-center mx-auto">

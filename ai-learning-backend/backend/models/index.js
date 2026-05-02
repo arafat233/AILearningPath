@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   goal:      { type: String, default: "pass" },
   // Subscription fields
   isPaid:    { type: Boolean, default: false },
-  plan:      { type: String, enum: ["free", "pro", "premium"], default: "free" },
+  plan:      { type: String, enum: ["free", "pro", "premium", "pro_annual", "premium_annual"], default: "free" },
   planExpiry: Date,
   aiCallsToday: { type: Number, default: 0 },
   aiCallsDate:  { type: String, default: "" }, // YYYY-MM-DD
@@ -63,6 +63,7 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
 });
+userSchema.index({ "pushSubscription.endpoint": 1 }, { sparse: true });
 export const User = mongoose.model("User", userSchema);
 
 // ==================== Topic ====================
@@ -146,6 +147,7 @@ const seenQuestionSchema = new mongoose.Schema({
   seenAt:     { type: Date, default: Date.now },
 });
 seenQuestionSchema.index({ userId: 1, questionId: 1 }, { unique: true });
+seenQuestionSchema.index({ seenAt: 1 }, { expireAfterSeconds: 60 * 24 * 60 * 60 }); // TTL: 60 days
 export const SeenQuestion = mongoose.model("SeenQuestion", seenQuestionSchema);
 
 // ==================== Streak ====================

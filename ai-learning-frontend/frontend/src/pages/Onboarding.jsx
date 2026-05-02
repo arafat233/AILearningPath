@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { updateMe, getTopics, getTopicsMeta } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
-const STEPS = ["grade", "examDate", "weakTopics", "done"];
+const STEPS = ["grade", "examDate", "goal", "weakTopics", "done"];
 
 export default function Onboarding() {
   const [step, setStep]         = useState(0);
   const [grade, setGrade]       = useState("10");
   const [examDate, setExamDate] = useState("");
+  const [goal, setGoal]         = useState("pass");
   const [weakTopics, setWeakTopics] = useState([]);
   const [saving, setSaving]     = useState(false);
   const [grades, setGrades]     = useState(["8","9","10","11","12"]);
@@ -34,8 +35,8 @@ export default function Onboarding() {
   const finish = async () => {
     setSaving(true);
     try {
-      const { data } = await updateMe({ grade, examDate });
-      setAuth(null, { ...user, name: data.user.name });
+      const { data } = await updateMe({ grade, examDate, goal, weakTopics });
+      setAuth(null, { ...user, ...data.user });
     } catch {}
     setSaving(false);
     navigate("/");
@@ -81,8 +82,33 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* Step 2: Weak topics */}
+        {/* Step 2: Goal */}
         {step === 2 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-1">What's your goal?</h2>
+            <p className="text-sm text-gray-500 mb-5">We'll adjust the intensity of your study plan.</p>
+            <div className="grid grid-cols-1 gap-3 mb-6">
+              {[
+                { value: "pass",        label: "Pass the exam",       desc: "Focus on core topics and avoid failure" },
+                { value: "good_marks",  label: "Score 75%+",          desc: "Strong performance across all subjects" },
+                { value: "top_marks",   label: "Score 90%+ (A1/A2)",  desc: "Full syllabus + PYQs + deep practice" },
+              ].map(({ value, label, desc }) => (
+                <button key={value} onClick={() => setGoal(value)}
+                  className={`text-left px-4 py-3 rounded-xl border transition-[background-color,border-color,color,transform] active:scale-[0.98] ${goal === value ? "border-brand-500 bg-brand-50" : "border-surface-border"}`}>
+                  <p className={`font-medium ${goal === value ? "text-brand-600" : "text-gray-800"}`}>{label}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setStep(1)} className="btn-secondary flex-1">← Back</button>
+              <button onClick={() => setStep(3)} className="btn-primary flex-1">Continue →</button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Weak topics */}
+        {step === 3 && (
           <div>
             <h2 className="text-xl font-semibold mb-1">Which topics feel difficult?</h2>
             <p className="text-sm text-gray-500 mb-4">Select all that apply — we'll prioritise these.</p>
@@ -95,20 +121,21 @@ export default function Onboarding() {
               ))}
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="btn-secondary flex-1">← Back</button>
-              <button onClick={() => setStep(3)} className="btn-primary flex-1">Continue →</button>
+              <button onClick={() => setStep(2)} className="btn-secondary flex-1">← Back</button>
+              <button onClick={() => setStep(4)} className="btn-primary flex-1">Continue →</button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Done */}
-        {step === 3 && (
+        {/* Step 4: Done */}
+        {step === 4 && (
           <div className="text-center">
             <p className="text-4xl mb-3">🚀</p>
             <h2 className="text-xl font-semibold mb-2">Your plan is ready!</h2>
             <div className="text-left bg-gray-50 rounded-xl p-4 mb-6 text-sm text-gray-600 space-y-1">
               <p>✓ Class {grade} syllabus loaded</p>
               {examDate && <p>✓ Exam countdown: {Math.ceil((new Date(examDate) - new Date()) / 86400000)} days</p>}
+              <p>✓ Goal: {goal === "pass" ? "Pass the exam" : goal === "good_marks" ? "Score 75%+" : "Score 90%+ (A1/A2)"}</p>
               {weakTopics.length > 0 && <p>✓ Priority topics: {weakTopics.slice(0, 3).join(", ")}{weakTopics.length > 3 ? "…" : ""}</p>}
               <p>✓ AI teacher activated</p>
             </div>

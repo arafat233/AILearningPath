@@ -1,145 +1,151 @@
-# AILearningPath — Full Audit Checklist
-> Generated: May 2026 | Covers: Security · Bugs · Tests · Student UX · Parent UX · Business
-> Status key: ❌ Not done · ⚠️ Partial · ✅ Done
+# Multi-Role Audit Issues Checklist
+
+Generated from the full multi-role audit (CEO · CTO · CMO · Sr. Developer · UI/UX · DevOps · Security · Data Scientist · AI/ML · Tester · BI).
+**113 total findings** — 16 CRITICAL · 35 HIGH · 40 MEDIUM · 22 LOW
+
+Check off each item as it is fixed and committed.
 
 ---
 
-## 🔴 CRITICAL — Security Vulnerabilities
+## CRITICAL — Fix before any public launch
 
-- [x] **REGEX INJECTION** `portalController.js:17` — `{ $regex: q }` runs user input as a MongoDB regex. A query like `.*` or `(a+)+` can DoS the database. Fix: escape the string or use `$text` index. ✅ Fixed: `escapeRegex()` applied to search query.
-- [x] **NO ROLE CHECK on linkStudentDirect** `portalController.js:32` — Any authenticated user (including students) can link another student to themselves. ✅ Fixed: role check added (`parent`, `teacher`, or `admin` only).
-- [x] **RACE CONDITION in AI quota** `aiRouter.js:47` — `checkAndIncrementUsage` does a read-then-write (not atomic). ✅ Fixed: atomic MongoDB aggregation pipeline `$cond` update.
-- [x] **NO HOST AUTH on Socket rooms** `socket.js:49,64` — Any player in a room can emit `start_room` or `end_game`. ✅ Fixed: `hostId` tracked; `start_room`/`end_game` gated to host.
-- [x] **CORRECT ANSWER EXPOSED in competition** `competitionRoutes.js:19` — options `type: "correct"` visible to clients. ✅ Fixed: `type` stripped from options projection.
-- [x] **PREMIUM QUOTA BUG** `aiRouter.js:57` — Premium users capped at 100 instead of 500. ✅ Fixed: `PLAN_LIMITS` map applied per `user.plan`.
-- [x] **logger NOT IMPORTED** `practiceController.js:85` — `logger.warn(...)` with no import → `ReferenceError` in production. ✅ Fixed: import added.
-- [x] **CACHE STATS EXPOSED to all users** `aiRoutes.js:53` — `/api/ai/cache-stats` returned to any student. ✅ Fixed: gated behind `adminAuth`.
-- [x] **safeUser() strips plan fields** `authController.js:65` — Login response missing `subject`, `grade`, `isPaid`, `plan`, `planExpiry`. ✅ Fixed: all frontend-needed fields included.
-- [x] **MISSING env vars in .env.example** — `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BACKEND_URL`, VAPID keys missing. ✅ Fixed: all documented.
-
----
-
-## 🟠 HIGH — Bugs
-
-- [x] **Subject filter ignored in Dashboard topics** ✅ Fixed: `GET /topics` now filters by `req.query.subject` and `req.query.grade`.
-- [x] **Settings.jsx only saves `name` to Zustand** — `setAuth` now spreads all changed fields (grade, subject, goal, examDate). ✅ Fixed + Delete Account UI added.
-- [x] **Socket rooms lost on server restart** `socket.js:38` — `rooms` is in-memory. Live competition lost on restart. ✅ Fixed: `@socket.io/redis-adapter` attached when `REDIS_URL` is set; room state persisted in Redis via `sessionGet`/`sessionSet` (key `competition:room:<id>`, 4h TTL) so rooms survive restarts and work across pods.
-- [x] **Mixed practice start doesn't set session** — `/practice/mixed` now calls `sessionSet` after fetching question. ✅ Fixed.
-- [x] **planExpiry never auto-downgrades** — Auth middleware now fire-and-forget downgrades expired paid users. ✅ Fixed.
-- [x] **Revision mark doesn't update Planner state** ✅ Verified: `revisionService.markRevised` increments `revisionStage` and sets `nextRevision` atomically; Planner UI removes item optimistically on success.
-- [x] **NCERT subject name mismatch for Social Science** ✅ Verified: `seedSocialScienceCurriculum.js` and NCERT route both use `"Social Science"` consistently; `ncertSubject()` passthrough is correct.
-- [x] **Practice submit exposes `solutionSteps` / correct answer** ✅ Fixed: client sends `selectedOptionIndex` (not type); server derives `selectedType` from session; option types stripped from client question; `solutionSteps` only returned when answer is wrong.
-- [x] **Planner `saveTopicOrder` API wired in frontend but backend route not verified** ✅ Verified: `PATCH /planner/reorder` exists in `plannerRoutes.js` with Joi validation.
+- [x] **[SEC] api.js:5** — `baseURL` hardcoded to `localhost:5001` — entire frontend breaks on any real deployment
+- [x] **[ARCH] models/index.js:16** — `User.plan` enum missing `"pro_annual"` / `"premium_annual"` — annual purchases fail silently
+- [x] **[ARCH] aiRouter.js:28** — `PLAN_LIMITS` missing annual plan keys — annual subscribers get free-tier quota (10 calls/day)
+- [x] **[BUG] Onboarding.jsx:37** — `finish()` never saves `weakTopics` or `goal`; Step 2 of onboarding is cosmetic
+- [x] **[SEC] authController.js:418** — `setCsrfCookie` missing in `googleAuthCallback` — OAuth users fail every POST (403)
+- [x] **[SEC] docker-compose.yml:13,28** — MongoDB `27017:27017` and Redis `6379:6379` exposed publicly with no auth
+- [x] **[OPS] server.js:71** — `morgan("dev")` hardcoded — verbose colorised logs in production
+- [x] **[SEC] server.js:81** — `192.168.29.223` hardcoded in CORS — private LAN IP leaks to production
+- [x] **[BUG] adminStatsController.js:110** — `totalRevenue` returned in paise — Rs.199 payment shown as Rs.19900 in dashboard
+- [x] **[SEC] ci.yml** — No `npm audit` step — known CVEs ship undetected
+- [x] **[OPS] docker-compose.yml:45** — API container mapped as `5000:5000` but app listens on `5001`
+- [ ] **[OPS] server.js** — `setInterval` crons run inside web process — with 2+ pods every cron fires N times (N times emails, N times push)
+- [ ] **[ARCH] paymentService.js** — Order state only in Redis — Redis restart between create-order and verify = user charged, not upgraded
+- [ ] **[BUG] authController.js:430+** — Clerk stub calls `verifyToken` / `createClerkClient` never imported — ReferenceError at runtime
+- [ ] **[PERF] pushService.js** — O(N x M) DB queries every 60 s + sequential push loop blocks the event loop
+- [ ] **[ARCH] practiceController.js** — `sessions = {}` in-memory — lost on restart; unsafe for PM2 cluster
 
 ---
 
-## 🟡 MEDIUM — Security Hardening
+## HIGH — Fix within Week 2
 
-- [x] **No CSRF protection on state-changing routes** ✅ Fixed: double-submit cookie pattern — `setCsrfCookie()` called on login/register/refresh/Google OAuth, sets a non-httpOnly `csrf` cookie; `csrfProtect` middleware validates `X-CSRF-Token` header === cookie on all POST/PUT/DELETE (skips auth routes which issue the token, and webhooks). Frontend axios request interceptor reads `csrf` cookie and injects the header automatically. Only enforced in `NODE_ENV=production`.
-- [x] **Rate limit missing on `/api/user/me` PUT** ✅ Fixed: 20 updates/hour per user via `express-rate-limit`.
-- [x] **No input sanitisation on `name` field** ✅ Verified: `escHtml(user.name)` used in both the welcome email and forgot-password email in `authController.js:97,242`.
-- [x] **Admin delete endpoints have no soft-delete** ✅ Fixed: `deletedAt` soft-delete for Questions and Topics; list queries filter `deletedAt: { $exists: false }`.
-- [x] **No output encoding on AI-generated content** ✅ Fixed: `sanitizeSvg()` in NcertTopicView strips `<script>`, `on*` event attributes, `javascript:` from SVG before `dangerouslySetInnerHTML`. LessonView has no `dangerouslySetInnerHTML`.
-- [x] **`questionId` in doubt routes accepts arbitrary strings** ✅ Fixed: validates as valid ObjectId or `"ai-generated"` before DB query.
-- [x] **Refresh token rotation missing invalidation of old family** ✅ Fixed: familyId embedded in raw token (`random:familyId`); on rotation both `refresh:<hash>` and `family:<familyId>` stored in Redis; if a rotated-away hash is presented but family is still active → reuse detected → family invalidated; logout deletes both keys.
-- [x] **API key visible in frontend** ✅ Fixed: Comment added in `paymentService.js` next to `keyId` explicitly noting only public key is sent, never the secret.
-
----
-
-## 🔵 MEDIUM — Missing Test Coverage
-
-- [x] **No test for `authController`** ✅ Verified: `auth.controller.test.js` covers register (dup email, success), login (unknown email, locked, wrong pw, lockout, success), refresh (no cookie, expired, valid rotation, reuse detection), logout (JTI blacklist + family delete), forgotPassword (unknown email, XSS escape), resetPassword (bad token, valid token).
-- [x] **No test for `practiceController`** ✅ Verified: `practice.controller.test.js` covers startTopic, submitAnswer (correct/wrong), option type stripping, server-side selectedType derivation, timeout→guessing, solutionSteps gating.
-- [x] **No test for `paymentService`** ✅ Verified: `payment.service.test.js` covers createOrder, verifyPayment (signature check, plan upgrade), getSubscription; PaymentRecord mock added.
-- [x] **No test for `portalController`** ✅ Verified: `portal.controller.test.js` covers linkStudentDirect (role check, invalid ID, self-link, not found, teacher allowed), getStudentAnalytics (IDOR, owner, admin bypass).
-- [x] **No test for `examController`** ✅ Fixed: `exam.controller.test.js` covers listExams, startExam (404, questions returned, type stripped from options, startedAt/durationSeconds in session), submitExam (correct/wrong/blank answers, negative marking, time-expired auto-fill, session deletion, 400 on no session), getExamReview (owner/IDOR/404), getLeaderboard. Also fixed: `type` field was still exposed in exam questions (parallel bug to competition fix).
-- [x] **No integration tests** ✅ Fixed: `mongodb-memory-server` added; `__tests__/integration/` with `aiQuota.integration.test.js` (11 tests — real concurrent $cond atomicity, all plan limits) and `auth.integration.test.js` (7 tests — bcrypt hashing, duplicate email, lockout, soft-delete); `npm run test:integration` script added.
-- [x] **No frontend tests** ✅ Fixed: Vitest 2.x + @testing-library/react setup. `vite.config.js` extended with `test: { globals, environment: jsdom, setupFiles }`. 16 tests across 3 suites: `authStore.test.js` (4 tests — initial state, setAuth, logout, re-auth), `api.interceptors.test.js` (7 tests — CSRF header injection, 401→logout, 401 on /user/me skipped), `NPSSurveyBanner.test.jsx` (5 tests — eligible/ineligible display, submit disabled until score, thanks state, dismiss). `npm test` / `npm run test:coverage` scripts added.
-- [x] **No load tests** ✅ Fixed: `load-tests/practice-session.js` k6 script — 4-stage ramp (20→100→100→0 VUs over 2 min), tests full session flow (login → find topic → start → 5 submits with think-time). Custom metrics: `login_duration_ms`, `start_duration_ms`, `submit_duration_ms`, `session_errors`. Thresholds: error rate < 2%, p(95) < 2s. Run with `k6 run load-tests/practice-session.js`.
-- [x] **No test for AI quota race condition** ✅ Fixed: 5 concurrency-simulation tests added to `aiRouter.service.test.js` — stateful mock simulates MongoDB's serial write processing; verifies exactly N slots remain available under concurrent load (free/pro/premium limits, partial slots, already-at-limit).
-- [x] **No test for `revisionService`** ✅ Verified: `revision.service.test.js` covers `getRevisionTopics` (no profile, overdue included, future excluded, priority sort) and `markRevised` (stage advance, stage capped at max).
-
----
-
-## 🟢 STUDENT PERSPECTIVE — Missing Features & UX
-
-- [x] **No visible countdown timer during practice** ✅ Fixed: Timer progress bar below header drains green → orange → red as time runs out; disappears after answer.
-- [x] **No "End Session" button** ✅ Fixed: "End Session" button appears in header after first answer; shows session summary screen.
-- [x] **No session summary screen** ✅ Fixed: Summary shows score, accuracy %, accuracy bar, and all missed questions with correct/selected options and AI explanations.
-- [x] **No question review after practice** ✅ Fixed: Summary screen lists all wrong answers with highlighted correct option and AI explanation inline.
-- [x] **No search bar** ✅ Fixed: Search overlay (⌘K / Ctrl+K) in sidebar searches topics by keyword via `GET /topics?q=`; arrow-key navigation; clicking result opens Practice with topic pre-selected.
-- [x] **No bookmark / favourite questions** ✅ Fixed: ☆ Bookmark toggle on every feedback card; `POST /api/user/bookmarks/:id` (toggle), `GET /api/user/bookmarks`; dedicated Bookmarks page in sidebar with remove & "Practice this topic" links.
-- [x] **No dark mode** ✅ Fixed: `html.dark` class with CSS variable overrides for all tokens (card-bg, sidebar-bg, input, labels); `themeStore.js` persists preference in localStorage and respects `prefers-color-scheme`; moon/sun toggle button in sidebar.
-- [x] **No offline support** ✅ Fixed: SW v2 — stale-while-revalidate for static assets (JS/CSS/images); network-first + cache fallback for `/api/topics`, `/api/lessons`, `/api/v1/ncert`, `/api/badges`, `/api/analysis`, `/api/revision`, `/api/planner`, `/api/user/me`; shell fallback for navigation. `OfflineBanner` component shows sticky warning + auto-hides on reconnect.
-- [x] **Voice tutor has no history** ✅ Fixed: `GET /api/ai/voice-history` and `DELETE /api/ai/voice-history` added; voice-answer now loads Redis history for context and appends each exchange (capped at 50 messages, 7-day TTL); VoiceTutor.jsx loads history on mount and shows a "Clear history" button.
-- [x] **No manual weak-topic override UI** ✅ Fixed: Tag-style input in Settings (type + Enter or Add button); red pill tags with × to remove; loaded from `profile.weakAreas` on mount; submitted as `weakTopics` array to `PUT /user/me` which persists to `UserProfile.weakAreas`.
-- [x] **Exam timer doesn't sync on tab switch** ✅ Fixed: `startedAt` (epoch ms) and `durationSeconds` returned from `startExam`; stored in Redis session; client computes `timeLeft = max(0, durationSeconds - elapsed)` on start and on `visibilitychange` resume; server validates elapsed on submit with 30s grace.
-- [x] **No notification when revision is due** ✅ Fixed: `web-push` installed; `pushService.js` sends push to all subscribed users with due revisions (runs at startup + every 24h); `pushRoutes.js` adds `POST /api/push/subscribe`, `DELETE /api/push/subscribe`, `GET /api/push/vapid-public-key`; `pushSubscription` field added to User model; expired subscriptions (410) auto-cleaned; frontend `usePushNotifications` hook + toggle card in Settings.
-- [x] **Competition room has no shareable link** ✅ Fixed: "Copy invite link" button in waiting room copies `?room=<id>` URL; visiting the link pre-fills the room input.
-- [x] **No progress certificate / achievement download** ✅ Fixed: `Certificate.jsx` page at `/certificate` — fetches live analytics, renders gold-bordered achievement certificate (accuracy, questions answered, topics mastered, longest streak, strong areas, student name/grade/subject, issue date); "Save as PDF" calls `window.print()` with injected print styles that hide sidebar; empty state if no practice done yet; "Certificate" gold link added to Analytics header.
+- [x] **[ARCH] adminRoutes.js** — Coupon CRUD has business logic + raw Mongoose inside route file; no validation middleware
+- [ ] **[PERF] practiceController.js** — `submitAnswer` runs 12-15 sequential DB calls; use Promise.all for independent reads
+- [ ] **[PERF] examController.js** — N+1 bulkWrite inside loop; Exam.find() unbounded
+- [ ] **[SEC] aiService.js** — Raw `userExplanation` / `transcript` interpolated into Claude prompts — prompt injection risk
+- [ ] **[BUG] Competition.jsx** — Client sends `selectedType` unchecked; double-submit race on rapid clicks
+- [ ] **[BUG] Practice.jsx** — alert() for errors; stale closure in timer useEffect; "New Session" leaves stale state
+- [ ] **[ARCH] models/index.js** — Inconsistent userId types (String vs ObjectId) across schemas — breaks lookup / populate
+- [ ] **[ARCH] models/index.js** — PaymentRecord.amount stored in paise with no code comment
+- [ ] **[PERF] profileService.js** — Attempt.find({ userId }) fetches full attempt history on every answer
+- [ ] **[PERF] adaptiveService.js** — $nin exclusion list grows to 500+ ObjectIds — forces collection scan
+- [ ] **[ARCH] aiRouter.js** — tokensUsed always 0 in AIUsageStats — token cost tracking broken
+- [ ] **[ARCH] aiRouter.js** — Cached AI responses can never be invalidated without direct DB access
+- [ ] **[BUG] revisionService.js** — Spaced repetition only promotes; never demotes on repeated failure
+- [ ] **[PERF] middleware/auth.js** — Extra DB call on every authenticated request for pwdChangedAt; add to JWT payload
+- [ ] **[ARCH] aiService.js** — temperature not set — Claude defaults to 1.0; explanations are non-deterministic
+- [ ] **[ANALYTICS] adminStatsController.js** — DAU / MAU use aiCallsDate proxy; users who log in without AI are invisible
+- [x] **[PERF] models/index.js** — Missing TTL index on SeenQuestion.seenAt — collection grows forever
+- [x] **[PERF] models/index.js** — Missing sparse index on pushSubscription.endpoint
+- [x] **[PERF] models/index.js** — Missing compound index on Attempt.(userId, createdAt) and Attempt.topic
+- [ ] **[SEC] authRoutes.js** — No rate limiting on /login, /register, /forgot-password — brute-force unchecked
+- [ ] **[ARCH] predictionService.js** — Uncalibrated linear formula presented as ML score — misleads students
+- [ ] **[BUG] analysisService.js** — Thinking profile classifier labels user after only 1 attempt
+- [ ] **[PERF] practiceController.js** — sessions = {} never pruned — memory leak on long-running process
+- [ ] **[SEC] cors** — If FRONTEND_URL unset, no-origin branch returns true — all server requests allowed
+- [ ] **[PERF] MongoDB** — No connection pool config (maxPoolSize) — bottlenecks under load
+- [ ] **[OPS] server.js** — No SIGTERM graceful-shutdown handler — in-flight requests dropped on deploy
+- [ ] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12
+- [ ] **[INFRA] docker-compose.yml** — No memory limits — one runaway process OOMs the host
+- [ ] **[TEST] __tests__/** — No integration tests with real DB; mock/prod divergence risk
+- [ ] **[OPS] logger.js** — No log-level env var — cannot tune verbosity without code change
+- [ ] **[SEC] JWT** — Access token TTL 1d — stolen token valid 24 h; reduce to 15-60 min
+- [ ] **[BUG] aiRouter.js** — Free-plan check reads isPaid not plan — edge case after expiry bypasses limit
+- [ ] **[OPS] ci.yml** — Frontend Vitest suite not run in CI — test regressions ship silently
+- [ ] **[OPS] ci.yml** — No deploy stage — CD is fully manual
+- [ ] **[SEC] models/index.js** — linkedStudents: [String] — no referential integrity; orphan IDs accumulate
 
 ---
 
-## 🟣 PARENT PERSPECTIVE — Missing Features & UX
+## MEDIUM — Fix in Week 3-4
 
-- [x] **No consent flow for linking** ✅ Fixed: `linkStudentDirect` now creates a pending `LinkRequest` instead of immediately linking. Students see an inbox card on their Dashboard (Accept/Decline buttons). On accept, the parent is added to `linkedStudents`. Parent dashboard shows "Pending" badge and waiting state until accepted. New routes: `GET /api/portal/requests`, `POST /api/portal/requests/:id/respond`. Tests: 12 new tests in `portal.controller.test.js` (197 total).
-- [x] **No weekly progress email to parents** ✅ Fixed: `weeklyParentEmailService.js` — for each parent/teacher with linked students, sends a weekly HTML digest with per-student accuracy (with trend arrow vs previous week), topics practised, mastered topics, weak areas, badges earned, and streak. Idempotent: skips parents emailed within the last 7 days via `weeklyParentEmailSentAt` field. Scheduled every 7 days in `server.js`; manually triggerable via `POST /api/admin/run-weekly-parent-emails`.
-- [x] **No push notification for child milestones** ✅ Fixed: `notifyParentsOfMilestone(studentId, badgeType, meta)` added to `pushService.js` — looks up all parents with that student in `linkedStudents` + a push subscription, and sends a labeled push (🔥 streak, 🎯 perfect exam, ✓ concept mastered, etc.). Called fire-and-forget from `badgeService.checkAndAwardBadges` for every newly awarded badge. Expired subscriptions (410/404) auto-removed.
-- [x] **Parent dashboard shows no historical trend** ✅ Fixed: `portalService.getStudentDashboard` now returns `weeklyTrend` — 4 weekly buckets (W1–W4) with accuracy % and session count, computed from attempts over the last 28 days. `WeeklyTrendChart` bar chart added to `ParentDashboard.jsx` above the weekly practice chart; bars coloured green/orange/red by accuracy level, latest week highlighted in blue.
-- [x] **No way to set study reminders for child** ✅ Fixed: `studyReminders` array added to User schema (`{studentId, time, days[]}`). New portal routes `GET/POST /portal/reminders`, `DELETE /portal/reminders/:studentId`. `sendStudyReminders()` in `pushService.js` runs every minute, sends push to parent when HH:MM matches with day-of-week filter. `StudyReminderCard` in parent dashboard: time picker + day-of-week toggle buttons + Set/Update/Remove controls.
-- [x] **No multi-child support UI** ✅ Fixed: `MultiChildOverview` component shows combined stats (avg accuracy, total questions, how many are learning now) and a per-student accuracy comparison bar chart with weekly trend. An "Overview" tab appears automatically when 2+ students are linked; the dashboard defaults to Overview on load when 2+ linked. Each bar is coloured green/orange/red by performance level.
-- [x] **No teacher-specific view** ✅ Fixed: `GET /api/portal/class-stats` endpoint (teacher/admin only) aggregates class accuracy, per-topic averages, students below 50% accuracy, and avg streak across all linked students. `TeacherClassView` component added to parent dashboard with "Class View" tab (purple, auto-selected for teachers on load). Shows class summary cards, students needing attention, and weakest topic bars.
-- [x] **Parent cannot see individual question attempts** ✅ Fixed: `GET /api/portal/students/:id/attempts` returns paginated attempts (15/page) enriched with truncated question text. `AttemptsPanel` collapsible section in `StudentView` shows each attempt with ✓/✗ indicator, question snippet, topic, time taken, and date. Paginated with Prev/Next controls. Lazy-loaded on first expand.
-
----
-
-## 🏢 BUSINESS / COMPANY PERSPECTIVE
-
-- [x] **No Razorpay webhook handler for failed/refunded payments** ✅ Fixed: `POST /api/webhooks/razorpay` verifies HMAC-SHA256 signature; `payment.failed` logs the event; `refund.processed` looks up PaymentRecord by paymentId and downgrades user to free plan. PaymentRecord model stores audit trail.
-- [x] **No invoice or payment receipt** ✅ Fixed: `sendReceiptEmail()` fires after `verifyPayment`; shows plan, ₹ amount, payment ID, expiry date; fire-and-forget so failures don't block the API response.
-- [x] **No coupon / referral system** ✅ Fixed: `Coupon` model (`code, discountType percent/fixed, discountValue, planFilter, validUntil, maxUses, usedCount`). `couponService.js` — `validateCoupon`, `computeDiscount`, `redeemCoupon` (atomic $inc). `POST /api/v1/payment/validate-coupon` preview endpoint; `createOrder` now accepts optional `couponCode`, stores discounted price server-side in Redis. Admin CRUD: `GET/POST/PUT/DELETE /api/admin/coupons`. Referral: `referredBy/referralCount/referralRewarded` fields on User; optional `referralCode` on register looks up by `inviteCode` and sets `referredBy`; first upgrade of a referred user gives referrer 30 free days. Frontend: `CouponInput` in Settings (check → preview → pay with coupon); `ReferralCard` shows shareable invite link and referral count.
-- [x] **No free trial for paid plans** ✅ Fixed: 7-day Pro trial granted on registration (`trialExpiry` field); AI quota uses Pro limits during trial; `trialActive` + `trialDaysLeft` exposed from `getSubscription`; trial banner shown in Settings with days remaining.
-- [x] **No annual plan option** ✅ Fixed: `pro_annual` (₹1,799/yr, 25% off) and `premium_annual` (₹4,499/yr) added to PLANS; Joi validation updated; paymentRoutes accepts annual plan keys.
-- [x] **No admin analytics dashboard** ✅ Fixed: `GET /api/admin/analytics` returns summary (DAU, MAU, conversion %, 7-day retention, total revenue) + 30-day trends for new registrations, practice attempts, and daily revenue. `AdminAnalytics.jsx` at `/admin/analytics` shows metric cards and CSS bar charts; linked in AdminLayout sidebar.
-- [x] **No GDPR / data deletion endpoint** ✅ Fixed: `DELETE /api/user/me` deletes User + all personal data (UserProfile, Attempts, ErrorMemory, Streak, Badges, DoubtThreads, LessonProgress). UI added in Settings.
-- [x] **No Terms of Service or Privacy Policy pages** ✅ Fixed: `/terms` and `/privacy` pages with full content (eligibility, subscriptions, data rights, security, PDPB/GDPR compliance); linked in sidebar footer and cross-referenced from each other.
-- [x] **No CI/CD pipeline** ✅ Fixed: `.github/workflows/ci.yml` — backend Jest tests + frontend build on push to main and cursor/** branches.
-- [x] **No error monitoring** ✅ Fixed: `@sentry/node` added to backend — `utils/sentry.js` initialises Sentry when `SENTRY_DSN` env var is set (no-op otherwise); `captureException` called in the global `errorHandler` for all unhandled 500 errors with user ID + route context. `@sentry/react` added to frontend — initialised in `main.jsx` when `VITE_SENTRY_DSN` is set, with browser tracing. Both DSN variables documented in `.env.example` files. Also fixed pre-existing bug in `FeedbackWidget.jsx` (default import → named import).
-- [x] **No database backup strategy** ✅ Fixed: `scripts/backup.js` — runs `mongodump --archive --gzip`, prunes local copies older than `BACKUP_RETAIN_DAYS` (default 7), optionally uploads to S3 via `aws s3 cp` when `S3_BACKUP_BUCKET` is set. `scripts/restore.js` — restores latest local backup or a specific file/S3 path with a 5s abort window. `npm run backup` / `npm run restore` scripts added. `.github/workflows/backup.yml` — nightly cron (02:00 UTC) that installs `mongodb-database-tools`, runs the backup, and annotates the run on failure. `backups/` added to `.gitignore`. All env vars documented in `.env.example`.
-- [x] **No onboarding email sequence** ✅ Fixed: `onboardingEmailService.js` — day-2 nudge (registered 2-3 days ago, < 3 attempts) and day-7 re-engagement (registered 7-9 days ago, inactive 5+ days); both track sent state via `onboardingDay2SentAt`/`onboardingDay7SentAt` on User; auto-runs on server boot + every 24h; also callable via `POST /api/admin/run-onboarding-emails`.
-- [x] **No NPS or in-app feedback** ✅ Fixed: NPS feedback system (0-10 scale) added. `POST /api/feedback` saves score + comment and sets `npsLastShownAt`; `GET /api/feedback/nps-eligible` checks eligibility (5+ attempts + 30-day cooldown); admin `GET /api/feedback` computes NPS score (% promoters 9-10 minus % detractors 0-6). `NPSSurveyBanner` component on Dashboard shown when eligible — inline 0-10 score buttons + optional comment field + dismiss. `npsLastShownAt` field added to User schema.
-- [x] **Socket.IO `rooms` object is single-instance** — Competition fails in multi-pod deployments. ✅ Fixed: same as above — Redis adapter + Redis-backed room state.
-- [x] **`CLAUDE_MODEL` hardcoded fallback** ✅ Verified: fallback is `claude-haiku-4-5-20251001` — current latest Haiku. Overridable via `CLAUDE_MODEL` env var.
-- [x] **No A/B testing infrastructure** ✅ Fixed: `utils/featureFlags.js` — central flag registry with defaults and env var overrides (`FLAG_<NAME>=true|false`). Supports percentage-based rollout flags (deterministic per-user bucket via userId char-code hash). `GET /api/flags` endpoint returns user-aware flag map (decodes cookie token if present, falls back to defaults). Frontend `useFeatureFlags()` hook — fetches once per page load, module-level cached, exposes `isEnabled(name)`. Flags defined: nps_survey, coupon_codes, voice_tutor, competition_rooms, parent_portal, weekly_digest_email, push_notifications, new_ai_model (0% rollout A/B), new_practice_ui (0% rollout A/B).
-
----
-
-## 📋 QUICK WINS (fix in < 1 hour each)
-
-- [x] Import `logger` in `practiceController.js` ✅
-- [x] Add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BACKEND_URL`, VAPID keys to `.env.example` ✅
-- [x] Fix `Settings.jsx` to update full user object in Zustand store on save ✅
-- [x] Add role check (`parent`/`teacher`/`admin`) to `linkStudentDirect` ✅
-- [x] Strip `type` field from competition question options before sending to clients ✅
-- [x] Move `/api/ai/cache-stats` behind `adminAuth` ✅
-- [x] Add `planExpiry` expiry check at login / on each request to auto-downgrade expired plans ✅
-- [x] Fix premium AI call limit: read `user.plan` in `checkAndIncrementUsage` and apply correct cap (free=10, pro=100, premium=500) ✅
+- [ ] **[UX] Onboarding.jsx** — goal field shown but separate capture path never wired up
+- [ ] **[UX] Practice.jsx** — DoubtChat does not auto-scroll to newest message
+- [ ] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
+- [ ] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
+- [ ] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
+- [ ] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
+- [ ] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
+- [ ] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
+- [ ] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
+- [ ] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
+- [ ] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
+- [ ] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
+- [ ] **[PERF] AdminQuestions.jsx** — No server-side pagination
+- [ ] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
+- [ ] **[ARCH] logger.js** — No request correlation / trace ID in log lines
+- [ ] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
+- [ ] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
+- [ ] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history
+- [ ] **[SEC] authController.js** — passwordResetToken stored as plain text; should be SHA-256 hashed
+- [ ] **[SEC] helmet** — No report-uri in CSP — violations go unreported
+- [ ] **[SEC] cookies** — No __Host- prefix on session/CSRF cookies — cookie tossing on subdomains
+- [ ] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
+- [ ] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
+- [ ] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
+- [ ] **[OPS] docker/** — No Dockerfile for frontend
+- [ ] **[OPS] docker/** — No .dockerignore — node_modules copied into build context
+- [ ] **[TEST] __tests__/** — No E2E tests (Playwright / Cypress) for critical flows
+- [ ] **[TEST] __tests__/** — No tests for authController
+- [ ] **[TEST] __tests__/** — No tests for paymentService or couponService
+- [ ] **[TEST] __tests__/** — No tests for portalController
+- [ ] **[DATA] models/index.js** — No max-length validation on weakTopics array
+- [ ] **[DATA] models/index.js** — aiCallsDate is a String not a Date — timezone edge cases at midnight
+- [ ] **[DATA] models/index.js** — No compound index on (userId, topic) for Attempt
+- [ ] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
+- [ ] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
+- [ ] **[ANALYTICS] predictionService.js** — No documentation, confidence interval, or historical validation
+- [ ] **[CONTENT] ncertRoutes.js** — NCERT content is placeholder text; not real CBSE content
+- [ ] **[CONTENT] pyqRoutes.js** — PYQ routes exist but no seed data — always returns empty arrays
 
 ---
 
-## ✅ ALREADY WELL IMPLEMENTED (do not regress)
+## LOW — Fix in Month 2
 
-- Atomic doubt-chat AI quota with `$cond` pipeline (`doubtRoutes.js:47`)
-- JWT blacklist on logout + password-change token invalidation (`auth.js:35-49`)
-- bcrypt with salt 10, brute-force lockout after 10 failed attempts (`authController.js:123`)
-- Razorpay signature verification + plan stored server-side in Redis (`paymentService.js:83-101`)
-- Joi validation on every state-changing route
-- Per-user Socket.IO auth via JWT on every handshake
-- Admin routes protected by `adminAuth` middleware throughout
-- Ownership check (`verifyOwnership`) before any student data is shared in portal
-- Subject-aware AI system prompts + 7-layer cost-minimisation cache
-- Redis session TTL for practice and exam sessions (replaces in-memory `{}`)
+- [ ] **[CODE] Competition.jsx** — console.log statements in production code
+- [ ] **[CODE] authController.js:430+** — Dead Clerk stub (~80 lines) should be removed
+- [ ] **[CODE] codebase-wide** — Multiple // TODO: comments with no linked tickets
+- [ ] **[UX] Login.jsx** — No visible "Forgot password?" link on login page
+- [ ] **[UX] Settings.jsx** — Dark mode toggle state not persisted across sessions
+- [ ] **[UX] Layout.jsx** — Sidebar overlaps content on screens < 375 px
+- [ ] **[UX] App.jsx** — No full-page spinner on initial bundle load
+- [ ] **[UX] Profile.jsx** — Badge grid shows no description on hover
+- [ ] **[UX] Practice.jsx** — Confidence slider label too small to read on mobile
+- [ ] **[OPS] server.js** — No gzip / brotli compression middleware
+- [ ] **[OPS] public/** — No robots.txt
+- [ ] **[OPS] public/** — No sitemap.xml
+- [ ] **[OPS] ecosystem.config.cjs** — PM2 config references wrong app entry path
+- [ ] **[OPS] Dockerfile** — No multi-stage build — dev node_modules in production image
+- [ ] **[SEC] helmet** — No HSTS preload directive
+- [ ] **[SEC] cookies** — Cookie domain not set — breaks subdomains
+- [ ] **[DOCS] API** — No Swagger / OpenAPI spec
+- [ ] **[DOCS] repo root** — No CONTRIBUTING.md
+- [ ] **[DOCS] repo root** — No CHANGELOG.md
+- [ ] **[DATA] migrations/** — No DB migration tooling (e.g. migrate-mongo)
+- [ ] **[TEST] load-tests/practice-session.js** — k6 tests have no error-rate assertions
+- [ ] **[CODE] tailwind.config.js** — Unused custom classes defined but never referenced
 
 ---
 
-*This checklist lives at `AUDIT_CHECKLIST.md` in the repo root. Tick items off as they are resolved and reference the PR number next to each completed item.*
+## Progress
+
+| Severity | Total | Fixed | Remaining |
+|----------|-------|-------|-----------|
+| CRITICAL | 16 | 11 | 5 |
+| HIGH | 35 | 4 | 31 |
+| MEDIUM | 40 | 0 | 40 |
+| LOW | 22 | 0 | 22 |
+| **Total** | **113** | **15** | **98** |
+
+*Last updated: 2026-05-02*

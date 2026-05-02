@@ -68,7 +68,7 @@ app.use(helmet({
     },
   },
 }));
-app.use(morgan("dev"));
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
   .split(",")
   .map((s) => s.trim())
@@ -77,8 +77,6 @@ const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
 // Dev convenience: allow common local variants (kept permissive only in non-prod)
 if (process.env.NODE_ENV !== "production") {
   frontendOrigins.push("http://127.0.0.1:5173");
-  // If you open Vite via LAN IP, the origin will be that IP
-  frontendOrigins.push("http://192.168.29.223:5173");
 }
 
 const allowedOrigins = Array.from(new Set(frontendOrigins));

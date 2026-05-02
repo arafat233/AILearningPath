@@ -35,6 +35,10 @@ jobs:
         working-directory: ai-learning-backend/backend
         run: npm ci
 
+      - name: Audit backend dependencies
+        working-directory: ai-learning-backend/backend
+        run: npm audit --audit-level=high
+
       - name: Run backend tests
         working-directory: ai-learning-backend/backend
         env:
@@ -61,6 +65,10 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ai-learning-frontend/frontend
         run: npm ci
+
+      - name: Audit frontend dependencies
+        working-directory: ai-learning-frontend/frontend
+        run: npm audit --audit-level=high
 
       - name: Build frontend
         working-directory: ai-learning-frontend/frontend

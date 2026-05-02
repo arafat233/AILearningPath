@@ -26,9 +26,11 @@ const PREMIUM_DAILY_LIMIT = 500;
 const CACHE_TTL_MS        = 24 * 60 * 60 * 1000; // 24h in-memory TTL
 
 const PLAN_LIMITS = {
-  free:    FREE_DAILY_LIMIT,
-  pro:     PRO_DAILY_LIMIT,
-  premium: PREMIUM_DAILY_LIMIT,
+  free:            FREE_DAILY_LIMIT,
+  pro:             PRO_DAILY_LIMIT,
+  premium:         PREMIUM_DAILY_LIMIT,
+  pro_annual:      PRO_DAILY_LIMIT,
+  premium_annual:  PREMIUM_DAILY_LIMIT,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────

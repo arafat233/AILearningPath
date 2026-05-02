@@ -92,9 +92,9 @@ export const getAnalytics = async (req, res, next) => {
     ]);
 
     // Merge aggregation results into slot arrays (fill gaps with 0)
-    const fillSlots = (rows, key) => {
+    const fillSlots = (rows, key, divisor = 1) => {
       const map = Object.fromEntries(rows.map((r) => [r._id, r[key]]));
-      return slots30.map((d) => ({ date: d, value: map[d] || 0 }));
+      return slots30.map((d) => ({ date: d, value: Math.round((map[d] || 0) / divisor) }));
     };
 
     const usersBeforeD7 = await User.countDocuments({ createdAt: { $lt: d7 } });
@@ -107,11 +107,11 @@ export const getAnalytics = async (req, res, next) => {
         paidUsers,
         conversionRate: totalUsers > 0 ? parseFloat(((paidUsers / totalUsers) * 100).toFixed(1)) : 0,
         retention7d:    usersBeforeD7 > 0 ? parseFloat(((retention7d / usersBeforeD7) * 100).toFixed(1)) : 0,
-        totalRevenue:   totalRevenue[0]?.total || 0,
+        totalRevenue:   Math.round((totalRevenue[0]?.total || 0) / 100),
       },
       trends: {
         newUsers:  fillSlots(newUsersTrend,  "count"),
-        revenue:   fillSlots(revenueTrend,   "revenue"),
+        revenue:   fillSlots(revenueTrend,   "revenue", 100), // paise → rupees
         attempts:  fillSlots(attemptsTrend,  "count"),
       },
     });

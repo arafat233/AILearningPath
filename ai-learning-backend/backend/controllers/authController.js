@@ -416,6 +416,7 @@ export const googleAuthCallback = [
     try {
       const { user, needsOnboarding } = req.user;
       await issueTokens(user, res);
+      setCsrfCookie(res);
       const dest = needsOnboarding ? "/onboarding" : "/";
       res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}${dest}`);
     } catch (err) {

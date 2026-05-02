@@ -106,12 +106,14 @@ export const adminCreateTopic    = (data)      => api.post("/admin/topics", data
 export const adminUpdateTopic    = (id, data)  => api.put(`/admin/topics/${id}`, data);
 export const adminDeleteTopic    = (id)        => api.delete(`/admin/topics/${id}`);
 
-export const searchStudents      = (q)          => api.get("/portal/search", { params: { q } });
-export const linkStudentDirect   = (studentId)  => api.post("/portal/link-direct", { studentId });
-export const removeLinkedStudent = (studentId)  => api.delete(`/portal/students/${studentId}`);
-export const getLinkedStudents   = ()           => api.get("/portal/students");
-export const getStudentAnalytics = (studentId)  => api.get(`/portal/students/${studentId}/analytics`);
-export const getStudentDashboard = (studentId)  => api.get(`/portal/students/${studentId}/dashboard`);
+export const searchStudents        = (q)          => api.get("/portal/search", { params: { q } });
+export const linkStudentDirect     = (studentId)  => api.post("/portal/link-direct", { studentId });
+export const removeLinkedStudent   = (studentId)  => api.delete(`/portal/students/${studentId}`);
+export const getLinkedStudents     = ()           => api.get("/portal/students");
+export const getStudentAnalytics   = (studentId)  => api.get(`/portal/students/${studentId}/analytics`);
+export const getStudentDashboard   = (studentId)  => api.get(`/portal/students/${studentId}/dashboard`);
+export const getLinkRequests       = ()           => api.get("/portal/requests");
+export const respondToLinkRequest  = (id, action) => api.post(`/portal/requests/${id}/respond`, { action });
 
 export const getRoomQuestions = (topic, count) => api.post("/competition/room-questions", { topic, count });
 

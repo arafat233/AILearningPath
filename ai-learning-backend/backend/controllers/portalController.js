@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User, UserProfile, Streak, Badge } from "../models/index.js";
+import { User, UserProfile, Streak, Badge, LinkRequest } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { getStudentDashboard } from "../services/portalService.js";
 
@@ -31,7 +31,7 @@ export const searchStudents = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// Directly add a student to the parent's linked list — no invite code required.
+// Creates a pending link request — student must accept before the requester gains access.
 export const linkStudentDirect = async (req, res, next) => {
   try {
     const allowedRoles = ["parent", "teacher", "admin"];
@@ -48,10 +48,71 @@ export const linkStudentDirect = async (req, res, next) => {
     if (student._id.toString() === req.user.id)
       return next(new AppError("Cannot add yourself", 400));
 
-    await User.findByIdAndUpdate(req.user.id, {
-      $addToSet: { linkedStudents: student._id.toString() },
+    // Idempotent: return existing pending request if one already exists
+    const existing = await LinkRequest.findOne({
+      requesterId: req.user.id,
+      studentId:   student._id,
+      status:      "pending",
+    }).lean();
+    if (existing) {
+      return res.json({ status: "pending", requestId: existing._id, student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+    }
+
+    const me = await User.findById(req.user.id).select("name linkedStudents").lean();
+
+    // Already accepted — student already in linkedStudents
+    if (me?.linkedStudents?.includes(student._id.toString())) {
+      return res.json({ status: "linked", student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+    }
+
+    const request = await LinkRequest.create({
+      requesterId:   req.user.id,
+      requesterName: me?.name || req.user.role,
+      requesterRole: req.user.role,
+      studentId:     student._id,
     });
-    res.json({ student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+
+    res.json({ status: "pending", requestId: request._id, student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+  } catch (err) { next(err); }
+};
+
+// Student fetches their pending link requests (inbox)
+export const getLinkRequests = async (req, res, next) => {
+  try {
+    const requests = await LinkRequest.find({ studentId: req.user.id, status: "pending" }).lean();
+    res.json(requests);
+  } catch (err) { next(err); }
+};
+
+// Student accepts or rejects a specific link request
+export const respondToLinkRequest = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { action } = req.body;
+
+    if (!mongoose.isValidObjectId(id))
+      return next(new AppError("Invalid request ID", 400));
+    if (!["accept", "reject"].includes(action))
+      return next(new AppError("Action must be 'accept' or 'reject'", 400));
+
+    const request = await LinkRequest.findById(id);
+    if (!request) return next(new AppError("Request not found", 404));
+    if (request.studentId.toString() !== req.user.id)
+      return next(new AppError("Not authorized", 403));
+    if (request.status !== "pending")
+      return next(new AppError("Request already responded to", 400));
+
+    request.status      = action === "accept" ? "accepted" : "rejected";
+    request.respondedAt = new Date();
+    await request.save();
+
+    if (action === "accept") {
+      await User.findByIdAndUpdate(request.requesterId, {
+        $addToSet: { linkedStudents: request.studentId.toString() },
+      });
+    }
+
+    res.json({ success: true, status: request.status });
   } catch (err) { next(err); }
 };
 

@@ -298,12 +298,11 @@ function AddChildPanel({ onAdded }) {
   const handleAdd = async (student) => {
     setAdding(student.id);
     try {
-      await linkStudentDirect(student.id);
-      onAdded(student);
+      const { data } = await linkStudentDirect(student.id);
+      onAdded({ ...student, _pendingConsent: data.status === "pending" });
       setQuery("");
       setResults([]);
     } catch {
-      // already linked or error — still navigate
       onAdded(student);
     } finally { setAdding(null); }
   };
@@ -386,16 +385,18 @@ export default function ParentDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  // load dashboard whenever selected child changes
+  // load dashboard whenever selected child changes (skip if consent is pending)
   const loadDashboard = useCallback((id) => {
     if (!id) return;
+    const isPending = students.find((s) => (s._id || s.id) === id)?._pendingConsent;
+    if (isPending) return;
     setDashLoading(true);
     setDashboard(null);
     getStudentDashboard(id)
       .then(({ data }) => setDashboard(data))
       .catch(() => setDashboard(null))
       .finally(() => setDashLoading(false));
-  }, []);
+  }, [students]);
 
   useEffect(() => { loadDashboard(selectedId); }, [selectedId, loadDashboard]);
 
@@ -480,9 +481,15 @@ export default function ParentDashboard() {
                     {s.name?.charAt(0).toUpperCase()}
                   </div>
                   {s.name}
-                  <span className={`text-[11px] ${isActive ? "text-[var(--accent,#007AFF)]/70" : "text-apple-gray"}`}>
-                    Gr.{s.grade}
-                  </span>
+                  {s._pendingConsent ? (
+                    <span className="text-[10px] font-semibold text-apple-orange bg-apple-orange/10 px-1.5 py-0.5 rounded-full">
+                      Pending
+                    </span>
+                  ) : (
+                    <span className={`text-[11px] ${isActive ? "text-[var(--accent,#007AFF)]/70" : "text-apple-gray"}`}>
+                      Gr.{s.grade}
+                    </span>
+                  )}
                 </button>
                 {/* remove × */}
                 <button
@@ -513,6 +520,21 @@ export default function ParentDashboard() {
             <button onClick={() => setShowSearch(true)} className="btn-primary mx-auto">
               Find my child
             </button>
+          </div>
+        ) : students.find((s) => (s._id || s.id) === selectedId)?._pendingConsent ? (
+          <div className="card p-10 text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-apple-orange/10 flex items-center justify-center mx-auto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-apple-orange">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <p className="text-[15px] font-semibold text-[var(--label)]">
+              Waiting for {students.find((s) => (s._id || s.id) === selectedId)?.name} to accept
+            </p>
+            <p className="text-[13px] text-apple-gray">
+              A request has been sent. Once they approve it on their dashboard, you'll see their progress here.
+            </p>
           </div>
         ) : dashLoading ? (
           <div className="space-y-4">

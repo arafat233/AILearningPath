@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics } from "../services/api";
+import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const SUBJECTS = [
@@ -106,6 +106,9 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Link requests — shown only to students */}
+      {user?.role === "student" && <LinkRequestsCard />}
 
       {/* Primary stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -283,6 +286,65 @@ export default function Dashboard() {
             })}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function LinkRequestsCard() {
+  const [requests, setRequests]   = useState([]);
+  const [loading,  setLoading]    = useState(true);
+  const [acting,   setActing]     = useState(null); // id being acted on
+
+  const load = useCallback(() => {
+    getLinkRequests()
+      .then(({ data }) => setRequests(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handle = async (id, action) => {
+    setActing(id);
+    try {
+      await respondToLinkRequest(id, action);
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+    } catch {
+      // ignore — leave card visible so user can retry
+    } finally { setActing(null); }
+  };
+
+  if (loading || requests.length === 0) return null;
+
+  return (
+    <div className="card p-5 border-l-4 border-apple-orange">
+      <p className="section-label text-apple-orange">Link Requests</p>
+      <div className="flex flex-col gap-3">
+        {requests.map((r) => (
+          <div key={r._id} className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-[var(--label)]">{r.requesterName}</p>
+              <p className="text-[12px] text-apple-gray capitalize">{r.requesterRole} wants to view your progress</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button
+                disabled={acting === r._id}
+                onClick={() => handle(r._id, "reject")}
+                className="btn-secondary text-[12px] px-3 py-1.5"
+              >
+                Decline
+              </button>
+              <button
+                disabled={acting === r._id}
+                onClick={() => handle(r._id, "accept")}
+                className="btn-primary text-[12px] px-3 py-1.5"
+              >
+                {acting === r._id ? "…" : "Allow"}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

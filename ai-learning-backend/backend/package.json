@@ -17,6 +17,9 @@
     "generate:questions": "node utils/questionGenerator.js",
     "test": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__ --testPathIgnorePatterns=__tests__/integration",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js --testPathPattern=__tests__/integration --testTimeout=60000 --forceExit",
+    "migrate": "migrate-mongo up",
+    "migrate:down": "migrate-mongo down",
+    "migrate:status": "migrate-mongo status",
     "backup": "node scripts/backup.js",
     "restore": "node scripts/restore.js"
   },
@@ -47,6 +50,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",
+    "migrate-mongo": "^14.0.7",
     "mongodb-memory-server": "^11.1.0",
     "nodemon": "^3.0.2"
   },

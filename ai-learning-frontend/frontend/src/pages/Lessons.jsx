@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { LessonsSkeleton } from "../components/Skeleton";
 
 // ── constants ──────────────────────────────────────────────────────
 const SUBJECTS = [
@@ -153,6 +154,8 @@ export default function Lessons() {
       setChapters(c.data?.data ?? []);
     }).finally(() => setLoading(false));
   }, [activeSubject, grade]);
+
+  if (loading) return <LessonsSkeleton />;
 
   const dueTopic = new Set(revisionDue.map((r) => r.topic));
 

@@ -27,6 +27,7 @@ const REFRESH_COOKIE_OPTS = {
   httpOnly: true,
   get secure()   { return isProd(); },
   get sameSite() { return isProd() ? "none" : "lax"; },
+  get domain()   { return isProd() && process.env.COOKIE_DOMAIN ? process.env.COOKIE_DOMAIN : undefined; },
   maxAge:   30 * 24 * 60 * 60 * 1000,
   path:     "/api/auth",
 };

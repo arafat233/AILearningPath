@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest, submitFeedback, getNpsEligibility } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { DashboardSkeleton } from "../components/Skeleton";
 
 const SUBJECTS = [
   { id: "Math",          label: "Maths",   color: "#007AFF" },
@@ -61,14 +62,7 @@ export default function Dashboard() {
       .finally(() => setTopicsLoading(false));
   }, [activeSubject, user?.grade]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
-        <p className="text-[13px] text-apple-gray">Loading dashboard…</p>
-      </div>
-    </div>
-  );
+  if (loading) return <DashboardSkeleton />;
 
   if (error) return (
     <div className="card p-10 text-center max-w-md mx-auto mt-16">

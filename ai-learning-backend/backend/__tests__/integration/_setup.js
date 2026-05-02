@@ -4,8 +4,12 @@ import mongoose from "mongoose";
 let mongod;
 
 export async function connectTestDB() {
-  mongod = await MongoMemoryServer.create({ instance: { dbName: "testdb" } });
-  await mongoose.connect(mongod.getUri());
+  if (process.env.MONGO_URI) {
+    await mongoose.connect(process.env.MONGO_URI);
+  } else {
+    mongod = await MongoMemoryServer.create({ instance: { dbName: "testdb" } });
+    await mongoose.connect(mongod.getUri());
+  }
 }
 
 export async function disconnectTestDB() {

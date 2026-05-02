@@ -39,7 +39,7 @@ jobs:
         working-directory: ai-learning-backend/backend
         run: npm audit --audit-level=high
 
-      - name: Run backend tests
+      - name: Run backend unit tests
         working-directory: ai-learning-backend/backend
         env:
           MONGO_URI: mongodb://localhost:27017/ai_learning_test
@@ -47,6 +47,15 @@ jobs:
           ANTHROPIC_API_KEY: sk-ant-test-key
           NODE_ENV: test
         run: npm test
+
+      - name: Run backend integration tests
+        working-directory: ai-learning-backend/backend
+        env:
+          MONGO_URI: mongodb://localhost:27017/ai_learning_test
+          JWT_SECRET: test_secret_for_ci_only
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          NODE_ENV: test
+        run: npm run test:integration
 
   frontend-build:
     name: Frontend Build
@@ -81,3 +90,26 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: http://localhost:5001/api
+
+  deploy:
+    name: Deploy to Production
+    needs: [backend-test, frontend-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key:      ${{ secrets.DEPLOY_SSH_KEY }}
+          port:     ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            set -e
+            cd /opt/ai-learning
+            git pull origin main
+            cd ai-learning-backend/backend && npm ci --omit=dev
+            cd /opt/ai-learning/ai-learning-frontend/frontend
+            npm ci && npm run build
+            pm2 reload ecosystem.config.cjs --env production

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AnalyticsSkeleton } from "../components/Skeleton";
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
@@ -25,14 +26,7 @@ export default function Analytics() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
-        <p className="text-[13px] text-apple-gray">Loading analytics…</p>
-      </div>
-    </div>
-  );
+  if (loading) return <AnalyticsSkeleton />;
 
   if (error) return (
     <div className="max-w-4xl mx-auto">

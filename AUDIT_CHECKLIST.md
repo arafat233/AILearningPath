@@ -58,12 +58,12 @@ Check off each item as it is fixed and committed.
 - [x] **[OPS] server.js** — No SIGTERM graceful-shutdown handler — in-flight requests dropped on deploy
 - [x] **[SEC] authController.js** — bcrypt cost factor 10; OWASP 2024 recommends 12
 - [x] **[INFRA] docker-compose.yml** — No memory limits — one runaway process OOMs the host
-- [ ] **[TEST] __tests__/** — No integration tests with real DB; mock/prod divergence risk
+- [x] **[TEST] __tests__/** — No integration tests with real DB; mock/prod divergence risk
 - [x] **[OPS] logger.js** — No log-level env var — cannot tune verbosity without code change
 - [x] **[SEC] JWT** — Access token TTL 1d — stolen token valid 24 h; reduce to 15-60 min
 - [x] **[BUG] aiRouter.js** — Free-plan check reads isPaid not plan — edge case after expiry bypasses limit
 - [x] **[OPS] ci.yml** — Frontend Vitest suite not run in CI — test regressions ship silently
-- [ ] **[OPS] ci.yml** — No deploy stage — CD is fully manual
+- [x] **[OPS] ci.yml** — No deploy stage — CD is fully manual
 - [x] **[SEC] models/index.js** — linkedStudents: [String] — no referential integrity; orphan IDs accumulate
 
 ---
@@ -79,7 +79,7 @@ Check off each item as it is fixed and committed.
 - [x] **[UX] Dashboard.jsx** — NPS survey shown at exactly 5 attempts with no grace period
 - [x] **[UX] Settings.jsx** — No confirmation modal before GDPR account delete
 - [x] **[UX] Lessons.jsx / Practice.jsx** — No empty-state illustrations when data is absent
-- [ ] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
+- [x] **[UX] All pages** — No skeleton loaders — blank screens during data fetch
 - [x] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
 - [x] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
 - [x] **[PERF] AdminQuestions.jsx** — No server-side pagination
@@ -115,26 +115,26 @@ Check off each item as it is fixed and committed.
 
 - [x] **[CODE] Competition.jsx** — console.log statements in production code
 - [x] **[CODE] authController.js:430+** — Dead Clerk stub (~80 lines) should be removed
-- [ ] **[CODE] codebase-wide** — Multiple // TODO: comments with no linked tickets
+- [x] **[CODE] codebase-wide** — Multiple // TODO: comments with no linked tickets
 - [x] **[UX] Login.jsx** — No visible "Forgot password?" link on login page
 - [x] **[UX] Settings.jsx** — Dark mode toggle state not persisted across sessions
-- [ ] **[UX] Layout.jsx** — Sidebar overlaps content on screens < 375 px
-- [ ] **[UX] App.jsx** — No full-page spinner on initial bundle load
+- [x] **[UX] Layout.jsx** — Sidebar overlaps content on screens < 375 px
+- [x] **[UX] App.jsx** — No full-page spinner on initial bundle load
 - [x] **[UX] Profile.jsx** — Badge grid shows no description on hover
-- [ ] **[UX] Practice.jsx** — Confidence slider label too small to read on mobile
+- [x] **[UX] Practice.jsx** — Confidence slider label too small to read on mobile
 - [x] **[OPS] server.js** — No gzip / brotli compression middleware
 - [x] **[OPS] public/** — No robots.txt
-- [ ] **[OPS] public/** — No sitemap.xml
+- [x] **[OPS] public/** — No sitemap.xml
 - [x] **[OPS] ecosystem.config.cjs** — PM2 config references wrong app entry path
 - [x] **[OPS] Dockerfile** — No multi-stage build — dev node_modules in production image
 - [x] **[SEC] helmet** — No HSTS preload directive
-- [ ] **[SEC] cookies** — Cookie domain not set — breaks subdomains
+- [x] **[SEC] cookies** — Cookie domain not set — breaks subdomains
 - [ ] **[DOCS] API** — No Swagger / OpenAPI spec
-- [ ] **[DOCS] repo root** — No CONTRIBUTING.md
-- [ ] **[DOCS] repo root** — No CHANGELOG.md
-- [ ] **[DATA] migrations/** — No DB migration tooling (e.g. migrate-mongo)
-- [ ] **[TEST] load-tests/practice-session.js** — k6 tests have no error-rate assertions
-- [ ] **[CODE] tailwind.config.js** — Unused custom classes defined but never referenced
+- [x] **[DOCS] repo root** — No CONTRIBUTING.md
+- [x] **[DOCS] repo root** — No CHANGELOG.md
+- [x] **[DATA] migrations/** — No DB migration tooling (e.g. migrate-mongo)
+- [x] **[TEST] load-tests/practice-session.js** — k6 tests have no error-rate assertions
+- [x] **[CODE] tailwind.config.js** — Unused custom classes defined but never referenced
 
 ---
 
@@ -143,9 +143,9 @@ Check off each item as it is fixed and committed.
 | Severity | Total | Fixed | Remaining |
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
-| HIGH | 35 | 33 | 2 |
-| MEDIUM | 40 | 34 | 6 |
-| LOW | 22 | 11 | 11 |
-| **Total** | **113** | **94** | **19** |
+| HIGH | 35 | 35 | 0 |
+| MEDIUM | 40 | 38 | 2 |
+| LOW | 22 | 18 | 4 |
+| **Total** | **113** | **107** | **6** |
 
 *Last updated: 2026-05-03*

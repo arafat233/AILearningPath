@@ -578,13 +578,13 @@ export default function Practice() {
         {/* Confidence + Hint — only before answering */}
         {!feedback && (
           <div className="mt-5 pt-4 border-t border-apple-gray5 space-y-3">
-            <div className="flex items-center gap-2">
-              <p className="text-[12px] text-apple-gray mr-1">Confidence</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[13px] text-apple-gray mr-1">Confidence</p>
               {["low", "medium", "high"].map((c) => (
                 <button
                   key={c}
                   onClick={() => setConfidence(c)}
-                  className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-[background-color,border-color,color] capitalize
+                  className={`text-[13px] font-medium px-4 py-2 rounded-full border transition-[background-color,border-color,color] capitalize min-h-[36px]
                     ${confidence === c
                       ? "bg-apple-blue text-white border-apple-blue"
                       : "bg-apple-gray6 border-apple-gray5 text-apple-gray hover:border-apple-gray3"

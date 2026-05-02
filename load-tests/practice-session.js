@@ -40,10 +40,11 @@ export const options = {
     { duration: "15s", target: 0   }, // ramp down
   ],
   thresholds: {
-    http_req_failed:       ["rate<0.02"],      // < 2% errors
+    http_req_failed:       ["rate<0.02"],      // < 2% HTTP errors
     http_req_duration:     ["p(95)<2000"],     // 95th percentile < 2s
     start_duration_ms:     ["p(95)<1500"],
     submit_duration_ms:    ["p(95)<1000"],
+    session_errors:        ["count<5"],        // fewer than 5 session-level failures
   },
 };
 

@@ -57,6 +57,12 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Vitest frontend test suite (16 unit tests) | Complete |
 | k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |
 | Docker + PM2 deployment configs | Complete |
+| 880 adaptive questions (CBSE Class 10 Math — 43 fine-grained topics) | Complete |
+| 14 chapter mock papers (CBSE-style, all sections A-D, ordered) | Complete |
+| 40 board-style supplementary questions (2024/2025 paper patterns) | Complete |
+| Placement quiz (20-question diagnostic — master/intermediate/novice scoring) | Complete |
+| Fine-grained topic DAG (43 nodes, prerequisite graph, levels 0–7) | Complete |
+| Adaptive recommender engine (mastery thresholds, fluke/stuck detection, routing) | Complete |
 
 ---
 
@@ -75,7 +81,7 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
         │               │
 ┌───────▼──────┐  ┌─────▼──────────────────────────────────┐
 │   MongoDB    │  │          Claude Haiku 4.5               │
-│  20+ collections│  │  7-layer cache — most calls are free    │
+│  23 collections │  │  7-layer cache — most calls are free    │
 └──────────────┘  └────────────────────────────────────────-┘
 ```
 
@@ -117,6 +123,13 @@ npm run seed:science-curriculum        # CBSE Class 10 Science — 13 chapters
 npm run seed:english-curriculum        # CBSE Class 10 English — 23 chapters
 npm run seed:hindi-curriculum          # CBSE Class 10 Hindi — 32 chapters
 npm run seed:social-science-curriculum # CBSE Class 10 Social Science — 22 chapters
+
+# Adaptive question system (run AFTER seed above)
+npm run seed:questions         # 880 CBSE Class 10 Math questions + 14 mock papers
+npm run seed:board-questions   # 40 board-style questions (2024/2025 patterns)
+npm run seed:placement-quiz    # 20-question diagnostic placement quiz
+npm run seed:topic-dag         # 43 fine-grained topic nodes with prerequisite DAG
+npm run seed:answer-keys       # Enrich mock paper questions with detailed solutions
 ```
 
 ### 4. Run Tests

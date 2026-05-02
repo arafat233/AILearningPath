@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ncertRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\ncertRoutes.js
+- [[examRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\examRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

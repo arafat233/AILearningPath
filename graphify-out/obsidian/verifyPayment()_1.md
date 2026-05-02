@@ -2,16 +2,17 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js"
 type: "code"
 community: "Community 15"
-location: "L132"
+location: "L154"
 tags:
   - graphify/code
-  - graphify/INFERRED
+  - graphify/EXTRACTED
   - community/Community_15
 ---
 
 # verifyPayment()
 
 ## Connections
+- [[getRazorpay()]] - `calls` [EXTRACTED]
 - [[orderCouponKey()]] - `calls` [EXTRACTED]
 - [[orderPlanKey()]] - `calls` [EXTRACTED]
 - [[paymentService.js]] - `contains` [EXTRACTED]
@@ -19,5 +20,6 @@ tags:
 - [[sendReceiptEmail()]] - `calls` [INFERRED]
 - [[sessionDel()]] - `calls` [INFERRED]
 - [[sessionGet()]] - `calls` [INFERRED]
+- [[withTransaction()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_15
+#graphify/code #graphify/EXTRACTED #community/Community_15

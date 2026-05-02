@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/error-context.md"
 type: "document"
-community: "Community 3"
+community: "Community 4"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_4
 ---
 
 # Root Issue: Login Submit button lacks type=submit attribute
@@ -17,4 +17,4 @@ tags:
 - [[Error button type submit not found in DOM]] - `rationale_for` [INFERRED]
 - [[Root Issue Auth state not injected - practice page shows landing page instead]] - `conceptually_related_to` [AMBIGUOUS]
 
-#graphify/document #graphify/INFERRED #community/Community_3
+#graphify/document #graphify/INFERRED #community/Community_4

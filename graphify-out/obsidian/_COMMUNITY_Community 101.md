@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 101
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[seedLessons.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedLessons.js
+- [[NPSSurveyBanner()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
+- [[NPSSurveyBanner.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
 
 ## Live Query (requires Dataview plugin)
 

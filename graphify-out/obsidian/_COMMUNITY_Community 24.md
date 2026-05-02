@@ -8,12 +8,12 @@ members: 6
 **Members:** 6 nodes
 
 ## Members
-- [[Auth Routes (apiauth)]] - document - BLUEPRINT.md
-- [[Backend API Routes (README listing)]] - document - ai-learning-backend/backend/README.md
-- [[E2E Issue Auth login click timeout (20000ms exceeded)]] - document - e2e-bot/reports/auth.md
-- [[E2E Issue Auth login submit button not visible (buttontype=submit)]] - document - e2e-bot/reports/auth.md
-- [[E2E Report Auth (3 issues — submit button not found, login timeout)]] - document - e2e-bot/reports/auth.md
-- [[Practice Routes (apipractice)]] - document - BLUEPRINT.md
+- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[badgeMeta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
 
 ## Live Query (requires Dataview plugin)
 

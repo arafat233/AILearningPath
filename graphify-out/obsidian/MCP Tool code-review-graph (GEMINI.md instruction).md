@@ -1,11 +1,11 @@
 ---
 source_file: "GEMINI.md"
 type: "document"
-community: "Community 64"
+community: "Community 66"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_64
+  - community/Community_66
 ---
 
 # MCP Tool: code-review-graph (GEMINI.md instruction)
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - `semantically_similar_to` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_64
+#graphify/document #graphify/EXTRACTED #community/Community_66

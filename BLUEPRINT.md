@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — 113/113 audit items fixed. New: skeleton loaders, Playwright E2E, Swagger docs at /api-docs, migrate-mongo migrations, cookie domain support, NCERT/PYQ seed content, CONTRIBUTING.md, CHANGELOG.md.
+> Last updated: May 2026 — 880 questions + 14 mock papers + placement quiz + board-style questions seeded. Adaptive recommender engine ported from Python (mastery/fluke/routing). New: placement quiz API, /api/v1/recommender endpoints, UserTopicMastery model, topic DAG (43 nodes, levels 0-7), answer-key enrichment (152 questions).
 
 ---
 
@@ -47,6 +47,8 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 │          /api/user  /api/revision  /api/lessons             │
 │          /api/topics  /api/competition  /api/admin          │
 │          /api/badges  /api/doubt   /api/portal              │
+│          /api/v1/placement-quiz  /api/v1/recommender        │
+│          /api/v1/curriculum  /api/v1/ncert  /api/v1/pyq     │
 │          /api/health                                         │
 │                                                              │
 │  Socket.IO: competition room events (join/start/score/end)  │
@@ -54,7 +56,7 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
         │               │
 ┌───────▼──────┐  ┌─────▼──────────────────────────────────┐
 │   MongoDB    │  │          Claude Haiku 4.5               │
-│  20 collections│  │  Routed through 7-layer cache system    │
+│  23 collections│  │  Routed through 7-layer cache system    │
 │              │  │  Subject-aware system prompts            │
 │              │  │  (free: 10 calls/day, pro: 100/day)     │
 └──────────────┘  └────────────────────────────────────────-┘
@@ -75,6 +77,7 @@ role: student|admin|parent|teacher ← role-based access
 linkedStudents: [String]           ← parent/teacher portal
 inviteCode: String (sparse unique) ← 8-char student invite code
 npsLastShownAt: Date               ← NPS survey throttle (30-day cooldown)
+placementCompletedAt: Date         ← set once after placement quiz scored (gates re-take)
 referredBy: ObjectId (ref: User)   ← referral system: who referred this user
 referralCount: Number (default 0)  ← how many users this user has referred
 referralRewarded: Boolean (false)  ← prevents double-reward for referrer
@@ -84,6 +87,27 @@ studyReminders: [{                 ← parent-set push reminders
 passwordResetToken:   String (SHA-256 hashed, null when not active)
 passwordResetExpires: Date   (1h from request, null when not active)
 createdAt
+```
+
+### 3.23 UserTopicMastery  ← NEW (adaptive recommender state)
+```
+userId, topicId (e.g. "ch1_s1_c1_t1")
+chapterNumber: Number
+currentDifficulty: easy | medium | hard
+mastery: { easy: Boolean, medium: Boolean, hard: Boolean }
+secondsOnTopic: Number (total time spent)
+attempts: [{
+  questionId, correct, timeTakenSec, difficulty,
+  hintsUsed, flukeDetected, misconceptionId, createdAt
+}]
+updatedAt
+Unique index: { userId, topicId }
+
+Mastery rules (from recommender_config.json):
+  easy:   4 of last 5 correct
+  medium: 5 of last 7 correct AND no misconception in last 3
+  hard:   3 of last 5 correct AND ≥8 min on topic AND no fluke in last 3
+Fluke: answered correctly but time < guess_below OR correct after 3 consecutive wrongs
 ```
 
 ### 3.22 Coupon  ← NEW
@@ -105,14 +129,19 @@ _id, name, subject, grade
 prerequisites [String]
 examFrequency (0-1), estimatedHours, examMarks
 realWorldUse, whyMatters
+topicId: String (sparse, e.g. "ch1_s1_c1_t1") ← fine-grained DAG key
+level:   Number (0-7) ← DAG depth (0 = no prerequisites)
 
-Subjects seeded: Math, Science, English, Social Science, Hindi (50+ topics)
+Subjects seeded: Math, Science, English, Social Science, Hindi (50+ broad topics)
+Fine-grained Math topics seeded: 43 nodes (seedTopicDAG.js)
+  Level 0: Euclid's Lemma, Prime Factorisation, Polynomial basics, AP basics, Similar triangles, Stats/Probability
+  Level 7: Two-triangle elevation, Volume of composites
 ```
 
 ### 3.3 Question
 ```
 _id, topic, subtopic, questionText
-questionType: mcq | case_based | assertion_reason | pyq
+questionType: mcq | case_based | assertion_reason | pyq | free_text | numeric | numeric_range | fill_blank
 difficulty: easy | medium | hard
 difficultyScore (0-1), expectedTime (seconds)
 conceptTested, prerequisites [String]
@@ -122,6 +151,27 @@ options: [{ text, type, logicTag }]
                   partial_logic | guessing | misinterpretation
 solutionSteps [String], shortcut, caseContext
 marks, negativeMarks, createdAt
+
+── Adaptive algorithm fields (seeded from JSON question banks) ──
+questionId:    String (unique sparse) ← dedup key matching JSON bank ID
+topicId:       String ← fine-grained topic e.g. "ch1_s1_c1_t1"
+chapterNumber: Number 1-14
+bloomLevel:    String (recall|understand|apply|analyse|evaluate|create)
+correctAnswer: String ← for numeric/free_text/fill_blank
+mixingType:    String (single_topic|within_chapter|cross_chapter)
+approachTags:  [String]
+hintLevels:    [String] ← 3 progressive hints
+timeThresholds: { guessBelow, expectedMin, expectedMax, stuckAbove }
+stepByStep:    [{ stepNumber, clean, voice }] ← enriched solutions
+routing:       { ifCorrect, ifWrong, ifStuck, ifFlukeDetected } ← routing tokens
+flukeCheckQuestionId: String ← paired fluke-check question
+placementRole: "primary" | "secondary" ← placement quiz only
+
+Seeded content:
+  880 questions  — 43 topic banks (seedQuestionsAndMockPapers.js)
+   40 questions  — CBSE board-style 2024/2025 (seedBoardStyleQuestions.js)
+   20 questions  — Placement quiz diagnostic (seedPlacementQuiz.js)
+  152 questions  — answer-key solution steps enriched (seedMockPaperAnswerKeys.js)
 ```
 
 ### 3.4 Attempt
@@ -171,10 +221,16 @@ computedDifficulty (0-1), isBadQuestion (bool), updatedAt
 
 ### 3.9 Exam
 ```
-title, topic, totalQuestions, duration (minutes)
+title, topic, subject, totalQuestions, duration (minutes)
 negativeMarking (bool), negativeValue
 questionDistribution: { easy, medium, hard }
 isActive, createdAt
+isMockPaper:     Boolean ← chapter-level mock with pre-defined question order
+isPlacementQuiz: Boolean ← diagnostic placement quiz (one in DB)
+chapterNumber:   Number  ← 1-14 for mock papers
+questionIds:     [ObjectId] ← ordered question set for mock/placement exams
+
+Seeded: 14 chapter mock papers (Ch1-Ch14) + 1 placement quiz Exam doc
 ```
 
 ### 3.10 ExamAttempt
@@ -317,13 +373,45 @@ Exports: smartAIExplanation, smartStudyAdvice, getUsageCount, getCacheStats
          checkAndIncrementUsage (exported — used by doubtRoutes)
 ```
 
-### 4.3 adaptiveService.js — Smart Question Selection
+### 4.3 adaptiveService.js — Smart Question Selection (broad topic)
 ```
 1. Read UserProfile: accuracy → target difficulty (0.25/0.5/0.75)
 2. If concept_error > 5 → try DB-first AI question
    Only call Claude if no unseen AI question exists for this topic
 3. Filter seen questions (SeenQuestion collection)
 4. Find DB question closest to target difficulty
+```
+
+### 4.3b adaptiveRecommenderService.js — Fine-Grained Mastery Engine  ← NEW
+```
+Port of Python recommender_engine.py using topicId-level state (UserTopicMastery).
+
+checkMastery(attemptsAtDiff, difficulty, secondsOnTopic)
+  → pure function, applies MASTERY_CFG thresholds
+
+detectFluke(question, correct, timeSec, priorAttemptsAtDiff)
+  → time < guessBelow OR correct after 3 consecutive wrongs
+
+recordAttempt(userId, topicId, questionId, correct, timeSec, selectedOptionIndex, hintsUsed)
+  → detects fluke + misconception, updates UserTopicMastery, advances currentDifficulty
+
+nextQuestion(userId, topicId)
+  → Priority: fluke detected → stuck → correct → wrong → fallback
+  → Resolves routing tokens: next_difficulty_up | topic_mastery_check |
+    next_hard_different_subtype | q_<id> | <topicId:teaching_ref>
+  → Returns: { action: serve_question|serve_teaching|topic_mastered|no_questions }
+
+nextTopic(userId)
+  → 1. Continue in-progress (any mastery true, not all true) — lowest level first
+  → 2. Recommend eligible (all prerequisites mastered, not started) — lowest level first
+  → 3. Fallback to level-0 foundational topic
+  → 4. all_complete
+
+applyPlacementResults(userId, placementByTopic)
+  → placementByTopic: { topicId → label }
+  → 4 labels: mastered_through_medium (easy+medium→hard) |
+               mastered_easy (easy→medium) | partial_familiarity | novice
+  → Bulk-initialises UserTopicMastery from placement quiz results
 ```
 
 ### 4.4 analysisService.js — Thinking Behaviour Detector
@@ -599,6 +687,19 @@ GET    /api/feedback                ← admin only: NPS score (% promoters minus
 
 PATCH  /api/planner/reorder         ← save drag-reordered topic order
 GET    /api/exam/leaderboard/:examId ← top scores for a specific exam
+
+GET    /api/v1/placement-quiz             ← 20 diagnostic questions (ordered)
+GET    /api/v1/placement-quiz/status      ← { taken: bool, takenAt }
+POST   /api/v1/placement-quiz/score       ← score answers; returns placementByTopic
+                                             + summary (chaptersAced/started/novice)
+                                             + sets UserTopicMastery via applyPlacementResults
+                                             + sets User.placementCompletedAt (one-shot)
+
+GET    /api/v1/recommender/next-topic              ← DAG-gated topic recommendation
+GET    /api/v1/recommender/next-question/:topicId  ← routing-based next question
+GET    /api/v1/recommender/mastery/:topicId        ← mastery state for a topic
+POST   /api/v1/recommender/record-attempt          ← body: { topicId, questionId,
+                                                     correct, timeSec, selectedOptionIndex?, hintsUsed? }
 ```
 
 ### Socket.IO Events (port 5001)

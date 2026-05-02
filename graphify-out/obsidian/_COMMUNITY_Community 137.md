@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[postcss.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\postcss.config.js
+- [[plannerService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\plannerService.test.js
 
 ## Live Query (requires Dataview plugin)
 

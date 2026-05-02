@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
+- [[Question Collection (MongoDB schema)]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 

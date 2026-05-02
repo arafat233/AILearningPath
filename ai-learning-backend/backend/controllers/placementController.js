@@ -1,4 +1,4 @@
-import { Exam, Question, User } from "../models/index.js";
+import { Exam, Question, Topic, User } from "../models/index.js";
 import { applyPlacementResults } from "../services/adaptiveRecommenderService.js";
 import { AppError } from "../utils/AppError.js";
 
@@ -39,6 +39,12 @@ export const getPlacementStatus = async (req, res, next) => {
 
 // POST /api/v1/placement-quiz/score
 // Body: { answers: [{ questionId, selectedOptionIndex?, answer?, timeTaken }] }
+//
+// 4-label system (from placement_quiz_scorer.py):
+//   mastered_through_medium — all chapter questions correct → start hard (easy+medium mastered)
+//   mastered_easy           — specific topic question correct → start medium (easy mastered)
+//   partial_familiarity     — some chapter correct but not this topic → start easy
+//   novice                  — zero correct in chapter → start easy
 export const scorePlacementQuiz = async (req, res, next) => {
   try {
     const { answers } = req.body;
@@ -48,75 +54,98 @@ export const scorePlacementQuiz = async (req, res, next) => {
 
     const userId = req.user.id;
 
-    // Check if already completed
+    // Guard: one-shot only
     const user = await User.findById(userId).select("placementCompletedAt").lean();
     if (user?.placementCompletedAt) {
       return next(new AppError("Placement quiz already completed", 409));
     }
 
-    // Fetch all questions
+    // Fetch all question documents
     const qIds      = answers.map((a) => String(a.questionId));
     const questions = await Question.find({ _id: { $in: qIds } }).lean();
     const qMap      = new Map(questions.map((q) => [String(q._id), q]));
 
-    // Score per chapter
-    const chResults = {};
+    // Build per-chapter scores + track which topicIds were directly answered correctly
+    const chData = {}; // ch -> { correct, total, topicsHit: Set }
     for (const answer of answers) {
       const q = qMap.get(String(answer.questionId));
       if (!q) continue;
 
       const ch = q.chapterNumber;
-      if (!chResults[ch]) {
-        chResults[ch] = { primary: { correct: 0, total: 0 }, secondary: { correct: 0, total: 0 } };
-      }
-
-      const role = q.placementRole || "primary";
-      chResults[ch][role].total++;
+      if (!chData[ch]) chData[ch] = { correct: 0, total: 0, topicsHit: new Set() };
+      chData[ch].total++;
 
       let isCorrect = false;
       if (q.questionType === "mcq" || q.questionType === "assertion_reason") {
-        const idx = answer.selectedOptionIndex;
-        if (idx != null) {
-          const opt = q.options?.[idx];
-          isCorrect = opt?.type === "correct";
-        }
+        const opt = answer.selectedOptionIndex != null ? q.options?.[answer.selectedOptionIndex] : null;
+        isCorrect = opt?.type === "correct";
       } else {
-        // numeric / free_text — compare trimmed strings
-        const userAnswer = String(answer.answer ?? "").trim().toLowerCase();
-        const correct    = String(q.correctAnswer ?? "").trim().toLowerCase();
-        isCorrect = userAnswer !== "" && userAnswer === correct;
+        const ua = String(answer.answer ?? "").trim().toLowerCase().replace(/^['"]|['"]$/g, "");
+        const ca = String(q.correctAnswer ?? "").trim().toLowerCase().replace(/^['"]|['"]$/g, "");
+        isCorrect = ua !== "" && ua === ca;
       }
 
-      if (isCorrect) chResults[ch][role].correct++;
+      if (isCorrect) {
+        chData[ch].correct++;
+        if (q.topicId) chData[ch].topicsHit.add(q.topicId);
+      }
     }
 
-    // Determine placement label per chapter
-    // master: all questions correct → start at hard
-    // intermediate: ≥1 correct, not all → start at medium
-    // novice: 0 correct → start at easy
-    const placement = {};
-    for (const [ch, { primary, secondary }] of Object.entries(chResults)) {
-      const totalCorrect = primary.correct + secondary.correct;
-      const totalQ       = primary.total + secondary.total;
-      const label =
-        totalQ > 0 && totalCorrect === totalQ ? "master" :
-        totalCorrect > 0                       ? "intermediate" :
-                                                 "novice";
+    // Load full topic DAG so we can map chapter → all topicIds
+    const allTopics = await Topic.find({ topicId: { $ne: null } }).lean();
 
-      placement[ch] = {
-        label,
-        totalCorrect,
-        totalQ,
-        startDifficulty: label === "master" ? "hard" : label === "intermediate" ? "medium" : "easy",
-      };
+    // Assign per-topic placement label
+    const placementByTopic = {};
+    for (const [chStr, { correct, total, topicsHit }] of Object.entries(chData)) {
+      const ch         = parseInt(chStr, 10);
+      const chTopics   = allTopics.filter((t) => {
+        const m = t.topicId?.match(/^ch(\d+)_/);
+        return m && parseInt(m[1], 10) === ch;
+      });
+      const allCorrect = correct === total && total > 0;
+      const anyCorrect = correct > 0;
+
+      for (const t of chTopics) {
+        if (allCorrect) {
+          placementByTopic[t.topicId] = "mastered_through_medium";
+        } else if (topicsHit.has(t.topicId)) {
+          placementByTopic[t.topicId] = "mastered_easy";
+        } else if (anyCorrect) {
+          placementByTopic[t.topicId] = "partial_familiarity";
+        } else {
+          placementByTopic[t.topicId] = "novice";
+        }
+      }
     }
 
-    // Initialise UserTopicMastery rows based on placement
-    await applyPlacementResults(userId, placement);
+    // Initialise UserTopicMastery rows
+    await applyPlacementResults(userId, placementByTopic);
 
-    // Mark quiz as completed
+    // Mark quiz complete
     await User.findByIdAndUpdate(userId, { placementCompletedAt: new Date() });
 
-    res.json({ placement, chapterCount: Object.keys(placement).length });
+    // Build summary (mirrors placement_quiz_scorer.py output)
+    const chaptersAced    = Object.keys(chData).filter((ch) => chData[ch].correct === chData[ch].total && chData[ch].total > 0);
+    const chaptersStarted = Object.keys(chData).filter((ch) => chData[ch].correct > 0 && chData[ch].correct < chData[ch].total);
+    const chaptersNovice  = Object.keys(chData).filter((ch) => chData[ch].correct === 0);
+
+    // Recommend first topic: lowest-level novice/partial topic
+    const weakTopics = allTopics
+      .filter((t) => ["partial_familiarity", "novice"].includes(placementByTopic[t.topicId]))
+      .sort((a, b) => (a.level ?? 99) - (b.level ?? 99));
+    const recommendedFirstTopic = weakTopics[0]?.topicId ?? null;
+
+    res.json({
+      summary: {
+        totalCorrect: Object.values(chData).reduce((s, d) => s + d.correct, 0),
+        totalQuestions: Object.values(chData).reduce((s, d) => s + d.total, 0),
+        chaptersAced,
+        chaptersStarted,
+        chaptersNovice,
+        recommendedFirstTopic,
+      },
+      placementByTopic,
+      chapterCount: Object.keys(chData).length,
+    });
   } catch (err) { next(err); }
 };

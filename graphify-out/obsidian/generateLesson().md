@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiService.js"
 type: "code"
-community: "Community 5"
-location: "L188"
+community: "Community 6"
+location: "L194"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_6
 ---
 
 # generateLesson()
@@ -16,4 +16,4 @@ tags:
 - [[getLesson()]] - `calls` [INFERRED]
 - [[getSystemPrompt()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_6

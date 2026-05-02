@@ -303,41 +303,37 @@ export async function nextTopic(userId) {
  * Initialise UserTopicMastery rows based on placement quiz results.
  * Called by placementController after scoring.
  *
- * label:
- *   "master"       → mastery.easy + mastery.medium = true, currentDifficulty = "hard"
- *   "intermediate" → mastery.easy = true, currentDifficulty = "medium"
- *   "novice"       → no changes (start fresh at easy)
+ * placementByTopic: { topicId → label }
+ * Labels (from placement_quiz_scorer.py):
+ *   mastered_through_medium — easy=true, medium=true, start at hard
+ *   mastered_easy           — easy=true, start at medium
+ *   partial_familiarity     — no mastery, start at easy (default — skip)
+ *   novice                  — no mastery, start at easy (default — skip)
  */
-export async function applyPlacementResults(userId, placementByChapter) {
-  const allTopics = await Topic.find({ topicId: { $ne: null } }).lean();
-
+export async function applyPlacementResults(userId, placementByTopic) {
   const ops = [];
-  for (const [chStr, { label }] of Object.entries(placementByChapter)) {
-    const ch = parseInt(chStr, 10);
-    const chTopics = allTopics.filter((t) => {
-      const m = t.topicId?.match(/^ch(\d+)_/);
-      return m && parseInt(m[1], 10) === ch;
-    });
 
-    for (const t of chTopics) {
-      if (label === "novice") continue; // default state — nothing to set
+  for (const [topicId, label] of Object.entries(placementByTopic)) {
+    if (label === "partial_familiarity" || label === "novice") continue;
 
-      const masteryPatch =
-        label === "master"
-          ? { "mastery.easy": true, "mastery.medium": true, currentDifficulty: "hard" }
-          : { "mastery.easy": true, currentDifficulty: "medium" };
+    const chMatch     = topicId.match(/^ch(\d+)_/);
+    const chapterNumber = chMatch ? parseInt(chMatch[1], 10) : null;
 
-      ops.push({
-        updateOne: {
-          filter: { userId, topicId: t.topicId },
-          update: {
-            $set:         { ...masteryPatch, updatedAt: new Date() },
-            $setOnInsert: { userId, topicId: t.topicId, chapterNumber: ch },
-          },
-          upsert: true,
+    const masteryPatch =
+      label === "mastered_through_medium"
+        ? { "mastery.easy": true, "mastery.medium": true, currentDifficulty: "hard" }
+        : { "mastery.easy": true, currentDifficulty: "medium" }; // mastered_easy
+
+    ops.push({
+      updateOne: {
+        filter: { userId, topicId },
+        update: {
+          $set:         { ...masteryPatch, updatedAt: new Date() },
+          $setOnInsert: { userId, topicId, chapterNumber },
         },
-      });
-    }
+        upsert: true,
+      },
+    });
   }
 
   if (ops.length > 0) await UserTopicMastery.bulkWrite(ops, { ordered: false });

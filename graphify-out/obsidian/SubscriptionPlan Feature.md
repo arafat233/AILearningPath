@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/settings.md"
 type: "document"
-community: "Community 3"
+community: "Community 4"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_4
 ---
 
 # Subscription/Plan Feature
@@ -17,4 +17,4 @@ tags:
 - [[Test Settings Subscriptionplan info is visible]] - `conceptually_related_to` [INFERRED]
 - [[Test Settings UpgradeManage button navigates to pricing]] - `conceptually_related_to` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_3
+#graphify/document #graphify/INFERRED #community/Community_4

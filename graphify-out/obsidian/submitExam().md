@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js"
 type: "code"
-community: "Community 4"
-location: "L68"
+community: "Community 3"
+location: "L83"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_3
 ---
 
 # submitExam()
@@ -21,4 +21,4 @@ tags:
 - [[sessionDel()]] - `calls` [INFERRED]
 - [[sessionGet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_4
+#graphify/code #graphify/INFERRED #community/Community_3

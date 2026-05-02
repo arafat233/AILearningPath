@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\streakService.js"
 type: "code"
-community: "Community 5"
+community: "Community 6"
 location: "L37"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_6
 ---
 
 # getStreak()
@@ -15,4 +15,4 @@ tags:
 - [[getReport()]] - `calls` [INFERRED]
 - [[streakService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_6

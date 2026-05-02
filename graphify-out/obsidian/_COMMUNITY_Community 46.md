@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[.constructor()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
-- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
-- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
 
 ## Live Query (requires Dataview plugin)
 

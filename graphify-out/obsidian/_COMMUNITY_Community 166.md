@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Test Outcome Skipped]] - document - e2e-bot/reports/practice.md
+- [[Attempt Collection (MongoDB schema)]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 

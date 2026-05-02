@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js"
 type: "code"
-community: "Community 6"
+community: "Community 5"
 location: "L87"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_5
 ---
 
 # seed()
@@ -16,4 +16,4 @@ tags:
 - [[log()]] - `calls` [INFERRED]
 - [[seedSubjects.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_5

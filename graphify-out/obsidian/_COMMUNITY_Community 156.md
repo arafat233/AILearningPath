@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[08_settings.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\08_settings.spec.js
+- [[02_dashboard.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\02_dashboard.spec.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Icon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
-- [[Layout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
-- [[Layout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

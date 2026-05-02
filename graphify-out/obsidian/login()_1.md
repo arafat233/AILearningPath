@@ -1,18 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
+source_file: "E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js"
 type: "code"
-community: "Community 0"
-location: "L36"
+community: "Community 81"
+location: "L8"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_0
+  - community/Community_81
 ---
 
 # login()
 
 ## Connections
-- [[api.js]] - `contains` [EXTRACTED]
-- [[post()]] - `calls` [INFERRED]
+- [[practice.spec.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_0
+#graphify/code #graphify/EXTRACTED #community/Community_81

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\companyService.js"
 type: "code"
-community: "Community 21"
+community: "Community 20"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_20
 ---
 
 # startOf()
@@ -15,4 +15,4 @@ tags:
 - [[companyService.js]] - `contains` [EXTRACTED]
 - [[getDashboardStats()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_20

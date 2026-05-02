@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\logger.js"
 type: "code"
-community: "Community 6"
+community: "Community 5"
 location: "L21"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_5
 ---
 
 # write()
@@ -18,4 +18,4 @@ tags:
 - [[log()_1]] - `calls` [INFERRED]
 - [[logger.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_5

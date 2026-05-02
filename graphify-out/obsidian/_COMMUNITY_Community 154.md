@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[06_planner.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\06_planner.spec.js
+- [[playwright.config.js_1]] - code - E:\AILearningPath\e2e-bot\playwright.config.js
 
 ## Live Query (requires Dataview plugin)
 

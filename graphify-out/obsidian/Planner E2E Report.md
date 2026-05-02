@@ -1,11 +1,11 @@
 ---
 source_file: "e2e-bot/reports/planner.md"
 type: "document"
-community: "Community 3"
+community: "Community 4"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_4
 ---
 
 # Planner E2E Report
@@ -21,4 +21,4 @@ tags:
 - [[Test Planner page loads at planner without crash]] - `references` [EXTRACTED]
 - [[Test Planner plan content or empty state is shown]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_3
+#graphify/document #graphify/EXTRACTED #community/Community_4

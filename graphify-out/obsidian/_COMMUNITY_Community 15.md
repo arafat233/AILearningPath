@@ -1,11 +1,11 @@
 ---
 type: community
-members: 12
+members: 13
 ---
 
 # Community 15
 
-**Members:** 12 nodes
+**Members:** 13 nodes
 
 ## Members
 - [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
@@ -20,6 +20,7 @@ members: 12
 - [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
 - [[validateCoupon()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -29,11 +30,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 4]]
+- 3 edges to [[_COMMUNITY_Community 3]]
 - 2 edges to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 8]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[verifyPayment()_1]] - degree 7, connects to 2 communities
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
 - [[createOrder()_1]] - degree 8, connects to 1 community
 - [[validateCoupon()_1]] - degree 3, connects to 1 community

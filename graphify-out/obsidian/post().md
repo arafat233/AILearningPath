@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\load-tests\practice-session.js"
 type: "code"
 community: "Community 0"
-location: "L52"
+location: "L53"
 tags:
   - graphify/code
   - graphify/INFERRED
@@ -23,7 +23,7 @@ tags:
 - [[getHint()]] - `calls` [INFERRED]
 - [[getRoomQuestions()]] - `calls` [INFERRED]
 - [[linkStudentDirect()_1]] - `calls` [INFERRED]
-- [[login()_1]] - `calls` [INFERRED]
+- [[login()_2]] - `calls` [INFERRED]
 - [[logoutApi()]] - `calls` [INFERRED]
 - [[markDayComplete()_1]] - `calls` [INFERRED]
 - [[markRevised()_1]] - `calls` [INFERRED]

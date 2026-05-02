@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js"
 type: "code"
-community: "Community 6"
+community: "Community 5"
 location: "L36"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_5
 ---
 
 # log()
@@ -17,6 +17,7 @@ tags:
 - [[globalSetup()]] - `calls` [INFERRED]
 - [[importChapters()]] - `calls` [INFERRED]
 - [[main()]] - `calls` [INFERRED]
+- [[main()_1]] - `calls` [INFERRED]
 - [[restore.js]] - `contains` [EXTRACTED]
 - [[save()]] - `calls` [INFERRED]
 - [[seed()]] - `calls` [INFERRED]
@@ -25,7 +26,11 @@ tags:
 - [[seed()_3]] - `calls` [INFERRED]
 - [[seed()_4]] - `calls` [INFERRED]
 - [[seedCurriculum()]] - `calls` [INFERRED]
+- [[seedMockPapers()]] - `calls` [INFERRED]
+- [[seedNcertContent()]] - `calls` [INFERRED]
+- [[seedPYQ()]] - `calls` [INFERRED]
+- [[seedQuestions()]] - `calls` [INFERRED]
 - [[upsertTopic()]] - `calls` [INFERRED]
 - [[write()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_5

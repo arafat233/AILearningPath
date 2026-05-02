@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
-- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
-- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[daysAgo()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
+- [[daysFrom()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
+- [[revision.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

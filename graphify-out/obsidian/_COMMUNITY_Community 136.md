@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[auth.integration.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\auth.integration.test.js
+- [[autoDoubt.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\autoDoubt.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

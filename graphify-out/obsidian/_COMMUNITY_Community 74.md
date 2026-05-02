@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[mockReqRes()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\practice.controller.test.js
-- [[practice.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\practice.controller.test.js
+- [[setupSwagger()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
+- [[swagger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
 
 ## Live Query (requires Dataview plugin)
 

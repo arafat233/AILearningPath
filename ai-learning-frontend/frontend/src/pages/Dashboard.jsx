@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest } from "../services/api";
+import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest, submitFeedback, getNpsEligibility } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const SUBJECTS = [
@@ -109,6 +109,9 @@ export default function Dashboard() {
 
       {/* Link requests — shown only to students */}
       {user?.role === "student" && <LinkRequestsCard />}
+
+      {/* NPS survey — shown to any role when eligible */}
+      <NPSSurveyBanner />
 
       {/* Primary stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -346,6 +349,97 @@ function LinkRequestsCard() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function NPSSurveyBanner() {
+  const [eligible, setEligible] = useState(false);
+  const [score,    setScore]    = useState(null);
+  const [comment,  setComment]  = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    getNpsEligibility()
+      .then(({ data }) => setEligible(data?.eligible === true))
+      .catch(() => {});
+  }, []);
+
+  const handleSubmit = async () => {
+    if (score === null) return;
+    setSubmitting(true);
+    try {
+      await submitFeedback({ score, comment: comment.trim(), context: "nps" });
+      setSubmitted(true);
+    } catch { /* ignore */ }
+    finally { setSubmitting(false); }
+  };
+
+  if (!eligible || dismissed) return null;
+
+  if (submitted) {
+    return (
+      <div className="card p-4 border-l-4 border-apple-green flex items-center gap-3">
+        <span className="text-apple-green text-lg">✓</span>
+        <p className="text-[13px] text-[var(--label)]">Thanks for your feedback!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card p-5 border-l-4 border-apple-purple">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <p className="text-[13px] font-semibold text-[var(--label)]">How likely are you to recommend us?</p>
+          <p className="text-[11px] text-apple-gray mt-0.5">0 = Not at all likely · 10 = Extremely likely</p>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-apple-gray hover:text-apple-gray2 text-lg leading-none shrink-0 -mt-0.5"
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* 0-10 score buttons */}
+      <div className="flex gap-1.5 flex-wrap mb-3">
+        {Array.from({ length: 11 }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setScore(i)}
+            className={`w-9 h-9 rounded-lg text-[13px] font-semibold transition-all ${
+              score === i
+                ? "bg-apple-purple text-white"
+                : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-purple/20"
+            }`}
+          >
+            {i}
+          </button>
+        ))}
+      </div>
+
+      {score !== null && (
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Any comments? (optional)"
+          rows={2}
+          maxLength={1000}
+          className="w-full text-[13px] bg-apple-gray6 border border-apple-gray5 rounded-apple px-3 py-2
+                     focus:outline-none focus:border-apple-purple resize-none mb-3"
+        />
+      )}
+
+      <button
+        disabled={score === null || submitting}
+        onClick={handleSubmit}
+        className="btn-primary disabled:opacity-40"
+      >
+        {submitting ? "Submitting…" : "Submit feedback"}
+      </button>
     </div>
   );
 }

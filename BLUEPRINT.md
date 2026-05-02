@@ -71,8 +71,9 @@ examDate, subject, grade, goal
 isPaid (bool), plan (free|pro|premium), planExpiry
 aiCallsToday, aiCallsDate          ← daily AI quota tracking
 role: student|admin|parent|teacher ← NEW: role-based access
-linkedStudents: [String]           ← NEW: parent/teacher portal
-inviteCode: String (sparse unique) ← NEW: 8-char student invite code
+linkedStudents: [String]           ← parent/teacher portal
+inviteCode: String (sparse unique) ← 8-char student invite code
+npsLastShownAt: Date               ← NPS survey throttle (30-day cooldown)
 createdAt
 ```
 
@@ -498,6 +499,10 @@ DELETE /api/admin/topics/:id
 GET    /api/v1/curriculum/subjects     ← distinct subject+grade combos in DB
 GET    /api/v1/curriculum              ← all chapters (?subject=&grade=&board=)
 GET    /api/v1/curriculum/:chapterNumber ← full chapter detail + sections + formulas
+
+POST   /api/feedback                ← submit NPS score (0-10) + optional comment; sets npsLastShownAt
+GET    /api/feedback/nps-eligible   ← returns { eligible: bool } — true if 5+ attempts AND 30-day cooldown passed
+GET    /api/feedback                ← admin only: NPS score (% promoters minus % detractors), avg, raw items
 ```
 
 ### Socket.IO Events (port 5001)

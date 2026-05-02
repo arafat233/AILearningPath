@@ -107,7 +107,7 @@
 - [ ] **No error monitoring** — No Sentry / Datadog integration.
 - [ ] **No database backup strategy** — No automated snapshot or offsite backup documented.
 - [x] **No onboarding email sequence** ✅ Fixed: `onboardingEmailService.js` — day-2 nudge (registered 2-3 days ago, < 3 attempts) and day-7 re-engagement (registered 7-9 days ago, inactive 5+ days); both track sent state via `onboardingDay2SentAt`/`onboardingDay7SentAt` on User; auto-runs on server boot + every 24h; also callable via `POST /api/admin/run-onboarding-emails`.
-- [ ] **No NPS or in-app feedback** — No mechanism to collect satisfaction scores or feature requests.
+- [x] **No NPS or in-app feedback** ✅ Fixed: NPS feedback system (0-10 scale) added. `POST /api/feedback` saves score + comment and sets `npsLastShownAt`; `GET /api/feedback/nps-eligible` checks eligibility (5+ attempts + 30-day cooldown); admin `GET /api/feedback` computes NPS score (% promoters 9-10 minus % detractors 0-6). `NPSSurveyBanner` component on Dashboard shown when eligible — inline 0-10 score buttons + optional comment field + dismiss. `npsLastShownAt` field added to User schema.
 - [x] **Socket.IO `rooms` object is single-instance** — Competition fails in multi-pod deployments. ✅ Fixed: same as above — Redis adapter + Redis-backed room state.
 - [x] **`CLAUDE_MODEL` hardcoded fallback** ✅ Verified: fallback is `claude-haiku-4-5-20251001` — current latest Haiku. Overridable via `CLAUDE_MODEL` env var.
 - [ ] **No A/B testing infrastructure** — No feature flags or experiment framework.

@@ -87,6 +87,9 @@ export const clearVoiceHistory   = ()     => api.delete("/ai/voice-history");
 
 export const getBadges = () => api.get("/badges");
 
+export const submitFeedback    = (data) => api.post("/feedback", data);
+export const getNpsEligibility = ()     => api.get("/feedback/nps-eligible");
+
 export const getDoubtThread   = (questionId)                          => api.get(`/doubt/${questionId}`);
 export const sendDoubtMessage = (questionId, message, topic, subject) => api.post(`/doubt/${questionId}/message`, { message, topic, subject });
 export const clearDoubtThread = (questionId)                          => api.delete(`/doubt/${questionId}`);

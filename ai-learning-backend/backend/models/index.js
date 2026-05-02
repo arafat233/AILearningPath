@@ -39,6 +39,8 @@ const userSchema = new mongoose.Schema({
   onboardingDay7SentAt: { type: Date, default: null },
   // Weekly parent digest
   weeklyParentEmailSentAt: { type: Date, default: null },
+  // NPS survey throttle — don't resurface for 30 days after submission
+  npsLastShownAt: { type: Date, default: null },
   // Study reminders set by parent for linked students
   studyReminders: [{
     studentId: { type: String, required: true },

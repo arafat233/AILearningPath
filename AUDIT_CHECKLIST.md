@@ -143,9 +143,9 @@ Check off each item as it is fixed and committed.
 | Severity | Total | Fixed | Remaining |
 |----------|-------|-------|-----------|
 | CRITICAL | 16 | 16 | 0 |
-| HIGH | 35 | 17 | 18 |
-| MEDIUM | 40 | 0 | 40 |
+| HIGH | 35 | 33 | 2 |
+| MEDIUM | 40 | 17 | 23 |
 | LOW | 22 | 0 | 22 |
-| **Total** | **113** | **33** | **80** |
+| **Total** | **113** | **66** | **47** |
 
 *Last updated: 2026-05-02*

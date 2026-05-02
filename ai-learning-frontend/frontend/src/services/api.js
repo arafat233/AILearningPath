@@ -22,13 +22,54 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let _refreshing = false;
+let _refreshQueue = [];
+
+const flushQueue = (error) => {
+  _refreshQueue.forEach((cb) => cb(error));
+  _refreshQueue = [];
+};
+
 api.interceptors.response.use(
   (r) => r,
-  (err) => {
-    const is401   = err.response?.status === 401;
-    const isGetMe = err.config?.url?.includes("/user/me");
-    if (is401 && !isGetMe) useAuthStore.getState().logout();
-    return Promise.reject(err);
+  async (err) => {
+    const original = err.config;
+    const is401    = err.response?.status === 401;
+    const isAuth   = original?.url?.includes("/auth/");
+
+    // Don't try to refresh on auth routes or if already retried
+    if (!is401 || isAuth || original._retry) {
+      if (is401 && !original?.url?.includes("/user/me")) {
+        useAuthStore.getState().logout();
+      }
+      return Promise.reject(err);
+    }
+
+    if (_refreshing) {
+      // Queue the request until the refresh completes
+      return new Promise((resolve, reject) => {
+        _refreshQueue.push((error) => {
+          if (error) return reject(error);
+          original._retry = true;
+          resolve(api(original));
+        });
+      });
+    }
+
+    original._retry = true;
+    _refreshing = true;
+
+    try {
+      await api.post("/auth/refresh");   // sets new httpOnly cookies silently
+      flushQueue(null);
+      return api(original);
+    } catch (refreshErr) {
+      flushQueue(refreshErr);
+      useAuthStore.getState().logout();
+      return Promise.reject(refreshErr);
+    } finally {
+      _refreshing = false;
+    }
   }
 );
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User, UserProfile, Streak, Badge, LinkRequest } from "../models/index.js";
+import { User, UserProfile, Streak, Badge, LinkRequest, Attempt, Question } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { getStudentDashboard } from "../services/portalService.js";
 
@@ -73,6 +73,52 @@ export const linkStudentDirect = async (req, res, next) => {
     });
 
     res.json({ status: "pending", requestId: request._id, student: { id: student._id, name: student.name, grade: student.grade, subject: student.subject } });
+  } catch (err) { next(err); }
+};
+
+// Parent/teacher: paginated list of a student's recent attempts with question snippets
+export const getStudentAttempts = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+    if (!mongoose.isValidObjectId(studentId))
+      return next(new AppError("Invalid student ID", 400));
+    if (!(await verifyOwnership(req.user.id, studentId)))
+      return next(new AppError("Not authorized", 403));
+
+    const page  = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 20);
+    const skip  = (page - 1) * limit;
+
+    const [attempts, total] = await Promise.all([
+      Attempt.find({ userId: studentId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Attempt.countDocuments({ userId: studentId }),
+    ]);
+
+    // Enrich with question text (single batch lookup)
+    const qIds = [...new Set(attempts.map((a) => a.questionId).filter(Boolean))];
+    const questions = await Question.find({ _id: { $in: qIds } }).select("questionText topic subject").lean();
+    const qMap = {};
+    questions.forEach((q) => { qMap[q._id.toString()] = q; });
+
+    const enriched = attempts.map((a) => {
+      const q = qMap[a.questionId?.toString()];
+      return {
+        _id:          a._id,
+        topic:        a.topic,
+        subject:      a.subject,
+        isCorrect:    a.isCorrect,
+        timeTaken:    a.timeTaken,
+        confidence:   a.confidence,
+        createdAt:    a.createdAt,
+        questionText: q?.questionText ? q.questionText.slice(0, 120) : null,
+      };
+    });
+
+    res.json({ attempts: enriched, total, page, pages: Math.ceil(total / limit) });
   } catch (err) { next(err); }
 };
 

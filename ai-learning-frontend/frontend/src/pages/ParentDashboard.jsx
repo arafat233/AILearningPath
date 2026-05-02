@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuthStore } from "../store/authStore";
-import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder, getClassStats } from "../services/api";
+import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder, getClassStats, getStudentAttempts } from "../services/api";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const daysSince = (iso) => {
@@ -97,6 +97,95 @@ function StudyReminderCard({ studentId }) {
       >
         {saved ? "Saved ✓" : saving ? "Saving…" : existing ? "Update" : "Set Reminder"}
       </button>
+    </div>
+  );
+}
+
+// ── attempts drill-down ───────────────────────────────────────────────────
+function AttemptsPanel({ studentId }) {
+  const [data,    setData]    = useState(null);
+  const [page,    setPage]    = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [open,    setOpen]    = useState(false);
+
+  const load = useCallback((p) => {
+    setLoading(true);
+    getStudentAttempts(studentId, { page: p, limit: 15 })
+      .then(({ data: d }) => { setData(d); setPage(p); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [studentId]);
+
+  const handleToggle = () => {
+    if (!open && !data) load(1);
+    setOpen((v) => !v);
+  };
+
+  return (
+    <div className="card p-5">
+      <button
+        onClick={handleToggle}
+        className="flex items-center justify-between w-full"
+      >
+        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide">
+          Individual Question Attempts
+        </p>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+             strokeLinecap="round" strokeLinejoin="round"
+             className={`w-4 h-4 text-apple-gray transition-transform ${open ? "rotate-180" : ""}`}>
+          <path d="M4 6l4 4 4-4"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="mt-4">
+          {loading && <div className="h-2 w-full bg-apple-gray5 rounded animate-pulse" />}
+          {data && (
+            <>
+              <p className="text-[12px] text-apple-gray mb-3">{data.total} total attempts</p>
+              <div className="flex flex-col gap-2">
+                {data.attempts.map((a) => (
+                  <div key={a._id} className={`flex items-start gap-2 p-2.5 rounded-xl ${a.isCorrect ? "bg-apple-green/6" : "bg-apple-red/6"}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold ${a.isCorrect ? "bg-apple-green" : "bg-apple-red"}`}>
+                      {a.isCorrect ? "✓" : "✗"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {a.questionText && (
+                        <p className="text-[12px] text-[var(--label)] truncate">{a.questionText}</p>
+                      )}
+                      <p className="text-[11px] text-apple-gray">
+                        {a.topic}
+                        {a.timeTaken ? ` · ${Math.round(a.timeTaken / 60)}m` : ""}
+                        {" · "}{new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* pagination */}
+              {data.pages > 1 && (
+                <div className="flex items-center justify-between mt-3">
+                  <button
+                    onClick={() => load(page - 1)}
+                    disabled={page <= 1 || loading}
+                    className="text-[12px] text-apple-blue disabled:opacity-40"
+                  >
+                    ← Prev
+                  </button>
+                  <span className="text-[12px] text-apple-gray">Page {page} of {data.pages}</span>
+                  <button
+                    onClick={() => load(page + 1)}
+                    disabled={page >= data.pages || loading}
+                    className="text-[12px] text-apple-blue disabled:opacity-40"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -393,6 +482,9 @@ function StudentView({ data }) {
           </div>
         )}
       </div>
+
+      {/* question attempts drill-down */}
+      <AttemptsPanel studentId={data.student.id} />
 
       {/* study reminder */}
       <StudyReminderCard studentId={data.student.id} />

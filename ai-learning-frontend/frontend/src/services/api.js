@@ -115,6 +115,7 @@ export const getStudentDashboard   = (studentId)  => api.get(`/portal/students/$
 export const getLinkRequests       = ()           => api.get("/portal/requests");
 export const respondToLinkRequest  = (id, action) => api.post(`/portal/requests/${id}/respond`, { action });
 export const getClassStats         = ()           => api.get("/portal/class-stats");
+export const getStudentAttempts    = (studentId, params) => api.get(`/portal/students/${studentId}/attempts`, { params });
 export const getStudyReminders     = ()           => api.get("/portal/reminders");
 export const setStudyReminder      = (data)       => api.post("/portal/reminders", data);
 export const deleteStudyReminder   = (studentId)  => api.delete(`/portal/reminders/${studentId}`);

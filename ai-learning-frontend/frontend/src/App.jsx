@@ -65,6 +65,7 @@ import TermsOfService   from "./pages/TermsOfService";
 import PrivacyPolicy    from "./pages/PrivacyPolicy";
 import Certificate      from "./pages/Certificate";
 import PlacementQuiz   from "./pages/PlacementQuiz";
+import SchoolGroups    from "./pages/SchoolGroups";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -172,6 +173,7 @@ export default function App() {
             <Route path="terms"                       element={<TermsOfService />} />
             <Route path="privacy"                     element={<PrivacyPolicy />} />
             <Route path="certificate"                 element={<Certificate />} />
+            <Route path="school"                      element={<SchoolGroups />} />
           </Route>
         </Routes>
     </ErrorBoundary>

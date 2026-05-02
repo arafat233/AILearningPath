@@ -22,6 +22,7 @@ function Icon({ id }) {
     profile:     <><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
     upgrade:     <><path d="M10 2L6 8.5h4L8 14l6-7.5h-4L10 2z"/></>,
     settings:    <><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.6 3.6l1.5 1.5M10.9 10.9l1.5 1.5M3.6 12.4l1.5-1.5M10.9 5.1l1.5-1.5"/></>,
+    school:      <><path d="M8 2l6 4v1H2V6L8 2z"/><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M6 14v-4h4v4"/></>,
   };
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
@@ -43,6 +44,7 @@ const NAV = [
   { to: "/planner",     label: "Study Planner",icon: "planner"               },
   { to: "/pyq",         label: "PYQ Bank",     icon: "pyq"                   },
   { to: "/parent",      label: "Parent View",  icon: "parent"                },
+  { to: "/school",      label: "School Groups",icon: "school"                },
   { to: "/voice-tutor", label: "Voice Tutor",  icon: "voiceTutor"            },
   { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];

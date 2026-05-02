@@ -164,3 +164,12 @@ export const getNextTopic       = ()          => api.get("/v1/recommender/next-t
 export const getNextQuestion    = (topicId)   => api.get(`/v1/recommender/next-question/${topicId}`);
 export const getTopicMastery    = (topicId)   => api.get(`/v1/recommender/mastery/${topicId}`);
 export const recordAdaptiveAttempt = (data)   => api.post("/v1/recommender/record-attempt", data);
+
+export const getMyEnrollment      = ()                         => api.get("/v1/schools/my-enrollment");
+export const joinSchoolByCode     = (joinCode)                 => api.post("/v1/schools/join", { joinCode });
+export const createSchool         = (schoolName)               => api.post("/v1/schools", { schoolName });
+export const listMySchools        = ()                         => api.get("/v1/schools");
+export const getSchoolDetail      = (id)                       => api.get(`/v1/schools/${id}`);
+export const getDynamicTopics     = ()                         => api.get("/v1/schools/dynamic-topics");
+export const getHomeworkQuestion  = (params)                   => api.get("/v1/schools/homework", { params });
+export const getHomeworkSet       = (data)                     => api.post("/v1/schools/homework-set", data);

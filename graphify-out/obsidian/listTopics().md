@@ -12,6 +12,7 @@ tags:
 # listTopics()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[getPYQTopics()_1]] - `calls` [INFERRED]
 - [[getPYQTopics()]] - `calls` [INFERRED]
 - [[pyqController.js]] - `contains` [EXTRACTED]

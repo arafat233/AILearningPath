@@ -12,13 +12,20 @@ tags:
 # portalController.js
 
 ## Connections
+- [[deleteStudyReminder()]] - `contains` [EXTRACTED]
 - [[escapeRegex()]] - `contains` [EXTRACTED]
+- [[getClassStats()]] - `contains` [EXTRACTED]
+- [[getLinkRequests()]] - `contains` [EXTRACTED]
 - [[getLinkedStudents()]] - `contains` [EXTRACTED]
 - [[getStudentAnalytics()]] - `contains` [EXTRACTED]
+- [[getStudentAttempts()]] - `contains` [EXTRACTED]
 - [[getStudentDashboardCtrl()]] - `contains` [EXTRACTED]
+- [[getStudyReminders()]] - `contains` [EXTRACTED]
 - [[linkStudentDirect()]] - `contains` [EXTRACTED]
 - [[removeLinkedStudent()]] - `contains` [EXTRACTED]
+- [[respondToLinkRequest()]] - `contains` [EXTRACTED]
 - [[searchStudents()]] - `contains` [EXTRACTED]
+- [[setStudyReminder()]] - `contains` [EXTRACTED]
 - [[verifyOwnership()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_6

@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 41
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[Certificate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[Certificate.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[Stat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[usePrintStyles()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[20260503000000-add-indexes-and-soft-delete.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[down()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[up()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 32
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
-- [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[auth.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[makeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[mockReqRes()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[validateObjectId()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validateObjectId.js
-- [[validateObjectId.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validateObjectId.js
+- [[validateEnv()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
+- [[validateEnv.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
 
 ## Live Query (requires Dataview plugin)
 

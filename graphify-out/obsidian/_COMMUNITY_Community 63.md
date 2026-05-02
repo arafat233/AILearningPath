@@ -1,16 +1,15 @@
 ---
 type: community
-members: 3
+members: 2
 ---
 
 # Community 63
 
-**Members:** 3 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[VoiceTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
-- [[VoiceTutor.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
-- [[Waveform()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 

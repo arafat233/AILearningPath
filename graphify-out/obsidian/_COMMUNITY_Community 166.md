@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Attempt Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[Seed Math Topics + Questions (seed.js)]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 

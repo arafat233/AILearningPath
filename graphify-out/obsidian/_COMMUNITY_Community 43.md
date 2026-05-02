@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 43
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[.constructor()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
 
 ## Live Query (requires Dataview plugin)
 

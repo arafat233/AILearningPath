@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[scoringService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\scoringService.test.js
+- [[cookieNames.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cookieNames.js
 
 ## Live Query (requires Dataview plugin)
 

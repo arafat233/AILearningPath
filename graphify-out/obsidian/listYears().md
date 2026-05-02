@@ -12,6 +12,7 @@ tags:
 # listYears()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[getPYQYears()_1]] - `calls` [INFERRED]
 - [[getPYQYears()]] - `calls` [INFERRED]
 - [[pyqController.js]] - `contains` [EXTRACTED]

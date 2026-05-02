@@ -1,25 +1,32 @@
 ---
 type: community
-members: 12
+members: 19
 ---
 
 # Community 7
 
-**Members:** 12 nodes
+**Members:** 19 nodes
 
 ## Members
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -29,11 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[getAIExplanation()]] - degree 3, connects to 1 community
-- [[generateAIQuestion()]] - degree 3, connects to 1 community
-- [[getStudyAdvice()]] - degree 3, connects to 1 community
-- [[getChatResponse()]] - degree 3, connects to 1 community
+- [[questionGenerator.js]] - degree 19, connects to 1 community

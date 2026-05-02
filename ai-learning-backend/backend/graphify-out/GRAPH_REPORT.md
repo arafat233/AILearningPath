@@ -1,12 +1,12 @@
 # Graph Report - E:\AILearningPath\ai-learning-backend\backend  (2026-05-02)
 
 ## Corpus Check
-- 136 files · ~157,484 words
+- 141 files · ~172,031 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 450 nodes · 565 edges · 90 communities detected
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 118 edges (avg confidence: 0.8)
+- 488 nodes · 710 edges · 86 communities detected
+- Extraction: 69% EXTRACTED · 31% INFERRED · 0% AMBIGUOUS · INFERRED: 221 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -96,64 +96,60 @@
 - [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 84|Community 84]]
 - [[_COMMUNITY_Community 85|Community 85]]
-- [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
-- [[_COMMUNITY_Community 88|Community 88]]
-- [[_COMMUNITY_Community 89|Community 89]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `log()` - 21 edges
-2. `submitAnswer()` - 15 edges
+2. `submitAnswer()` - 16 edges
 3. `smartAIExplanation()` - 11 edges
-4. `verifyPayment()` - 9 edges
-5. `save()` - 9 edges
-6. `sessionSet()` - 9 edges
-7. `sessionGet()` - 9 edges
-8. `submitExam()` - 8 edges
-9. `smartStudyAdvice()` - 8 edges
-10. `sendEmail()` - 8 edges
+4. `save()` - 10 edges
+5. `submitExam()` - 9 edges
+6. `verifyPayment()` - 9 edges
+7. `sessionSet()` - 9 edges
+8. `sessionGet()` - 9 edges
+9. `refresh()` - 8 edges
+10. `startTopic()` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `log()`  [INFERRED]
   E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- `main()` --calls--> `log()`  [INFERRED]
+  E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - `seed()` --calls--> `log()`  [INFERRED]
   E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - `seed()` --calls--> `log()`  [INFERRED]
   E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - `seedCurriculum()` --calls--> `log()`  [INFERRED]
   E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
-- `seedNcertContent()` --calls--> `log()`  [INFERRED]
-  E:\AILearningPath\ai-learning-backend\backend\config\seedNcertContent.js → E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (26): err(), log(), importChapters(), importTopicContent(), main(), upsertTopic(), write(), err() (+18 more)
+Cohesion: 0.05
+Nodes (47): applyPlacementResults(), createQuestion(), deleteQuestion(), getFlaggedQuestions(), listQuestions(), unflagQuestion(), updateQuestion(), getAdminStats() (+39 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.11
-Nodes (24): getAdminStats(), cacheStats(), studyAdvice(), tutorChat(), usageInfo(), checkAndIncrementUsage(), getCacheStats(), getUsageCount() (+16 more)
+Cohesion: 0.06
+Nodes (30): err(), log(), importChapters(), importTopicContent(), main(), upsertTopic(), write(), err() (+22 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.1
-Nodes (20): getInterleavedQuestion(), getNextQuestion(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), detectDoubtType(), generateDoubtInsight() (+12 more)
+Cohesion: 0.09
+Nodes (27): gcd(), getDynamicQuestion(), getDynamicQuestionForSchoolVariant(), hasDynamicTemplate(), lcm(), listDynamicTopics(), seedFromStr(), createSchool() (+19 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.1
-Nodes (11): adminAuth(), updateUserRole(), auth(), connectRedis(), createClient(), sessionDel(), sessionGet(), dropRoom() (+3 more)
+Nodes (20): getInterleavedQuestion(), getNextQuestion(), generateTeacherMessage(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), detectDoubtType(), generateDoubtInsight() (+12 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.17
-Nodes (17): escHtml(), forgotPassword(), isProd(), issueTokens(), login(), logout(), makeRefreshToken(), parseRefreshToken() (+9 more)
+Cohesion: 0.15
+Nodes (22): cacheStats(), studyAdvice(), tutorChat(), usageInfo(), checkAndIncrementUsage(), getCacheStats(), getUsageCount(), makeCacheKey() (+14 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.16
-Nodes (14): applyPlacementResults(), checkMastery(), detectFluke(), getOrCreateMastery(), nextQuestion(), nextTopic(), recordAttempt(), resolveRouting() (+6 more)
+Cohesion: 0.15
+Nodes (22): escHtml(), forgotPassword(), isProd(), issueTokens(), login(), logout(), makeRefreshToken(), parseRefreshToken() (+14 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.14
-Nodes (9): escapeRegex(), getStudentAnalytics(), getStudentAttempts(), getStudentDashboardCtrl(), searchStudents(), setStudyReminder(), verifyOwnership(), getStudentDashboard() (+1 more)
+Cohesion: 0.1
+Nodes (12): adminAuth(), listUsers(), updateUserRole(), auth(), connectRedis(), createClient(), sessionDel(), sessionGet() (+4 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.2
@@ -161,23 +157,23 @@ Nodes (10): ap(), coordinateGeometry(), diff(), ds(), linear(), polynomials(), q
 
 ### Community 8 - "Community 8"
 Cohesion: 0.2
-Nodes (11): sendEmail(), sendReceiptEmail(), escHtml(), frontendUrl(), runOnboardingEmails(), sendDay2Emails(), sendDay7Emails(), buildEmailHtml() (+3 more)
+Nodes (10): getPlan(), markDayComplete(), saveTopicOrder(), generateStudyPlan(), ensureVapid(), notifyParentsOfMilestone(), sendPush(), sendRevisionReminders() (+2 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.18
-Nodes (9): currentWeekStr(), examKey(), startExam(), submitExam(), assignRanks(), calculateExamScore(), computeDynamicDifficulty(), normalizeScores() (+1 more)
+Cohesion: 0.24
+Nodes (13): checkMastery(), detectFluke(), getOrCreateMastery(), nextQuestion(), nextTopic(), recordAttempt(), resolveRouting(), serveAtDifficulty() (+5 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.2
-Nodes (8): getPlan(), generateStudyPlan(), ensureVapid(), notifyParentsOfMilestone(), sendPush(), sendRevisionReminders(), sendStudyReminders(), getRevisionTopics()
+Cohesion: 0.24
+Nodes (10): currentWeekStr(), examKey(), getExamReview(), getLeaderboard(), listExams(), startExam(), submitExam(), assignRanks() (+2 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.3
 Nodes (9): computeDiscount(), redeemCoupon(), validateCoupon(), createOrder(), getRazorpay(), orderCouponKey(), orderPlanKey(), verifyPayment() (+1 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.35
-Nodes (10): buildOptions(), chapterFromTopicId(), cleanFormula(), collectMockPaperQuestionIds(), main(), mapQuestion(), mapQuestionType(), seedMockPapers() (+2 more)
+Cohesion: 0.2
+Nodes (9): buildAccuracyHistory(), buildWeaknessMap(), getReport(), resetPassword(), save(), computeDynamicDifficulty(), updateQuestionStats(), getStreak() (+1 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.27
@@ -188,24 +184,24 @@ Cohesion: 0.36
 Nodes (6): companyLogin(), getStats(), timingSafe(), getDashboardStats(), startOf(), todayStr()
 
 ### Community 15 - "Community 15"
+Cohesion: 0.36
+Nodes (4): buildEmailHtml(), escHtml(), frontendUrl(), runWeeklyParentEmails()
+
+### Community 16 - "Community 16"
 Cohesion: 0.52
 Nodes (6): buildOptions(), chapterFromTopicId(), cleanAnswer(), main(), mapQuestion(), shuffle()
 
-### Community 16 - "Community 16"
-Cohesion: 0.38
-Nodes (5): buildAccuracyHistory(), buildWeaknessMap(), getReport(), getStreak(), updateStreak()
-
 ### Community 17 - "Community 17"
-Cohesion: 0.29
-Nodes (0): 
+Cohesion: 0.52
+Nodes (6): buildOptions(), chapterFromStr(), cleanAnswer(), main(), mapQuestion(), shuffle()
 
 ### Community 18 - "Community 18"
-Cohesion: 0.4
-Nodes (0): 
+Cohesion: 0.67
+Nodes (2): envOverride(), isEnabled()
 
 ### Community 19 - "Community 19"
-Cohesion: 0.4
-Nodes (0): 
+Cohesion: 0.67
+Nodes (2): today(), userDoc()
 
 ### Community 20 - "Community 20"
 Cohesion: 0.5
@@ -216,23 +212,23 @@ Cohesion: 0.5
 Nodes (0): 
 
 ### Community 22 - "Community 22"
-Cohesion: 0.5
-Nodes (2): run(), validate()
+Cohesion: 0.67
+Nodes (0): 
 
 ### Community 23 - "Community 23"
-Cohesion: 0.67
-Nodes (2): envOverride(), isEnabled()
+Cohesion: 1.0
+Nodes (2): gradeFor(), predictExamScore()
 
 ### Community 24 - "Community 24"
 Cohesion: 0.67
-Nodes (2): today(), userDoc()
+Nodes (1): AppError
 
 ### Community 25 - "Community 25"
-Cohesion: 0.5
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 26 - "Community 26"
-Cohesion: 0.5
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 27 - "Community 27"
@@ -240,35 +236,35 @@ Cohesion: 0.67
 Nodes (0): 
 
 ### Community 28 - "Community 28"
-Cohesion: 1.0
-Nodes (2): gradeFor(), predictExamScore()
+Cohesion: 0.67
+Nodes (0): 
 
 ### Community 29 - "Community 29"
 Cohesion: 0.67
-Nodes (1): AppError
+Nodes (0): 
 
 ### Community 30 - "Community 30"
 Cohesion: 0.67
 Nodes (0): 
 
 ### Community 31 - "Community 31"
-Cohesion: 0.67
+Cohesion: 1.0
 Nodes (0): 
 
 ### Community 32 - "Community 32"
-Cohesion: 0.67
+Cohesion: 1.0
 Nodes (0): 
 
 ### Community 33 - "Community 33"
-Cohesion: 0.67
+Cohesion: 1.0
 Nodes (0): 
 
 ### Community 34 - "Community 34"
-Cohesion: 0.67
+Cohesion: 1.0
 Nodes (0): 
 
 ### Community 35 - "Community 35"
-Cohesion: 0.67
+Cohesion: 1.0
 Nodes (0): 
 
 ### Community 36 - "Community 36"
@@ -471,146 +467,132 @@ Nodes (0):
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 86 - "Community 86"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 87 - "Community 87"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 88 - "Community 88"
-Cohesion: 1.0
-Nodes (0): 
-
-### Community 89 - "Community 89"
-Cohesion: 1.0
-Nodes (0): 
-
 ## Knowledge Gaps
-- **Thin community `Community 36`** (2 nodes): `server.js`, `shutdown()`
+- **Thin community `Community 31`** (2 nodes): `server.js`, `shutdown()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 37`** (2 nodes): `companyAuth()`, `companyAuth.js`
+- **Thin community `Community 32`** (2 nodes): `errorHandler.js`, `errorHandler()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 38`** (2 nodes): `errorHandler.js`, `errorHandler()`
+- **Thin community `Community 33`** (2 nodes): `validateObjectId.js`, `validateObjectId()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 39`** (2 nodes): `validateObjectId.js`, `validateObjectId()`
+- **Thin community `Community 34`** (2 nodes): `voiceHistoryKey()`, `aiRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 40`** (2 nodes): `voiceHistoryKey()`, `aiRoutes.js`
+- **Thin community `Community 35`** (2 nodes): `isValidQuestionId()`, `doubtRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 41`** (2 nodes): `isValidQuestionId()`, `doubtRoutes.js`
+- **Thin community `Community 36`** (2 nodes): `sentry.js`, `initSentry()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 42`** (2 nodes): `sentry.js`, `initSentry()`
+- **Thin community `Community 37`** (2 nodes): `swagger.js`, `setupSwagger()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 43`** (2 nodes): `swagger.js`, `setupSwagger()`
+- **Thin community `Community 38`** (2 nodes): `validateEnv.js`, `validateEnv()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 44`** (2 nodes): `validateEnv.js`, `validateEnv()`
+- **Thin community `Community 39`** (2 nodes): `baseProfile()`, `aiTeacher.service.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 45`** (2 nodes): `baseProfile()`, `aiTeacher.service.test.js`
+- **Thin community `Community 40`** (2 nodes): `payment.service.test.js`, `makeSignature()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 46`** (2 nodes): `payment.service.test.js`, `makeSignature()`
+- **Thin community `Community 41`** (2 nodes): `practice.controller.test.js`, `mockReqRes()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 47`** (2 nodes): `practice.controller.test.js`, `mockReqRes()`
+- **Thin community `Community 42`** (2 nodes): `streak.service.test.js`, `Streak()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 48`** (2 nodes): `streak.service.test.js`, `Streak()`
+- **Thin community `Community 43`** (2 nodes): `makeUser()`, `aiQuota.integration.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 49`** (2 nodes): `makeUser()`, `aiQuota.integration.test.js`
+- **Thin community `Community 44`** (1 nodes): `migrate-mongo-config.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 50`** (1 nodes): `migrate-mongo-config.js`
+- **Thin community `Community 45`** (1 nodes): `seed.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 51`** (1 nodes): `seed.js`
+- **Thin community `Community 46`** (1 nodes): `seedLessons.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 52`** (1 nodes): `seedLessons.js`
+- **Thin community `Community 47`** (1 nodes): `chapterModel.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 53`** (1 nodes): `chapterModel.js`
+- **Thin community `Community 48`** (1 nodes): `index.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 54`** (1 nodes): `index.js`
+- **Thin community `Community 49`** (1 nodes): `lessonModel.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 55`** (1 nodes): `lessonModel.js`
+- **Thin community `Community 50`** (1 nodes): `ncertChapterModel.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 56`** (1 nodes): `ncertChapterModel.js`
+- **Thin community `Community 51`** (1 nodes): `ncertTopicContentModel.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 57`** (1 nodes): `ncertTopicContentModel.js`
+- **Thin community `Community 52`** (1 nodes): `adminRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 58`** (1 nodes): `adminRoutes.js`
+- **Thin community `Community 53`** (1 nodes): `analysisRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 59`** (1 nodes): `analysisRoutes.js`
+- **Thin community `Community 54`** (1 nodes): `authRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 60`** (1 nodes): `authRoutes.js`
+- **Thin community `Community 55`** (1 nodes): `badgeRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 61`** (1 nodes): `badgeRoutes.js`
+- **Thin community `Community 56`** (1 nodes): `companyRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 62`** (1 nodes): `companyRoutes.js`
+- **Thin community `Community 57`** (1 nodes): `competitionRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 63`** (1 nodes): `competitionRoutes.js`
+- **Thin community `Community 58`** (1 nodes): `curriculumRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 64`** (1 nodes): `curriculumRoutes.js`
+- **Thin community `Community 59`** (1 nodes): `examRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 65`** (1 nodes): `examRoutes.js`
+- **Thin community `Community 60`** (1 nodes): `feedbackRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 66`** (1 nodes): `feedbackRoutes.js`
+- **Thin community `Community 61`** (1 nodes): `lessonRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (1 nodes): `lessonRoutes.js`
+- **Thin community `Community 62`** (1 nodes): `ncertRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 68`** (1 nodes): `ncertRoutes.js`
+- **Thin community `Community 63`** (1 nodes): `paymentRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 69`** (1 nodes): `paymentRoutes.js`
+- **Thin community `Community 64`** (1 nodes): `placementRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 70`** (1 nodes): `placementRoutes.js`
+- **Thin community `Community 65`** (1 nodes): `plannerRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 71`** (1 nodes): `plannerRoutes.js`
+- **Thin community `Community 66`** (1 nodes): `portalRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 72`** (1 nodes): `portalRoutes.js`
+- **Thin community `Community 67`** (1 nodes): `practiceRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 73`** (1 nodes): `practiceRoutes.js`
+- **Thin community `Community 68`** (1 nodes): `pushRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 74`** (1 nodes): `pushRoutes.js`
+- **Thin community `Community 69`** (1 nodes): `pyqRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 75`** (1 nodes): `pyqRoutes.js`
+- **Thin community `Community 70`** (1 nodes): `recommenderRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 76`** (1 nodes): `recommenderRoutes.js`
+- **Thin community `Community 71`** (1 nodes): `revisionRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 77`** (1 nodes): `revisionRoutes.js`
+- **Thin community `Community 72`** (1 nodes): `schoolRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 78`** (1 nodes): `topicRoutes.js`
+- **Thin community `Community 73`** (1 nodes): `topicRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 79`** (1 nodes): `userRoutes.js`
+- **Thin community `Community 74`** (1 nodes): `userRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 80`** (1 nodes): `webhookRoutes.js`
+- **Thin community `Community 75`** (1 nodes): `webhookRoutes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 81`** (1 nodes): `cookieNames.js`
+- **Thin community `Community 76`** (1 nodes): `questionBreakdown.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 82`** (1 nodes): `aiRouter.test.js`
+- **Thin community `Community 77`** (1 nodes): `cookieNames.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 83`** (1 nodes): `analysis.service.test.js`
+- **Thin community `Community 78`** (1 nodes): `aiRouter.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 84`** (1 nodes): `analysisService.test.js`
+- **Thin community `Community 79`** (1 nodes): `analysis.service.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 85`** (1 nodes): `autoDoubt.service.test.js`
+- **Thin community `Community 80`** (1 nodes): `analysisService.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 86`** (1 nodes): `plannerService.test.js`
+- **Thin community `Community 81`** (1 nodes): `autoDoubt.service.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 87`** (1 nodes): `scoring.service.test.js`
+- **Thin community `Community 82`** (1 nodes): `plannerService.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 88`** (1 nodes): `scoringService.test.js`
+- **Thin community `Community 83`** (1 nodes): `scoring.service.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 89`** (1 nodes): `auth.integration.test.js`
+- **Thin community `Community 84`** (1 nodes): `scoringService.test.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 85`** (1 nodes): `auth.integration.test.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `save()` connect `Community 4` to `Community 0`, `Community 1`, `Community 5`, `Community 7`, `Community 9`, `Community 16`?**
-  _High betweenness centrality (0.245) - this node is a cross-community bridge._
-- **Why does `log()` connect `Community 0` to `Community 12`, `Community 4`, `Community 15`?**
-  _High betweenness centrality (0.141) - this node is a cross-community bridge._
-- **Why does `submitAnswer()` connect `Community 2` to `Community 16`, `Community 9`, `Community 3`, `Community 1`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
+- **Why does `save()` connect `Community 12` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 5`, `Community 7`, `Community 9`?**
+  _High betweenness centrality (0.215) - this node is a cross-community bridge._
+- **Why does `log()` connect `Community 1` to `Community 16`, `Community 17`, `Community 12`?**
+  _High betweenness centrality (0.169) - this node is a cross-community bridge._
+- **Why does `submitAnswer()` connect `Community 3` to `Community 0`, `Community 12`, `Community 4`, `Community 6`?**
+  _High betweenness centrality (0.108) - this node is a cross-community bridge._
 - **Are the 20 inferred relationships involving `log()` (e.g. with `importChapters()` and `upsertTopic()`) actually correct?**
   _`log()` has 20 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 12 inferred relationships involving `submitAnswer()` (e.g. with `sessionGet()` and `analyzeAnswer()`) actually correct?**
-  _`submitAnswer()` has 12 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 13 inferred relationships involving `submitAnswer()` (e.g. with `sessionGet()` and `.next()`) actually correct?**
+  _`submitAnswer()` has 13 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `smartAIExplanation()` (e.g. with `submitAnswer()` and `getCached()`) actually correct?**
   _`smartAIExplanation()` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 4 inferred relationships involving `verifyPayment()` (e.g. with `sessionGet()` and `sessionDel()`) actually correct?**
-  _`verifyPayment()` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 9 inferred relationships involving `save()` (e.g. with `forgotPassword()` and `resetPassword()`) actually correct?**
+  _`save()` has 9 INFERRED edges - model-reasoned connections that need verification._

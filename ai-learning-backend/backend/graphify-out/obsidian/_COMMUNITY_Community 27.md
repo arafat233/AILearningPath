@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[makeToken()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[mockReqRes()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
+- [[20260503000000-add-indexes-and-soft-delete.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[down()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[up()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
 
 ## Live Query (requires Dataview plugin)
 

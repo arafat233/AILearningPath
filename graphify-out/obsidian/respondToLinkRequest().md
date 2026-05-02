@@ -1,18 +1,19 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js"
 type: "code"
-community: "Community 5"
+community: "Community 1"
 location: "L192"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_5
+  - graphify/INFERRED
+  - community/Community_1
 ---
 
 # respondToLinkRequest()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[portalController.js]] - `contains` [EXTRACTED]
 - [[save()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_1

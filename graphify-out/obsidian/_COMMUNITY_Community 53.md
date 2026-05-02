@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[daysAgo()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
-- [[daysFrom()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
-- [[revision.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\revision.service.test.js
+- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[StatCard()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
 
 ## Live Query (requires Dataview plugin)
 

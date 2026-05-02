@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[aiRouter.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[selectLeanReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[today()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[userDoc()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
 
 ## Live Query (requires Dataview plugin)
 

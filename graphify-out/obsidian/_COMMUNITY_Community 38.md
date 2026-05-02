@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[_setup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[clearCollections()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[connectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[disconnectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

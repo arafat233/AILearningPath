@@ -1,18 +1,20 @@
 ---
 type: community
-members: 5
+members: 7
 ---
 
 # Community 16
 
-**Members:** 5 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
-- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -22,8 +24,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
 - 1 edge to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[resolveDoubt()]] - degree 6, connects to 2 communities
+- [[updateStreak()]] - degree 3, connects to 2 communities
+- [[getReport()]] - degree 5, connects to 1 community

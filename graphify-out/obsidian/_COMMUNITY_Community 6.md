@@ -1,54 +1,65 @@
 ---
 type: community
-members: 41
+members: 52
 ---
 
 # Community 6
 
-**Members:** 41 nodes
+**Members:** 52 nodes
 
 ## Members
-- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
-- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[validateCoupon()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -58,12 +69,15 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 5 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 5]]
+- 9 edges to [[_COMMUNITY_Community 1]]
+- 7 edges to [[_COMMUNITY_Community 7]]
+- 5 edges to [[_COMMUNITY_Community 8]]
+- 2 edges to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
-- [[updateStreak()]] - degree 3, connects to 2 communities
-- [[smartAIExplanation()]] - degree 11, connects to 1 community
-- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
-- [[getUsageCount()]] - degree 5, connects to 1 community
-- [[generateAIQuestion()]] - degree 3, connects to 1 community
+- [[sessionGet()]] - degree 9, connects to 2 communities
+- [[startExam()]] - degree 4, connects to 2 communities
+- [[adminAuth()]] - degree 4, connects to 2 communities
+- [[updateQuestionStats()]] - degree 4, connects to 2 communities
+- [[submitExam()]] - degree 9, connects to 1 community

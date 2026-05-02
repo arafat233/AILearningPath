@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 location: "section 3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # MongoDB (20 collections)
@@ -15,4 +15,4 @@ tags:
 - [[AI Learning Platform (CBSE Class 10)]] - `references` [EXTRACTED]
 - [[Backend (Express + Node, port 5001)]] - `shares_data_with` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_3

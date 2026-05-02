@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 48
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[seedLessons.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedLessons.js
+- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

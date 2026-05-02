@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js"
 type: "code"
-community: "Community 5"
+community: "Community 9"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_9
 ---
 
 # scoringService.js
@@ -17,4 +17,4 @@ tags:
 - [[computeDynamicDifficulty()]] - `contains` [EXTRACTED]
 - [[normalizeScores()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_9

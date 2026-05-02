@@ -1,32 +1,34 @@
 ---
 type: community
-members: 19
+members: 21
 ---
 
 # Community 4
 
-**Members:** 19 nodes
+**Members:** 21 nodes
 
 ## Members
-- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[csrf.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[csrfProtect()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[parseRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[respondToLinkRequest()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[setCsrfCookie()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -36,7 +38,20 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 3]]
+- 3 edges to [[_COMMUNITY_Community 8]]
+- 2 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 9]]
+- 1 edge to [[_COMMUNITY_Community 16]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[questionGenerator.js]] - degree 19, connects to 1 community
+- [[save()]] - degree 9, connects to 6 communities
+- [[logout()]] - degree 5, connects to 2 communities
+- [[issueTokens()]] - degree 7, connects to 1 community
+- [[refresh()]] - degree 7, connects to 1 community
+- [[register()]] - degree 6, connects to 1 community

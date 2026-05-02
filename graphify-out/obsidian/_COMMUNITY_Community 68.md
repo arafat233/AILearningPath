@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[companyAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
-- [[companyAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
+- [[initSentry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
+- [[sentry.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js
 
 ## Live Query (requires Dataview plugin)
 

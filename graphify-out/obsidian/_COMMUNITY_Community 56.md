@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[ChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[SectionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[PrivacyPolicy()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
+- [[PrivacyPolicy.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
+- [[Section()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
 
 ## Live Query (requires Dataview plugin)
 

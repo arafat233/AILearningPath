@@ -13,7 +13,9 @@ tags:
 
 ## Connections
 - [[getStudentAnalytics()]] - `calls` [EXTRACTED]
+- [[getStudentAttempts()]] - `calls` [EXTRACTED]
 - [[getStudentDashboardCtrl()]] - `calls` [EXTRACTED]
 - [[portalController.js]] - `contains` [EXTRACTED]
+- [[setStudyReminder()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_6

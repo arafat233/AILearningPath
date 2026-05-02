@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
 type: "code"
-community: "Community 10"
+community: "Community 1"
 location: "L117"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_10
+  - community/Community_1
 ---
 
 # getStudentDashboard()
@@ -15,4 +15,4 @@ tags:
 - [[api.js]] - `contains` [EXTRACTED]
 - [[getStudentDashboardCtrl()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_10
+#graphify/code #graphify/INFERRED #community/Community_1

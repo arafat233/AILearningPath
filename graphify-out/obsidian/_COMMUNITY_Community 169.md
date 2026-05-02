@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ClaudeTools Account Account1_Main]] - document - ClaudeTools/accounts/Account1_Main/label.txt
+- [[Test Outcome Skipped]] - document - e2e-bot/reports/practice.md
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,20 +1,25 @@
 ---
 type: community
-members: 7
+members: 12
 ---
 
 # Community 11
 
-**Members:** 7 nodes
+**Members:** 12 nodes
 
 ## Members
-- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,10 +29,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 3]]
 - 1 edge to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
-- [[updateStreak()]] - degree 3, connects to 2 communities
-- [[getReport()]] - degree 5, connects to 1 community
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
+- [[createOrder()_1]] - degree 7, connects to 1 community

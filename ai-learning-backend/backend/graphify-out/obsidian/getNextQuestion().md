@@ -1,21 +1,18 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js"
 type: "code"
-community: "Community 0"
-location: "L4"
+community: "Community 5"
+location: "L14"
 tags:
   - graphify/code
-  - graphify/INFERRED
-  - community/Community_0
+  - graphify/EXTRACTED
+  - community/Community_5
 ---
 
 # getNextQuestion()
 
 ## Connections
-- [[adaptiveService.js]] - `contains` [EXTRACTED]
-- [[generateAIQuestion()]] - `calls` [INFERRED]
-- [[getInterleavedQuestion()]] - `calls` [EXTRACTED]
-- [[startTopic()]] - `calls` [INFERRED]
-- [[submitAnswer()]] - `calls` [INFERRED]
+- [[nextQuestion()]] - `calls` [INFERRED]
+- [[recommenderController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_0
+#graphify/code #graphify/EXTRACTED #community/Community_5

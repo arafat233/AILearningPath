@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 101
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[NPSSurveyBanner()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
-- [[NPSSurveyBanner.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
+- [[chapterModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\chapterModel.js
 
 ## Live Query (requires Dataview plugin)
 

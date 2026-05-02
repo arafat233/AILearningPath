@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js"
 type: "code"
-community: "Community 9"
+community: "Community 10"
 location: "L5"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_9
+  - community/Community_10
 ---
 
 # getRevisionTopics()
@@ -14,5 +14,6 @@ tags:
 ## Connections
 - [[getPlan()]] - `calls` [INFERRED]
 - [[revisionService.js]] - `contains` [EXTRACTED]
+- [[sendRevisionReminders()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_9
+#graphify/code #graphify/INFERRED #community/Community_10

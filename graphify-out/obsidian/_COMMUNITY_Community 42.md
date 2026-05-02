@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 42
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,14 +1,14 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 166"
+community: "Community 165"
 location: "section 3.4"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_166
+  - community/Community_165
 ---
 
 # Attempt Collection (MongoDB schema)
 
-#graphify/document #graphify/EXTRACTED #community/Community_166
+#graphify/document #graphify/EXTRACTED #community/Community_165

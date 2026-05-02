@@ -1,19 +1,18 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 2"
-location: "L49"
+community: "Community 4"
+location: "L53"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_4
 ---
 
 # issueTokens()
 
 ## Connections
 - [[authController.js]] - `contains` [EXTRACTED]
-- [[clerkAuth()]] - `calls` [EXTRACTED]
 - [[login()]] - `calls` [EXTRACTED]
 - [[makeRefreshToken()]] - `calls` [EXTRACTED]
 - [[refresh()]] - `calls` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[sessionSet()]] - `calls` [INFERRED]
 - [[signToken()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_2
+#graphify/code #graphify/EXTRACTED #community/Community_4

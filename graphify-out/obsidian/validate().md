@@ -1,18 +1,19 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js"
 type: "code"
-community: "Community 37"
+community: "Community 1"
 location: "L6"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_37
+  - graphify/INFERRED
+  - community/Community_1
 ---
 
 # validate()
 
 ## Connections
+- [[getHomeworkSetForStudent()]] - `calls` [INFERRED]
 - [[run()]] - `calls` [INFERRED]
 - [[validate.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_37
+#graphify/code #graphify/INFERRED #community/Community_1

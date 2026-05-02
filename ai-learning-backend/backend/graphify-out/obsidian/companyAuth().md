@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js"
 type: "code"
-community: "Community 36"
+community: "Community 37"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_36
+  - community/Community_37
 ---
 
 # companyAuth()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[companyAuth.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_36
+#graphify/code #graphify/EXTRACTED #community/Community_37

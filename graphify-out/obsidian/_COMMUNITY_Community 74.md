@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[setupSwagger()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
-- [[swagger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
+- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

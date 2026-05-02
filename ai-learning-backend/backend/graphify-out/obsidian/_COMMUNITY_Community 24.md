@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 24
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[adaptive.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[leanResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[seenResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
+- [[aiRouter.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[selectLeanReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[today()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[userDoc()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

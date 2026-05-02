@@ -1,11 +1,11 @@
 ---
 type: community
-members: 112
+members: 118
 ---
 
 # Community 0
 
-**Members:** 112 nodes
+**Members:** 118 nodes
 
 ## Members
 - [[adminCreateCoupon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -57,6 +57,7 @@ members: 112
 - [[getMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getNcertChapter()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getNcertTopicContent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getNextTopic()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getNpsEligibility()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPYQById()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
 - [[getPYQById()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -66,6 +67,8 @@ members: 112
 - [[getPYQYears()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPYQs()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
 - [[getPYQs()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPlacementQuiz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPlacementStatus()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlans()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPrediction()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -77,6 +80,7 @@ members: 112
 - [[getStudentAttempts()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudyReminders()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getSubscription()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getTopicMastery()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getTopicsMeta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getVapidKey()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -98,12 +102,14 @@ members: 112
 - [[practice-session.js]] - code - E:\AILearningPath\load-tests\practice-session.js
 - [[pyqController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
 - [[pyqService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[recordAdaptiveAttempt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[removeLinkedStudent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[resetPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[respondToLinkRequest()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveProgress()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveTopicOrder()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[scorePlacementQuiz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[searchStudents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[searchTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[sendDoubtMessage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -129,9 +135,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 15]]
-- 1 edge to [[_COMMUNITY_Community 10]]
+- 5 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 101, connects to 2 communities
-- [[post()]] - degree 33, connects to 1 community
+- [[api.js]] - degree 108, connects to 3 communities
+- [[post()]] - degree 35, connects to 1 community
+- [[listTopics()]] - degree 4, connects to 1 community
+- [[listYears()]] - degree 4, connects to 1 community
+- [[listQuestions()]] - degree 4, connects to 1 community

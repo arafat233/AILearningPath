@@ -12,9 +12,11 @@ tags:
 # redisClient.js
 
 ## Connections
+- [[acquireCronLock()]] - `contains` [EXTRACTED]
 - [[connectRedis()]] - `contains` [EXTRACTED]
 - [[createClient()]] - `contains` [EXTRACTED]
 - [[isUsingFallback()]] - `contains` [EXTRACTED]
+- [[pingRedis()]] - `contains` [EXTRACTED]
 - [[sessionDel()]] - `contains` [EXTRACTED]
 - [[sessionGet()]] - `contains` [EXTRACTED]
 - [[sessionSet()]] - `contains` [EXTRACTED]

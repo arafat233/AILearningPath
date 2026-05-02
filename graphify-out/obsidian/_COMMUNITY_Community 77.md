@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[makeSignature()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
-- [[payment.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js
+- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
 
 ## Live Query (requires Dataview plugin)
 

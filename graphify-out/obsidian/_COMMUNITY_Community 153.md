@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Switch-And-Resume.ps1]] - code - E:\AILearningPath\ClaudeTools\Switch-And-Resume.ps1
+- [[playwright.config.js_1]] - code - E:\AILearningPath\e2e-bot\playwright.config.js
 
 ## Live Query (requires Dataview plugin)
 

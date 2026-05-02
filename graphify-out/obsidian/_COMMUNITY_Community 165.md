@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Question Collection (MongoDB schema)]] - document - BLUEPRINT.md
+- [[Attempt Collection (MongoDB schema)]] - document - BLUEPRINT.md
 
 ## Live Query (requires Dataview plugin)
 

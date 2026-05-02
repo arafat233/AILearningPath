@@ -1,33 +1,40 @@
 ---
 type: community
-members: 20
+members: 27
 ---
 
 # Community 11
 
-**Members:** 20 nodes
+**Members:** 27 nodes
 
 ## Members
-- [[App Branding — Blue Square Logo with Letter A]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Auth Guard on Practice Route]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Behavior Login Page Loads With All Elements Visible]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[Behavior Page Remains on Login After Failed Auth]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug No Error Message Shown After Invalid Login]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Bug Practice Page Redirects Unauthenticated User to Landing Page]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[E2E Test Invalid Credentials — Stay on Login Page (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[E2E Test Login Page Load — Sign In Button Visible (Failed)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
-- [[E2E Test Practice — Start Disabled When No Topic Selected (Failed)]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page UI — Your Personal AI Study Coach]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Already Have an Account Sign In Link]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Landing Page — Start My Learning Journey CTA Button]] - image - e2e-bot/test-results/04_practice-Practice-—-Top-7bf5e-bled-when-no-topic-selected/test-failed-1.png
-- [[Login Form — Create Account Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Email Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Forgot Password Link]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Password Input Field]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — ShowHide Password Toggle]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Form — Sign In Button]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page UI]] - image - e2e-bot/test-results/01_auth-Login-Page-invalid-bbdc8-rror-and-stay-on-login-page/test-failed-1.png
-- [[Login Page — EmptyInitial State (placeholder text visible)]] - image - e2e-bot/test-results/01_auth-Login-Page-page-lo-ea373--and-Sign-In-button-visible/test-failed-1.png
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -35,3 +42,15 @@ members: 20
 TABLE source_file, type FROM #community/Community_11
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 6 edges to [[_COMMUNITY_Community 1]]
+- 5 edges to [[_COMMUNITY_Community 7]]
+- 1 edge to [[_COMMUNITY_Community 5]]
+
+## Top bridge nodes
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[tutorChat()]] - degree 5, connects to 1 community
+- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community

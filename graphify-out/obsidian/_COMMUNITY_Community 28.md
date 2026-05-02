@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[ClerkCallback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[ClerkCallback.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[authedRedirectTarget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[getStoredRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[normalizeRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[MarksChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[PYQBank()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[PYQBank.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[QuestionCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[YearChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
 
 ## Live Query (requires Dataview plugin)
 

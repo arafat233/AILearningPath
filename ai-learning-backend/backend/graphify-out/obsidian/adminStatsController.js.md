@@ -13,5 +13,6 @@ tags:
 
 ## Connections
 - [[getAdminStats()]] - `contains` [EXTRACTED]
+- [[getAnalytics()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_1

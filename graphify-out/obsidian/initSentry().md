@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\sentry.js"
 type: "code"
-community: "Community 73"
+community: "Community 68"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_73
+  - community/Community_68
 ---
 
 # initSentry()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[sentry.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_73
+#graphify/code #graphify/EXTRACTED #community/Community_68

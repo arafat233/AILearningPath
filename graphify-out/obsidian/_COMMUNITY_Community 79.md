@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
-- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[GoogleSignInButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
+- [[GoogleSignInButton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
 
 ## Live Query (requires Dataview plugin)
 

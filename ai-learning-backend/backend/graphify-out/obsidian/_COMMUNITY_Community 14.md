@@ -1,18 +1,21 @@
 ---
 type: community
-members: 5
+members: 8
 ---
 
 # Community 14
 
-**Members:** 5 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[createOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
-- [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
-- [[getSubscription()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
-- [[paymentController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
-- [[verifyPayment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 

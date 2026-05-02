@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
-- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[useFeatureFlags()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\useFeatureFlags.js
+- [[useFeatureFlags.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\useFeatureFlags.js
 
 ## Live Query (requires Dataview plugin)
 

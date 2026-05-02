@@ -1,16 +1,15 @@
 ---
 type: community
-members: 3
+members: 2
 ---
 
 # Community 64
 
-**Members:** 3 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
 
 ## Live Query (requires Dataview plugin)
 

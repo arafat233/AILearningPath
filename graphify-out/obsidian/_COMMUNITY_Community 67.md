@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
-- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[doubtRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
+- [[isValidQuestionId()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

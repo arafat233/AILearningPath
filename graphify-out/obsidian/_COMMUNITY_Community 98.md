@@ -1,15 +1,14 @@
 ---
 type: community
-members: 2
+members: 1
 ---
 
 # Community 98
 
-**Members:** 2 nodes
+**Members:** 1 nodes
 
 ## Members
-- [[AdminQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
-- [[AdminQuestions.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
+- [[migrate-mongo-config.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrate-mongo-config.js
 
 ## Live Query (requires Dataview plugin)
 

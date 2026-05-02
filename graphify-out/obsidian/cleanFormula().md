@@ -12,8 +12,8 @@ tags:
 # cleanFormula()
 
 ## Connections
-- [[buildOptions()]] - `calls` [EXTRACTED]
-- [[mapQuestion()]] - `calls` [EXTRACTED]
+- [[buildOptions()_2]] - `calls` [EXTRACTED]
+- [[mapQuestion()_2]] - `calls` [EXTRACTED]
 - [[seedQuestionsAndMockPapers.js]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_5

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[LessonView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LessonView.jsx
-- [[LessonView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LessonView.jsx
+- [[AdminCacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCacheStats.jsx
+- [[AdminCacheStats.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCacheStats.jsx
 
 ## Live Query (requires Dataview plugin)
 

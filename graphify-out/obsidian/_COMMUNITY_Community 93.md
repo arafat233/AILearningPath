@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Portal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Portal.jsx
-- [[Portal.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Portal.jsx
+- [[AdminQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
+- [[AdminQuestions.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminQuestions.jsx
 
 ## Live Query (requires Dataview plugin)
 

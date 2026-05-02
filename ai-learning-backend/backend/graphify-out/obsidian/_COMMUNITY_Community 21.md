@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 21
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
-- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[getNcertChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getNcertTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[listNcertChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[ncertController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 
 ## Live Query (requires Dataview plugin)
 

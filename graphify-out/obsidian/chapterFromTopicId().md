@@ -1,8 +1,8 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js"
 type: "code"
 community: "Community 5"
-location: "L45"
+location: "L40"
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,7 +12,7 @@ tags:
 # chapterFromTopicId()
 
 ## Connections
-- [[seedQuestions()]] - `calls` [EXTRACTED]
-- [[seedQuestionsAndMockPapers.js]] - `contains` [EXTRACTED]
+- [[mapQuestion()]] - `calls` [EXTRACTED]
+- [[seedBoardStyleQuestions.js]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_5

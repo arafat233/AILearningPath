@@ -13,10 +13,12 @@ tags:
 
 ## Connections
 - [[checkAndIncrementUsage()]] - `calls` [INFERRED]
+- [[enrollStudent()]] - `calls` [INFERRED]
 - [[forgotPassword()]] - `calls` [INFERRED]
 - [[log()]] - `calls` [INFERRED]
 - [[log()_1]] - `calls` [INFERRED]
 - [[questionGenerator.js]] - `contains` [EXTRACTED]
+- [[recordAttempt()]] - `calls` [INFERRED]
 - [[resetPassword()]] - `calls` [INFERRED]
 - [[respondToLinkRequest()]] - `calls` [INFERRED]
 - [[updateQuestionStats()]] - `calls` [INFERRED]

@@ -1,12 +1,12 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 location: "Rules rule 4"
 tags:
   - graphify/document
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # Rule: Sessions must not use in-memory object (Redis/DB required)
@@ -15,4 +15,4 @@ tags:
 - [[Architecture Rules (CLAUDE.md)]] - `references` [EXTRACTED]
 - [[Rationale Redis Session Stores Replace In-Memory for Multi-Instance]] - `rationale_for` [INFERRED]
 
-#graphify/document #graphify/INFERRED #community/Community_2
+#graphify/document #graphify/INFERRED #community/Community_3

@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
-- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
-- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
-- [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
+- [[Certificate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[Certificate.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[Stat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[usePrintStyles()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
 
 ## Live Query (requires Dataview plugin)
 

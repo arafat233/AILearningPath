@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js"
 type: "code"
-community: "Community 12"
+community: "Community 14"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_12
+  - community/Community_14
 ---
 
 # questionGenerator.js
@@ -19,7 +19,7 @@ tags:
 - [[coordinateGeometry()]] - `contains` [EXTRACTED]
 - [[diff()]] - `contains` [EXTRACTED]
 - [[ds()]] - `contains` [EXTRACTED]
-- [[gcd()]] - `contains` [EXTRACTED]
+- [[gcd()_1]] - `contains` [EXTRACTED]
 - [[linear()]] - `contains` [EXTRACTED]
 - [[polynomials()]] - `contains` [EXTRACTED]
 - [[probability()]] - `contains` [EXTRACTED]
@@ -32,4 +32,4 @@ tags:
 - [[triangles()]] - `contains` [EXTRACTED]
 - [[trigonometry()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_12
+#graphify/code #graphify/EXTRACTED #community/Community_14

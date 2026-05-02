@@ -1,11 +1,11 @@
 ---
 source_file: "CLAUDE.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # Architecture Rules (CLAUDE.md)
@@ -22,4 +22,4 @@ tags:
 - [[Rule Standardised error responses via AppError]] - `references` [EXTRACTED]
 - [[Rule Update BLUEPRINT.md before every commit]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_3

@@ -12,15 +12,15 @@ tags:
 # seedQuestionsAndMockPapers.js
 
 ## Connections
-- [[buildOptions()]] - `contains` [EXTRACTED]
-- [[chapterFromTopicId()]] - `contains` [EXTRACTED]
+- [[buildOptions()_2]] - `contains` [EXTRACTED]
+- [[chapterFromTopicId()_1]] - `contains` [EXTRACTED]
 - [[cleanFormula()]] - `contains` [EXTRACTED]
 - [[collectMockPaperQuestionIds()]] - `contains` [EXTRACTED]
-- [[main()_1]] - `contains` [EXTRACTED]
-- [[mapQuestion()]] - `contains` [EXTRACTED]
+- [[main()_4]] - `contains` [EXTRACTED]
+- [[mapQuestion()_2]] - `contains` [EXTRACTED]
 - [[mapQuestionType()]] - `contains` [EXTRACTED]
 - [[seedMockPapers()]] - `contains` [EXTRACTED]
 - [[seedQuestions()]] - `contains` [EXTRACTED]
-- [[shuffle()]] - `contains` [EXTRACTED]
+- [[shuffle()_2]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_5

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js"
 type: "code"
-community: "Community 10"
+community: "Community 1"
 location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_10
+  - community/Community_1
 ---
 
 # escapeRegex()
@@ -15,4 +15,4 @@ tags:
 - [[portalController.js]] - `contains` [EXTRACTED]
 - [[searchStudents()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_10
+#graphify/code #graphify/EXTRACTED #community/Community_1

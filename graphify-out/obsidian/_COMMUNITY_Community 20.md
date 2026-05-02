@@ -23,3 +23,10 @@ members: 8
 TABLE source_file, type FROM #community/Community_20
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 1]]
+
+## Top bridge nodes
+- [[companyLogin()]] - degree 3, connects to 1 community
+- [[getStats()]] - degree 3, connects to 1 community

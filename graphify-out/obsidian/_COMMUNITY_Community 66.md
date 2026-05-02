@@ -1,16 +1,15 @@
 ---
 type: community
-members: 3
+members: 2
 ---
 
 # Community 66
 
-**Members:** 3 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[MCP Tool code-review-graph (AGENTS.md instruction)]] - document - AGENTS.md
-- [[MCP Tool code-review-graph (CLAUDE.md instruction)]] - document - CLAUDE.md
-- [[MCP Tool code-review-graph (GEMINI.md instruction)]] - document - GEMINI.md
+- [[aiRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
+- [[voiceHistoryKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

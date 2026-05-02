@@ -5,14 +5,15 @@ community: "Community 20"
 location: "L43"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
+  - graphify/INFERRED
   - community/Community_20
 ---
 
 # getStats()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[companyController.js]] - `contains` [EXTRACTED]
 - [[getDashboardStats()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_20
+#graphify/code #graphify/INFERRED #community/Community_20

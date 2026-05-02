@@ -1,33 +1,40 @@
 ---
 type: community
-members: 20
+members: 27
 ---
 
 # Community 10
 
-**Members:** 20 nodes
+**Members:** 27 nodes
 
 ## Members
-- [[deleteStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getClassStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getLinkRequests()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[getStudentDashboard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
-- [[getStudentDashboardCtrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[linkStudentDirect()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[setStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[RootElement()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[buildResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestionForSchoolVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getHomeworkVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[hasDynamicTemplate()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[lcm()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[questionTemplateService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[seedFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -37,9 +44,12 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 9 edges to [[_COMMUNITY_Community 1]]
 - 1 edge to [[_COMMUNITY_Community 5]]
-- 1 edge to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[portalController.js]] - degree 15, connects to 1 community
-- [[getStudentDashboard()_1]] - degree 2, connects to 1 community
+- [[recordAttempt()]] - degree 6, connects to 2 communities
+- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
+- [[questionTemplateService.js]] - degree 9, connects to 1 community
+- [[getHomeworkVariant()]] - degree 6, connects to 1 community
+- [[nextQuestion()]] - degree 5, connects to 1 community

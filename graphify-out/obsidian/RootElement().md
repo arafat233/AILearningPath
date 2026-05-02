@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx"
 type: "code"
-community: "Community 17"
-location: "L80"
+community: "Community 10"
+location: "L81"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_17
+  - community/Community_10
 ---
 
 # RootElement()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[App.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_17
+#graphify/code #graphify/EXTRACTED #community/Community_10

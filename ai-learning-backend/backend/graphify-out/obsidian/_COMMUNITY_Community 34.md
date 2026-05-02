@@ -1,15 +1,16 @@
 ---
 type: community
-members: 2
+members: 3
 ---
 
 # Community 34
 
-**Members:** 2 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
-- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[exam.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
+- [[makeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
+- [[mockReqRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
 
 ## Live Query (requires Dataview plugin)
 

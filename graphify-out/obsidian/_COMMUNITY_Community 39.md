@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[BadgeToast()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[BadgeToast.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[defaultIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
-- [[labelFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\BadgeToast.jsx
+- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
 
 ## Live Query (requires Dataview plugin)
 

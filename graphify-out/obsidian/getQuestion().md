@@ -12,6 +12,7 @@ tags:
 # getQuestion()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[getPYQById()_1]] - `calls` [INFERRED]
 - [[getPYQById()]] - `calls` [INFERRED]
 - [[pyqController.js]] - `contains` [EXTRACTED]

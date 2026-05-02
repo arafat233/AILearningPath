@@ -1,12 +1,12 @@
 ---
 source_file: "BLUEPRINT.md"
 type: "document"
-community: "Community 2"
+community: "Community 3"
 location: "section 11"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/Community_2
+  - community/Community_3
 ---
 
 # Seed: CBSE Hindi Curriculum — 32 Chapters
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Chapter Collection — CBSE Textbook Curriculum]] - `shares_data_with` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/Community_2
+#graphify/document #graphify/EXTRACTED #community/Community_3

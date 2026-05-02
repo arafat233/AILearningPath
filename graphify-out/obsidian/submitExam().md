@@ -1,17 +1,18 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js"
 type: "code"
-community: "Community 3"
+community: "Community 6"
 location: "L83"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_6
 ---
 
 # submitExam()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[assignRanks()]] - `calls` [INFERRED]
 - [[calculateExamScore()]] - `calls` [INFERRED]
 - [[currentWeekStr()]] - `calls` [EXTRACTED]
@@ -21,4 +22,4 @@ tags:
 - [[sessionDel()]] - `calls` [INFERRED]
 - [[sessionGet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_3
+#graphify/code #graphify/INFERRED #community/Community_6

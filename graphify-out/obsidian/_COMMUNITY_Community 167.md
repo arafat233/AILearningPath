@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Seed Math Topics + Questions (seed.js)]] - document - BLUEPRINT.md
+- [[Graphify Knowledge Graph Instruction (CLAUDE.md)]] - document - CLAUDE.md
 
 ## Live Query (requires Dataview plugin)
 

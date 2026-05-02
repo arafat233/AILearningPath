@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\payment.service.test.js"
 type: "code"
-community: "Community 77"
+community: "Community 72"
 location: "L63"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_77
+  - community/Community_72
 ---
 
 # makeSignature()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[payment.service.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_77
+#graphify/code #graphify/EXTRACTED #community/Community_72

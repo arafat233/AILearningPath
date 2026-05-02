@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js"
 type: "code"
-community: "Community 74"
+community: "Community 69"
 location: "L291"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_74
+  - community/Community_69
 ---
 
 # setupSwagger()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[swagger.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_74
+#graphify/code #graphify/EXTRACTED #community/Community_69

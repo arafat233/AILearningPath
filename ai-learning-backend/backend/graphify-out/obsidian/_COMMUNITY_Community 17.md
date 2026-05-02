@@ -1,17 +1,20 @@
 ---
 type: community
-members: 4
+members: 7
 ---
 
 # Community 17
 
-**Members:** 4 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
-- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[adminQuestionController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[createQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[deleteQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[getFlaggedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[listQuestions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[unflagQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[updateQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
 
 ## Live Query (requires Dataview plugin)
 

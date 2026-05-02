@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
-- [[practice.spec.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
+- [[SearchOverlay()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
+- [[SearchOverlay.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
 
 ## Live Query (requires Dataview plugin)
 

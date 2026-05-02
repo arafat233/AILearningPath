@@ -1,16 +1,15 @@
 ---
 type: community
-members: 3
+members: 2
 ---
 
 # Community 65
 
-**Members:** 3 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
-- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[validateObjectId()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validateObjectId.js
+- [[validateObjectId.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validateObjectId.js
 
 ## Live Query (requires Dataview plugin)
 

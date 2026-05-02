@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 18
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[getNcertChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
-- [[getNcertTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
-- [[listNcertChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
-- [[ncertController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[createOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getSubscription()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[paymentController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[verifyPayment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 
 ## Live Query (requires Dataview plugin)
 

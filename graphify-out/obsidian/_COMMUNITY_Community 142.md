@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[postcss.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\postcss.config.js
+- [[tailwind.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\tailwind.config.js
 
 ## Live Query (requires Dataview plugin)
 

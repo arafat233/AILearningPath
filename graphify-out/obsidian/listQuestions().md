@@ -12,6 +12,7 @@ tags:
 # listQuestions()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[getPYQs()_1]] - `calls` [INFERRED]
 - [[getPYQs()]] - `calls` [INFERRED]
 - [[pyqController.js]] - `contains` [EXTRACTED]

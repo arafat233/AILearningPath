@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[main.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\main.jsx
+- [[authStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\authStore.js
 
 ## Live Query (requires Dataview plugin)
 

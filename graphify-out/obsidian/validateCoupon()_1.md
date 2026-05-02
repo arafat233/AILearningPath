@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
 type: "code"
-community: "Community 15"
+community: "Community 6"
 location: "L146"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_15
+  - community/Community_6
 ---
 
 # validateCoupon()
@@ -16,4 +16,4 @@ tags:
 - [[createOrder()_1]] - `calls` [INFERRED]
 - [[post()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_15
+#graphify/code #graphify/INFERRED #community/Community_6

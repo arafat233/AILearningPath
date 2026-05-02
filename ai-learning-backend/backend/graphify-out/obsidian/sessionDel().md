@@ -12,6 +12,7 @@ tags:
 # sessionDel()
 
 ## Connections
+- [[dropRoom()]] - `calls` [INFERRED]
 - [[logout()]] - `calls` [INFERRED]
 - [[redisClient.js]] - `contains` [EXTRACTED]
 - [[refresh()]] - `calls` [INFERRED]

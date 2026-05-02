@@ -12,7 +12,7 @@ tags:
 # mapQuestionType()
 
 ## Connections
-- [[mapQuestion()]] - `calls` [EXTRACTED]
+- [[mapQuestion()_2]] - `calls` [EXTRACTED]
 - [[seedQuestionsAndMockPapers.js]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_5

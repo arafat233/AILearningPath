@@ -1,38 +1,54 @@
 ---
 type: community
-members: 25
+members: 41
 ---
 
 # Community 0
 
-**Members:** 25 nodes
+**Members:** 41 nodes
 
 ## Members
-- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
-- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
-- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
-- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
-- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[safeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
-- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[backup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[cleanAnswer()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
+- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[err()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[err()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[importChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importNcert.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[importTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[log()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
+- [[log()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
+- [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[main()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
+- [[main()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
+- [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[restore.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
+- [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedMockPaperAnswerKeys.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
+- [[seedNcertContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedNcertContent.js
+- [[seedNcertContent.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedNcertContent.js
+- [[seedPYQ()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPYQ.js
+- [[seedPYQ.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPYQ.js
+- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[seedTopicDAG.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
+- [[shuffle()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
+- [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -42,15 +58,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 2]]
-- 2 edges to [[_COMMUNITY_Community 5]]
-- 2 edges to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 11]]
-- 1 edge to [[_COMMUNITY_Community 16]]
-- 1 edge to [[_COMMUNITY_Community 7]]
+- 3 edges to [[_COMMUNITY_Community 12]]
+- 1 edge to [[_COMMUNITY_Community 15]]
+- 1 edge to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[submitAnswer()]] - degree 15, connects to 5 communities
-- [[sessionSet()]] - degree 8, connects to 3 communities
-- [[getNextQuestion()]] - degree 5, connects to 1 community
+- [[log()_1]] - degree 21, connects to 3 communities

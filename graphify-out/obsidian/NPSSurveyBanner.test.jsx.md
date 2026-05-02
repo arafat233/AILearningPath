@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx"
 type: "code"
-community: "Community 101"
+community: "Community 96"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_101
+  - community/Community_96
 ---
 
 # NPSSurveyBanner.test.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[NPSSurveyBanner()_1]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_101
+#graphify/code #graphify/EXTRACTED #community/Community_96

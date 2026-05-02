@@ -43,7 +43,7 @@ export const getRevisionTopics = async (userId) => {
     }
   }
 
-  return due.sort((a, b) => b.priority - a.priority);
+  return due.sort((a, b) => b.priority - a.priority).slice(0, 20);
 };
 
 // Accuracy threshold: below 50% the student hasn't mastered this topic yet — demote.

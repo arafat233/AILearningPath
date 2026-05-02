@@ -78,6 +78,16 @@ export async function sessionDel(key) {
 
 export function isUsingFallback() { return usingFallback || !client; }
 
+export async function pingRedis() {
+  if (!client) return false;
+  try {
+    const pong = await client.ping();
+    return pong === "PONG";
+  } catch {
+    return false;
+  }
+}
+
 // Distributed cron lock — prevents duplicate cron runs in multi-pod deployments.
 // Returns true if this pod acquired the lock (should run the cron).
 // Returns false if another pod already holds the lock (skip this run).

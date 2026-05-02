@@ -71,8 +71,8 @@ Check off each item as it is fixed and committed.
 ## MEDIUM — Fix in Week 3-4
 
 - [ ] **[UX] Onboarding.jsx** — goal field shown but separate capture path never wired up
-- [ ] **[UX] Practice.jsx** — DoubtChat does not auto-scroll to newest message
-- [ ] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
+- [x] **[UX] Practice.jsx** — DoubtChat does not auto-scroll to newest message
+- [x] **[UX] Practice.jsx** — No keyboard shortcuts (A/B/C/D) for answer options
 - [ ] **[UX] VoiceTutor.jsx** — No visual waveform / speaking animation while mic is active
 - [ ] **[UX] Competition.jsx** — No countdown before room starts; players join mid-question
 - [ ] **[UX] Analytics.jsx** — Thinking profile shown after only 1 attempt
@@ -83,28 +83,28 @@ Check off each item as it is fixed and committed.
 - [ ] **[PERF] Lessons.jsx** — No React.memo on list items — full re-render on search keystroke
 - [ ] **[PERF] AdminUsers.jsx** — No pagination — entire user collection loaded into DOM
 - [ ] **[PERF] AdminQuestions.jsx** — No server-side pagination
-- [ ] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
+- [x] **[PERF] revisionRoutes.js** — /revision/due returns all overdue items without limit
 - [ ] **[ARCH] logger.js** — No request correlation / trace ID in log lines
 - [ ] **[ARCH] paymentService.js** — No DB transaction wrapping payment record + user upgrade — partial write risk
-- [ ] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
+- [x] **[ARCH] couponService.js** — No distributed lock on single-use coupon redemption — concurrent redemptions can both succeed
 - [ ] **[ARCH] models/index.js** — No soft-delete on Question — deleted questions break ExamReview history
-- [ ] **[SEC] authController.js** — passwordResetToken stored as plain text; should be SHA-256 hashed
-- [ ] **[SEC] helmet** — No report-uri in CSP — violations go unreported
+- [x] **[SEC] authController.js** — passwordResetToken stored as plain text; should be SHA-256 hashed
+- [x] **[SEC] helmet** — No report-uri in CSP — violations go unreported
 - [ ] **[SEC] cookies** — No __Host- prefix on session/CSRF cookies — cookie tossing on subdomains
-- [ ] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
+- [x] **[OPS] /api/health** — Does not check Redis — degraded Redis state invisible to load balancer
 - [x] **[OPS] server.js** — App accepts traffic before MongoDB connect() resolves — early requests hit unhandled rejections
-- [ ] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
+- [x] **[OPS] ci.yml** — Frontend Vitest not run in CI pipeline
 - [ ] **[OPS] docker/** — No Dockerfile for frontend
-- [ ] **[OPS] docker/** — No .dockerignore — node_modules copied into build context
+- [x] **[OPS] docker/** — No .dockerignore — node_modules copied into build context
 - [ ] **[TEST] __tests__/** — No E2E tests (Playwright / Cypress) for critical flows
 - [ ] **[TEST] __tests__/** — No tests for authController
 - [ ] **[TEST] __tests__/** — No tests for paymentService or couponService
 - [ ] **[TEST] __tests__/** — No tests for portalController
-- [ ] **[DATA] models/index.js** — No max-length validation on weakTopics array
+- [x] **[DATA] models/index.js** — No max-length validation on weakTopics array
 - [ ] **[DATA] models/index.js** — aiCallsDate is a String not a Date — timezone edge cases at midnight
-- [ ] **[DATA] models/index.js** — No compound index on (userId, topic) for Attempt
-- [ ] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
-- [ ] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
+- [x] **[DATA] models/index.js** — No compound index on (userId, topic) for Attempt
+- [x] **[DATA] models/index.js** — No index on Attempt.topic for aggregate queries
+- [x] **[ANALYTICS] adminStatsController.js** — revenueTrend chart values in paise; label says Rs.
 - [ ] **[ANALYTICS] predictionService.js** — No documentation, confidence interval, or historical validation
 - [ ] **[CONTENT] ncertRoutes.js** — NCERT content is placeholder text; not real CBSE content
 - [ ] **[CONTENT] pyqRoutes.js** — PYQ routes exist but no seed data — always returns empty arrays

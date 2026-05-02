@@ -33,7 +33,23 @@ export function computeDiscount(coupon, basePrice) {
   return { discountAmount, finalPrice, discountLabel };
 }
 
-// Atomic increment — safe under concurrent requests
+// Atomic conditional increment — prevents double-redemption under concurrent requests.
+// Only succeeds if usedCount is still below maxUses (or maxUses is 0 = unlimited).
+// Returns the updated coupon or throws if already exhausted.
 export async function redeemCoupon(couponId) {
-  await Coupon.findByIdAndUpdate(couponId, { $inc: { usedCount: 1 } });
+  const coupon = await Coupon.findById(couponId).lean();
+  if (!coupon) throw new AppError("Coupon not found", 404);
+
+  const filter = coupon.maxUses > 0
+    ? { _id: couponId, usedCount: { $lt: coupon.maxUses } }
+    : { _id: couponId };
+
+  const updated = await Coupon.findOneAndUpdate(
+    filter,
+    { $inc: { usedCount: 1 } },
+    { new: true }
+  );
+
+  if (!updated) throw new AppError("Coupon usage limit reached", 400);
+  return updated;
 }

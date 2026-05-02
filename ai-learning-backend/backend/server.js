@@ -17,7 +17,7 @@ import { runWeeklyParentEmails } from "./services/weeklyParentEmailService.js";
 import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
-import { connectRedis, isUsingFallback, acquireCronLock } from "./utils/redisClient.js";
+import { connectRedis, isUsingFallback, acquireCronLock, pingRedis } from "./utils/redisClient.js";
 import { initSentry } from "./utils/sentry.js";
 import { getFlagsForUser } from "./utils/featureFlags.js";
 import jwt from "jsonwebtoken";
@@ -65,9 +65,21 @@ app.use(helmet({
       fontSrc:        ["'self'"],
       objectSrc:      ["'none'"],
       frameAncestors: ["'none'"],
+      reportTo:       "csp-endpoint",
     },
+    reportOnly: false,
   },
 }));
+
+// CSP violation reports endpoint (add Reporting-Endpoints header for modern browsers)
+app.use((req, res, next) => {
+  res.setHeader("Reporting-Endpoints", `csp-endpoint="${process.env.CSP_REPORT_URI || "/api/csp-report"}"`);
+  next();
+});
+app.post("/api/csp-report", express.json({ type: "application/csp-report" }), (req, res) => {
+  logger.warn("CSP violation", { report: req.body?.["csp-report"] });
+  res.status(204).end();
+});
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
   .split(",")
@@ -172,7 +184,15 @@ app.get("/api/health", async (_req, res) => {
     health.status = "degraded";
   }
 
-  health.checks.redis = isUsingFallback() ? "fallback (in-memory)" : "ok";
+  if (isUsingFallback()) {
+    health.checks.redis = "fallback (in-memory)";
+    health.status = "degraded";
+  } else {
+    const redisAlive = await pingRedis().catch(() => false);
+    health.checks.redis = redisAlive ? "ok" : "error";
+    if (!redisAlive) health.status = "degraded";
+  }
+
   health.checks.anthropic = process.env.ANTHROPIC_API_KEY ? "key-set" : "missing";
 
   res.status(health.status === "ok" ? 200 : 503).json(health);

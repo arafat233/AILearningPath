@@ -23,7 +23,7 @@ const updateMeSchema = Joi.object({
   grade:      Joi.string().optional(),
   subject:    Joi.string().optional(),
   goal:       Joi.string().optional(),
-  weakTopics: Joi.array().items(Joi.string()).optional(),
+  weakTopics: Joi.array().items(Joi.string().max(200)).max(20).optional(),
 });
 
 // SEC-16: requires auth — topics list is product IP, not public data

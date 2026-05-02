@@ -137,9 +137,10 @@ const attemptSchema = new mongoose.Schema({
   examId:       String,
   createdAt:    { type: Date, default: Date.now },
 });
-// Most common queries: user's history sorted by date, and per-topic breakdown
+// Most common queries: user's history sorted by date, per-topic breakdown, and cross-user topic aggregates
 attemptSchema.index({ userId: 1, createdAt: -1 });
 attemptSchema.index({ userId: 1, topic: 1 });
+attemptSchema.index({ topic: 1 }); // for admin aggregate queries across all users
 export const Attempt = mongoose.model("Attempt", attemptSchema);
 
 // ==================== SeenQuestion (exposure control) ====================
@@ -174,7 +175,7 @@ const userProfileSchema = new mongoose.Schema({
     enum: ["Guesser","Surface Learner","Overthinker","Pattern Recognizer","Deep Thinker"],
     default: "Surface Learner",
   },
-  weakAreas:   [String],
+  weakAreas:   { type: [String], validate: { validator: (a) => a.length <= 20, message: "weakAreas exceeds 20 items" } },
   strongAreas: [String],
   behaviorStats: {
     guessing:           { type: Number, default: 0 },

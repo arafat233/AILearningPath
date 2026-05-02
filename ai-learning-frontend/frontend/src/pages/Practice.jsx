@@ -78,6 +78,17 @@ export default function Practice() {
   // Keep ref current so the timer closure never captures a stale handleAnswer
   handleAnswerRef.current = handleAnswer;
 
+  // Keyboard shortcuts: A/B/C/D select answer options
+  useEffect(() => {
+    if (!question || feedback) return;
+    const onKey = (e) => {
+      const idx = ["a","b","c","d"].indexOf(e.key.toLowerCase());
+      if (idx !== -1 && question.options?.[idx]) handleAnswerRef.current(idx);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [question, feedback]);
+
   useEffect(() => {
     if (question && !feedback) {
       startTimeRef.current = Date.now();

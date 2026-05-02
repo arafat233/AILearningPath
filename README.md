@@ -36,7 +36,26 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Forgot password (email reset, 1h expiry) | Complete |
 | Payment / Subscription (Razorpay — Pro ₹199/mo, Premium ₹499/mo) | Complete |
 | PWA manifest + service worker (offline fallback + push shell) | Complete |
-| Jest test suite (22 unit tests) | Complete |
+| 7-day free trial + annual plan options | Complete |
+| Terms of Service + Privacy Policy pages | Complete |
+| Dark mode support | Complete |
+| Refresh token family tracking (stolen-token detection) | Complete |
+| Voice history persistence (Redis, 7-day TTL) | Complete |
+| Push notifications (VAPID, Web Push — revision + study reminders) | Complete |
+| NPS in-app survey (0–10, 30-day cooldown, 5+ attempts gate) | Complete |
+| Error monitoring (Sentry — backend + frontend, no-op without DSN) | Complete |
+| Database backup (mongodump + gzip, nightly GitHub Actions cron, optional S3) | Complete |
+| Coupon system (percent / fixed discount, planFilter, atomic redemption) | Complete |
+| Referral system (invite code, 30-day reward, double-reward guard) | Complete |
+| Feature flags (env-var overrides, % rollout, `/api/flags`, `useFeatureFlags` hook) | Complete |
+| NCERT chapter + topic content routes | Complete |
+| PYQ (Past Year Questions) browse + filter routes | Complete |
+| Admin analytics dashboard (DAU / MAU / revenue / 30-day charts) | Complete |
+| Admin coupon CRUD | Complete |
+| Question bookmarks | Complete |
+| Jest backend test suite (22 unit tests) | Complete |
+| Vitest frontend test suite (16 unit tests) | Complete |
+| k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |
 | Docker + PM2 deployment configs | Complete |
 
 ---
@@ -103,8 +122,24 @@ npm run seed:social-science-curriculum # CBSE Class 10 Social Science — 22 cha
 ### 4. Run Tests
 
 ```bash
+# Backend (Jest)
 cd ai-learning-backend/backend
 npm test
+
+# Frontend (Vitest)
+cd ai-learning-frontend/frontend
+npm test
+
+# Load tests (requires k6 — https://k6.io/docs/get-started/installation/)
+k6 run load-tests/practice-session.js
+```
+
+### 5. Database Backup (optional)
+
+```bash
+cd ai-learning-backend/backend
+npm run backup    # creates gzip snapshot in ./backups/
+npm run restore   # restores latest local backup (5-second abort window)
 ```
 
 ---
@@ -119,12 +154,24 @@ npm test
 | `CLAUDE_MODEL` | No | Default: `claude-haiku-4-5-20251001` |
 | `PORT` | No | Default: `5001` |
 | `FRONTEND_URL` | No | CORS origin — default `http://localhost:5173` |
-| `REDIS_URL` | No | Redis for session store; falls back to in-memory in dev |
-| `RAZORPAY_KEY_ID` | No | Payment integration |
-| `RAZORPAY_KEY_SECRET` | No | Payment integration |
-| `VAPID_PUBLIC_KEY` | No | PWA push notifications (not yet wired) |
-| `VAPID_PRIVATE_KEY` | No | PWA push notifications |
-| `VAPID_EMAIL` | No | PWA push notifications |
+| `REDIS_URL` | No | Redis for session/cache store; falls back to in-memory in dev |
+| `RAZORPAY_KEY_ID` | No | Razorpay payment integration |
+| `RAZORPAY_KEY_SECRET` | No | Razorpay payment integration |
+| `VAPID_PUBLIC_KEY` | No | Web Push — generate with `npx web-push generate-vapid-keys` |
+| `VAPID_PRIVATE_KEY` | No | Web Push private key |
+| `VAPID_EMAIL` | No | Web Push contact email |
+| `SENTRY_DSN` | No | Backend error monitoring (Sentry) |
+| `VITE_SENTRY_DSN` | No | Frontend error monitoring (Sentry) — set in frontend `.env` |
+| `SMTP_HOST` | No | Email — nodemailer; console-logs in dev if not set |
+| `SMTP_PORT` | No | Email SMTP port |
+| `SMTP_USER` | No | Email SMTP username |
+| `SMTP_PASS` | No | Email SMTP password |
+| `EMAIL_FROM` | No | From address for outgoing emails |
+| `BACKUP_DIR` | No | Local backup directory — default `./backups` |
+| `BACKUP_RETAIN_DAYS` | No | Days to keep local backups — default `7` |
+| `AWS_ACCESS_KEY_ID` | No | Optional S3 upload for backups |
+| `AWS_SECRET_ACCESS_KEY` | No | Optional S3 upload for backups |
+| `BACKUP_S3_BUCKET` | No | S3 bucket name for backup uploads |
 
 ---
 
@@ -164,7 +211,7 @@ db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
 
 | Route | Page |
 |---|---|
-| `/` | Dashboard — streak, AI teacher message, revision due |
+| `/` | Dashboard — streak, AI teacher message, revision due, NPS survey |
 | `/lessons` | Lessons — CBSE textbook chapters + AI lessons |
 | `/chapters/:n` | Chapter detail — sections, formulas, theorems, exercises |
 | `/practice` | Adaptive quiz with confidence tracking and DoubtChat |
@@ -173,12 +220,22 @@ db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
 | `/live` | Real-time Socket.IO quiz room |
 | `/planner` | Goal-based study calendar |
 | `/exam-review` | Past exams with per-question AI review |
-| `/voice-tutor` | Mic + TTS subject-aware tutor |
+| `/voice-tutor` | Mic + TTS subject-aware tutor with persistent history |
 | `/profile` | Badges, invite code generator |
-| `/settings` | Subject / grade / goal / exam date + subscription status |
-| `/portal` | Parent / teacher — link students, view analytics |
-| `/pricing` | Plan cards + Razorpay checkout |
-| `/admin` | Admin dashboard (role-gated) |
+| `/settings` | Subject / grade / goal / exam date + coupon input + referral card |
+| `/portal` | Parent / teacher — link students, view analytics, set study reminders |
+| `/pricing` | Plan cards + Razorpay checkout (monthly + annual) |
+| `/forgot-password` | Request password reset email |
+| `/reset-password/:token` | Set new password with strength indicator |
+| `/tos` | Terms of Service |
+| `/privacy` | Privacy Policy |
+| `/admin` | Admin overview (role-gated) |
+| `/admin/questions` | Question CRUD + flag queue |
+| `/admin/topics` | Topic CRUD |
+| `/admin/users` | User list + role management |
+| `/admin/cache` | AI cache hit rates + cost estimate |
+| `/admin/analytics` | DAU / MAU / revenue / 30-day charts |
+| `/admin/coupons` | Coupon CRUD |
 
 ---
 
@@ -204,25 +261,52 @@ Cache key: `MD5(questionText + "::" + mistakeType + "::" + subject)`
 AILearningPath/
 ├── ai-learning-backend/backend/
 │   ├── server.js
-│   ├── controllers/        # HTTP handlers only
-│   ├── services/           # all business logic
+│   ├── controllers/        # HTTP handlers only — no business logic
+│   ├── services/           # all business logic (AI, payment, coupons, push, etc.)
 │   ├── routes/             # route definitions + middleware wiring
-│   ├── models/             # Mongoose schemas (20+ collections)
-│   ├── middleware/         # auth, adminAuth, validate, errorHandler
-│   ├── utils/              # AppError, logger, redisClient, cache
-│   ├── config/             # seed scripts
-│   └── __tests__/          # Jest unit tests
+│   ├── models/             # Mongoose schemas (22+ collections)
+│   ├── middleware/         # auth, adminAuth, validate, errorHandler, csrf
+│   ├── utils/              # AppError, logger, redisClient, sentry, featureFlags
+│   ├── config/             # seed scripts (topics, lessons, CBSE curriculum)
+│   ├── scripts/            # backup.js, restore.js
+│   └── __tests__/          # Jest unit tests (22 tests)
 │
 ├── ai-learning-frontend/frontend/
 │   └── src/
 │       ├── pages/          # one file per route
-│       ├── pages/admin/    # admin-only pages
-│       ├── components/     # Layout, BadgeToast, DoubtChat
-│       ├── services/       # api.js (axios)
-│       └── store/          # Zustand auth store
+│       ├── pages/admin/    # admin-only pages (role-guarded)
+│       ├── components/     # Layout, BadgeToast, DoubtChat, FeedbackWidget
+│       ├── hooks/          # useFeatureFlags
+│       ├── services/       # api.js (axios + CSRF + 401 handler)
+│       ├── store/          # Zustand auth store
+│       └── __tests__/      # Vitest unit tests (16 tests)
+│
+├── load-tests/             # k6 load test scripts
+│   └── practice-session.js
+│
+├── .github/workflows/
+│   ├── ci.yml              # backend Jest + frontend Vite build
+│   └── backup.yml          # nightly mongodump cron
 │
 └── docker-compose.yml
 ```
+
+---
+
+## Security
+
+| Feature | Detail |
+|---|---|
+| JWT + refresh token family | 7-day access token; stolen-token detection via family tracking |
+| CSRF protection | Double-submit cookie (`csrf=` cookie + `x-csrf-token` header) |
+| Helmet | CSP, HSTS, and other HTTP security headers |
+| Rate limiting | 300 req / 15 min global; 20 profile updates / hour per user |
+| Input validation | Joi schemas on every mutating endpoint (422 on failure) |
+| Bcrypt passwords | Cost factor 12 |
+| Admin role guard | `adminAuth` middleware — JWT `role === "admin"` required |
+| ReDoS prevention | `escapeRegex()` on all user-supplied search inputs |
+| CORS | Origin whitelist from `FRONTEND_URL` env var — never hardcoded |
+| Error monitoring | Sentry captures unhandled errors (no-op without `SENTRY_DSN`) |
 
 ---
 

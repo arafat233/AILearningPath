@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — security batch 1–2, UX features, dark mode, trial, annual plans, ToS/Privacy.
+> Last updated: May 2026 — AUDIT_CHECKLIST complete: NPS survey, Sentry, backup, coupons/referrals, Vitest, k6, feature flags, voice history, push notifications, payment, NCERT/PYQ routes.
 
 ---
 
@@ -69,12 +69,34 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 _id, name, email, password (bcrypt)
 examDate, subject, grade, goal
 isPaid (bool), plan (free|pro|premium), planExpiry
+trialUsed (bool), trialStart (Date)
 aiCallsToday, aiCallsDate          ← daily AI quota tracking
-role: student|admin|parent|teacher ← NEW: role-based access
+role: student|admin|parent|teacher ← role-based access
 linkedStudents: [String]           ← parent/teacher portal
 inviteCode: String (sparse unique) ← 8-char student invite code
 npsLastShownAt: Date               ← NPS survey throttle (30-day cooldown)
+referredBy: ObjectId (ref: User)   ← referral system: who referred this user
+referralCount: Number (default 0)  ← how many users this user has referred
+referralRewarded: Boolean (false)  ← prevents double-reward for referrer
+studyReminders: [{                 ← parent-set push reminders
+  studentId: ObjectId, time: String (HH:MM), days: [Number]
+}]
+passwordResetToken:   String (SHA-256 hashed, null when not active)
+passwordResetExpires: Date   (1h from request, null when not active)
 createdAt
+```
+
+### 3.22 Coupon  ← NEW
+```
+code:          String (required, unique, uppercase, trimmed)
+discountType:  "percent" | "fixed"
+discountValue: Number (min 1)
+planFilter:    [String]   ← restrict to specific plan keys; empty = all plans
+validUntil:    Date | null
+maxUses:       Number (0 = unlimited)
+usedCount:     Number (default 0)
+isActive:      Boolean (default true)
+createdAt:     Date
 ```
 
 ### 3.2 Topic
@@ -232,13 +254,6 @@ messages: [{ role (user|assistant), content, createdAt }]
   ↳ capped at 20 messages (oldest trimmed)
 createdAt, updatedAt
 Index: { userId, questionId }
-```
-
-### 3.1 User (updated)
-```
-Added fields:
-  passwordResetToken:   String (SHA-256 hashed, null when not active)
-  passwordResetExpires: Date   (1h from request, null when not active)
 ```
 
 ### 3.20 PushSubscription  ← NEW
@@ -406,6 +421,41 @@ autoDoubt: surfaces recurring mistakes from ErrorMemory
 foundation: checks Topic.prerequisites against UserProfile.weakAreas
 ```
 
+### 4.14 couponService.js  ← NEW
+```
+validateCoupon(code, planKey) → checks isActive, validUntil, maxUses, planFilter → Coupon doc
+computeDiscount(coupon, basePrice) → { discountAmount, finalPrice, discountLabel }
+redeemCoupon(couponId) → atomic $inc on usedCount (race-condition safe)
+```
+
+### 4.15 paymentService.js  ← NEW
+```
+createOrder(userId, planKey, couponCode=null)
+  - validates coupon via validateCoupon
+  - applies discount; stores order_coupon:<orderId> in Redis
+  - creates Razorpay order with (discounted) amount
+  - stores order_plan:<orderId> in Redis (TTL 1h)
+
+verifyPayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature })
+  - verifies HMAC signature
+  - reads plan + coupon from Redis; calls redeemCoupon if coupon present
+  - upgrades User: isPaid=true, plan, planExpiry
+  - referral reward: if referredBy && !referralRewarded → 30 days to referrer + mark referralRewarded
+
+Plans: pro (₹199/mo, 100 AI/day), premium (₹499/mo, 500 AI/day),
+       pro_annual (₹1499/yr), premium_annual (₹3999/yr)
+Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
+```
+
+### 4.16 onboardingEmailService.js / weeklyParentEmailService.js / pushService.js  ← NEW
+```
+onboardingEmailService: drip sequence (day 0/3/7) via nodemailer
+weeklyParentEmailService: Monday 8am digest email to parents (portal users)
+pushService:
+  sendRevisionReminders() — daily: push to users with topics due today
+  sendStudyReminders()    — every minute: fires push at parent-set HH:MM
+```
+
 ---
 
 ## 5. BACKEND ROUTES — ALL ENDPOINTS
@@ -458,14 +508,21 @@ GET    /api/ai/cache-stats     → admin only (adminAuth)
 POST   /api/ai/chat                 → multi-turn tutor chat
 POST   /api/ai/evaluate-explanation
 POST   /api/ai/hint
-POST   /api/ai/voice-answer         ← NEW: VoiceTutor dedicated endpoint
+POST   /api/ai/voice-answer         ← VoiceTutor; persists history in Redis (7d TTL, 50-msg cap)
+GET    /api/ai/voice-history        ← load persisted voice conversation
+DELETE /api/ai/voice-history        ← clear voice history
 
 GET    /api/user/me
 PUT    /api/user/me            → rate-limited (20 updates/hour per user)
 DELETE /api/user/me            ← GDPR/PDPB: deletes User + all personal data
+GET    /api/user/bookmarks
+POST   /api/user/bookmarks/:questionId ← toggle bookmark
 
 GET    /api/competition/leaderboard
 POST   /api/competition/room-questions
+
+POST   /api/practice/mixed          ← mixed-topic practice session
+POST   /api/practice/flag           ← student flags a question for review
 ```
 
 ### New routes
@@ -476,10 +533,19 @@ GET    /api/doubt/:questionId       ← get/create doubt thread
 POST   /api/doubt/:questionId/message ← send message (counts AI quota)
 DELETE /api/doubt/:questionId       ← clear thread
 
-POST   /api/portal/generate-invite  ← student generates 8-char code
-POST   /api/portal/link             ← parent/teacher links by code
-GET    /api/portal/students         ← list linked students
+GET    /api/portal/search           ← search students by name/email
+POST   /api/portal/link-direct      ← link student by userId
+DELETE /api/portal/students/:id     ← unlink student
+GET    /api/portal/students         ← list linked students + basic stats
 GET    /api/portal/students/:id/analytics ← read-only student view
+GET    /api/portal/students/:id/dashboard ← student dashboard snapshot
+GET    /api/portal/requests         ← pending link requests
+POST   /api/portal/requests/:id/respond  ← accept/reject link request
+GET    /api/portal/class-stats      ← aggregate stats across all linked students
+GET    /api/portal/students/:id/attempts ← paginated attempt history for a student
+GET    /api/portal/reminders        ← get parent-set study reminders
+POST   /api/portal/reminders        ← set study reminder (time + days for a student)
+DELETE /api/portal/reminders/:studentId  ← remove reminder
 
 GET    /api/admin/stats             ← requires admin role
 GET    /api/admin/analytics         ← DAU/MAU/revenue/conversion/retention + 30-day trends
@@ -495,17 +561,44 @@ GET    /api/admin/topics
 POST   /api/admin/topics
 PUT    /api/admin/topics/:id
 DELETE /api/admin/topics/:id
+GET    /api/admin/coupons           ← admin coupon CRUD
+POST   /api/admin/coupons
+PUT    /api/admin/coupons/:id
+DELETE /api/admin/coupons/:id
 
 GET    /api/v1/curriculum/subjects     ← distinct subject+grade combos in DB
 GET    /api/v1/curriculum              ← all chapters (?subject=&grade=&board=)
 GET    /api/v1/curriculum/:chapterNumber ← full chapter detail + sections + formulas
 
-POST   /api/v1/payment/validate-coupon ← preview discount without creating order; returns discountLabel + finalPrice
-GET/POST/PUT/DELETE /api/admin/coupons ← admin coupon CRUD (code, discountType, discountValue, planFilter, maxUses)
+GET    /api/v1/ncert/chapters          ← NCERT chapter list (?subject=&grade=)
+GET    /api/v1/ncert/chapters/:id      ← single NCERT chapter detail
+GET    /api/v1/ncert/topics/:id        ← single NCERT topic content
+
+GET    /api/v1/pyq/topics              ← distinct topics that have PYQs
+GET    /api/v1/pyq/years               ← distinct years available
+GET    /api/v1/pyq                     ← paginated PYQs (?topic=&year=&subject=&grade=)
+GET    /api/v1/pyq/:id                 ← single PYQ
+
+GET    /api/v1/payment/plans           ← all plan definitions with pricing
+GET    /api/v1/payment/subscription    ← current user's subscription status
+POST   /api/v1/payment/create-order    ← create Razorpay order (body: planKey, couponCode?)
+POST   /api/v1/payment/verify          ← verify Razorpay payment signature + activate plan
+POST   /api/v1/payment/validate-coupon ← preview discount without creating order
+
+POST   /api/webhooks/razorpay          ← Razorpay webhook (raw body, no CSRF, no auth)
+
+GET    /api/push/vapid-public-key      ← returns VAPID_PUBLIC_KEY for SW subscription
+POST   /api/push/subscribe             ← save Web Push subscription object
+DELETE /api/push/subscribe             ← unsubscribe
+
+GET    /api/flags                      ← user-aware feature flag map; decodes cookie token if present
 
 POST   /api/feedback                ← submit NPS score (0-10) + optional comment; sets npsLastShownAt
 GET    /api/feedback/nps-eligible   ← returns { eligible: bool } — true if 5+ attempts AND 30-day cooldown passed
 GET    /api/feedback                ← admin only: NPS score (% promoters minus % detractors), avg, raw items
+
+PATCH  /api/planner/reorder         ← save drag-reordered topic order
+GET    /api/exam/leaderboard/:examId ← top scores for a specific exam
 ```
 
 ### Socket.IO Events (port 5001)
@@ -558,6 +651,9 @@ Server → Client:
 /portal        → Portal         — student: generate invite code
                                   parent/teacher: link students, view analytics
                                   Subject Mastery bars always shown (4 CBSE subjects pre-seeded at 0%)
+/pricing       → Pricing        — plan cards (Free/Pro/Premium/Annual), Razorpay checkout
+/tos           → TermsOfService — static legal page
+/privacy       → PrivacyPolicy  — static legal page
 ```
 
 ### Admin Pages (inside AdminLayout, admin role required)
@@ -570,13 +666,38 @@ Server → Client:
 /admin/analytics    → AdminAnalytics  — DAU, MAU, paid conversion %, 7-day retention,
                                         total revenue, 30-day bar charts (registrations,
                                         attempts, daily revenue)
+/admin/coupons      → AdminCoupons    — coupon CRUD (code, type, value, planFilter, maxUses, expiry)
+```
+
+### Key page updates
+```
+Dashboard.jsx   — NPSSurveyBanner (0-10 score, 30-day cooldown, 5+ attempts)
+                  LinkRequestsCard (pending parent/teacher link requests)
+Settings.jsx    — CouponInput (validate + apply coupon before checkout)
+                  ReferralCard (shareable /register?ref=<inviteCode>, shows referralCount)
+                  Subscription card with upgrade CTA for free users
+VoiceTutor.jsx  — Loads + displays persisted voice history on mount; clear history button
+Practice.jsx    — FeedbackWidget shown after session (rate question quality)
 ```
 
 ### Components
 ```
-Layout.jsx      — sidebar nav + outlet
-BadgeToast.jsx  — floating toast when newBadges[] returned from practice submit ← NEW
-DoubtChat.jsx   — expandable multi-turn chat below wrong answer in Practice ← NEW
+Layout.jsx           — sidebar nav + outlet
+BadgeToast.jsx       — floating toast when newBadges[] returned from practice submit
+DoubtChat.jsx        — expandable multi-turn chat below wrong answers in Practice
+FeedbackWidget.jsx   — inline 1-5 star + comment widget (used after practice sessions)
+```
+
+### Frontend test suite (Vitest 2.x + jsdom@24)
+```
+Location: src/__tests__/
+Runner:   vitest (npm test in frontend dir)
+Coverage: @vitest/coverage-v8
+
+src/__tests__/setup.js                    — @testing-library/jest-dom import
+src/__tests__/authStore.test.js           — 4 tests: initial state, setAuth, logout, re-auth
+src/__tests__/api.interceptors.test.js    — 7 tests: CSRF cookie, method filter, 401 logout
+src/__tests__/NPSSurveyBanner.test.jsx    — 5 tests: eligibility, score select, submit, dismiss
 ```
 
 ---
@@ -594,14 +715,21 @@ middleware/errorHandler.js — centralised error handler (AppError,
                               Mongoose validation, duplicate key, JWT) ← NEW
 
 utils/AppError.js        — operational error class with statusCode
-utils/email.js           — nodemailer wrapper; logs to console when SMTP not set ← NEW
+utils/email.js           — nodemailer wrapper; logs to console when SMTP not set
 utils/logger.js          — structured logger (pretty dev / JSON prod)
 utils/validateEnv.js     — crashes on startup if required env vars missing
 utils/redisClient.js     — ioredis singleton with in-memory fallback for dev
 utils/sentry.js          — Sentry init wrapper; no-op when SENTRY_DSN not set; exports Sentry for captureException
 utils/featureFlags.js    — flag registry with env-var overrides + rollout %; getFlagsForUser(user) for /api/flags endpoint
+  Rollout flags: new_ai_model (0%), new_practice_ui (0%)
+  Boolean flags: nps_survey, coupon_codes, voice_tutor, competition_rooms, parent_portal,
+                 weekly_digest_email, push_notifications (all default true)
 scripts/backup.js        — mongodump → gzip archive → optional S3 upload; prunes old local backups; npm run backup
 scripts/restore.js       — mongorestore from local file or S3 path; 5s abort window; npm run restore
+.github/workflows/backup.yml — nightly cron 02:00 UTC; only runs if vars.BACKUP_ENABLED == 'true'
+
+Frontend (main.jsx): Sentry browser SDK init with VITE_SENTRY_DSN + browserTracingIntegration
+Frontend hooks/useFeatureFlags.js: fetches /api/flags once per page load; isEnabled(name)
 
 Security hardening:
   helmet      — HTTP security headers (CSP, HSTS, etc.)
@@ -665,6 +793,13 @@ Files:
 CI/CD (.github/workflows/ci.yml):
   Triggers: push to main or cursor/** branches, PRs to main
   Jobs: backend Jest tests (with MongoDB service) + frontend Vite build
+
+Backup (.github/workflows/backup.yml):
+  Trigger: nightly cron 0 2 * * * (02:00 UTC) + workflow_dispatch
+  Guard: only runs when vars.BACKUP_ENABLED == 'true'
+  Installs mongodb-database-tools, runs node scripts/backup.js
+  Annotates the workflow run on failure
+  S3 upload optional: set AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY + BACKUP_S3_BUCKET
 ```
 
 ---
@@ -678,24 +813,42 @@ authStore (Zustand + persist):
   login(token, user), logout()
 
 api.js (axios, baseURL: http://localhost:5001/api):
-  Auto-attaches Bearer token. On 401 → logout().
+  CSRF: reads csrf= cookie, sends x-csrf-token header on POST/PUT/PATCH/DELETE
+  On 401 (except /user/me) → logout()
 
-New functions added to api.js:
-  getPrediction()
-  getBadges()
-  getDoubtThread(questionId)
-  sendDoubtMessage(questionId, message, topic, subject)
-  clearDoubtThread(questionId)
-  voiceAnswer(transcript, subject, topic)
-  generateInvite()
-  linkStudent(inviteCode)
-  getLinkedStudents()
-  getStudentAnalytics(studentId)
-  adminGet* / adminCreate* / adminUpdate* / adminDelete* (8 admin functions)
-
-  getCurriculumSubjects()
-  listCurriculumChapters(subject, grade)
-  getCurriculumChapter(chapterNumber, subject, grade)
+Complete api.js exports:
+  Auth:     register, login, logoutApi, forgotPassword, resetPassword
+  User:     getMe, updateMe, deleteMe, toggleBookmark, getBookmarks
+  Topics:   getTopics, getTopicsMeta, searchTopics
+  Lessons:  listLessons, getLesson, saveProgress
+  Practice: startTopic, submitAnswer, startMixedPractice, flagQuestion
+  Analysis: getReport, getErrorMemory, getWeeklyLeaderboard, getPrediction
+  Revision: getRevisionDue, markRevised, getLastDayRevision
+  Exams:    listExams, startExam, submitExam, getLeaderboard(examId)
+  Planner:  getPlan, markDayComplete, saveTopicOrder
+  AI:       getAIAdvice, getAIUsage, getAICacheStats, askTutor,
+            evaluateExplanation, getHint, voiceAnswer,
+            getVoiceHistory, clearVoiceHistory
+  Badges:   getBadges
+  Feedback: submitFeedback, getNpsEligibility
+  Doubt:    getDoubtThread, sendDoubtMessage, clearDoubtThread
+  Portal:   searchStudents, linkStudentDirect, removeLinkedStudent,
+            getLinkedStudents, getStudentAnalytics, getStudentDashboard,
+            getLinkRequests, respondToLinkRequest, getClassStats,
+            getStudentAttempts, getStudyReminders, setStudyReminder, deleteStudyReminder
+  Competition: getRoomQuestions
+  Curriculum: getCurriculumSubjects, listCurriculumChapters, getCurriculumChapter
+  NCERT:    listNcertChapters, getNcertChapter, getNcertTopicContent
+  PYQ:      getPYQTopics, getPYQYears, getPYQs, getPYQById
+  Payment:  getPlans, getSubscription, createOrder(planKey, couponCode?),
+            verifyPayment, validateCoupon
+  Push:     getVapidKey, subscribePush, unsubscribePush
+  Flags:    getFlags
+  Admin:    adminGetStats, adminGetAnalytics, adminGetUsers, adminUpdateRole,
+            adminGetQuestions, adminGetFlagged, adminCreateQuestion,
+            adminUpdateQuestion, adminDeleteQuestion, adminUnflagQuestion,
+            adminGetTopics, adminCreateTopic, adminUpdateTopic, adminDeleteTopic,
+            adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon
 ```
 
 ---
@@ -779,42 +932,61 @@ npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science t
 
 ---
 
-## 12. TEST SUITE  ← NEW
+## 12. TEST SUITE
 
+### Backend (Jest ESM)
 ```
 Location: backend/__tests__/
 Runner:   node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js
-Command:  npm test
+Command:  npm test  (in ai-learning-backend/backend/)
 
-__tests__/analysisService.test.js   — 7 tests (all pass)
-  ✅ fast+wrong → guessing override
-  ✅ correct answer → isCorrect true
-  ✅ slow+correct → deep_thinker
-  ✅ fast+correct → mastery
-  ✅ high confidence+wrong → dangerous_misconception
-  ✅ low confidence+right → unstable_knowledge
-  ✅ normal time+partial_logic → keeps classification
-
-__tests__/scoringService.test.js    — 6 tests (all pass)
-  ✅ all wrong → score 0
-  ✅ correct answers → positive score
-  ✅ fast correct > slow correct
-  ✅ hard correct > easy correct
-  ✅ identical scores normalize to 0
-  ✅ returns one entry per attempt
-
+__tests__/analysisService.test.js   — 7 tests
+__tests__/scoringService.test.js    — 6 tests
 __tests__/plannerService.test.js    — 4 tests (mocked Mongoose)
-  ✅ dailyPlan length respects daysLeft
-  ✅ scholarship goal → minimal skipSuggestions
-  ✅ pass goal → has skipSuggestions
-  ✅ priorityTopics always present
-
 __tests__/aiRouter.test.js          — 5 tests (mocked Mongoose + aiService)
-  ✅ correct answer → null immediately
-  ✅ solutionSteps present → no Claude call
-  ✅ guessing → static message, no Claude
-  ✅ misinterpretation → static message
-  ✅ novel concept_error → Claude called once
+Total: 22 backend tests
+```
+
+### Frontend (Vitest 2.x + jsdom@24)
+```
+Location: src/__tests__/
+Runner:   vitest  (npm test in ai-learning-frontend/frontend/)
+Coverage: @vitest/coverage-v8
+Node version requirement: ≥20.11.1 (pinned vitest@2 for Node 20.11.1 compatibility)
+
+src/__tests__/setup.js                    — @testing-library/jest-dom import
+src/__tests__/authStore.test.js           — 4 tests
+  ✅ initial state is null
+  ✅ setAuth stores user (ignores token)
+  ✅ logout clears state
+  ✅ re-auth replaces previous user
+src/__tests__/api.interceptors.test.js    — 7 tests
+  ✅ CSRF token extracted from cookie
+  ✅ POST/PUT/DELETE get x-csrf-token header
+  ✅ GET/HEAD/OPTIONS do not get header
+  ✅ 401 triggers logout
+  ✅ 401 on /user/me does NOT trigger logout
+  ✅ non-401 error does not trigger logout
+  ✅ successful response passes through
+src/__tests__/NPSSurveyBanner.test.jsx    — 5 tests
+  ✅ renders nothing when not eligible
+  ✅ shows survey when eligible
+  ✅ submit disabled until score selected
+  ✅ shows thanks after successful submission
+  ✅ dismiss hides banner
+Total: 16 frontend tests
+```
+
+### Load Tests (k6)
+```
+Location: load-tests/practice-session.js
+Runner:   k6 run load-tests/practice-session.js
+  (requires k6 installed: https://k6.io/docs/get-started/installation/)
+
+Flow: login → GET /topics → POST /practice/start → 5× POST /practice/submit
+Stages: 15s→20VU ramp, 30s→100VU ramp, 60s sustain, 15s ramp-down
+Custom metrics: loginDuration, startDuration, submitDuration (Trend), sessionErrors (Counter)
+Thresholds: http_req_failed < 2%, p(95) < 2000ms
 ```
 
 ---
@@ -896,9 +1068,29 @@ To activate push (not yet wired):
 | CBSE Class 10 Social Science curriculum (22 chapters — History/Geo/Eco/PolSci, seed) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
-| Payment / Subscription system (Razorpay — Pro ₹199/mo, Premium ₹499/mo) | ✅ Complete |
+| Payment / Subscription system (Razorpay — Pro ₹199/mo, Premium ₹499/mo, annual plans) | ✅ Complete |
 | Pricing page (/pricing) with plan cards and Razorpay checkout | ✅ Complete |
 | Settings page subscription status card with Upgrade CTA | ✅ Complete |
+| 7-day free trial + annual plan options | ✅ Complete |
+| Terms of Service + Privacy Policy pages | ✅ Complete |
+| Dark mode support | ✅ Complete |
+| Refresh token family tracking (stolen-token detection) | ✅ Complete |
+| Exam timer server-side sync + weak topics UI in exams | ✅ Complete |
+| Voice history persistence (Redis 7-day TTL, 50-msg cap) | ✅ Complete |
+| Push notifications (VAPID, Web Push API, revision + study reminders) | ✅ Complete |
+| NPS in-app survey (0-10, 30-day cooldown, 5+ attempts gate) | ✅ Complete |
+| Error monitoring (Sentry — backend + frontend, no-op when DSN not set) | ✅ Complete |
+| Database backup (mongodump + gzip, nightly GitHub Actions cron, optional S3) | ✅ Complete |
+| Coupon system (percent/fixed discount, planFilter, maxUses, atomic redemption) | ✅ Complete |
+| Referral system (inviteCode, referredBy, 30-day reward, double-reward guard) | ✅ Complete |
+| Frontend test suite (Vitest 2.x, 16 tests — authStore, API interceptors, NPS) | ✅ Complete |
+| k6 load tests (100VU practice-session flow, p95 thresholds) | ✅ Complete |
+| Feature flags (env-var overrides, % rollout, /api/flags, useFeatureFlags hook) | ✅ Complete |
+| NCERT chapter + topic content routes | ✅ Complete |
+| PYQ (Past Year Questions) browse + filter routes | ✅ Complete |
+| Admin analytics dashboard (DAU/MAU/revenue/30-day charts) | ✅ Complete |
+| Admin coupon CRUD | ✅ Complete |
+| Question bookmarks (toggle + list) | ✅ Complete |
 
 ---
 
@@ -913,11 +1105,8 @@ Plans: Pro ₹199/mo (100 AI calls/day), Premium ₹499/mo (500 AI calls/day)
 Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 
 ### Priority 2 — Engagement
-**Push Notifications (backend shell exists)**
-- VAPID keys needed: `npx web-push generate-vapid-keys`
-- Install: `npm install web-push`
-- Wire: POST /api/notifications/subscribe (save PushSubscription to DB)
-- Wire: cron trigger: POST /api/cron/daily (check revision due + streak at risk)
+**Push Notifications** ✅ DONE — VAPID keys wired, /api/push/subscribe active,
+  revision + study reminders fire via pushService.js
 
 **Personalised Daily Brief**
 - Morning AI summary for each student on Dashboard first load
@@ -950,16 +1139,46 @@ Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 ## 15. ENV VARIABLES
 
 ```
+# Required (server exits on startup if missing)
 MONGO_URI=
 JWT_SECRET=
 ANTHROPIC_API_KEY=
+
+# Optional — defaults shown
 CLAUDE_MODEL=claude-haiku-4-5-20251001
 PORT=5001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 
-# Optional — for PWA push notifications (not yet active)
-VAPID_PUBLIC_KEY=
+# Razorpay payments
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+
+# Push notifications (Web Push)
+VAPID_PUBLIC_KEY=    # npx web-push generate-vapid-keys
 VAPID_PRIVATE_KEY=
 VAPID_EMAIL=
+
+# Error monitoring
+SENTRY_DSN=                    # backend
+VITE_SENTRY_DSN=               # frontend (in frontend .env)
+
+# Email (nodemailer — console-logs in dev if not set)
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+EMAIL_FROM=
+
+# Redis (falls back to in-memory Map in dev if not set)
+REDIS_URL=
+
+# Database backup
+BACKUP_DIR=./backups
+BACKUP_RETAIN_DAYS=7
+AWS_ACCESS_KEY_ID=             # optional S3 upload
+AWS_SECRET_ACCESS_KEY=
+BACKUP_S3_BUCKET=
 ```
 
 ---
@@ -988,9 +1207,21 @@ npm run seed:english-curriculum       # CBSE Class 10 English — 23 chapters
 npm run seed:hindi-curriculum         # CBSE Class 10 Hindi — 32 chapters
 npm run seed:social-science-curriculum # CBSE Class 10 Social Science — 22 chapters
 
-# Tests
+# Backend tests
 cd ai-learning-backend/backend
 npm test
+
+# Frontend tests
+cd ai-learning-frontend/frontend
+npm test
+
+# Load tests (requires k6)
+k6 run load-tests/practice-session.js
+
+# Database backup
+cd ai-learning-backend/backend
+npm run backup             # create backup
+npm run restore            # restore latest backup
 
 # Make yourself admin (run in MongoDB shell or Compass)
 db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
@@ -1030,39 +1261,51 @@ AILearningPath/
 │   │   └── practiceController.js
 │   │
 │   ├── services/
-│   │   ├── aiService.js          ← UPDATED: getSystemPrompt(subject), 5 prompts
-│   │   ├── aiRouter.js           ← UPDATED: subject in cache key, exported checkAndIncrementUsage
+│   │   ├── aiService.js                ← getSystemPrompt(subject), 5 subject prompts
+│   │   ├── aiRouter.js                 ← 7-layer cache, subject in key, checkAndIncrementUsage
 │   │   ├── adaptiveService.js
 │   │   ├── analysisService.js
 │   │   ├── aiTeacherService.js
 │   │   ├── autoDoubtService.js
-│   │   ├── badgeService.js       ← NEW: checkAndAwardBadges, getUserBadges
+│   │   ├── badgeService.js             ← checkAndAwardBadges, getUserBadges
+│   │   ├── couponService.js            ← validateCoupon, computeDiscount, redeemCoupon
 │   │   ├── foundationService.js
+│   │   ├── onboardingEmailService.js   ← drip email sequence (day 0/3/7)
+│   │   ├── paymentService.js           ← Razorpay order + verify + referral reward
 │   │   ├── plannerService.js
-│   │   ├── predictionService.js  ← NEW: predictExamScore (weighted by marks×freq)
+│   │   ├── predictionService.js        ← predictExamScore (weighted by marks×freq)
 │   │   ├── profileService.js
+│   │   ├── pushService.js              ← sendRevisionReminders, sendStudyReminders
 │   │   ├── revisionService.js
 │   │   ├── scoringService.js
 │   │   ├── selfLearningService.js
-│   │   └── streakService.js
+│   │   ├── streakService.js
+│   │   └── weeklyParentEmailService.js ← Monday digest email to parents
 │   │
 │   ├── routes/
-│   │   ├── adminRoutes.js        ← NEW: /api/admin/* (adminAuth protected)
-│   │   ├── curriculumRoutes.js   ← NEW: /api/v1/curriculum/*
-│   │   ├── aiRoutes.js           ← UPDATED: + /voice-answer
-│   │   ├── analysisRoutes.js     ← UPDATED: + /predict
+│   │   ├── adminRoutes.js        ← /api/admin/* (stats, users, questions, topics, coupons)
+│   │   ├── aiRoutes.js           ← + /voice-answer, /voice-history
+│   │   ├── analysisRoutes.js     ← + /predict
 │   │   ├── authRoutes.js
-│   │   ├── badgeRoutes.js        ← NEW: GET /api/badges
+│   │   ├── badgeRoutes.js        ← GET /api/badges
 │   │   ├── competitionRoutes.js
-│   │   ├── doubtRoutes.js        ← NEW: /api/doubt/:questionId (GET/POST/DELETE)
+│   │   ├── companyRoutes.js
+│   │   ├── curriculumRoutes.js   ← /api/v1/curriculum/*
+│   │   ├── doubtRoutes.js        ← /api/doubt/:questionId (GET/POST/DELETE)
 │   │   ├── examRoutes.js
+│   │   ├── feedbackRoutes.js     ← /api/feedback (NPS submit + eligibility + admin view)
 │   │   ├── lessonRoutes.js
-│   │   ├── plannerRoutes.js
-│   │   ├── portalRoutes.js       ← NEW: /api/portal/*
-│   │   ├── practiceRoutes.js
+│   │   ├── ncertRoutes.js        ← /api/v1/ncert/chapters + /topics
+│   │   ├── paymentRoutes.js      ← /api/v1/payment/* (plans/subscription/create-order/verify/validate-coupon)
+│   │   ├── plannerRoutes.js      ← + PATCH /reorder
+│   │   ├── portalRoutes.js       ← /api/portal/* (full set: search, link, students, analytics, reminders)
+│   │   ├── practiceRoutes.js     ← + /mixed, /flag
+│   │   ├── pushRoutes.js         ← /api/push/vapid-public-key + subscribe (POST/DELETE)
+│   │   ├── pyqRoutes.js          ← /api/v1/pyq/* (topics/years/list/detail)
 │   │   ├── revisionRoutes.js
 │   │   ├── topicRoutes.js
-│   │   └── userRoutes.js
+│   │   ├── userRoutes.js         ← + /bookmarks
+│   │   └── webhookRoutes.js      ← POST /api/webhooks/razorpay (raw body)
 │   │
 │   ├── middleware/
 │   │   ├── auth.js              ← JWT verify → req.user
@@ -1071,13 +1314,16 @@ AILearningPath/
 │   │   └── errorHandler.js      ← NEW: centralised error handler
 │   │
 │   ├── utils/
-│   │   ├── AppError.js          ← NEW: operational error class
-│   │   ├── logger.js            ← NEW: structured logger (pretty dev / JSON prod)
-│   │   ├── validateEnv.js       ← NEW: startup crash if required env vars missing
-│   │   ├── redisClient.js       ← NEW: ioredis singleton + in-memory fallback
+│   │   ├── AppError.js          ← operational error class
 │   │   ├── cache.js             ← in-memory LRU (24h TTL)
+│   │   ├── email.js             ← nodemailer wrapper (console fallback)
+│   │   ├── featureFlags.js      ← flag registry, env overrides, rollout %, getFlagsForUser
+│   │   ├── logger.js            ← structured logger (pretty dev / JSON prod)
+│   │   ├── questionGenerator.js
+│   │   ├── redisClient.js       ← ioredis singleton + in-memory fallback
+│   │   ├── sentry.js            ← Sentry init, no-op without DSN
 │   │   ├── socket.js            ← Socket.IO competition rooms
-│   │   └── questionGenerator.js
+│   │   └── validateEnv.js       ← startup crash if required env vars missing
 │   │
 │   ├── config/
 │   │   ├── seed.js
@@ -1085,13 +1331,17 @@ AILearningPath/
 │   │   ├── seedSubjects.js      ← NEW: 50+ Science/English/SocSci/Hindi topics
 │   │   └── seedMathCurriculum.js ← NEW: 14 CBSE Class 10 Math chapters
 │   │
-│   ├── __tests__/               ← NEW: Jest ESM test suite
+│   ├── __tests__/               ← Jest ESM test suite (22 backend tests)
 │   │   ├── analysisService.test.js   (7 tests)
 │   │   ├── scoringService.test.js    (6 tests)
 │   │   ├── plannerService.test.js    (4 tests, mocked)
 │   │   └── aiRouter.test.js          (5 tests, mocked)
 │   │
-│   └── package.json             ← UPDATED: jest config + npm test script
+│   ├── scripts/
+│   │   ├── backup.js            ← mongodump + gzip + optional S3 + prune
+│   │   └── restore.js           ← mongorestore from local or S3, 5s abort window
+│   │
+│   └── package.json             ← jest config + npm test + npm run backup/restore
 │
 └── ai-learning-frontend/frontend/
     ├── index.html               ← UPDATED: manifest link + theme-color meta
@@ -1110,33 +1360,48 @@ AILearningPath/
         │
         ├── components/
         │   ├── Layout.jsx
-        │   ├── BadgeToast.jsx   ← NEW: toast when badge awarded
-        │   └── DoubtChat.jsx    ← NEW: multi-turn chat below wrong answers
+        │   ├── BadgeToast.jsx       ← toast when badge awarded
+        │   ├── DoubtChat.jsx        ← multi-turn chat below wrong answers
+        │   └── FeedbackWidget.jsx   ← 1-5 star + comment (after practice sessions)
+        │
+        ├── hooks/
+        │   └── useFeatureFlags.js   ← fetches /api/flags once per page load
+        │
+        ├── __tests__/               ← Vitest 2.x test suite (16 tests)
+        │   ├── setup.js
+        │   ├── authStore.test.js         (4 tests)
+        │   ├── api.interceptors.test.js  (7 tests)
+        │   └── NPSSurveyBanner.test.jsx  (5 tests)
         │
         └── pages/
-            ├── Dashboard.jsx
+            ├── Dashboard.jsx        ← + NPSSurveyBanner, LinkRequestsCard
             ├── Lessons.jsx
             ├── LessonView.jsx
-            ├── Practice.jsx
+            ├── Practice.jsx         ← + FeedbackWidget after session
             ├── Analytics.jsx
             ├── Competition.jsx
             ├── LiveRoom.jsx
             ├── Planner.jsx
             ├── ExamReview.jsx
-            ├── VoiceTutor.jsx   ← UPDATED: fully functional, subject-aware
+            ├── VoiceTutor.jsx       ← + persisted history, clear button
             ├── Profile.jsx
-            ├── Settings.jsx
+            ├── Settings.jsx         ← + CouponInput, ReferralCard
             ├── Onboarding.jsx
             ├── StartOnboarding.jsx
             ├── Login.jsx
-            ├── Register.jsx
-            ├── Portal.jsx       ← NEW: invite code + parent/teacher view
-            ├── ChapterView.jsx  ← NEW: chapter detail (sections/formulas/theorems/tips/exercises)
+            ├── Register.jsx         ← + referral code (?ref=) pre-fill
+            ├── Portal.jsx           ← invite code + parent/teacher portal
+            ├── ChapterView.jsx      ← chapter detail (sections/formulas/theorems/tips)
+            ├── Pricing.jsx          ← plan cards + Razorpay checkout + annual options
+            ├── TermsOfService.jsx
+            ├── PrivacyPolicy.jsx
             └── admin/
-                ├── AdminLayout.jsx      ← NEW: sidebar nav, role guard
-                ├── AdminOverview.jsx    ← NEW: stats dashboard
-                ├── AdminUsers.jsx       ← NEW: user list + role editor
-                ├── AdminQuestions.jsx   ← NEW: question CRUD + flag queue
-                ├── AdminTopics.jsx      ← NEW: topic CRUD
-                └── AdminCacheStats.jsx  ← NEW: AI cache breakdown
+                ├── AdminLayout.jsx
+                ├── AdminOverview.jsx
+                ├── AdminUsers.jsx
+                ├── AdminQuestions.jsx
+                ├── AdminTopics.jsx
+                ├── AdminCacheStats.jsx
+                ├── AdminAnalytics.jsx   ← DAU/MAU/revenue/30-day charts
+                └── AdminCoupons.jsx     ← coupon CRUD
 ```

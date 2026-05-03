@@ -827,6 +827,8 @@ src/__tests__/useFeatureFlags.test.js     — 6 tests: fetch, unknown flag, erro
 src/__tests__/DoubtChat.test.jsx          — 18 tests: render guard, toggle, thread fetch, send, clear
 src/__tests__/Layout.test.jsx             — 7 tests: Protected/AdminOnly/PublicOnly guards
 src/__tests__/Practice.test.jsx           — 9 tests: topic load, session start, MCQ submit, summary
+src/__tests__/Pricing.test.jsx            — 13 tests: loading, error, plan render, upgrade flow, Razorpay, current plan
+src/__tests__/VoiceTutor.test.jsx         — 20 tests: render, mic transitions, voice→TTS flow, text input, clear history
 ```
 
 ---
@@ -1080,10 +1082,17 @@ Runner:   node --experimental-vm-modules ./node_modules/jest-cli/bin/jest.js
 Command:  npm test              (unit tests, ignores integration/)
           npm run test:integration  (integration tests against real DB)
 
-Unit tests (29+): analysisService, scoringService, plannerService, aiRouter,
+Unit tests (30 files): analysisService, scoringService, plannerService, aiRouter,
   auth.middleware, adminAuth.middleware, validate.middleware, practice.controller,
-  exam.controller, payment.service, portal.controller, ai.service, adaptive.service,
+  exam.controller, payment.service, portal.controller, adaptive.service,
   revision.service, streak.service, autoDoubt.service, aiTeacher.service,
+  ai.service (20 tests: getSystemPrompt subjects/fallback, getAIExplanation, generateAIQuestion, getStudyAdvice, generateHint, getChatResponse history cap),
+  profile.service (18 tests: accuracy avg, avgTime, weakAreas, strongAreas, thinkingProfile, difficultyLevels),
+  selfLearning.service (12 tests: attempts/correct increment, rolling avgTime, error distribution, bad-question flag, difficulty sync),
+  foundation.service (9 tests: unknown topic, null profile, empty weakAreas, no overlap, prereq match redirect),
+  push.service (14 tests: sendPush, sendRevisionReminders 410 cleanup, sendStudyReminders time filter, notifyParentsOfMilestone),
+  weeklyParentEmailService (10 tests: per-parent email, subject/HTML content, updatedAt, inactive fallback, error resilience),
+  competition.controller (13 tests: Joi schema boundary, aggregate query, topic filter, default count, $map projection, next(err)),
   badgeService (17 tests), predictionService (13 tests), couponService (19 tests),
   onboardingEmailService (9 tests), adminStats.controller (6 tests),
   admin.routes (10 tests: adminAuth + validate), user.controller (4 tests: GDPR + updateMe)
@@ -1133,7 +1142,30 @@ src/__tests__/NPSSurveyBanner.test.jsx    — 5 tests
   ✅ submit disabled until score selected
   ✅ shows thanks after successful submission
   ✅ dismiss hides banner
-Total: 16 frontend tests
+src/__tests__/useFeatureFlags.test.js     — 6 tests
+  ✅ fetches flags on mount, isEnabled returns correct bool
+  ✅ unknown flag defaults to false
+  ✅ graceful fallback when /api/flags fails
+  ✅ does not re-fetch when already loaded (caching)
+src/__tests__/DoubtChat.test.jsx          — 18 tests
+  ✅ render guard, toggle open/close, thread fetch, send message, auto-scroll, clear
+src/__tests__/Layout.test.jsx             — 7 tests
+  ✅ Protected guard: unauthenticated → /login
+  ✅ AdminOnly guard: student role → /
+  ✅ PublicOnly guard: authenticated → /dashboard
+src/__tests__/Practice.test.jsx           — 9 tests
+  ✅ topic load, session start, MCQ submit, confidence slider, summary screen
+src/__tests__/Pricing.test.jsx            — 13 tests
+  ✅ loading spinner, error state, plan render (₹0/₹499/₹999), upgrade flow,
+     createOrder called with planId, Razorpay constructor+open, prefill name+email,
+     Processing spinner, script-load failure, current-plan button disabled
+src/__tests__/VoiceTutor.test.jsx         — 20 tests
+  ✅ initial render + history load + empty state
+  ✅ mic start→Listening…, stop, onerror message
+  ✅ voice flow: onresult→voiceAnswer API→reply+TTS, AI is speaking state
+  ✅ text input: Ask button, Enter, disabled on empty, whitespace guard
+  ✅ error handling, clear history, quick-prompt buttons
+Total: 89 frontend tests
 ```
 
 ### Load Tests (k6)
@@ -1216,7 +1248,7 @@ To activate push (not yet wired):
 | Multi-turn DoubtChat per question | ✅ Complete |
 | Exam score prediction (weighted) | ✅ Complete |
 | CBSE grade prediction (A1–E) | ✅ Complete |
-| Test suite (Jest ESM, 22 tests) | ✅ Complete |
+| Test suite (Jest ESM, 30 files — services, controllers, middleware) | ✅ Complete |
 | Forgot password (email reset link, 1h expiry, console fallback in dev) | ✅ Complete |
 | Password show/hide toggle on Login + Register | ✅ Complete |
 | Password strength indicator on Register + ResetPassword | ✅ Complete |
@@ -1242,7 +1274,7 @@ To activate push (not yet wired):
 | Database backup (mongodump + gzip, nightly GitHub Actions cron, optional S3) | ✅ Complete |
 | Coupon system (percent/fixed discount, planFilter, maxUses, atomic redemption) | ✅ Complete |
 | Referral system (inviteCode, referredBy, 30-day reward, double-reward guard) | ✅ Complete |
-| Frontend test suite (Vitest 2.x, 16 tests — authStore, API interceptors, NPS) | ✅ Complete |
+| Frontend test suite (Vitest 2.x, 89 tests — 9 files: stores, interceptors, NPS, feature flags, DoubtChat, Layout, Practice, Pricing, VoiceTutor) | ✅ Complete |
 | k6 load tests (100VU practice-session flow, p95 thresholds) | ✅ Complete |
 | Feature flags (env-var overrides, % rollout, /api/flags, useFeatureFlags hook) | ✅ Complete |
 | NCERT chapter + topic content routes | ✅ Complete |
@@ -1507,11 +1539,37 @@ AILearningPath/
 │   │
 │   ├── migrate-mongo-config.js  ← ESM migrate-mongo config (MONGO_URI, migrationsDir: "migrations")
 │   │
-│   ├── __tests__/               ← Jest ESM test suite (22+ backend tests)
-│   │   ├── analysisService.test.js   (7 tests)
-│   │   ├── scoringService.test.js    (6 tests)
-│   │   ├── plannerService.test.js    (4 tests, mocked)
-│   │   ├── aiRouter.test.js          (5 tests, mocked)
+│   ├── __tests__/               ← Jest ESM test suite (30 unit test files)
+│   │   ├── analysisService.test.js          (7 tests)
+│   │   ├── scoringService.test.js           (6 tests)
+│   │   ├── plannerService.test.js           (4 tests)
+│   │   ├── aiRouter.test.js                 (5 tests)
+│   │   ├── auth.middleware.test.js
+│   │   ├── adminAuth.middleware.test.js
+│   │   ├── validate.middleware.test.js
+│   │   ├── practice.controller.test.js
+│   │   ├── exam.controller.test.js
+│   │   ├── payment.service.test.js
+│   │   ├── portal.controller.test.js
+│   │   ├── adaptive.service.test.js
+│   │   ├── revision.service.test.js
+│   │   ├── streak.service.test.js
+│   │   ├── autoDoubt.service.test.js
+│   │   ├── aiTeacher.service.test.js
+│   │   ├── ai.service.test.js               (20 tests)
+│   │   ├── profile.service.test.js          (18 tests)
+│   │   ├── selfLearning.service.test.js     (12 tests)
+│   │   ├── foundation.service.test.js       (9 tests)
+│   │   ├── push.service.test.js             (14 tests)
+│   │   ├── weeklyParentEmailService.test.js (10 tests)
+│   │   ├── competition.controller.test.js   (13 tests)
+│   │   ├── badge.service.test.js            (17 tests)
+│   │   ├── prediction.service.test.js       (13 tests)
+│   │   ├── coupon.service.test.js           (19 tests)
+│   │   ├── onboardingEmailService.test.js   (9 tests)
+│   │   ├── adminStats.controller.test.js    (6 tests)
+│   │   ├── admin.routes.test.js             (10 tests)
+│   │   ├── user.controller.test.js          (4 tests)
 │   │   └── integration/
 │   │       ├── _setup.js             ← real DB (MONGO_URI) or MongoMemoryServer fallback
 │   │       ├── auth.integration.test.js
@@ -1555,11 +1613,17 @@ AILearningPath/
         ├── hooks/
         │   └── useFeatureFlags.js   ← fetches /api/flags once per page load
         │
-        ├── __tests__/               ← Vitest 2.x test suite (16 tests)
+        ├── __tests__/               ← Vitest 2.x test suite (89 tests, 9 files)
         │   ├── setup.js
-        │   ├── authStore.test.js         (4 tests)
-        │   ├── api.interceptors.test.js  (7 tests)
-        │   └── NPSSurveyBanner.test.jsx  (5 tests)
+        │   ├── authStore.test.js              (4 tests)
+        │   ├── api.interceptors.test.js       (7 tests)
+        │   ├── NPSSurveyBanner.test.jsx       (5 tests)
+        │   ├── useFeatureFlags.test.js        (6 tests)
+        │   ├── DoubtChat.test.jsx             (18 tests)
+        │   ├── Layout.test.jsx                (7 tests)
+        │   ├── Practice.test.jsx              (9 tests)
+        │   ├── Pricing.test.jsx               (13 tests)
+        │   └── VoiceTutor.test.jsx            (20 tests)
         │
         └── pages/
             ├── Dashboard.jsx        ← + NPSSurveyBanner, LinkRequestsCard

@@ -362,6 +362,9 @@ export const resetPassword = async (req, res, next) => {
 // ES module imports run before dotenv loads, so top-level process.env reads
 // would see undefined — deferred init avoids that timing issue.
 export function initPassport() {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    return;
+  }
   passport.use(new GoogleStrategy(
     {
       clientID:     process.env.GOOGLE_CLIENT_ID,

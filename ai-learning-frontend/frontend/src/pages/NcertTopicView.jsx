@@ -166,23 +166,6 @@ function CentralIdeaCard({ text }) {
   );
 }
 
-/* ── Formula display ─────────────────────────────────────────────────────── */
-function FormulaList({ formulas }) {
-  if (!formulas?.length) return null;
-  return (
-    <div style={{ marginTop:"16px", paddingTop:"16px", borderTop:"1px solid #F2F2F7" }}>
-      <p style={{ fontSize:"11px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#86868B", marginBottom:"12px" }}>Key Formulas</p>
-      <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-        {formulas.map((f, i) => (
-          <div key={i} style={{ background:"#F5F5F7", borderRadius:"10px", padding:"14px 18px", display:"flex", alignItems:"center", gap:"12px" }}>
-            <span style={{ width:"24px", height:"24px", borderRadius:"50%", background:"#007AFF", color:"#fff", fontSize:"11px", fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{i+1}</span>
-            <code style={{ fontSize:"15px", ...S.mono, color:"#1D1D1F", fontWeight:600 }}>{typeof f==="string" ? f : JSON.stringify(f)}</code>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ══════════════════════════════════════════════════════════════════════════
    INTERACTIVE FEATURES (Deep mode)
@@ -1251,8 +1234,9 @@ export default function NcertTopicView() {
   const [recallRatings, setRecallRatings] = useState({});
   const [formulaState,  setFormulaState]  = useState({});
   const [errorDone,  setErrorDone]  = useState(false);
-  const [siblings,   setSiblings]   = useState([]);
-  const [studied,    setStudied]    = useState(false);
+  const [siblings,    setSiblings]   = useState([]);
+  const [studied,     setStudied]   = useState(false);
+  const [sessionSecs, setSessionSecs] = useState(0);
 
   useEffect(() => { injectCss(); }, []);
 
@@ -1265,7 +1249,13 @@ export default function NcertTopicView() {
 
   useEffect(() => {
     setCpPassed(false); setExDone(new Set());
-    setConfidence({}); setRecallRatings({}); setFormulaState({}); setErrorDone(false);
+    setConfidence({}); setRecallRatings({}); setErrorDone(false);
+    setSessionSecs(0);
+  }, [mode]);
+
+  useEffect(() => {
+    const iv = setInterval(() => setSessionSecs(s => s + 1), 1000);
+    return () => clearInterval(iv);
   }, [mode]);
 
   useEffect(() => {
@@ -1343,16 +1333,22 @@ export default function NcertTopicView() {
     })),
   ];
 
-  // Error hunt: inject a wrong computation into example[0] step[1] (if exists)
-  const firstEx = examples[0];
-  const ehSteps = firstEx?.steps?.length ? firstEx.steps
-    : (firstEx?.steps_compressed||[]).map((s,i)=>({ step_number:i+1, action:s }));
-  const wrongIdx = ehSteps?.length >= 2 ? 1 : ehSteps?.length === 1 ? 0 : null;
-  const errorHuntExample = wrongIdx != null ? {
-    ...firstEx,
-    steps: ehSteps.map((step, si) => si === wrongIdx && step.computation
-      ? { ...step, _wrong_computation: step.computation.replace(/\d+/, n => String(parseInt(n)+1)) }
-      : step
+  // Error hunt: find first example that actually has steps with computation fields
+  const ehExample = examples.find(ex => ex.steps?.some(s => s.computation)) ?? null;
+  const ehSteps   = ehExample?.steps || [];
+  const wrongIdx  = (() => {
+    if (!ehSteps.length) return null;
+    const later = ehSteps.findIndex((s, i) => i > 0 && s.computation);
+    if (later !== -1) return later;
+    const any = ehSteps.findIndex(s => s.computation);
+    return any !== -1 ? any : null;
+  })();
+  const errorHuntExample = ehExample && wrongIdx != null ? {
+    ...ehExample,
+    steps: ehSteps.map((step, si) =>
+      si === wrongIdx
+        ? { ...step, _wrong_computation: step.computation.replace(/\d+/, n => String(parseInt(n)+1)) }
+        : step
     ),
   } : null;
   const ehHint = misconceptions[1]?.correction || misconceptions[0]?.correction;
@@ -1412,6 +1408,29 @@ export default function NcertTopicView() {
 
       {/* ── MODE SELECTOR ─────────────────────────────────────── */}
       <ModeSelector mode={mode} onChange={setMode} />
+
+      {/* ── SESSION TIMER ─────────────────────────────────────── */}
+      {(() => {
+        const target  = mode === "deep" ? 20 * 60 : 5 * 60;
+        const pct     = Math.min(100, Math.round((sessionSecs / target) * 100));
+        const done    = sessionSecs >= target;
+        const fmt     = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+        return (
+          <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+            <span style={{ fontSize:"11px", fontWeight:700, color: done?"#34C759":"#AEAEB2", flexShrink:0, fontVariantNumeric:"tabular-nums" }}>
+              ⏱ {fmt(sessionSecs)}
+            </span>
+            <div style={{ flex:1, height:"4px", background:"#F2F2F7", borderRadius:"2px", overflow:"hidden" }}>
+              <div style={{ height:"100%", width:`${pct}%`, borderRadius:"2px", transition:"width 1s linear",
+                background: done ? "#34C759" : mode==="deep" ? "#5856D6" : "#007AFF" }} />
+            </div>
+            <span style={{ fontSize:"11px", fontWeight:600, color:"#AEAEB2", flexShrink:0 }}>
+              {done ? "✓ Done!" : (mode==="deep" ? "20:00" : "5:00")}
+            </span>
+          </div>
+        );
+      })()}
+
       {examples.length>0 && <ProgressBar done={exDone.size} total={examples.length} />}
 
       {/* ── HOOK ──────────────────────────────────────────────── */}

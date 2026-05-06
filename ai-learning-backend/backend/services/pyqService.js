@@ -1,7 +1,7 @@
 import { Question } from "../models/index.js";
 
 export const getPYQTopics = async ({ subject, grade, examBoard }) => {
-  const match = { isPYQ: true };
+  const match = { isPYQ: true, deletedAt: null };
   if (subject)   match.subject   = subject;
   if (grade)     match.grade     = grade;
   if (examBoard) match.examBoard = examBoard;
@@ -28,7 +28,7 @@ export const getPYQTopics = async ({ subject, grade, examBoard }) => {
 };
 
 export const getPYQs = async ({ topic, year, subject, grade, examBoard, difficulty, page = 1, limit = 20 }) => {
-  const filter = { isPYQ: true };
+  const filter = { isPYQ: true, deletedAt: null };
   if (topic)     filter.topic     = topic;
   if (year)      filter.pyqYear   = Number(year);
   if (subject)   filter.subject   = subject;
@@ -50,11 +50,11 @@ export const getPYQs = async ({ topic, year, subject, grade, examBoard, difficul
 };
 
 export const getPYQById = async (id) => {
-  return Question.findById(id).lean();
+  return Question.findOne({ _id: id, deletedAt: null }).lean();
 };
 
 export const getPYQYears = async ({ subject, grade, examBoard }) => {
-  const match = { isPYQ: true };
+  const match = { isPYQ: true, deletedAt: null };
   if (subject)   match.subject   = subject;
   if (grade)     match.grade     = grade;
   if (examBoard) match.examBoard = examBoard;

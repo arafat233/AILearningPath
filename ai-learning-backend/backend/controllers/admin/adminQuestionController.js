@@ -4,7 +4,7 @@ import { AppError } from "../../utils/AppError.js";
 export const listQuestions = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, topic, subject, flagged } = req.query;
-    const filter = { deletedAt: { $exists: false } }; // exclude soft-deleted
+    const filter = { deletedAt: null };
     if (topic)              filter.topic    = new RegExp(topic, "i");
     if (subject)            filter.subject  = subject;
     if (flagged === "true") filter.isFlagged = true;
@@ -18,7 +18,7 @@ export const listQuestions = async (req, res, next) => {
 
 export const getFlaggedQuestions = async (req, res, next) => {
   try {
-    const questions = await Question.find({ isFlagged: true, deletedAt: { $exists: false } }).sort({ createdAt: -1 }).lean();
+    const questions = await Question.find({ isFlagged: true, deletedAt: null }).sort({ createdAt: -1 }).lean();
     res.json(questions);
   } catch (err) { next(err); }
 };

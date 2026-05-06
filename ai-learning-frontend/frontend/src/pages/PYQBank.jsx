@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getPYQTopics, getPYQYears, getPYQs } from "../services/api";
+import { useAuthStore } from "../store/authStore";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const difficultyColor = {
@@ -146,6 +147,9 @@ function QuestionCard({ q }) {
 
 // ── main page ──────────────────────────────────────────────────────────────
 export default function PYQBank() {
+  const user    = useAuthStore((s) => s.user);
+  const subject = user?.subject === "Math" ? "Mathematics" : (user?.subject || "Mathematics");
+  const grade   = user?.grade || "10";
   const [topics, setTopics]       = useState([]);
   const [years, setYears]         = useState([]);
   const [questions, setQuestions] = useState([]);
@@ -165,8 +169,8 @@ export default function PYQBank() {
   useEffect(() => {
     setSideLoading(true);
     Promise.all([
-      getPYQTopics({ subject: "Mathematics", grade: "10" }),
-      getPYQYears({ subject: "Mathematics", grade: "10" }),
+      getPYQTopics({ subject, grade }),
+      getPYQYears({ subject, grade }),
     ])
       .then(([t, y]) => { setTopics(t.data.topics); setYears(y.data.years); })
       .catch(() => {})
@@ -177,8 +181,8 @@ export default function PYQBank() {
   const loadQuestions = useCallback(() => {
     setLoading(true);
     getPYQs({
-      subject: "Mathematics",
-      grade: "10",
+      subject,
+      grade,
       topic:      activeTopic  || undefined,
       year:       activeYear   || undefined,
       difficulty: activeDiff   || undefined,

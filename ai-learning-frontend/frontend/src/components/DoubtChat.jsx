@@ -11,9 +11,11 @@ export default function DoubtChat({ questionId, topic, subject }) {
 
   useEffect(() => {
     if (!open || !questionId || questionId === "ai-generated") return;
+    let cancelled = false;
     getDoubtThread(questionId)
-      .then((r) => setMessages(r.data.messages || []))
+      .then((r) => { if (!cancelled) setMessages(r.data.messages || []); })
       .catch(() => {});
+    return () => { cancelled = true; };
   }, [open, questionId]);
 
   useEffect(() => {

@@ -8,7 +8,7 @@ export const getPlacementQuiz = async (req, res, next) => {
     const exam = await Exam.findOne({ isPlacementQuiz: true }).lean();
     if (!exam) return next(new AppError("Placement quiz not found", 404));
 
-    const questions = await Question.find({ _id: { $in: exam.questionIds } }).lean();
+    const questions = await Question.find({ _id: { $in: exam.questionIds }, deletedAt: null }).lean();
     const idMap     = new Map(questions.map((q) => [String(q._id), q]));
     const ordered   = exam.questionIds.map((id) => idMap.get(String(id))).filter(Boolean);
 

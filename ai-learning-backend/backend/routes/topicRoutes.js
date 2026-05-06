@@ -7,7 +7,7 @@ const r = express.Router();
 // Supports ?grade=10&subject=Math query filters.
 r.get("/", async (req, res, next) => {
   try {
-    const filter = {};
+    const filter = { deletedAt: null };
     if (req.query.grade)   filter.grade   = req.query.grade;
     if (req.query.subject) filter.subject = req.query.subject;
 

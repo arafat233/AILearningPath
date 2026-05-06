@@ -261,7 +261,7 @@ export default function Competition() {
 
         <button
           onClick={handleConfirm}
-          disabled={!selected || loading}
+          disabled={selected === null || selected === undefined || loading}
           className="btn-primary w-full py-3 text-[15px]"
         >
           {currentIdx + 1 < activeExam.questions.length ? "Confirm & Next →" : "Submit Exam →"}

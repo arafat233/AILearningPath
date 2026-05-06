@@ -13,9 +13,10 @@ const startSchema = Joi.object({
 const submitSchema = Joi.object({
   answers: Joi.array().items(
     Joi.object({
-      questionId:   Joi.string().required(),
-      selectedType: Joi.string().optional().allow(""),
-      timeTaken:    Joi.number().optional(),
+      questionId:          Joi.string().required(),
+      selectedOptionIndex: Joi.number().integer().min(0).allow(null).optional(),
+      answer:              Joi.string().allow("").optional(),
+      timeTaken:           Joi.number().optional(),
     })
   ).required(),
 });

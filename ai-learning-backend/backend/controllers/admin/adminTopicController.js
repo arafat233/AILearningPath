@@ -3,7 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 
 export const listTopics = async (req, res, next) => {
   try {
-    const topics = await Topic.find({ deletedAt: { $exists: false } }).sort({ subject: 1, name: 1 }).lean();
+    const topics = await Topic.find({ deletedAt: null }).sort({ subject: 1, name: 1 }).lean();
     res.json(topics);
   } catch (err) { next(err); }
 };

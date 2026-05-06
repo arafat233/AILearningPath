@@ -27,8 +27,7 @@ export const normalizeScores = (attempts) => {
   );
 
   return attempts.map((a) => ({
-    ...a._doc,
-    _id: a._id,
+    ...a,
     normalizedScore: std === 0 ? 0 : parseFloat(((a.rawScore - mean) / std).toFixed(4)),
   }));
 };

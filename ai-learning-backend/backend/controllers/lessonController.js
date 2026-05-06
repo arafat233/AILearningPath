@@ -42,7 +42,7 @@ export const listLessons = async (req, res, next) => {
     const filter = {};
     if (req.query.subject) filter.subject = req.query.subject;
     if (req.query.grade)   filter.grade   = req.query.grade;
-    const lessons = await Lesson.find(filter, "topic title tagline subject grade shortLesson.estimatedMinutes");
+    const lessons = await Lesson.find(filter, "topic title tagline subject grade shortLesson.estimatedMinutes").lean();
     res.json(lessons);
   } catch (err) {
     next(err);

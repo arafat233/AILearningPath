@@ -250,8 +250,8 @@ export default function Analytics() {
         <div className="card p-5">
           <p className="section-label">Repeated Mistakes</p>
           <div className="flex flex-col gap-3">
-            {errors.map((e, i) => (
-              <div key={i} className="flex items-start justify-between gap-3">
+            {errors.map((e) => (
+              <div key={`${e.topic}-${e.mistakeType}`} className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[13px] font-medium text-[var(--label)] capitalize">
@@ -318,9 +318,9 @@ export default function Analytics() {
             </div>
           )}
           <div className="flex flex-col gap-2">
-            {weekly.board.slice(0, 10).map((row, i) => (
+            {weekly.board.slice(0, 10).map((row) => (
               <div
-                key={i}
+                key={row.userId ?? row._id}
                 className={`flex items-center justify-between py-1.5 ${
                   weekly.userEntry?.userId === row.userId ? "font-semibold" : ""
                 }`}

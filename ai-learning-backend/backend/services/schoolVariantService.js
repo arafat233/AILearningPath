@@ -54,11 +54,14 @@ export async function enrollStudent(schoolGroupId, studentUserId) {
 
   let idx = group.enrolledStudentIds.indexOf(studentId);
   if (idx === -1) {
-    group.enrolledStudentIds.push(studentId);
-    await group.save();
-    idx = group.enrolledStudentIds.length - 1;
-    // Link back to user
+    // Atomic push — avoids lost-update race between concurrent enrollments
+    const updated = await SchoolGroup.findByIdAndUpdate(
+      schoolGroupId,
+      { $addToSet: { enrolledStudentIds: studentId } },
+      { new: true }
+    );
     await User.findByIdAndUpdate(studentUserId, { schoolGroupId });
+    idx = updated.enrolledStudentIds.indexOf(studentId);
   }
   return { variantIndex: idx, schoolGroupId: group._id, schoolName: group.schoolName };
 }

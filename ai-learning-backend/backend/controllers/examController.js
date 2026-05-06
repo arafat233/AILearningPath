@@ -15,7 +15,7 @@ function currentWeekStr() {
 
 export const listExams = async (req, res, next) => {
   try {
-    const exams = await Exam.find({ isActive: true }).limit(50);
+    const exams = await Exam.find({ isActive: true }).select("title topic duration negativeMarking isMockPaper isPlacementQuiz").limit(50).lean();
     res.json(exams);
   } catch (err) { next(err); }
 };
@@ -184,7 +184,7 @@ export const submitExam = async (req, res, next) => {
 export const getExamReview = async (req, res, next) => {
   try {
     const { attemptId } = req.params;
-    const attempt = await ExamAttempt.findById(attemptId);
+    const attempt = await ExamAttempt.findById(attemptId).lean();
     if (!attempt) return next(new AppError("Attempt not found", 404));
     if (attempt.userId !== req.user.id) return next(new AppError("Not your attempt", 403));
     res.json(attempt);

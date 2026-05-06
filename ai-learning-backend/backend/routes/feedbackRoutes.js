@@ -2,6 +2,7 @@ import express from "express";
 import Joi from "joi";
 import mongoose from "mongoose";
 import { auth } from "../middleware/auth.js";
+import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
 import { User } from "../models/index.js";
 import logger from "../utils/logger.js";
@@ -60,9 +61,8 @@ r.get("/nps-eligible", auth, async (req, res, next) => {
 });
 
 // Admin: NPS stats + raw responses
-r.get("/", auth, async (req, res, next) => {
+r.get("/", auth, adminAuth, async (req, res, next) => {
   try {
-    if (req.user.role !== "admin") return res.status(403).json({ error: "Admin only" });
     const items = await Feedback.find().sort({ createdAt: -1 }).limit(500).lean();
     if (!items.length) return res.json({ data: { nps: null, avg: null, total: 0, items: [] } });
 

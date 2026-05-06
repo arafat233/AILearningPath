@@ -6,7 +6,7 @@ export const getReport = async (req, res, next) => {
   try {
     const userId  = req.user.id;
     const profile = await UserProfile.findOne({ userId });
-    const attempts = await Attempt.find({ userId }).sort({ createdAt: 1 });
+    const attempts = await Attempt.find({ userId }).sort({ createdAt: 1 }).lean();
 
     const accuracyHistory = buildAccuracyHistory(attempts);
     const topicStats = (profile?.topicProgress || []).map((t) => ({

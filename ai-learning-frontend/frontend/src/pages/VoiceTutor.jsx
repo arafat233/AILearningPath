@@ -52,12 +52,12 @@ export default function VoiceTutor() {
 
   // Load persisted history on mount
   useEffect(() => {
+    let cancelled = false;
     getVoiceHistory()
-      .then((r) => {
-        if (r.data.history?.length) setChat(r.data.history);
-      })
+      .then((r) => { if (!cancelled && r.data.history?.length) setChat(r.data.history); })
       .catch(() => {})
-      .finally(() => setHistoryLoading(false));
+      .finally(() => { if (!cancelled) setHistoryLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function VoiceTutor() {
       let reply;
       if (fromMic) {
         // Dedicated voice endpoint — subject-aware, no history (stateless per mic press)
-        const { data } = await voiceAnswer(msg, subject);
+        const { data } = await voiceAnswer(msg, subject, subject);
         reply = data.answer;
       } else {
         // Text chat — keeps history for multi-turn context

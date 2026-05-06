@@ -31,12 +31,17 @@ export const startTopic = async (req, res, next) => {
     // Foundation check
     const foundationCheck = await checkFoundation(userId, topicId);
     if (foundationCheck.redirect) {
-      await sessionSet(sessionKey(userId), { topic: foundationCheck.foundationTopic }, SESSION_TTL);
+      await sessionSet(sessionKey(userId), {
+        topic: foundationCheck.foundationTopic,
+        sessionCorrect: 0,
+        sessionTotal: 0,
+        currentQuestion: foundationCheck.question,
+      }, SESSION_TTL);
       return res.json({
         foundationRedirect: true,
         message: foundationCheck.message,
         foundationTopic: foundationCheck.foundationTopic,
-        question: foundationCheck.question,
+        question: safeQuestion(foundationCheck.question),
       });
     }
 

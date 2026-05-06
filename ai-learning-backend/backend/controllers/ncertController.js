@@ -8,7 +8,7 @@ export async function listNcertChapters(req, res, next) {
   try {
     const { board = "CBSE", grade = "10", subject = "Mathematics" } = req.query;
     const chapters = await NcertChapter.find({ board, grade, subject })
-      .select("chapterId number title overview subchapters.id subchapters.number subchapters.title subchapters.concepts.id subchapters.concepts.name")
+      .select("chapterId number title overview subchapters.id subchapters.number subchapters.title subchapters.concepts.id subchapters.concepts.name subchapters.concepts.topics.id")
       .sort({ number: 1 })
       .lean();
     res.json({ data: chapters });

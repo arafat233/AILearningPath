@@ -1397,7 +1397,7 @@ export default function NcertTopicView() {
             ))}
           </div>
         )}
-        {mode === "deep" && topic.key_formulas?.length > 0 ? (
+        {topic.key_formulas?.length > 0 && (
           <div style={{ marginTop:"16px", paddingTop:"16px", borderTop:"1px solid #F2F2F7", display:"flex", alignItems:"center", gap:"12px" }}>
             <span style={{ fontSize:"20px" }}>🧩</span>
             <div>
@@ -1407,8 +1407,6 @@ export default function NcertTopicView() {
               <p style={{ fontSize:"11px", color:"#AEAEB2", margin:0 }}>Complete the interactive quiz to reveal them ↓</p>
             </div>
           </div>
-        ) : (
-          <FormulaList formulas={topic.key_formulas} />
         )}
       </div>
 
@@ -1466,8 +1464,8 @@ export default function NcertTopicView() {
         </div>
       )}
 
-      {/* ── FORMULA BLANKS — deep only ────────────────────────── */}
-      {mode==="deep" && topic.key_formulas?.length>0 && (
+      {/* ── FORMULA BLANKS ────────────────────────────────────── */}
+      {topic.key_formulas?.length>0 && (
         <FormulaBlanks formulas={topic.key_formulas} state={formulaState} onAnswer={answerFormula} />
       )}
 

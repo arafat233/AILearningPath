@@ -1,6 +1,6 @@
 import { NcertChapter } from "../models/ncertChapterModel.js";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
-import { User, NcertNote } from "../models/index.js";
+import { User, NcertNote, Question } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 // GET /api/v1/ncert/chapters
@@ -78,6 +78,25 @@ export async function toggleStudiedTopic(req, res, next) {
       await User.findByIdAndUpdate(req.user.id, { $addToSet: { studiedNcertTopics: topicId } });
     }
     res.json({ data: { studied: !already, topicId } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/v1/ncert/topics/:topicId/paper-questions
+export async function getPaperQuestions(req, res, next) {
+  try {
+    const { topicId } = req.params;
+    const questions = await Question.find({
+      topicId,
+      questionType: { $in: ["free_text", "numeric", "numeric_range", "fill_blank"] },
+      isFlagged: { $ne: true },
+      deletedAt: null,
+    })
+      .select("questionText questionType difficulty marks expectedTime conceptTested bloomLevel correctAnswer solutionSteps stepByStep")
+      .sort({ difficulty: 1 })
+      .lean();
+    res.json({ data: questions });
   } catch (err) {
     next(err);
   }

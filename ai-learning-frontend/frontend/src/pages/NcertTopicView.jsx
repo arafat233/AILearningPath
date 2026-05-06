@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
-         getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt } from "../services/api";
+         getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
+         getPaperQuestions } from "../services/api";
 
 const S = { mono: { fontFamily: "ui-monospace, 'SF Mono', monospace" } };
 
@@ -1482,6 +1483,117 @@ function MasteryPractice({ topicId, topicName }) {
   );
 }
 
+/* ── Paper Practice widget ───────────────────────────────────────────────── */
+const DIFF_PILL = { easy: { bg:"#E8F9EE", color:"#34C759" }, medium: { bg:"#FFF4E0", color:"#FF9500" }, hard: { bg:"#FFE5E5", color:"#FF3B30" } };
+const TYPE_LABEL = { free_text:"Written", numeric:"Numeric", numeric_range:"Numeric range", fill_blank:"Fill in the blank" };
+
+function PaperPracticeCard({ q, index }) {
+  const [revealed, setRevealed] = useState(false);
+  const [mark, setMark]         = useState(null); // "got" | "retry"
+  const diff = DIFF_PILL[q.difficulty] || DIFF_PILL.medium;
+  const steps = q.stepByStep?.length ? q.stepByStep.map(s => s.clean).filter(Boolean)
+              : q.solutionSteps?.length ? q.solutionSteps
+              : q.correctAnswer ? [q.correctAnswer] : [];
+
+  return (
+    <div style={{ background:"#fff", borderRadius:"14px", border:"1px solid #E5E5EA", overflow:"hidden", marginBottom:"10px",
+      opacity: mark === "got" ? 0.6 : 1, transition:"opacity 0.2s" }}>
+      {/* Question */}
+      <div style={{ padding:"16px 20px" }}>
+        <div style={{ display:"flex", alignItems:"flex-start", gap:"10px" }}>
+          <span style={{ fontSize:"11px", fontFamily:"ui-monospace,monospace", color:"#86868B", marginTop:"2px", flexShrink:0, minWidth:"22px" }}>
+            Q{index+1}
+          </span>
+          <p style={{ fontSize:"14px", color:"#1D1D1F", lineHeight:1.65, flex:1, margin:0 }}>{q.questionText}</p>
+        </div>
+        <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", marginTop:"10px", marginLeft:"32px" }}>
+          <span style={{ fontSize:"11px", fontWeight:600, padding:"2px 10px", borderRadius:"20px", background:diff.bg, color:diff.color }}>{q.difficulty}</span>
+          {q.marks && <span style={{ fontSize:"11px", color:"#86868B", padding:"2px 8px", background:"#F5F5F7", borderRadius:"20px" }}>{q.marks} mark{q.marks>1?"s":""}</span>}
+          <span style={{ fontSize:"11px", color:"#86868B", padding:"2px 8px", background:"#F5F5F7", borderRadius:"20px" }}>{TYPE_LABEL[q.questionType] || q.questionType}</span>
+          {q.expectedTime && <span style={{ fontSize:"11px", color:"#86868B", padding:"2px 8px", background:"#F5F5F7", borderRadius:"20px" }}>~{q.expectedTime}s</span>}
+        </div>
+      </div>
+
+      {/* Show answer toggle */}
+      <button onClick={() => setRevealed(r => !r)}
+        style={{ width:"100%", padding:"10px 20px", borderTop:"1px solid #F5F5F7", background: revealed ? "#F5F5F7":"transparent",
+          display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", border:"none", borderTop:"1px solid #F5F5F7" }}>
+        <span style={{ fontSize:"12px", fontWeight:600, color:"#007AFF" }}>{revealed ? "Hide Answer" : "Show Answer"}</span>
+        <span style={{ color:"#007AFF", fontSize:"14px", transform: revealed ? "rotate(90deg)":"rotate(0deg)", transition:"transform 0.15s" }}>›</span>
+      </button>
+
+      {revealed && (
+        <div style={{ padding:"14px 20px 16px", background:"#F9F9FB", borderTop:"1px solid #E5E5EA" }}>
+          {steps.length ? (
+            <ol style={{ margin:0, paddingLeft:"18px" }}>
+              {steps.map((s,i) => (
+                <li key={i} style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.7, marginBottom: i<steps.length-1?"6px":0 }}>{s}</li>
+              ))}
+            </ol>
+          ) : (
+            <p style={{ fontSize:"13px", color:"#86868B", margin:0 }}>No answer available.</p>
+          )}
+          {/* Mark as got it / try again */}
+          <div style={{ display:"flex", gap:"8px", marginTop:"12px" }}>
+            <button onClick={() => setMark(m => m==="got" ? null : "got")}
+              style={{ fontSize:"12px", fontWeight:600, padding:"5px 14px", borderRadius:"20px", border:"none", cursor:"pointer",
+                background: mark==="got" ? "#34C759":"#E8F9EE", color: mark==="got" ? "#fff":"#34C759" }}>
+              ✓ Got it
+            </button>
+            <button onClick={() => setMark(m => m==="retry" ? null : "retry")}
+              style={{ fontSize:"12px", fontWeight:600, padding:"5px 14px", borderRadius:"20px", border:"none", cursor:"pointer",
+                background: mark==="retry" ? "#FF9500":"#FFF4E0", color: mark==="retry" ? "#fff":"#FF9500" }}>
+              ↻ Need more practice
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PaperPractice({ topicId }) {
+  const [questions, setQuestions] = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [open,      setOpen]      = useState(false);
+
+  useEffect(() => {
+    if (!topicId) return;
+    getPaperQuestions(topicId)
+      .then(r => setQuestions(r.data?.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [topicId]);
+
+  if (!loading && !questions.length) return null;
+
+  return (
+    <div style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", overflow:"hidden" }}>
+      <button onClick={() => setOpen(o => !o)} style={{ width:"100%", background:"none", border:"none", cursor:"pointer", padding:0 }}>
+        <div style={{ background:"linear-gradient(135deg,#FF6B35 0%,#FF9500 100%)", padding:"20px 24px",
+          display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            <p style={{ fontSize:"12px", fontWeight:700, letterSpacing:"1px", color:"rgba(255,255,255,0.7)", marginBottom:"4px" }}>PAPER PRACTICE</p>
+            <p style={{ fontSize:"14px", fontWeight:700, color:"#fff", margin:0 }}>
+              {loading ? "Loading…" : `${questions.length} written question${questions.length!==1?"s":""} — attempt on paper`}
+            </p>
+          </div>
+          <span style={{ fontSize:"20px", color:"rgba(255,255,255,0.8)", transform: open?"rotate(90deg)":"rotate(0deg)", transition:"transform 0.2s" }}>›</span>
+        </div>
+      </button>
+
+      {open && (
+        <div style={{ padding:"20px 24px" }}>
+          <p style={{ fontSize:"12px", color:"#86868B", marginBottom:"14px", lineHeight:1.5 }}>
+            These are written/numeric questions — solve on paper, then tap <strong>Show Answer</strong> to check.
+          </p>
+          {questions.map((q, i) => <PaperPracticeCard key={q._id || i} q={q} index={i} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════════════════════════════════════ */
@@ -1989,6 +2101,9 @@ export default function NcertTopicView() {
       {/* ── ADAPTIVE PRACTICE ─────────────────────────────────── */}
       {/* practiceTopicName uses the chapter title ("Real Numbers") which matches Question.topic in the DB */}
       <MasteryPractice topicId={topic.topicId} topicName={chapterTitle || topic.name} />
+
+      {/* ── PAPER PRACTICE ────────────────────────────────────── */}
+      <PaperPractice topicId={topic.topicId} />
     </div>
   );
 }

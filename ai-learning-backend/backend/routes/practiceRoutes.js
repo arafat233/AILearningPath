@@ -3,10 +3,11 @@ import Joi from "joi";
 import rateLimit from "express-rate-limit";
 import { startTopic, submitAnswer, getTeacherMessage } from "../controllers/practiceController.js";
 import { getInterleavedQuestion } from "../services/adaptiveService.js";
-import { Question } from "../models/index.js";
+import { Question, User, SeenQuestion } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
+import { sessionSet } from "../utils/redisClient.js";
 import logger from "../utils/logger.js";
 
 const r = express.Router();
@@ -64,6 +65,48 @@ r.post("/mixed", auth, validate(mixedSchema), async (req, res, next) => {
     // Strip option types before sending to client
     const safeOpts = (qObj.options || []).map(({ text, logicTag }) => ({ text, logicTag }));
     res.json({ ...qObj, options: safeOpts });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Start a practice session from the user's bookmarked questions
+r.post("/start-bookmarks", auth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user   = await User.findById(userId).select("savedQuestions").lean();
+    if (!user?.savedQuestions?.length) return next(new AppError("No bookmarked questions", 404));
+
+    const savedIds = user.savedQuestions.map((id) => id.toString());
+
+    // Prefer unseen bookmarks; fall back to any if all have been seen
+    const seen = await SeenQuestion.find({ userId, questionId: { $in: savedIds } })
+      .select("questionId").lean();
+    const seenSet    = new Set(seen.map((s) => s.questionId));
+    const candidateIds = savedIds.filter((id) => !seenSet.has(id));
+    const pool = candidateIds.length ? candidateIds : savedIds;
+
+    const pickedId = pool[Math.floor(Math.random() * pool.length)];
+    const question = await Question.findOne({
+      _id: pickedId,
+      deletedAt: null,
+      questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+      "options.0": { $exists: true },
+    }).lean();
+
+    if (!question) return next(new AppError("No playable bookmarked questions found", 404));
+
+    await sessionSet(`practice:${userId}`, {
+      topic: question.topic,
+      sessionCorrect: 0,
+      sessionTotal: 0,
+      currentQuestion: question,
+    }, 7200);
+
+    SeenQuestion.create({ userId, questionId: String(question._id), topic: question.topic }).catch(() => {});
+
+    const safeOpts = (question.options || []).map(({ text, logicTag }) => ({ text, logicTag }));
+    res.json({ ...question, options: safeOpts, fromBookmarks: true });
   } catch (err) {
     next(err);
   }

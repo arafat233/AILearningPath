@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, getBookmarks } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import FeedbackWidget from "../components/FeedbackWidget";
 
@@ -68,6 +68,8 @@ export default function Practice() {
   const [wrongAnswers, setWrongAnswers] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [error, setError]               = useState("");
+  const [bookmarkMode, setBookmarkMode] = useState(false);
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   const startTimeRef   = useRef(null);
   const handleAnswerRef = useRef(null);
   const [elapsed, setElapsed]       = useState(0);
@@ -109,17 +111,30 @@ export default function Practice() {
   }, [question, feedback]);
 
   const handleStart = async () => {
-    // For mixed practice: pick a random topic from the day's topics
-    const topic = mixTopics?.length
-      ? mixTopics[Math.floor(Math.random() * mixTopics.length)]
-      : selectedTopic;
-    if (!topic) return;
     setLoading(true);
     setError("");
     setQuestion(null);
     setFeedback(null);
     setFoundationMsg(null);
     setFlagged(false);
+
+    if (bookmarkMode) {
+      try {
+        const { data } = await startBookmarkPractice();
+        setQuestion(data);
+      } catch (err) {
+        setError(err.response?.data?.error || "No bookmarked questions to practice");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // For mixed practice: pick a random topic from the day's topics
+    const topic = mixTopics?.length
+      ? mixTopics[Math.floor(Math.random() * mixTopics.length)]
+      : selectedTopic;
+    if (!topic) { setLoading(false); return; }
     try {
       const { data } = await startTopic(topic);
       if (data.foundationRedirect) {
@@ -224,7 +239,7 @@ export default function Practice() {
     setBookmarked(false);
     setHint(null);
     setHintLoading(false);
-    if (feedback?.nextQuestion) {
+    if (!bookmarkMode && feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
       setFeedback(null);
       setConfidence("");
@@ -232,6 +247,11 @@ export default function Practice() {
       handleStart();
     }
   };
+
+  // Load bookmark count on mount
+  useEffect(() => {
+    getBookmarks().then((r) => setBookmarkCount(r.data?.length || 0)).catch(() => {});
+  }, []);
 
   // Load topics for the active subject
   useEffect(() => {
@@ -263,25 +283,36 @@ export default function Practice() {
           </p>
         </div>
 
-        {/* Subject tabs */}
+        {/* Subject tabs + Bookmarks tab */}
         {!mixTopics && (
           <div className="flex gap-1.5 flex-wrap">
             {SUBJECTS.map(({ id, label, color }) => (
               <button key={id}
-                onClick={() => { setActiveSubject(id); setSelectedTopic(""); setScienceSub(null); }}
+                onClick={() => { setActiveSubject(id); setSelectedTopic(""); setScienceSub(null); setBookmarkMode(false); }}
                 className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
-                style={activeSubject === id
+                style={!bookmarkMode && activeSubject === id
                   ? { background: color, color: "#fff" }
                   : { background: color + "14", color }}
               >
                 {label}
               </button>
             ))}
+            {bookmarkCount > 0 && (
+              <button
+                onClick={() => { setBookmarkMode(true); setSelectedTopic(""); setScienceSub(null); }}
+                className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
+                style={bookmarkMode
+                  ? { background: "#FF9500", color: "#fff" }
+                  : { background: "#FF950014", color: "#FF9500" }}
+              >
+                ☆ Saved ({bookmarkCount})
+              </button>
+            )}
           </div>
         )}
 
         {/* Science sub-subject tabs */}
-        {!mixTopics && activeSubject === "Science" && (
+        {!mixTopics && !bookmarkMode && activeSubject === "Science" && (
           <div className="flex gap-1.5">
             {["All", "Physics", "Chemistry", "Biology"].map((s) => (
               <button key={s}
@@ -298,28 +329,39 @@ export default function Practice() {
           </div>
         )}
 
-        {/* Topic grid */}
-        <div className="card p-6">
-          <p className="section-label mb-3">
-            {scienceSub ? `${scienceSub} Topics` : `${activeSubject} Topics`}
-          </p>
-          {filteredTopics.length === 0 ? (
-            <p className="text-[13px] text-apple-gray">Loading topics…</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {filteredTopics.map((t) => (
-                <button key={t} onClick={() => setSelectedTopic(t)}
-                  className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150 active:scale-[0.97] ${
-                    selectedTopic === t ? "text-white shadow-apple" : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
-                  }`}
-                  style={selectedTopic === t ? { background: subjectColor } : {}}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Bookmark mode panel */}
+        {bookmarkMode ? (
+          <div className="card p-6 text-center space-y-3">
+            <div className="text-[40px]">☆</div>
+            <p className="text-[17px] font-semibold text-[var(--label)]">Practice from Saved Questions</p>
+            <p className="text-[13px] text-apple-gray">
+              {bookmarkCount} bookmarked question{bookmarkCount !== 1 ? "s" : ""} · questions you haven't seen recently come first
+            </p>
+          </div>
+        ) : (
+          /* Topic grid */
+          <div className="card p-6">
+            <p className="section-label mb-3">
+              {scienceSub ? `${scienceSub} Topics` : `${activeSubject} Topics`}
+            </p>
+            {filteredTopics.length === 0 ? (
+              <p className="text-[13px] text-apple-gray">Loading topics…</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {filteredTopics.map((t) => (
+                  <button key={t} onClick={() => setSelectedTopic(t)}
+                    className={`p-3.5 rounded-apple-lg text-[13px] font-medium text-left transition-all duration-150 active:scale-[0.97] ${
+                      selectedTopic === t ? "text-white shadow-apple" : "bg-apple-gray6 text-[var(--label)] hover:bg-apple-gray5"
+                    }`}
+                    style={selectedTopic === t ? { background: subjectColor } : {}}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {error && (
           <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">
@@ -327,11 +369,11 @@ export default function Practice() {
           </div>
         )}
 
-        <button onClick={handleStart} disabled={!selectedTopic || loading}
+        <button onClick={handleStart} disabled={(!bookmarkMode && !selectedTopic) || loading}
           className="btn-primary w-full py-3 text-[15px]"
-          style={selectedTopic ? { background: subjectColor } : {}}
+          style={bookmarkMode ? { background: "#FF9500" } : selectedTopic ? { background: subjectColor } : {}}
         >
-          {loading ? "Loading…" : "Start Practice →"}
+          {loading ? "Loading…" : bookmarkMode ? "Start Bookmark Practice →" : "Start Practice →"}
         </button>
       </div>
     );
@@ -459,13 +501,23 @@ export default function Practice() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { setQuestion(null); setFeedback(null); setFoundationMsg(null); setEvalFeedback(null); navigate("/practice", { replace: true }); }}
+            onClick={() => {
+              setQuestion(null); setFeedback(null); setFoundationMsg(null);
+              setEvalFeedback(null); setRecallMode(true); setRecallAttempt("");
+              setShowSteps(false); setHint(null); setHintLoading(false);
+              setFlagged(false); setBookmarked(false); setConfidence("");
+              setSessionStats({ correct: 0, total: 0 }); setWrongAnswers([]);
+              setError(""); clearInterval(timerRef.current);
+              navigate("/practice", { replace: true });
+            }}
             className="btn-ghost flex items-center gap-1"
           >
             ← Topics
           </button>
           <span className="text-apple-gray5">|</span>
-          <span className="text-[13px] font-semibold text-[var(--label)]">{selectedTopic}</span>
+          <span className="text-[13px] font-semibold text-[var(--label)]">
+            {bookmarkMode ? "☆ Saved" : selectedTopic}
+          </span>
           {question.isAIGenerated && (
             <span className="badge bg-apple-purple/10 text-apple-purple">AI Generated</span>
           )}

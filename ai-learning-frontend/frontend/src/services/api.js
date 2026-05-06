@@ -97,7 +97,8 @@ export const getCompletedLessons = ()    => api.get("/lessons/completed");
 export const startTopic         = (topicId)    => api.post("/practice/start", { topicId });
 export const submitAnswer       = (data)       => api.post("/practice/submit", data);
 export const startMixedPractice = (topics)     => api.post("/practice/mixed", { topics });
-export const flagQuestion       = (questionId) => api.post("/practice/flag", { questionId });
+export const flagQuestion           = (questionId) => api.post("/practice/flag", { questionId });
+export const startBookmarkPractice = ()           => api.post("/practice/start-bookmarks");
 
 export const getReport            = () => api.get("/analysis/report");
 export const getErrorMemory       = () => api.get("/analysis/errors");

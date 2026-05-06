@@ -18,8 +18,8 @@ import path from "path";
 import { NcertChapter } from "../models/ncertChapterModel.js";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
 
-const TEXTBOOK_DIR  = "C:/Users/LENOVO/Downloads/textbook";
-const TOPICWISE_DIR = "C:/Users/LENOVO/Downloads/Topic wise";
+const TEXTBOOK_DIR  = process.env.TEXTBOOK_DIR  || "C:/Users/LENOVO/Downloads/textbook";
+const TOPICWISE_DIR = process.env.TOPICWISE_DIR || "C:/Users/LENOVO/Downloads/Topic wise";
 
 async function importChapters() {
   const files = (await readdir(TEXTBOOK_DIR)).filter((f) => f.endsWith(".json"));

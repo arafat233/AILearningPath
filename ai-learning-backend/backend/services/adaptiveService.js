@@ -68,9 +68,13 @@ export const getNextQuestion = async (userId, topic) => {
     .lean();
   const seenIds = seen.map((s) => s.questionId);
 
+  // Only serve questions the submit flow can grade (index-based MCQ grading)
+  const mcqFilter = { questionType: { $in: ["mcq", "assertion_reason", "case_based"] } };
+
   // Try unseen questions near target difficulty
   let questions = await Question.find({
     topic,
+    ...mcqFilter,
     isFlagged: { $ne: true },
     deletedAt: null,
     difficultyScore: { $gte: targetDifficulty - 0.2, $lte: targetDifficulty + 0.2 },
@@ -81,6 +85,7 @@ export const getNextQuestion = async (userId, topic) => {
   if (!questions.length) {
     questions = await Question.find({
       topic,
+      ...mcqFilter,
       isFlagged: { $ne: true },
       deletedAt: null,
       ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
@@ -89,7 +94,7 @@ export const getNextQuestion = async (userId, topic) => {
 
   // If truly all seen, reset and serve any
   if (!questions.length) {
-    questions = await Question.find({ topic, isFlagged: { $ne: true }, deletedAt: null }).lean();
+    questions = await Question.find({ topic, ...mcqFilter, isFlagged: { $ne: true }, deletedAt: null }).lean();
   }
 
   if (!questions.length) return null;

@@ -1432,6 +1432,13 @@ function MasteryPractice({ topicId, topicName }) {
         ) : question ? (
           <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
             <p style={{ fontSize:"14px", fontWeight:600, color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{question.questionText}</p>
+            {!(question.options?.length) && phase === "question" && (
+              <button onClick={() => loadQuestion(null)} className="ntv-btn"
+                style={{ background:"#F5F5F7", color:"#AEAEB2", fontWeight:700, fontSize:"13px",
+                  padding:"10px", borderRadius:"10px", border:"1.5px solid #E5E5EA", cursor:"pointer" }}>
+                Skip →
+              </button>
+            )}
             <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
               {(question.options||[]).map((opt, i) => {
                 const isSelected = selected === i;

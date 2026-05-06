@@ -1,18 +1,19 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js"
 type: "code"
-community: "Community 5"
+community: "Community 10"
 location: "L6"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_5
+  - graphify/INFERRED
+  - community/Community_10
 ---
 
 # getNextTopic()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[nextTopic()]] - `calls` [INFERRED]
 - [[recommenderController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_10

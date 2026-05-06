@@ -8,15 +8,15 @@ members: 9
 **Members:** 9 nodes
 
 ## Members
-- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -26,7 +26,11 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 2]]
+- 5 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[getRevisionTopics()]] - degree 3, connects to 1 community
+- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
+- [[serveAtDifficulty()]] - degree 6, connects to 1 community
+- [[recordAttempt()]] - degree 6, connects to 1 community
+- [[nextQuestion()]] - degree 5, connects to 1 community

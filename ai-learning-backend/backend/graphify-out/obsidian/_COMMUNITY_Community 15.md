@@ -1,20 +1,21 @@
 ---
 type: community
-members: 7
+members: 8
 ---
 
 # Community 15
 
-**Members:** 7 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[chapterFromTopicId()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[cleanAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[main()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,7 +25,8 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[main()_1]] - degree 2, connects to 1 community
+- [[companyLogin()]] - degree 3, connects to 1 community
+- [[getStats()]] - degree 3, connects to 1 community

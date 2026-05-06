@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 25
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[findByIdSelect()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[findByIdSelectLean()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[mockReqRes()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[portal.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
+- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
 
 ## Live Query (requires Dataview plugin)
 

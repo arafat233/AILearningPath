@@ -1,22 +1,21 @@
 ---
 type: community
-members: 9
+members: 8
 ---
 
 # Community 18
 
-**Members:** 9 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[BulletList()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[DerivationPart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[DiagramCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[MisconceptionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[NcertTopicView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[NcertTopicView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[Section()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[WorkedExample()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[sanitizeSvg()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,3 +23,10 @@ members: 9
 TABLE source_file, type FROM #community/Community_18
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 1]]
+
+## Top bridge nodes
+- [[companyLogin()]] - degree 3, connects to 1 community
+- [[getStats()]] - degree 3, connects to 1 community

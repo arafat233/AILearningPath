@@ -1,34 +1,40 @@
 ---
 type: community
-members: 21
+members: 27
 ---
 
 # Community 4
 
-**Members:** 21 nodes
+**Members:** 27 nodes
 
 ## Members
-- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[csrf.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[csrfProtect()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[parseRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[respondToLinkRequest()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[setCsrfCookie()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -38,20 +44,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 3]]
-- 3 edges to [[_COMMUNITY_Community 8]]
-- 2 edges to [[_COMMUNITY_Community 2]]
+- 6 edges to [[_COMMUNITY_Community 0]]
+- 4 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 18]]
 - 1 edge to [[_COMMUNITY_Community 6]]
-- 1 edge to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 5]]
-- 1 edge to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 9]]
-- 1 edge to [[_COMMUNITY_Community 16]]
-- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[save()]] - degree 9, connects to 6 communities
-- [[logout()]] - degree 5, connects to 2 communities
-- [[issueTokens()]] - degree 7, connects to 1 community
-- [[refresh()]] - degree 7, connects to 1 community
-- [[register()]] - degree 6, connects to 1 community
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[tutorChat()]] - degree 5, connects to 1 community
+- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community

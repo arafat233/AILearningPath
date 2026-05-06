@@ -1,17 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\onboardingEmailService.test.js"
 type: "code"
-community: "Community 49"
-location: "L13"
+community: "Community 46"
+location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_49
+  - community/Community_46
 ---
 
 # makeUser()
 
 ## Connections
-- [[aiQuota.integration.test.js]] - `contains` [EXTRACTED]
+- [[onboardingEmailService.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_49
+#graphify/code #graphify/EXTRACTED #community/Community_46

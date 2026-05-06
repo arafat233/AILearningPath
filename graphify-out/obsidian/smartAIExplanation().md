@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js"
 type: "code"
-community: "Community 8"
+community: "Community 9"
 location: "L136"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_9
 ---
 
 # smartAIExplanation()
@@ -24,4 +24,4 @@ tags:
 - [[submitAnswer()]] - `calls` [INFERRED]
 - [[todayStr()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_9

@@ -1,99 +1,113 @@
 ---
 type: community
-members: 86
+members: 100
 ---
 
 # Community 1
 
-**Members:** 86 nodes
+**Members:** 100 nodes
 
 ## Members
-- [[AdaptiveViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[AnimatedStellarMark()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[BentoCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[CardHeader()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Center()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[FAQ()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Features()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[FinalCTA()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Footer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[GoalPreview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Hero()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[HowItWorks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_CTA()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Classroom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Promise()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Reshape()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[IntroScene_Sky()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Landing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Landing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[LearningGoals()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[LiveRoomViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Logo()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Manifesto()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Parents()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PhoneFrame()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PlannerViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PredictionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewArithmetic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewBody()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewCells()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewChemistry()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewCivics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewCoding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewComprehension()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewData()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewEnergy()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewEssay()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewGeography()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewGovernment()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewHindi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewHistory()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewLanguage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewLight()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewLogic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewMensuration()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewPhonics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewPoetry()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewProbability()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewProportional()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewPuzzle()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewQuadratics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewScience()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewSocial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewSolving()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewSpatial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewStates()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[PreviewVisualAlgebra()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Pricing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[ProductTour()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[ProfileViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[RevisionViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SceneLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SceneUI()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[SectionEyebrow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[StickyCta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[Testimonials()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[TopBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[TrustMetric()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Guess()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_LevelUp()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Parent()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Question()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Retest()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_SignIn()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Simpler()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Teach()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[UI_Voice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[VoiceViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[easeInOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[easeOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[pentPoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[pentPoints()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[reveal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[tourPhase()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[useAmbientMusic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
-- [[useStep()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[.choice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[.constructor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[.next()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[.randInt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[.shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[Rng]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[adminQuestionController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[adminTopicController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[applyPlacementResults()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[callDeleteMe()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
+- [[companyAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
+- [[companyAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\companyAuth.js
+- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[createOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[createQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[createTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[curriculumController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[deleteQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[deleteStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[deleteTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[getClassStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getCompletedLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getFlaggedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[getLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[getLinkRequests()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getLinkedStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getNcertChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getNcertNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getNcertTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getPlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[getPlacementStatus()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudentAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudentDashboard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getStudentDashboardCtrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getStudiedTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[getSubscription()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[linkStudentDirect()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[listLessons()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[listNcertChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[listNcertTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[listQuestions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
+- [[listTopics()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[mockRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
+- [[ncertController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[paymentController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[placementController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[respondToLinkRequest()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[saveNcertNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[scorePlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
+- [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[setStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[toggleStudiedTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[unflagQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[updateQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
+- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[updateTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[user.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
+- [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[verifyPayment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -103,7 +117,21 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 26]]
+- 11 edges to [[_COMMUNITY_Community 7]]
+- 10 edges to [[_COMMUNITY_Community 4]]
+- 8 edges to [[_COMMUNITY_Community 6]]
+- 6 edges to [[_COMMUNITY_Community 9]]
+- 6 edges to [[_COMMUNITY_Community 0]]
+- 5 edges to [[_COMMUNITY_Community 16]]
+- 2 edges to [[_COMMUNITY_Community 12]]
+- 2 edges to [[_COMMUNITY_Community 18]]
+- 1 edge to [[_COMMUNITY_Community 15]]
+- 1 edge to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
-- [[ProductTour()]] - degree 3, connects to 1 community
+- [[.next()]] - degree 98, connects to 7 communities
+- [[save()]] - degree 9, connects to 6 communities
+- [[submitExam()]] - degree 9, connects to 1 community
+- [[Rng]] - degree 6, connects to 1 community
+- [[startExam()]] - degree 4, connects to 1 community

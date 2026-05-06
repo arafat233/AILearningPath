@@ -1,46 +1,52 @@
 ---
 type: community
-members: 33
+members: 39
 ---
 
 # Community 7
 
-**Members:** 33 nodes
+**Members:** 39 nodes
 
 ## Members
-- [[AdaptiveViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[BentoCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[CardHeader()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[FAQ()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Features()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[FinalCTA()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Footer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[GoalPreviewSimple()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Hero()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[HowItWorks()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[LandingPage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[LandingPage.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[LearningGoals()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[LiveRoomViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Logo()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Marquee()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Parents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[PlannerViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[PredictionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Pricing()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[ProfileViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[RevisionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[SectionEyebrow()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[StickyCta()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Subjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[Testimonials()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[TopBar()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[TrustMetric()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[VoiceViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[sampleTopicsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[statsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[subjectsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
-- [[useStep()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[csrf.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[csrfProtect()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[parseRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[setCsrfCookie()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -48,3 +54,16 @@ members: 33
 TABLE source_file, type FROM #community/Community_7
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 11 edges to [[_COMMUNITY_Community 1]]
+- 6 edges to [[_COMMUNITY_Community 6]]
+- 3 edges to [[_COMMUNITY_Community 12]]
+- 2 edges to [[_COMMUNITY_Community 13]]
+
+## Top bridge nodes
+- [[sessionGet()]] - degree 9, connects to 3 communities
+- [[authController.js]] - degree 15, connects to 2 communities
+- [[sessionDel()]] - degree 7, connects to 2 communities
+- [[logout()]] - degree 6, connects to 2 communities
+- [[refresh()]] - degree 8, connects to 1 community

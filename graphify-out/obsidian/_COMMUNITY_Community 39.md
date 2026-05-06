@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[api.interceptors.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[getCsrfFromCookie()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[handle401()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[shouldAttachCsrf()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
 
 ## Live Query (requires Dataview plugin)
 

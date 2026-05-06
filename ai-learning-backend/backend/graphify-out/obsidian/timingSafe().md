@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js"
 type: "code"
-community: "Community 14"
+community: "Community 15"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_14
+  - community/Community_15
 ---
 
 # timingSafe()
@@ -15,4 +15,4 @@ tags:
 - [[companyController.js]] - `contains` [EXTRACTED]
 - [[companyLogin()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_14
+#graphify/code #graphify/EXTRACTED #community/Community_15

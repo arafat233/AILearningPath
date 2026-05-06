@@ -1,17 +1,18 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js"
 type: "code"
-community: "Community 0"
+community: "Community 1"
 location: "L36"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_0
+  - community/Community_1
 ---
 
 # log()
 
 ## Connections
+- [[bulkUpsertQuestions()]] - `calls` [INFERRED]
 - [[importChapters()]] - `calls` [INFERRED]
 - [[main()]] - `calls` [INFERRED]
 - [[main()_1]] - `calls` [INFERRED]
@@ -19,6 +20,7 @@ tags:
 - [[main()_3]] - `calls` [INFERRED]
 - [[main()_4]] - `calls` [INFERRED]
 - [[main()_5]] - `calls` [INFERRED]
+- [[main()_6]] - `calls` [INFERRED]
 - [[restore.js]] - `contains` [EXTRACTED]
 - [[save()]] - `calls` [INFERRED]
 - [[seed()]] - `calls` [INFERRED]
@@ -28,10 +30,14 @@ tags:
 - [[seed()_4]] - `calls` [INFERRED]
 - [[seedCurriculum()]] - `calls` [INFERRED]
 - [[seedMockPapers()]] - `calls` [INFERRED]
+- [[seedMockPapers()_1]] - `calls` [INFERRED]
 - [[seedNcertContent()]] - `calls` [INFERRED]
 - [[seedPYQ()]] - `calls` [INFERRED]
+- [[seedQuestionBanks()]] - `calls` [INFERRED]
 - [[seedQuestions()]] - `calls` [INFERRED]
+- [[seedTeachingContent()]] - `calls` [INFERRED]
+- [[seedTopicDAG()]] - `calls` [INFERRED]
 - [[upsertTopic()]] - `calls` [INFERRED]
 - [[write()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_0
+#graphify/code #graphify/INFERRED #community/Community_1

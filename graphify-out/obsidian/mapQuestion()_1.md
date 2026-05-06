@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js"
 type: "code"
-community: "Community 21"
+community: "Community 3"
 location: "L77"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_3
 ---
 
 # mapQuestion()
@@ -17,4 +17,4 @@ tags:
 - [[cleanAnswer()_2]] - `calls` [EXTRACTED]
 - [[seedPlacementQuiz.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_3

@@ -1,34 +1,43 @@
 ---
 type: community
-members: 21
+members: 30
 ---
 
 # Community 9
 
-**Members:** 21 nodes
+**Members:** 30 nodes
 
 ## Members
-- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getNextQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -36,3 +45,14 @@ members: 21
 TABLE source_file, type FROM #community/Community_9
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 6 edges to [[_COMMUNITY_Community 1]]
+- 4 edges to [[_COMMUNITY_Community 6]]
+
+## Top bridge nodes
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[tutorChat()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community
+- [[studyAdvice()]] - degree 4, connects to 1 community

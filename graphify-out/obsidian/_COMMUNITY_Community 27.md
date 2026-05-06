@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[ScienceSubBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[SubjectBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
-- [[ncertSubject()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

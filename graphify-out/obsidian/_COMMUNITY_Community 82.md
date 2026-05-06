@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
-- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
 
 ## Live Query (requires Dataview plugin)
 

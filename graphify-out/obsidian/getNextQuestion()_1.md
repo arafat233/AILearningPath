@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js"
 type: "code"
-community: "Community 8"
+community: "Community 9"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_9
 ---
 
 # getNextQuestion()
@@ -16,4 +16,4 @@ tags:
 - [[generateAIQuestion()]] - `calls` [INFERRED]
 - [[getInterleavedQuestion()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_9

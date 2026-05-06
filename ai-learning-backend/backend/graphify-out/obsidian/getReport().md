@@ -1,21 +1,22 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js"
 type: "code"
-community: "Community 16"
+community: "Community 18"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_16
+  - community/Community_18
 ---
 
 # getReport()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[analysisController.js]] - `contains` [EXTRACTED]
 - [[buildAccuracyHistory()]] - `calls` [EXTRACTED]
 - [[buildWeaknessMap()]] - `calls` [EXTRACTED]
 - [[getStreak()]] - `calls` [INFERRED]
 - [[smartStudyAdvice()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_16
+#graphify/code #graphify/EXTRACTED #community/Community_18

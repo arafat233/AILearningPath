@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[auth.spec.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\auth.spec.js
+- [[playwright.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\playwright.config.js
 
 ## Live Query (requires Dataview plugin)
 

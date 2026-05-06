@@ -12,6 +12,7 @@ tags:
 # submitAnswer()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[analyzeAnswer()]] - `calls` [INFERRED]
 - [[checkAndAwardBadges()]] - `calls` [INFERRED]
 - [[generateTeacherMessage()]] - `calls` [INFERRED]

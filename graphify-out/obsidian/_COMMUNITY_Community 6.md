@@ -1,51 +1,54 @@
 ---
 type: community
-members: 38
+members: 41
 ---
 
 # Community 6
 
-**Members:** 38 nodes
+**Members:** 41 nodes
 
 ## Members
-- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
 - [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[csrf.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[csrfProtect()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[parseRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[setCsrfCookie()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
-- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
-- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[getNextQuestion()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
+- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[makeAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[mockAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[profile.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[safeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -55,14 +58,15 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 9 edges to [[_COMMUNITY_Community 4]]
-- 8 edges to [[_COMMUNITY_Community 2]]
-- 3 edges to [[_COMMUNITY_Community 11]]
-- 2 edges to [[_COMMUNITY_Community 12]]
+- 8 edges to [[_COMMUNITY_Community 1]]
+- 6 edges to [[_COMMUNITY_Community 7]]
+- 4 edges to [[_COMMUNITY_Community 9]]
+- 1 edge to [[_COMMUNITY_Community 13]]
+- 1 edge to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[sessionDel()]] - degree 7, connects to 3 communities
-- [[authController.js]] - degree 15, connects to 2 communities
-- [[sessionGet()]] - degree 9, connects to 2 communities
-- [[logout()]] - degree 6, connects to 2 communities
+- [[submitAnswer()]] - degree 16, connects to 3 communities
+- [[sessionSet()]] - degree 9, connects to 3 communities
+- [[getReport()]] - degree 6, connects to 2 communities
 - [[adminAuth()]] - degree 4, connects to 2 communities
+- [[startTopic()]] - degree 8, connects to 1 community

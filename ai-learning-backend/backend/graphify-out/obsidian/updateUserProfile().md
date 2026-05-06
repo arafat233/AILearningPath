@@ -13,6 +13,7 @@ tags:
 
 ## Connections
 - [[classifyThinkingProfile()]] - `calls` [INFERRED]
+- [[getDifficulty()]] - `calls` [INFERRED]
 - [[profileService.js]] - `contains` [EXTRACTED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 

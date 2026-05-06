@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js"
 type: "code"
-community: "Community 8"
+community: "Community 9"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_8
+  - community/Community_9
 ---
 
 # aiController.js
@@ -17,4 +17,4 @@ tags:
 - [[tutorChat()]] - `contains` [EXTRACTED]
 - [[usageInfo()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_8
+#graphify/code #graphify/EXTRACTED #community/Community_9

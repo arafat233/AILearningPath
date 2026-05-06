@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[setup.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\setup.js
+- [[main.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\main.jsx
 
 ## Live Query (requires Dataview plugin)
 

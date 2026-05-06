@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 51
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[seed.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seed.js
+- [[setupStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
+- [[weeklyParentEmailService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
 
 ## Live Query (requires Dataview plugin)
 

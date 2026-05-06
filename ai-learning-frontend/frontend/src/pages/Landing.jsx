@@ -1070,8 +1070,9 @@ function ProductTour() {
     const a = audioRef.current; if (!a) return;
     a.muted = !soundOn;
     if (playing) {
-      if (a.duration && tRef.current < a.duration - 0.05) {
-        if (Math.abs(a.currentTime - tRef.current) > 0.2) a.currentTime = tRef.current;
+      const end = isNaN(a.duration) ? total : a.duration;
+      if (tRef.current < end - 0.05) {
+        if (!isNaN(a.duration) && Math.abs(a.currentTime - tRef.current) > 0.2) a.currentTime = tRef.current;
         a.play().catch(() => {});
       } else { a.pause(); }
     } else { a.pause(); }

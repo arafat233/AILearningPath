@@ -1,17 +1,17 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js"
 type: "code"
-community: "Community 31"
-location: "L31"
+community: "Community 28"
+location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_31
+  - community/Community_28
 ---
 
 # makeToken()
 
 ## Connections
-- [[adminAuth.middleware.test.js]] - `contains` [EXTRACTED]
+- [[admin.routes.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_31
+#graphify/code #graphify/EXTRACTED #community/Community_28

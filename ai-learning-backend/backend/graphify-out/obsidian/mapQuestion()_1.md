@@ -1,20 +1,21 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js"
 type: "code"
-community: "Community 0"
-location: "L77"
+community: "Community 1"
+location: "L103"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_0
+  - community/Community_1
 ---
 
 # mapQuestion()
 
 ## Connections
 - [[buildOptions()_1]] - `calls` [EXTRACTED]
-- [[chapterFromStr()]] - `calls` [EXTRACTED]
-- [[cleanAnswer()_2]] - `calls` [EXTRACTED]
-- [[seedPlacementQuiz.js]] - `contains` [EXTRACTED]
+- [[cleanFormula()]] - `calls` [EXTRACTED]
+- [[mapQuestionType()]] - `calls` [EXTRACTED]
+- [[seedDesktopContent.js]] - `contains` [EXTRACTED]
+- [[seedMockPapers()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_0
+#graphify/code #graphify/EXTRACTED #community/Community_1

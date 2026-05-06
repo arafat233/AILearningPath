@@ -12,6 +12,7 @@ tags:
 # startExam()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[examController.js]] - `contains` [EXTRACTED]
 - [[examKey()]] - `calls` [EXTRACTED]
 - [[sessionSet()]] - `calls` [INFERRED]

@@ -1,33 +1,34 @@
 ---
 type: community
-members: 20
+members: 21
 ---
 
 # Community 4
 
-**Members:** 20 nodes
+**Members:** 21 nodes
 
 ## Members
-- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[AdminOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
-- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[DoubtChat.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\DoubtChat.test.jsx
-- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[Layout.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
-- [[Practice.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[Protected()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
-- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[PublicOnly()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
-- [[RootElement()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
-- [[openChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\DoubtChat.test.jsx
-- [[renderPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[renderWithRouter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
-- [[startAndAnswer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[startSession()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
+- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 
 ## Live Query (requires Dataview plugin)
 

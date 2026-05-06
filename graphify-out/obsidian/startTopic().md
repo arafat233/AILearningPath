@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js"
 type: "code"
-community: "Community 4"
+community: "Community 6"
 location: "L26"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_6
 ---
 
 # startTopic()
@@ -21,4 +21,4 @@ tags:
 - [[sessionKey()]] - `calls` [EXTRACTED]
 - [[sessionSet()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_4
+#graphify/code #graphify/INFERRED #community/Community_6

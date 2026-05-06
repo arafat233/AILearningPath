@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js"
 type: "code"
-community: "Community 2"
-location: "L180"
+community: "Community 0"
+location: "L186"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_0
 ---
 
 # getPYQs()
@@ -15,4 +15,4 @@ tags:
 - [[api.js]] - `contains` [EXTRACTED]
 - [[listQuestions()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_0

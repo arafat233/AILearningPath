@@ -1,33 +1,37 @@
 ---
 type: community
-members: 20
+members: 24
 ---
 
 # Community 5
 
-**Members:** 20 nodes
+**Members:** 24 nodes
 
 ## Members
-- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[applyPlacementResults()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[getPlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
-- [[getPlacementStatus()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
-- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[placementController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
-- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[scorePlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
-- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
+- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
+- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
+- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
+- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -37,7 +41,15 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 4]]
+- 4 edges to [[_COMMUNITY_Community 6]]
+- 4 edges to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 9]]
+- 2 edges to [[_COMMUNITY_Community 12]]
 
 ## Top bridge nodes
-- [[recordAttempt()]] - degree 6, connects to 1 community
+- [[sessionGet()]] - degree 9, connects to 4 communities
+- [[sessionDel()]] - degree 7, connects to 3 communities
+- [[adminAuth()]] - degree 4, connects to 2 communities
+- [[redisClient.js]] - degree 8, connects to 1 community
+- [[updateUserRole()]] - degree 3, connects to 1 community

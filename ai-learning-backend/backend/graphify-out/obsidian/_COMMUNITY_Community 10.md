@@ -8,21 +8,21 @@ members: 15
 **Members:** 15 nodes
 
 ## Members
-- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
-- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
-- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
-- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -30,3 +30,15 @@ members: 15
 TABLE source_file, type FROM #community/Community_10
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 5 edges to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 6]]
+
+## Top bridge nodes
+- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
+- [[serveAtDifficulty()]] - degree 6, connects to 1 community
+- [[recordAttempt()]] - degree 6, connects to 1 community
+- [[getNextTopic()]] - degree 3, connects to 1 community
+- [[getNextQuestion()]] - degree 3, connects to 1 community

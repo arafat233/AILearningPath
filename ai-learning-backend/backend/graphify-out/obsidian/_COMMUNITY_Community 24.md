@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 24
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[aiRouter.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[selectLeanReturn()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[today()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
-- [[userDoc()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.service.test.js
+- [[20260503000000-add-indexes-and-soft-delete.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[down()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[up()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
 
 ## Live Query (requires Dataview plugin)
 

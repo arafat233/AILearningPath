@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[makeToken()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
-- [[mockReqRes()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.middleware.test.js
+- [[badge.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\badge.service.test.js
+- [[existingBadge()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\badge.service.test.js
+- [[newBadge()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\badge.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

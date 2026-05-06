@@ -8,13 +8,13 @@ members: 7
 **Members:** 7 nodes
 
 ## Members
-- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[chapterFromTopicId()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[cleanAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[main()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -25,9 +25,6 @@ SORT file.name ASC
 
 ## Connections to other communities
 - 1 edge to [[_COMMUNITY_Community 1]]
-- 1 edge to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[updateStreak()]] - degree 3, connects to 2 communities
-- [[getReport()]] - degree 5, connects to 1 community
+- [[main()_1]] - degree 2, connects to 1 community

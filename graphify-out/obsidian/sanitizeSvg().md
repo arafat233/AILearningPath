@@ -1,18 +1,18 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx"
 type: "code"
-community: "Community 18"
-location: "L40"
+community: "Community 5"
+location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_18
+  - community/Community_5
 ---
 
 # sanitizeSvg()
 
 ## Connections
-- [[DiagramCard()]] - `calls` [EXTRACTED]
 - [[NcertTopicView.jsx]] - `contains` [EXTRACTED]
+- [[VideoPlayer()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_18
+#graphify/code #graphify/EXTRACTED #community/Community_5

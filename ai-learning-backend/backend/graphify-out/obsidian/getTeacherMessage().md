@@ -5,14 +5,15 @@ community: "Community 2"
 location: "L203"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
+  - graphify/INFERRED
   - community/Community_2
 ---
 
 # getTeacherMessage()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[generateTeacherMessage()]] - `calls` [INFERRED]
 - [[practiceController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_2

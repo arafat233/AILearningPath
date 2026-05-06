@@ -12,6 +12,7 @@ tags:
 # getExamReview()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[examController.js]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_9

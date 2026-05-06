@@ -12,6 +12,7 @@ tags:
 # submitExam()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[assignRanks()]] - `calls` [INFERRED]
 - [[calculateExamScore()]] - `calls` [INFERRED]
 - [[currentWeekStr()]] - `calls` [EXTRACTED]

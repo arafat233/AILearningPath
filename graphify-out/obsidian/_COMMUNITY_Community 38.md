@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
-- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
 
 ## Live Query (requires Dataview plugin)
 

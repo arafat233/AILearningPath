@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 4"
+community: "Community 1"
 location: "L332"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_1
 ---
 
 # resetPassword()
@@ -16,4 +16,4 @@ tags:
 - [[authController.js]] - `contains` [EXTRACTED]
 - [[save()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_4
+#graphify/code #graphify/INFERRED #community/Community_1

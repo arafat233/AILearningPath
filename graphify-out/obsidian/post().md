@@ -47,6 +47,7 @@ tags:
 - [[submitFeedback()]] - `calls` [INFERRED]
 - [[subscribePush()]] - `calls` [INFERRED]
 - [[toggleBookmark()]] - `calls` [INFERRED]
+- [[toggleNcertStudied()]] - `calls` [INFERRED]
 - [[validateCoupon()_1]] - `calls` [INFERRED]
 - [[verifyPayment()_2]] - `calls` [INFERRED]
 - [[voiceAnswer()]] - `calls` [INFERRED]

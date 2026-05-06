@@ -1,18 +1,19 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js"
 type: "code"
-community: "Community 1"
+community: "Community 0"
 location: "L4"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_1
+  - graphify/INFERRED
+  - community/Community_0
 ---
 
 # getAdminStats()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[adminStatsController.js]] - `contains` [EXTRACTED]
 - [[getCacheStats()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/INFERRED #community/Community_0

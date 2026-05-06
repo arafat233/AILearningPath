@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx"
 type: "code"
 community: "Community 55"
-location: "L35"
+location: "L45"
 tags:
   - graphify/code
   - graphify/EXTRACTED

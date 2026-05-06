@@ -1,11 +1,11 @@
 ---
 type: community
-members: 117
+members: 119
 ---
 
 # Community 0
 
-**Members:** 117 nodes
+**Members:** 119 nodes
 
 ## Members
 - [[adminCreateCoupon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -36,6 +36,7 @@ members: 117
 - [[deleteStudyReminder()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[evaluateExplanation()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[flagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[flushQueue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIAdvice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAICacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -43,6 +44,7 @@ members: 117
 - [[getBadges()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getBookmarks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getClassStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getCompletedLessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getCsrfToken()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getCurriculumChapter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getCurriculumSubjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js

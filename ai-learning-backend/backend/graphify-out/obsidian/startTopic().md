@@ -12,6 +12,7 @@ tags:
 # startTopic()
 
 ## Connections
+- [[.next()]] - `calls` [INFERRED]
 - [[checkFoundation()]] - `calls` [INFERRED]
 - [[generateTeacherMessage()]] - `calls` [INFERRED]
 - [[getNextQuestion()_1]] - `calls` [INFERRED]

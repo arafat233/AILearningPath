@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\pushService.js"
 type: "code"
-community: "Community 16"
+community: "Community 15"
 location: "L37"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_16
+  - community/Community_15
 ---
 
 # notifyParentsOfMilestone()
@@ -16,4 +16,4 @@ tags:
 - [[pushService.js]] - `contains` [EXTRACTED]
 - [[sendPush()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_16
+#graphify/code #graphify/EXTRACTED #community/Community_15

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[adaptive.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[leanResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
-- [[seenResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adaptive.service.test.js
+- [[admin.routes.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
+- [[makeToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
+- [[mockRes()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
 
 ## Live Query (requires Dataview plugin)
 

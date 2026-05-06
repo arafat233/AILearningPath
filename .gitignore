@@ -3,3 +3,6 @@ node_modules/
 *.log
 dist/
 .DS_Store
+stellar-session-export.md
+stellar-session-clean.md
+stellar-yc-session.md

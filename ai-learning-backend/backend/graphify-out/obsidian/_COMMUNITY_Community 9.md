@@ -32,11 +32,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 5 edges to [[_COMMUNITY_Community 0]]
 - 2 edges to [[_COMMUNITY_Community 2]]
-- 2 edges to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 4]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
+- [[submitExam()]] - degree 9, connects to 2 communities
+- [[startExam()]] - degree 4, connects to 2 communities
 - [[updateQuestionStats()]] - degree 4, connects to 2 communities
-- [[submitExam()]] - degree 8, connects to 1 community
-- [[startExam()]] - degree 3, connects to 1 community
+- [[listExams()]] - degree 2, connects to 1 community
+- [[getExamReview()]] - degree 2, connects to 1 community

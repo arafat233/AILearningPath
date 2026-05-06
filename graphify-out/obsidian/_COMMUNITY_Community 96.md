@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
-- [[AdminOverview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[AdminLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
+- [[AdminLayout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
 
 ## Live Query (requires Dataview plugin)
 

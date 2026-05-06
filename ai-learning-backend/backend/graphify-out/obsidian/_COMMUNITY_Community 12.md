@@ -1,24 +1,25 @@
 ---
 type: community
-members: 11
+members: 12
 ---
 
 # Community 12
 
-**Members:** 11 nodes
+**Members:** 12 nodes
 
 ## Members
-- [[buildOptions()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterFromTopicId()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[cleanFormula()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[main()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestion()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestionType()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedMockPapers()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[shuffle()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -28,9 +29,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
-- [[seedQuestions()]] - degree 4, connects to 1 community
-- [[seedMockPapers()]] - degree 4, connects to 1 community
-- [[main()_4]] - degree 4, connects to 1 community
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
+- [[createOrder()_1]] - degree 7, connects to 1 community

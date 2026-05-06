@@ -1,25 +1,28 @@
 ---
 type: community
-members: 12
+members: 15
 ---
 
 # Community 11
 
-**Members:** 12 nodes
+**Members:** 15 nodes
 
 ## Members
-- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
+- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -29,10 +32,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 8]]
+- 3 edges to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[verifyPayment()_1]] - degree 9, connects to 2 communities
-- [[createOrder()_1]] - degree 7, connects to 1 community
+- [[getPlan()]] - degree 4, connects to 1 community
+- [[markDayComplete()]] - degree 2, connects to 1 community
+- [[saveTopicOrder()]] - degree 2, connects to 1 community

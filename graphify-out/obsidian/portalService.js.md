@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\portalService.js"
 type: "code"
-community: "Community 30"
+community: "Community 28"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_30
+  - community/Community_28
 ---
 
 # portalService.js
@@ -16,4 +16,4 @@ tags:
 - [[gradeFromAccuracy()]] - `contains` [EXTRACTED]
 - [[timeAgoLabel()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_30
+#graphify/code #graphify/EXTRACTED #community/Community_28

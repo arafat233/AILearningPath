@@ -1,12 +1,12 @@
-# Graph Report - E:\AILearningPath\ai-learning-frontend\frontend  (2026-05-02)
+# Graph Report - E:\AILearningPath\ai-learning-frontend\frontend  (2026-05-06)
 
 ## Corpus Check
-- 72 files · ~130,870 words
+- 74 files · ~134,822 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 484 nodes · 477 edges · 67 communities detected
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.8)
+- 490 nodes · 483 edges · 67 communities detected
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -113,12 +113,12 @@ Cohesion: 0.07
 Nodes (5): GoalPreviewSimple(), sampleTopicsFor(), statsFor(), Subjects(), useStep()
 
 ### Community 3 - "Community 3"
-Cohesion: 0.14
-Nodes (12): calcStreak(), dayToDate(), fmtFull(), fmtShort(), remainingHours(), SummaryBar(), TodayFocus(), TopicBadge() (+4 more)
+Cohesion: 0.09
+Nodes (8): ErrorBoundary, openChat(), renderWithRouter(), renderPractice(), startAndAnswer(), startSession(), renderPricing(), renderTutor()
 
 ### Community 4 - "Community 4"
-Cohesion: 0.11
-Nodes (6): ErrorBoundary, openChat(), renderWithRouter(), renderPractice(), startAndAnswer(), startSession()
+Cohesion: 0.14
+Nodes (12): calcStreak(), dayToDate(), fmtFull(), fmtShort(), remainingHours(), SummaryBar(), TodayFocus(), TopicBadge() (+4 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.16
@@ -446,6 +446,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.07 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.14 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09 - nodes in this community are weakly interconnected._
 - **Should `Community 4` be split into smaller, more focused modules?**
-  _Cohesion score 0.11 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14 - nodes in this community are weakly interconnected._

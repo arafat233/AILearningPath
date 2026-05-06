@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 26
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[_setup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[clearCollections()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[connectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
-- [[disconnectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[.constructor()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
 
 ## Live Query (requires Dataview plugin)
 

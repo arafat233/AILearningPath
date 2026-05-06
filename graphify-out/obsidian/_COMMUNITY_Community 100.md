@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[NPSSurveyBanner()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
-- [[NPSSurveyBanner.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\NPSSurveyBanner.test.jsx
+- [[AdminUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
+- [[AdminUsers.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
 
 ## Live Query (requires Dataview plugin)
 

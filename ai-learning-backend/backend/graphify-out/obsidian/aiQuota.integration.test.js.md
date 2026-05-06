@@ -1,17 +1,17 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js"
 type: "code"
-community: "Community 49"
+community: "Community 52"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_49
+  - community/Community_52
 ---
 
 # aiQuota.integration.test.js
 
 ## Connections
-- [[makeUser()_1]] - `contains` [EXTRACTED]
+- [[makeUser()_2]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_49
+#graphify/code #graphify/EXTRACTED #community/Community_52

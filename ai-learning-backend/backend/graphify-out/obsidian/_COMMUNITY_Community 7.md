@@ -15,7 +15,7 @@ members: 19
 - [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 - [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 - [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 - [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 - [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 - [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
@@ -36,7 +36,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 4]]
+- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
 - [[questionGenerator.js]] - degree 19, connects to 1 community

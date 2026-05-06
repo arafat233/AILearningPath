@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js"
 type: "code"
-community: "Community 0"
+community: "Community 1"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_0
+  - community/Community_1
 ---
 
 # restore.js
@@ -15,4 +15,4 @@ tags:
 - [[err()_1]] - `contains` [EXTRACTED]
 - [[log()_1]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_0
+#graphify/code #graphify/EXTRACTED #community/Community_1

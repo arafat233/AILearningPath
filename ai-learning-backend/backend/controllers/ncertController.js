@@ -1,5 +1,6 @@
 import { NcertChapter } from "../models/ncertChapterModel.js";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
+import { User } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 // GET /api/v1/ncert/chapters
@@ -50,6 +51,33 @@ export async function getNcertTopicContent(req, res, next) {
     const content = await NcertTopicContent.findOne({ topicId }).lean();
     if (!content) return next(new AppError("Topic content not found", 404));
     res.json({ data: content });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/v1/ncert/studied
+export async function getStudiedTopics(req, res, next) {
+  try {
+    const user = await User.findById(req.user.id).select("studiedNcertTopics").lean();
+    res.json({ data: user?.studiedNcertTopics || [] });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// POST /api/v1/ncert/studied/:topicId  — toggle on/off
+export async function toggleStudiedTopic(req, res, next) {
+  try {
+    const { topicId } = req.params;
+    const user = await User.findById(req.user.id).select("studiedNcertTopics").lean();
+    const already = (user?.studiedNcertTopics || []).includes(topicId);
+    if (already) {
+      await User.findByIdAndUpdate(req.user.id, { $pull: { studiedNcertTopics: topicId } });
+    } else {
+      await User.findByIdAndUpdate(req.user.id, { $addToSet: { studiedNcertTopics: topicId } });
+    }
+    res.json({ data: { studied: !already, topicId } });
   } catch (err) {
     next(err);
   }

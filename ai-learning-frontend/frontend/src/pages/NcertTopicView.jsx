@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getNcertTopicContent, evaluateExplanation, listNcertTopics } from "../services/api";
+import { getNcertTopicContent, evaluateExplanation, listNcertTopics, getStudiedTopics, toggleNcertStudied } from "../services/api";
 
 const S = { mono: { fontFamily: "ui-monospace, 'SF Mono', monospace" } };
 
@@ -1235,6 +1235,7 @@ export default function NcertTopicView() {
   const [formulaState,  setFormulaState]  = useState({});
   const [errorDone,  setErrorDone]  = useState(false);
   const [siblings,    setSiblings]   = useState([]);
+  const [allTopics,   setAllTopics]  = useState([]);
   const [studied,     setStudied]   = useState(false);
   const [sessionSecs, setSessionSecs] = useState(0);
 
@@ -1258,18 +1259,28 @@ export default function NcertTopicView() {
     return () => clearInterval(iv);
   }, [mode]);
 
+  // Fetch all NCERT topics once: derives siblings + builds prereq name→id map
   useEffect(() => {
     if (!topic) return;
-    listNcertTopics(topic.chapterNumber)
-      .then(r => setSiblings(r.data?.data || []))
+    listNcertTopics()
+      .then(r => {
+        const all = r.data?.data || [];
+        setAllTopics(all);
+        setSiblings(all.filter(t => t.chapterNumber === topic.chapterNumber));
+      })
       .catch(() => {});
   }, [topic]);
 
+  // Load studied status from backend; fall back to localStorage if not authenticated
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("stellar_studied_topics") || "[]");
-      setStudied(stored.includes(topicId));
-    } catch { setStudied(false); }
+    getStudiedTopics()
+      .then(r => setStudied((r.data?.data || []).includes(topicId)))
+      .catch(() => {
+        try {
+          const stored = JSON.parse(localStorage.getItem("stellar_studied_topics") || "[]");
+          setStudied(stored.includes(topicId));
+        } catch { setStudied(false); }
+      });
   }, [topicId]);
 
   const markExDone   = i => setExDone(p => new Set([...p, i]));
@@ -1278,17 +1289,25 @@ export default function NcertTopicView() {
   const answerFormula = (i, picked, correct) => setFormulaState(p => ({ ...p, [i]: { picked, correct } }));
 
   const toggleStudied = () => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("stellar_studied_topics") || "[]");
-      const updated = studied ? stored.filter(id => id !== topicId) : [...new Set([...stored, topicId])];
-      localStorage.setItem("stellar_studied_topics", JSON.stringify(updated));
-      setStudied(!studied);
-    } catch { /* localStorage unavailable */ }
+    const next = !studied;
+    setStudied(next); // optimistic
+    toggleNcertStudied(topicId)
+      .then(r => setStudied(r.data?.data?.studied ?? next))
+      .catch(() => {
+        // backend unavailable — persist to localStorage as fallback
+        try {
+          const stored = JSON.parse(localStorage.getItem("stellar_studied_topics") || "[]");
+          const updated = next ? [...new Set([...stored, topicId])] : stored.filter(id => id !== topicId);
+          localStorage.setItem("stellar_studied_topics", JSON.stringify(updated));
+        } catch { /* ignore */ }
+      });
   };
 
   const currentIdx = siblings.findIndex(s => s.topicId === topicId);
   const prevTopic  = currentIdx > 0 ? siblings[currentIdx - 1] : null;
   const nextTopic  = currentIdx >= 0 && currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null;
+  // Map prerequisite names → topicIds so they can be linked
+  const prereqMap  = Object.fromEntries(allTopics.map(t => [t.name, t.topicId]));
 
   if (loading) return (
     <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"256px" }}>
@@ -1388,9 +1407,18 @@ export default function NcertTopicView() {
         {topic.prerequisite_knowledge?.length > 0 && (
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", alignItems:"center", marginBottom:"8px" }}>
             <span style={{ fontSize:"11px", color:"#AEAEB2", fontWeight:600 }}>NEEDS:</span>
-            {topic.prerequisite_knowledge.map((p,i) => (
-              <span key={i} style={{ fontSize:"12px", background:"#F5F5F7", color:"#3A3A3C", padding:"3px 10px", borderRadius:"20px", fontWeight:500 }}>{p}</span>
-            ))}
+            {topic.prerequisite_knowledge.map((p,i) => {
+              const tid = prereqMap[p];
+              return tid ? (
+                <button key={i} onClick={() => navigate(`/ncert/topics/${tid}`)} className="ntv-btn"
+                  style={{ fontSize:"12px", background:"#EEF4FF", color:"#007AFF", padding:"3px 10px",
+                    borderRadius:"20px", fontWeight:600, border:"none", cursor:"pointer" }}>
+                  {p} ↗
+                </button>
+              ) : (
+                <span key={i} style={{ fontSize:"12px", background:"#F5F5F7", color:"#3A3A3C", padding:"3px 10px", borderRadius:"20px", fontWeight:500 }}>{p}</span>
+              );
+            })}
           </div>
         )}
         {topic.key_formulas?.length > 0 && (

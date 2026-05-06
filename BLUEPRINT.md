@@ -78,6 +78,7 @@ linkedStudents: [String]           ← parent/teacher portal
 inviteCode: String (sparse unique) ← 8-char student invite code
 npsLastShownAt: Date               ← NPS survey throttle (30-day cooldown)
 placementCompletedAt: Date         ← set once after placement quiz scored (gates re-take)
+studiedNcertTopics: [String]       ← topicIds the student has marked as studied (cross-device)
 referredBy: ObjectId (ref: User)   ← referral system: who referred this user
 referralCount: Number (default 0)  ← how many users this user has referred
 referralRewarded: Boolean (false)  ← prevents double-reward for referrer
@@ -660,7 +661,10 @@ GET    /api/v1/curriculum/:chapterNumber ← full chapter detail + sections + fo
 
 GET    /api/v1/ncert/chapters          ← NCERT chapter list (?subject=&grade=)
 GET    /api/v1/ncert/chapters/:id      ← single NCERT chapter detail
-GET    /api/v1/ncert/topics/:id        ← single NCERT topic content
+GET    /api/v1/ncert/topics            ← topic stubs (?chapterNumber= or all)
+GET    /api/v1/ncert/topics/:id        ← single NCERT topic content (full teaching data)
+GET    /api/v1/ncert/studied           ← [auth] list topicIds the user has marked studied
+POST   /api/v1/ncert/studied/:topicId  ← [auth] toggle studied on/off for a topic
 
 GET    /api/v1/pyq/topics              ← distinct topics that have PYQs
 GET    /api/v1/pyq/years               ← distinct years available
@@ -976,7 +980,8 @@ Complete api.js exports:
             getStudentAttempts, getStudyReminders, setStudyReminder, deleteStudyReminder
   Competition: getRoomQuestions
   Curriculum: getCurriculumSubjects, listCurriculumChapters, getCurriculumChapter
-  NCERT:    listNcertChapters, getNcertChapter, getNcertTopicContent
+  NCERT:    listNcertChapters, getNcertChapter, listNcertTopics, getNcertTopicContent,
+            getStudiedTopics, toggleNcertStudied
   PYQ:      getPYQTopics, getPYQYears, getPYQs, getPYQById
   Payment:  getPlans, getSubscription, createOrder(planKey, couponCode?),
             verifyPayment, validateCoupon
@@ -1278,6 +1283,9 @@ To activate push (not yet wired):
 | k6 load tests (100VU practice-session flow, p95 thresholds) | ✅ Complete |
 | Feature flags (env-var overrides, % rollout, /api/flags, useFeatureFlags hook) | ✅ Complete |
 | NCERT chapter + topic content routes | ✅ Complete |
+| NcertTopicView Quick/Deep mode (timer, formula quiz, error hunt, video player, topic nav, studied sync) | ✅ Complete |
+| NCERT studied sync — backend (User.studiedNcertTopics, toggle API) | ✅ Complete |
+| NCERT prerequisite links — resolved from all-topics list, clickable → topic page | ✅ Complete |
 | PYQ (Past Year Questions) browse + filter routes | ✅ Complete |
 | Admin analytics dashboard (DAU/MAU/revenue/30-day charts) | ✅ Complete |
 | Admin coupon CRUD | ✅ Complete |

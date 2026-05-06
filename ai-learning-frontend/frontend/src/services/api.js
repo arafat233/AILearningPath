@@ -176,6 +176,8 @@ export const listNcertChapters    = (subject, grade)    => api.get("/v1/ncert/ch
 export const getNcertChapter      = (chapterId)         => api.get(`/v1/ncert/chapters/${chapterId}`);
 export const listNcertTopics      = (chapterNumber)     => api.get("/v1/ncert/topics", { params: { chapterNumber } });
 export const getNcertTopicContent = (topicId)           => api.get(`/v1/ncert/topics/${topicId}`);
+export const getStudiedTopics     = ()                  => api.get("/v1/ncert/studied");
+export const toggleNcertStudied   = (topicId)           => api.post(`/v1/ncert/studied/${topicId}`);
 
 export const getPYQTopics    = (params)  => api.get("/v1/pyq/topics", { params });
 export const getPYQYears     = (params)  => api.get("/v1/pyq/years",  { params });

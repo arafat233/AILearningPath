@@ -57,6 +57,8 @@ const userSchema = new mongoose.Schema({
     days:      [{ type: String }],              // ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
     _id: false,
   }],
+  // NCERT topics the student has marked as studied (topicIds)
+  studiedNcertTopics: [{ type: String }],
   // Web Push subscription (stored server-side; auto-removed on 410 response)
   pushSubscription: {
     endpoint:       { type: String, default: null },

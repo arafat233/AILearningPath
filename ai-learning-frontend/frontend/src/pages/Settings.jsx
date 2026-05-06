@@ -15,7 +15,7 @@ export default function Settings() {
   const { user, setAuth } = useAuthStore();
   const navigate = useNavigate();
 
-  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subject: "Math", goal: "distinction", weakTopics: [] });
+  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subjects: ["Math"], goal: "distinction", weakTopics: [] });
   const [weakInput, setWeakInput] = useState("");
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
@@ -37,11 +37,12 @@ export default function Settings() {
       .then(([meRes, subRes]) => {
         const u = meRes.data.data.user;
         const profile = meRes.data.data.profile;
+        const savedSubjects = u.subjects?.length ? u.subjects : (u.subject ? [u.subject] : ["Math"]);
         setForm({
           name:        u.name     || "",
           examDate:    u.examDate ? u.examDate.split("T")[0] : "",
           grade:       u.grade    || "10",
-          subject:     u.subject  || "Math",
+          subjects:    savedSubjects,
           goal:        u.goal     || "distinction",
           weakTopics:  profile?.weakAreas || [],
         });
@@ -55,12 +56,13 @@ export default function Settings() {
     e.preventDefault();
     setError(""); setSuccess(false); setSaving(true);
     try {
-      const { data } = await updateMe({ ...form, weakTopics: form.weakTopics });
+      const { data } = await updateMe({ ...form, subjects: form.subjects, weakTopics: form.weakTopics });
       setAuth(null, {
         ...user,
         name:     data.user.name,
         grade:    data.user.grade    ?? user.grade,
         subject:  data.user.subject  ?? user.subject,
+        subjects: data.user.subjects ?? user.subjects,
         goal:     data.user.goal     ?? user.goal,
         examDate: data.user.examDate ?? user.examDate,
       });
@@ -192,31 +194,48 @@ export default function Settings() {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Grade">
-              <select
-                className="input"
-                value={form.grade}
-                onChange={(e) => setForm({ ...form, grade: e.target.value })}
-              >
-                {meta.grades.map((g) => (
-                  <option key={g} value={g}>Class {g}</option>
-                ))}
-              </select>
-            </Field>
+          <Field label="Grade">
+            <select
+              className="input"
+              value={form.grade}
+              onChange={(e) => setForm({ ...form, grade: e.target.value })}
+            >
+              {meta.grades.map((g) => (
+                <option key={g} value={g}>Class {g}</option>
+              ))}
+            </select>
+          </Field>
 
-            <Field label="Subject">
-              <select
-                className="input"
-                value={form.subject}
-                onChange={(e) => setForm({ ...form, subject: e.target.value })}
-              >
-                {meta.subjects.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
+          <Field label="Subjects" hint="Select one or more subjects for your study plan">
+            <div className="flex flex-wrap gap-2 mt-0.5">
+              {meta.subjects.map((s) => {
+                const selected = form.subjects.includes(s);
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      if (selected) {
+                        if (form.subjects.length === 1) return;
+                        setForm({ ...form, subjects: form.subjects.filter((x) => x !== s) });
+                      } else {
+                        setForm({ ...form, subjects: [...form.subjects, s] });
+                      }
+                    }}
+                    style={{
+                      fontSize: "13px", fontWeight: 600, padding: "6px 14px", borderRadius: "20px",
+                      border: selected ? "none" : "1.5px solid #E5E5EA",
+                      background: selected ? "#007AFF" : "transparent",
+                      color: selected ? "#fff" : "#86868B",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
 
           <Field label="Study Goal" hint="Used to calibrate difficulty and study priorities">
             <select

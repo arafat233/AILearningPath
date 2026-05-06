@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   welcomeEmailSentAt: { type: Date, default: null },
   examDate:  Date,
   subject:   { type: String, default: "Math" },
+  subjects:  { type: [String], default: [] },
   grade:     { type: String, default: "10" },
   goal:      { type: String, default: "pass" },
   // Subscription fields

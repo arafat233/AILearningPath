@@ -12,7 +12,7 @@ export const getPlan = async (req, res, next) => {
     const customTopicOrder = saved?.customTopicOrder || [];
 
     const [plan, revisionDue] = await Promise.all([
-      generateStudyPlan(userId, examDate, user?.goal || "distinction", customTopicOrder, user?.subject || "Math", user?.grade || "10"),
+      generateStudyPlan(userId, examDate, user?.goal || "distinction", customTopicOrder, user?.subjects?.length ? user.subjects : [user?.subject || "Math"], user?.grade || "10"),
       getRevisionTopics(userId),
     ]);
 

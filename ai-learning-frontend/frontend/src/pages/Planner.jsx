@@ -731,6 +731,16 @@ function NcertProgress({ chapters, studiedSet, navigate }) {
   const studiedTopics = chapters.reduce((s, c) => s + c.studied, 0);
   const overallPct    = totalTopics > 0 ? Math.round((studiedTopics / totalTopics) * 100) : 0;
 
+  // Group by subject when multiple subjects present
+  const subjectGroups = chapters.reduce((acc, ch) => {
+    const sub = ch.subject || "Mathematics";
+    if (!acc[sub]) acc[sub] = [];
+    acc[sub].push(ch);
+    return acc;
+  }, {});
+  const subjectKeys    = Object.keys(subjectGroups);
+  const multiSubject   = subjectKeys.length > 1;
+
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between mb-1">
@@ -744,30 +754,39 @@ function NcertProgress({ chapters, studiedSet, navigate }) {
         <div className="h-full rounded-full transition-all duration-500"
           style={{ width: `${overallPct}%`, background: overallPct === 100 ? "#34C759" : "linear-gradient(90deg,#007AFF,#5AC8FA)" }} />
       </div>
-      {/* Per-chapter rows */}
-      <div className="flex flex-col gap-3">
-        {chapters.map((ch) => {
-          const pct = ch.total > 0 ? Math.round((ch.studied / ch.total) * 100) : 0;
-          return (
-            <div key={ch.chapterId}>
-              <div className="flex items-center justify-between mb-1">
-                <button
-                  onClick={() => navigate(`/ncert/chapters/${ch.chapterId}`)}
-                  className="text-[13px] font-medium text-[var(--label)] truncate text-left hover:text-apple-blue transition-colors flex-1 mr-2"
-                >
-                  Ch {ch.number}. {ch.title}
-                </button>
-                <span className="text-[11px] font-semibold shrink-0" style={{ color: pct === 100 ? "#34C759" : "#86868B" }}>
-                  {ch.studied}/{ch.total}
-                </span>
-              </div>
-              <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all"
-                  style={{ width: `${pct}%`, background: pct === 100 ? "#34C759" : "#007AFF" }} />
-              </div>
+      {/* Per-chapter rows, optionally grouped by subject */}
+      <div className="flex flex-col gap-4">
+        {subjectKeys.map((sub) => (
+          <div key={sub}>
+            {multiSubject && (
+              <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wider mb-2">{sub}</p>
+            )}
+            <div className="flex flex-col gap-3">
+              {subjectGroups[sub].map((ch) => {
+                const pct = ch.total > 0 ? Math.round((ch.studied / ch.total) * 100) : 0;
+                return (
+                  <div key={ch.chapterId}>
+                    <div className="flex items-center justify-between mb-1">
+                      <button
+                        onClick={() => navigate(`/ncert/chapters/${ch.chapterId}`)}
+                        className="text-[13px] font-medium text-[var(--label)] truncate text-left hover:text-apple-blue transition-colors flex-1 mr-2"
+                      >
+                        Ch {ch.number}. {ch.title}
+                      </button>
+                      <span className="text-[11px] font-semibold shrink-0" style={{ color: pct === 100 ? "#34C759" : "#86868B" }}>
+                        {ch.studied}/{ch.total}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, background: pct === 100 ? "#34C759" : "#007AFF" }} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -796,31 +815,38 @@ export default function Planner() {
 
   useEffect(() => { loadPlan(); }, [loadPlan]);
 
-  // Load NCERT chapter list + studied topics in parallel
+  // Load NCERT chapter list + studied topics in parallel (supports multiple subjects)
   useEffect(() => {
-    const subject = user?.subject === "Math" ? "Mathematics" : (user?.subject || "Mathematics");
-    const grade   = user?.grade || "10";
+    const SUBJECT_MAP = { Math: "Mathematics", Science: "Science", English: "English", "Social Science": "Social Science", Hindi: "Hindi" };
+    const grade    = user?.grade || "10";
+    const rawSubs  = user?.subjects?.length ? user.subjects : [user?.subject || "Math"];
+    const subjects = rawSubs.map((s) => SUBJECT_MAP[s] || s);
     Promise.all([
-      listNcertChapters(subject, grade).catch(() => ({ data: { data: [] } })),
+      ...subjects.map((s) => listNcertChapters(s, grade).catch(() => ({ data: { data: [] } }))),
       getStudiedTopics().catch(() => ({ data: { data: [] } })),
-    ]).then(([chRes, stRes]) => {
+    ]).then((results) => {
+      const stRes   = results[results.length - 1];
       const studied = new Set(stRes.data?.data || []);
       setStudiedSet(studied);
-      const chapters = (chRes.data?.data || []).map((ch) => {
-        const allTopicIds = (ch.subchapters || []).flatMap((sc) =>
-          (sc.concepts || []).flatMap((c) => (c.topics || []).map((t) => t.id))
-        );
-        return {
-          chapterId: ch.chapterId,
-          number:    ch.number,
-          title:     ch.title,
-          total:     allTopicIds.length,
-          studied:   allTopicIds.filter((id) => studied.has(id)).length,
-        };
-      }).filter((ch) => ch.total > 0);
+      const allChapterResults = results.slice(0, -1);
+      const chapters = allChapterResults.flatMap((chRes) =>
+        (chRes.data?.data || []).map((ch) => {
+          const allTopicIds = (ch.subchapters || []).flatMap((sc) =>
+            (sc.concepts || []).flatMap((c) => (c.topics || []).map((t) => t.id))
+          );
+          return {
+            chapterId: ch.chapterId,
+            number:    ch.number,
+            title:     ch.title,
+            subject:   ch.subject,
+            total:     allTopicIds.length,
+            studied:   allTopicIds.filter((id) => studied.has(id)).length,
+          };
+        })
+      ).filter((ch) => ch.total > 0);
       setNcertChapters(chapters);
     });
-  }, [user?.subject, user?.grade]);
+  }, [user?.subjects, user?.subject, user?.grade]);
 
   const handleComplete = async (day) => {
     setCompleting(day);

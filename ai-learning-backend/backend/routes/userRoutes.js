@@ -23,6 +23,7 @@ const updateMeSchema = Joi.object({
   examDate:   Joi.date().iso().optional(),
   grade:      Joi.string().optional(),
   subject:    Joi.string().optional(),
+  subjects:   Joi.array().items(Joi.string().max(100)).max(10).optional(),
   goal:       Joi.string().optional(),
   weakTopics: Joi.array().items(Joi.string().max(200)).max(20).optional(),
 });
@@ -99,13 +100,19 @@ r.get("/me", auth, async (req, res, next) => {
 
 r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, next) => {
   try {
-    const { name, examDate, grade, subject, goal, weakTopics } = req.body;
+    const { name, examDate, grade, subject, subjects, goal, weakTopics } = req.body;
     const updates = {};
     if (name)     updates.name     = name.trim();
     if (examDate) updates.examDate = new Date(examDate);
     if (grade)    updates.grade    = grade;
-    if (subject)  updates.subject  = subject;
-    if (goal)     updates.goal     = goal;
+    if (subjects && Array.isArray(subjects) && subjects.length > 0) {
+      updates.subjects = subjects;
+      updates.subject  = subjects[0];
+    } else if (subject) {
+      updates.subject  = subject;
+      updates.subjects = [subject];
+    }
+    if (goal) updates.goal = goal;
     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
 
     if (Array.isArray(weakTopics)) {

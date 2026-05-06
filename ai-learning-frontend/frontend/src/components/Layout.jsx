@@ -107,9 +107,9 @@ export default function Layout() {
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center gap-2.5 mb-0.5">
             <div className="w-7 h-7 rounded-lg bg-apple-blue flex items-center justify-center shadow-sm">
-              <span className="text-white text-xs font-bold">A</span>
+              <span className="text-white text-xs font-bold">S</span>
             </div>
-            <span className="text-[13px] font-semibold text-[var(--label)]">AI Learning</span>
+            <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
           </div>
           <p className="text-[11px] text-apple-gray ml-9">CBSE · Class 10</p>
         </div>
@@ -253,9 +253,9 @@ export default function Layout() {
             <span className="w-3.5 h-0.5 bg-[var(--label)] rounded-full" />
           </button>
           <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">A</span>
+            <span className="text-white text-[10px] font-bold">S</span>
           </div>
-          <span className="text-[13px] font-semibold text-[var(--label)]">AI Learning</span>
+          <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
         </div>
         <OfflineBanner />
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">

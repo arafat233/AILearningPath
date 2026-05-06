@@ -145,10 +145,10 @@ export default function Certificate() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-apple-blue flex items-center justify-center shadow-sm">
-                <span className="text-white text-base font-bold">A</span>
+                <span className="text-white text-base font-bold">S</span>
               </div>
               <div className="text-left">
-                <p className="text-[14px] font-bold text-[#1a1a1a] leading-tight">AI Learning</p>
+                <p className="text-[14px] font-bold text-[#1a1a1a] leading-tight">Stellar</p>
                 <p className="text-[11px] text-[#8e8e93]">CBSE Practice Platform</p>
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function Certificate() {
           <div className="text-center mb-8">
             <p className="text-[14px] text-[#3c3c43] leading-relaxed max-w-md mx-auto">
               has demonstrated consistent effort and academic progress through
-              dedicated practice sessions on the AI Learning Platform.
+              dedicated practice sessions on the Stellar platform.
             </p>
           </div>
 
@@ -226,7 +226,7 @@ export default function Certificate() {
             </div>
             <div className="text-right">
               <div className="w-32 border-b border-[#c9aa71] mb-1" />
-              <p className="text-[11px] text-[#8e8e93]">AI Learning Platform</p>
+              <p className="text-[11px] text-[#8e8e93]">Stellar</p>
             </div>
           </div>
         </div>

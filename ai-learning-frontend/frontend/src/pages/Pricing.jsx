@@ -57,7 +57,7 @@ export default function Pricing() {
         key:         keyId,
         amount,
         currency,
-        name:        "AI Learning Path",
+        name:        "Stellar",
         description: `${planName} Plan — 30 days`,
         order_id:    orderId,
         prefill: {

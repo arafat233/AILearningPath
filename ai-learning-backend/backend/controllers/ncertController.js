@@ -28,6 +28,21 @@ export async function getNcertChapter(req, res, next) {
   }
 }
 
+// GET /api/v1/ncert/topics?chapterNumber=1
+export async function listNcertTopics(req, res, next) {
+  try {
+    const { chapterNumber } = req.query;
+    const filter = chapterNumber ? { chapterNumber: Number(chapterNumber) } : {};
+    const topics = await NcertTopicContent.find(filter)
+      .select("topicId name chapterNumber")
+      .sort({ topicId: 1 })
+      .lean();
+    res.json({ data: topics });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /api/v1/ncert/topics/:topicId
 export async function getNcertTopicContent(req, res, next) {
   try {

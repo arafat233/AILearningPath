@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getNcertChapter } from "../services/api";
+import { getNcertChapter, getStudiedTopics, toggleNcertStudied } from "../services/api";
 
 const DIFF_STYLE = {
   easy:   { background: "#E8F9EE", color: "#34C759" },
@@ -14,7 +14,6 @@ function QuestionCard({ q, index }) {
 
   return (
     <div style={{ background: "#FFFFFF", borderRadius: "14px", border: "1px solid #E5E5EA", overflow: "hidden", marginBottom: "10px" }}>
-      {/* Question */}
       <div style={{ padding: "16px 20px" }}>
         <div className="flex items-start gap-3">
           <span style={{ fontSize: "11px", fontFamily: "ui-monospace, monospace", color: "#86868B", marginTop: "2px", flexShrink: 0, minWidth: "24px" }}>
@@ -22,21 +21,15 @@ function QuestionCard({ q, index }) {
           </span>
           <p style={{ fontSize: "14px", color: "#1D1D1F", lineHeight: 1.6, flex: 1 }}>{q.question}</p>
         </div>
-
         <div className="flex items-center gap-2 mt-3 ml-9">
           <span style={{ fontSize: "11px", fontWeight: 600, padding: "2px 10px", borderRadius: "20px", ...diff }}>
             {q.difficulty}
           </span>
-          {q.marks && (
-            <span style={{ fontSize: "11px", color: "#86868B" }}>{q.marks} marks</span>
-          )}
-          {q.skill_tested && (
-            <span style={{ fontSize: "11px", color: "#86868B" }}>· {q.skill_tested}</span>
-          )}
+          {q.marks && <span style={{ fontSize: "11px", color: "#86868B" }}>{q.marks} marks</span>}
+          {q.skill_tested && <span style={{ fontSize: "11px", color: "#86868B" }}>· {q.skill_tested}</span>}
         </div>
       </div>
 
-      {/* Show answer toggle */}
       <button
         onClick={() => setShowAnswer((s) => !s)}
         style={{ width: "100%", padding: "10px 20px", borderTop: "1px solid #F5F5F7", background: showAnswer ? "#F5F5F7" : "transparent", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
@@ -62,21 +55,46 @@ function QuestionCard({ q, index }) {
   );
 }
 
-function TopicBlock({ topic, navigate }) {
+function TopicBlock({ topic, navigate, studied, onToggle }) {
+  const [toggling, setToggling] = useState(false);
+
+  const handleToggle = async () => {
+    setToggling(true);
+    await onToggle(topic.id);
+    setToggling(false);
+  };
+
   return (
     <div style={{ marginBottom: "24px" }}>
       {/* Topic header */}
       <div className="flex items-center justify-between gap-2" style={{ marginBottom: "12px" }}>
         <div className="flex items-center gap-2">
-          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#007AFF", flexShrink: 0 }} />
+          <div style={{
+            width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0,
+            background: studied ? "#34C759" : "#007AFF",
+            transition: "background 0.2s",
+          }} />
           <p style={{ fontSize: "14px", fontWeight: 600, color: "#1D1D1F" }}>{topic.name}</p>
         </div>
-        <button
-          onClick={() => navigate(`/ncert/topics/${topic.id}`)}
-          style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", background: "#EEF4FF", padding: "5px 14px", borderRadius: "20px", border: "none", cursor: "pointer", flexShrink: 0 }}
-        >
-          Study →
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggle}
+            disabled={toggling}
+            style={{
+              fontSize: "11px", fontWeight: 600, padding: "4px 12px", borderRadius: "20px", border: "none", cursor: "pointer", flexShrink: 0, transition: "all 0.2s",
+              background: studied ? "#E8F9EE" : "#F5F5F7",
+              color: studied ? "#34C759" : "#86868B",
+            }}
+          >
+            {studied ? "✓ Done" : "Mark done"}
+          </button>
+          <button
+            onClick={() => navigate(`/ncert/topics/${topic.id}`)}
+            style={{ fontSize: "12px", fontWeight: 600, color: "#007AFF", background: "#EEF4FF", padding: "5px 14px", borderRadius: "20px", border: "none", cursor: "pointer", flexShrink: 0 }}
+          >
+            Study →
+          </button>
+        </div>
       </div>
 
       {/* Questions */}
@@ -96,15 +114,31 @@ function TopicBlock({ topic, navigate }) {
 export default function NcertChapterView() {
   const { chapterId } = useParams();
   const navigate      = useNavigate();
-  const [chapter, setChapter] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [chapter, setChapter]           = useState(null);
+  const [loading, setLoading]           = useState(true);
+  const [studiedSet, setStudiedSet]     = useState(new Set());
 
   useEffect(() => {
-    getNcertChapter(chapterId)
-      .then((r) => setChapter(r.data?.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      getNcertChapter(chapterId),
+      getStudiedTopics().catch(() => ({ data: { data: [] } })),
+    ]).then(([chRes, stRes]) => {
+      setChapter(chRes.data?.data);
+      setStudiedSet(new Set(stRes.data?.data || []));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [chapterId]);
+
+  const handleToggle = async (topicId) => {
+    try {
+      const { data } = await toggleNcertStudied(topicId);
+      setStudiedSet((prev) => {
+        const next = new Set(prev);
+        if (data.data.studied) next.add(topicId);
+        else next.delete(topicId);
+        return next;
+      });
+    } catch {}
+  };
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -121,15 +155,18 @@ export default function NcertChapterView() {
     </div>
   );
 
-  const totalTopics = chapter.subchapters?.reduce(
-    (s, sc) => s + sc.concepts?.reduce((cs, c) => cs + (c.topics?.length ?? 0), 0), 0
-  ) ?? 0;
+  // Flatten all topics from this chapter
+  const allTopics = chapter.subchapters?.flatMap(
+    (sc) => sc.concepts?.flatMap((c) => c.topics || []) || []
+  ) || [];
 
-  const totalQuestions = chapter.subchapters?.reduce(
-    (s, sc) => s + sc.concepts?.reduce(
-      (cs, c) => cs + c.topics?.reduce((ts, t) => ts + (t.questions?.length ?? 0), 0), 0
-    ), 0
-  ) ?? 0;
+  const totalTopics     = allTopics.length;
+  const studiedTopics   = allTopics.filter((t) => studiedSet.has(t.id)).length;
+  const totalQuestions  = allTopics.reduce((s, t) => s + (t.questions?.length ?? 0), 0);
+  const studiedQuestions = allTopics
+    .filter((t) => studiedSet.has(t.id))
+    .reduce((s, t) => s + (t.questions?.length ?? 0), 0);
+  const pct = totalTopics > 0 ? Math.round((studiedTopics / totalTopics) * 100) : 0;
 
   return (
     <div className="max-w-3xl mx-auto space-y-5" style={{ fontFamily: "-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
@@ -172,10 +209,51 @@ export default function NcertChapterView() {
         </div>
       </div>
 
-      {/* Subchapters — each as a card showing all questions directly */}
+      {/* Progress bar card */}
+      {totalTopics > 0 && (
+        <div style={{ background: "#fff", borderRadius: "18px", padding: "20px 28px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: "10px" }}>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#1D1D1F" }}>Chapter Progress</p>
+            <p style={{ fontSize: "13px", fontWeight: 700, color: pct === 100 ? "#34C759" : "#007AFF" }}>{pct}%</p>
+          </div>
+
+          {/* Track */}
+          <div style={{ height: "8px", background: "#F5F5F7", borderRadius: "99px", overflow: "hidden" }}>
+            <div style={{
+              height: "100%", borderRadius: "99px",
+              width: `${pct}%`,
+              background: pct === 100 ? "#34C759" : "linear-gradient(90deg, #007AFF, #5AC8FA)",
+              transition: "width 0.4s ease",
+            }} />
+          </div>
+
+          {/* Stats row */}
+          <div className="flex gap-4 flex-wrap" style={{ marginTop: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#34C759" }} />
+              <span style={{ fontSize: "12px", color: "#86868B" }}>
+                <strong style={{ color: "#1D1D1F" }}>{studiedTopics}</strong> / {totalTopics} topics studied
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#007AFF" }} />
+              <span style={{ fontSize: "12px", color: "#86868B" }}>
+                <strong style={{ color: "#1D1D1F" }}>{studiedQuestions}</strong> / {totalQuestions} questions covered
+              </span>
+            </div>
+          </div>
+
+          {pct === 100 && (
+            <div style={{ marginTop: "12px", padding: "8px 14px", background: "#E8F9EE", borderRadius: "10px", textAlign: "center" }}>
+              <p style={{ fontSize: "13px", fontWeight: 600, color: "#34C759" }}>Chapter complete!</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Subchapters */}
       {chapter.subchapters?.map((sc) => (
         <div key={sc.id} style={{ background: "#fff", borderRadius: "18px", padding: "28px 32px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-          {/* Section heading */}
           <div className="flex items-center gap-2" style={{ marginBottom: "20px" }}>
             <span style={{ fontSize: "12px", fontFamily: "ui-monospace, monospace", color: "#86868B", background: "#F5F5F7", padding: "2px 8px", borderRadius: "6px" }}>
               {sc.number}
@@ -183,16 +261,19 @@ export default function NcertChapterView() {
             <h2 style={{ fontSize: "17px", fontWeight: 600, color: "#1D1D1F", letterSpacing: "-0.01em" }}>{sc.title}</h2>
           </div>
 
-          {/* Concepts → Topics → Questions */}
           {sc.concepts?.map((concept) => (
             <div key={concept.id} style={{ marginBottom: "8px" }}>
-              {/* Concept label */}
               <p style={{ fontSize: "12px", fontWeight: 700, color: "#007AFF", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px" }}>
                 {concept.name}
               </p>
-
               {concept.topics?.map((topic) => (
-                <TopicBlock key={topic.id} topic={topic} navigate={navigate} />
+                <TopicBlock
+                  key={topic.id}
+                  topic={topic}
+                  navigate={navigate}
+                  studied={studiedSet.has(topic.id)}
+                  onToggle={handleToggle}
+                />
               ))}
             </div>
           ))}

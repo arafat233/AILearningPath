@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPlan, markDayComplete, saveTopicOrder, markRevised, listNcertChapters, getStudiedTopics } from "../services/api";
+import { getPlan, createStudyPlan, updatePlanSettings, deleteStudyPlan, markDayComplete, saveTopicOrder, markRevised, listNcertChapters, getStudiedTopics } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const GOAL_LABEL = {
@@ -9,6 +9,209 @@ const GOAL_LABEL = {
   top:         "Top 90%+",
   scholarship: "Scholarship rank",
 };
+
+const GOALS = [
+  { value: "pass",        label: "Pass the exam" },
+  { value: "distinction", label: "Score 75%+ (Distinction)" },
+  { value: "top",         label: "Top 90%+" },
+  { value: "scholarship", label: "Scholarship rank" },
+];
+const CBSE_SUBJECTS = ["Math", "Science", "English", "Social Science", "Hindi"];
+const GRADES        = ["8","9","10","11","12"];
+
+/* ─── PLAN FORM (shared by Create + Edit) ────────────────── */
+function PlanForm({ initial, submitting, submitLabel, onSubmit, onCancel }) {
+  const [form, setForm] = useState(initial);
+
+  const toggle = (s) => {
+    const next = form.subjects.includes(s)
+      ? form.subjects.filter(x => x !== s)
+      : [...form.subjects, s];
+    if (next.length) setForm({ ...form, subjects: next });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.examDate) return;
+    onSubmit(form);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Plan name */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Plan Name <span className="font-normal normal-case">(optional)</span></label>
+        <input
+          className="input"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="e.g. Board Exam 2025"
+          maxLength={100}
+        />
+      </div>
+
+      {/* Grade + Exam date */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Grade</label>
+          <select className="input" value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })}>
+            {GRADES.map(g => <option key={g} value={g}>Class {g}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Exam Date <span className="text-apple-red">*</span></label>
+          <input
+            className="input"
+            type="date"
+            value={form.examDate}
+            onChange={(e) => setForm({ ...form, examDate: e.target.value })}
+            required
+          />
+        </div>
+      </div>
+
+      {/* Goal */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Study Goal</label>
+        <select className="input" value={form.goal} onChange={(e) => setForm({ ...form, goal: e.target.value })}>
+          {GOALS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+        </select>
+      </div>
+
+      {/* Subjects */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Subjects</label>
+        <div className="flex flex-wrap gap-2">
+          {CBSE_SUBJECTS.map((s) => {
+            const sel = form.subjects.includes(s);
+            return (
+              <button key={s} type="button" onClick={() => toggle(s)} style={{
+                fontSize: "13px", fontWeight: 600, padding: "7px 16px", borderRadius: "20px",
+                border: sel ? "none" : "1.5px solid #E5E5EA",
+                background: sel ? "#007AFF" : "transparent",
+                color: sel ? "#fff" : "#86868B", cursor: "pointer", transition: "all 0.15s",
+              }}>
+                {s}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3 pt-1">
+        {onCancel && (
+          <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>
+        )}
+        <button type="submit" disabled={submitting || !form.examDate} className="btn-primary flex-1 py-3">
+          {submitting
+            ? <span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>{submitLabel}…</span>
+            : submitLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ─── EMPTY STATE / CREATE PLAN ──────────────────────────── */
+function CreatePlanCard({ user, onCreated }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error,      setError]      = useState("");
+  const initial = {
+    name: "", grade: user?.grade || "10",
+    subjects: user?.subjects?.length ? user.subjects : [user?.subject || "Math"],
+    examDate: "", goal: "distinction",
+  };
+
+  const handleCreate = async (form) => {
+    setError(""); setSubmitting(true);
+    try {
+      const { data } = await createStudyPlan(form);
+      onCreated(data);
+    } catch (e) {
+      setError(e.response?.data?.error || "Could not create plan. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      {/* Hero */}
+      <div style={{ textAlign: "center", padding: "40px 0 32px" }}>
+        <div style={{ fontSize: "56px", marginBottom: "16px" }}>📚</div>
+        <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--label)", letterSpacing: "-0.02em", marginBottom: "8px" }}>
+          Create your study plan
+        </h1>
+        <p style={{ fontSize: "15px", color: "#86868B", maxWidth: "440px", margin: "0 auto", lineHeight: 1.6 }}>
+          Tell us your exam date and subjects — we'll build a day-by-day schedule that adapts to your weak areas and study goal.
+        </p>
+      </div>
+
+      <div className="card p-8">
+        {error && (
+          <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg mb-5">{error}</div>
+        )}
+        <PlanForm
+          initial={initial}
+          submitting={submitting}
+          submitLabel="Generate plan"
+          onSubmit={handleCreate}
+        />
+      </div>
+
+      <p style={{ textAlign: "center", fontSize: "12px", color: "#8E8E93", marginTop: "16px" }}>
+        You can edit or delete your plan at any time from the Planner page.
+      </p>
+    </div>
+  );
+}
+
+/* ─── EDIT SETTINGS MODAL ────────────────────────────────── */
+function PlanSettingsModal({ plan, onSaved, onClose }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error,      setError]      = useState("");
+  const initial = {
+    name:     plan.planName     || "",
+    grade:    plan.planGrade    || "10",
+    subjects: plan.planSubjects || ["Math"],
+    examDate: plan.planExamDate ? new Date(plan.planExamDate).toISOString().split("T")[0] : "",
+    goal:     plan.planGoal     || "distinction",
+  };
+
+  const handleSave = async (form) => {
+    setError(""); setSubmitting(true);
+    try {
+      const { data } = await updatePlanSettings(form);
+      onSaved(data);
+    } catch (e) {
+      setError(e.response?.data?.error || "Could not update plan.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="bg-[var(--bg)] rounded-apple-xl shadow-apple-xl w-full max-w-lg p-7 space-y-5 overflow-y-auto max-h-[90vh]">
+        <div className="flex items-center justify-between">
+          <p className="text-[18px] font-bold text-[var(--label)]">Edit plan settings</p>
+          <button onClick={onClose} className="text-apple-gray hover:text-[var(--label)] transition-colors text-[20px] leading-none">×</button>
+        </div>
+        {error && (
+          <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">{error}</div>
+        )}
+        <PlanForm
+          initial={initial}
+          submitting={submitting}
+          submitLabel="Save changes"
+          onSubmit={handleSave}
+          onCancel={onClose}
+        />
+      </div>
+    </div>
+  );
+}
 
 const DAY_NAMES   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -796,20 +999,28 @@ function NcertProgress({ chapters, studiedSet, navigate }) {
 export default function Planner() {
   const navigate = useNavigate();
   const user     = useAuthStore((s) => s.user);
-  const [plan,          setPlan]          = useState(null);
-  const [revisionDue,   setRevisionDue]   = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [completing,    setCompleting]    = useState(null);
-  const [view,          setView]          = useState("daily");
-  const [showEditor,    setShowEditor]    = useState(false);
-  const [ncertChapters, setNcertChapters] = useState([]);
-  const [studiedSet,    setStudiedSet]    = useState(new Set());
+  const [plan,             setPlan]             = useState(null);
+  const [revisionDue,      setRevisionDue]      = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [completing,       setCompleting]       = useState(null);
+  const [view,             setView]             = useState("daily");
+  const [showEditor,       setShowEditor]       = useState(false);
+  const [showSettings,     setShowSettings]     = useState(false);
+  const [showDeleteConfirm,setShowDeleteConfirm]= useState(false);
+  const [deleting,         setDeleting]         = useState(false);
+  const [ncertChapters,    setNcertChapters]    = useState([]);
+  const [studiedSet,       setStudiedSet]       = useState(new Set());
+
+  const applyPlan = (data) => {
+    setPlan(data);
+    setRevisionDue(data.revisionDue || []);
+  };
 
   const loadPlan = useCallback(() => {
     setLoading(true);
     getPlan()
-      .then(r => { setPlan(r.data); setRevisionDue(r.data.revisionDue || []); })
-      .catch(() => {})
+      .then(r => applyPlan(r.data))
+      .catch(() => setPlan({ empty: true }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -862,15 +1073,28 @@ export default function Planner() {
 
   const handleOrderSaved = () => { setShowEditor(false); loadPlan(); };
 
+  const handleDeletePlan = async () => {
+    setDeleting(true);
+    try {
+      await deleteStudyPlan();
+      setPlan({ empty: true });
+      setShowDeleteConfirm(false);
+    } catch {}
+    setDeleting(false);
+  };
+
   /* ── loading ── */
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 border-2 border-apple-blue/20 border-t-apple-blue rounded-full animate-spin" />
-        <p className="text-[13px] text-apple-gray">Building your study plan…</p>
+        <p className="text-[13px] text-apple-gray">Loading your study plan…</p>
       </div>
     </div>
   );
+
+  /* ── no plan yet ── */
+  if (plan?.empty) return <CreatePlanCard user={user} onCreated={(data) => { applyPlan(data); }} />;
 
   const totalDays = plan?.dailyPlan?.length || 0;
 
@@ -880,18 +1104,23 @@ export default function Planner() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Study Planner</h1>
-          <p className="text-[14px] text-apple-gray mt-0.5">
-            {plan?.daysLeft != null
-              ? `${plan.daysLeft} days until your exam.`
-              : "Set your exam date in Settings for a personalised plan."}
-            {plan?.goal && (
-              <span className="ml-2 badge bg-apple-blue/10 text-apple-blue">
-                Goal: {GOAL_LABEL[plan.goal] || plan.goal}
+          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">
+            {plan?.planName || "Study Plan"}
+          </h1>
+          <p className="text-[14px] text-apple-gray mt-0.5 flex items-center flex-wrap gap-2">
+            {plan?.daysLeft != null ? `${plan.daysLeft} days until exam` : ""}
+            {plan?.planGoal && (
+              <span className="badge bg-apple-blue/10 text-apple-blue">
+                {GOAL_LABEL[plan.planGoal] || plan.planGoal}
+              </span>
+            )}
+            {plan?.planSubjects?.length > 0 && (
+              <span className="badge bg-apple-gray5 text-apple-gray">
+                {plan.planSubjects.join(", ")}
               </span>
             )}
             {plan?.hasCustomOrder && (
-              <span className="ml-2 badge bg-[#AF52DE]/10 text-[#AF52DE]">Custom order</span>
+              <span className="badge bg-[#AF52DE]/10 text-[#AF52DE]">Custom order</span>
             )}
           </p>
         </div>
@@ -911,11 +1140,54 @@ export default function Planner() {
                   ? "bg-apple-blue text-white border-apple-blue"
                   : "bg-white border-apple-gray5 text-[var(--label)] hover:border-apple-blue/40 shadow-apple"
               }`}>
-              {showEditor ? "✕ Close editor" : "✏ Edit topic order"}
+              {showEditor ? "✕ Close editor" : "✏ Topic order"}
             </button>
           )}
+          <button
+            onClick={() => setShowSettings(true)}
+            className="text-[13px] font-medium px-4 py-2 rounded-apple-xl border border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-blue/40 shadow-apple transition-all"
+          >
+            ⚙ Edit plan
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="text-[13px] font-medium px-3 py-2 rounded-apple-xl border border-apple-red/30 text-apple-red hover:bg-apple-red/6 transition-all"
+          >
+            Delete
+          </button>
         </div>
       </div>
+
+      {/* ── Delete confirmation modal ── */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-[var(--bg)] rounded-apple-xl shadow-apple-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-[17px] font-bold text-[var(--label)]">Delete study plan?</p>
+            <p className="text-[13px] text-apple-gray leading-relaxed">
+              This will remove your plan and all progress data. You can create a new one any time.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button className="btn-secondary flex-1" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+              <button
+                className="flex-1 bg-apple-red text-white text-[13px] font-semibold py-2 rounded-apple disabled:opacity-40"
+                disabled={deleting}
+                onClick={handleDeletePlan}
+              >
+                {deleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit settings modal ── */}
+      {showSettings && (
+        <PlanSettingsModal
+          plan={plan}
+          onSaved={(data) => { applyPlan(data); setShowSettings(false); }}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
 
       {/* ── Summary bar ── */}
       <SummaryBar plan={plan} />

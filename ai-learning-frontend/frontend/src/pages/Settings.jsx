@@ -4,18 +4,11 @@ import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe, validateCoup
 import { useAuthStore } from "../store/authStore";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 
-const GOALS = [
-  { value: "pass",        label: "Pass the exam"           },
-  { value: "distinction", label: "Score 75%+ (Distinction)" },
-  { value: "top",         label: "Top 90%+"                 },
-  { value: "scholarship", label: "Scholarship rank"         },
-];
-
 export default function Settings() {
   const { user, setAuth } = useAuthStore();
   const navigate = useNavigate();
 
-  const [form, setForm]           = useState({ name: "", examDate: "", grade: "10", subjects: ["Math"], goal: "distinction", weakTopics: [] });
+  const [form, setForm]           = useState({ name: "", grade: "10", subjects: ["Math"], weakTopics: [] });
   const [weakInput, setWeakInput] = useState("");
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
@@ -39,12 +32,10 @@ export default function Settings() {
         const profile = meRes.data.data.profile;
         const savedSubjects = u.subjects?.length ? u.subjects : (u.subject ? [u.subject] : ["Math"]);
         setForm({
-          name:        u.name     || "",
-          examDate:    u.examDate ? u.examDate.split("T")[0] : "",
-          grade:       u.grade    || "10",
-          subjects:    savedSubjects,
-          goal:        u.goal     || "distinction",
-          weakTopics:  profile?.weakAreas || [],
+          name:       u.name  || "",
+          grade:      u.grade || "10",
+          subjects:   savedSubjects,
+          weakTopics: profile?.weakAreas || [],
         });
         setSub(subRes.data.data);
       })
@@ -56,15 +47,13 @@ export default function Settings() {
     e.preventDefault();
     setError(""); setSuccess(false); setSaving(true);
     try {
-      const { data } = await updateMe({ ...form, subjects: form.subjects, weakTopics: form.weakTopics });
+      const { data } = await updateMe({ name: form.name, grade: form.grade, subjects: form.subjects, weakTopics: form.weakTopics });
       setAuth(null, {
         ...user,
         name:     data.user.name,
         grade:    data.user.grade    ?? user.grade,
         subject:  data.user.subject  ?? user.subject,
         subjects: data.user.subjects ?? user.subjects,
-        goal:     data.user.goal     ?? user.goal,
-        examDate: data.user.examDate ?? user.examDate,
       });
       setSuccess(true);
     } catch (err) {
@@ -185,15 +174,6 @@ export default function Settings() {
             />
           </Field>
 
-          <Field label="Exam Date" hint="Used to build your study plan and countdown">
-            <input
-              className="input"
-              type="date"
-              value={form.examDate}
-              onChange={(e) => setForm({ ...form, examDate: e.target.value })}
-            />
-          </Field>
-
           <Field label="Grade">
             <select
               className="input"
@@ -235,18 +215,6 @@ export default function Settings() {
                 );
               })}
             </div>
-          </Field>
-
-          <Field label="Study Goal" hint="Used to calibrate difficulty and study priorities">
-            <select
-              className="input"
-              value={form.goal}
-              onChange={(e) => setForm({ ...form, goal: e.target.value })}
-            >
-              {GOALS.map((g) => (
-                <option key={g.value} value={g.value}>{g.label}</option>
-              ))}
-            </select>
           </Field>
 
           <Field label="Weak Topics" hint="Topics you find difficult — used to prioritise practice and AI explanations">

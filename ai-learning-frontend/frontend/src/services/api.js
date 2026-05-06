@@ -114,9 +114,12 @@ export const startExam      = (examId)  => api.post("/exam/start", { examId });
 export const submitExam     = (answers) => api.post("/exam/submit", { answers });
 export const getLeaderboard = (examId)  => api.get(`/exam/leaderboard/${examId}`);
 
-export const getPlan         = ()           => api.get("/planner");
-export const markDayComplete = (day)        => api.post("/planner/complete", { day });
-export const saveTopicOrder  = (topicOrder) => api.patch("/planner/reorder", { topicOrder });
+export const getPlan            = ()      => api.get("/planner");
+export const createStudyPlan    = (data)  => api.post("/planner", data);
+export const updatePlanSettings = (data)  => api.put("/planner/settings", data);
+export const deleteStudyPlan    = ()      => api.delete("/planner");
+export const markDayComplete    = (day)   => api.post("/planner/complete", { day });
+export const saveTopicOrder     = (order) => api.patch("/planner/reorder", { topicOrder: order });
 
 export const getAIAdvice         = ()                           => api.get("/ai/advice");
 export const getAIUsage          = ()                           => api.get("/ai/usage");

@@ -342,6 +342,10 @@ export const ExamAttempt = mongoose.model("ExamAttempt", examAttemptSchema);
 // ==================== StudyPlan ====================
 const studyPlanSchema = new mongoose.Schema({
   userId:   { type: String, required: true },
+  name:     { type: String, default: "" },
+  subjects: { type: [String], default: [] },
+  grade:    { type: String, default: "10" },
+  goal:     { type: String, default: "distinction" },
   examDate: Date,
   totalDays: Number,
   dailyPlan: [{
@@ -353,7 +357,7 @@ const studyPlanSchema = new mongoose.Schema({
   }],
   priorityTopics: [{ topic: String, priority: Number, reason: String }],
   skipSuggestions: [{ topic: String, effort: String, marksLost: Number, reason: String }],
-  customTopicOrder: [String], // user-defined topic ordering override
+  customTopicOrder: [String],
   createdAt: { type: Date, default: Date.now },
 });
 // One plan per user — fast lookup

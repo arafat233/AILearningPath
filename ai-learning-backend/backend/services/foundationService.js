@@ -25,14 +25,17 @@ export const checkFoundation = async (userId, topic) => {
 
   if (weakPrereqs.length === 0) return { redirect: false };
 
-  // Find a foundation question
+  // Find a random foundation question
   const foundationTopic = weakPrereqs[0];
-  const question = await Question.findOne({
-    topic: foundationTopic,
-    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
-    "options.0": { $exists: true },
-    deletedAt: null,
-  });
+  const [question] = await Question.aggregate([
+    { $match: {
+      topic: foundationTopic,
+      questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+      "options.0": { $exists: true },
+      deletedAt: null,
+    }},
+    { $sample: { size: 1 } },
+  ]);
 
   return {
     redirect: true,

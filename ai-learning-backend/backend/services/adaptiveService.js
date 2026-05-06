@@ -68,8 +68,11 @@ export const getNextQuestion = async (userId, topic) => {
     .lean();
   const seenIds = seen.map((s) => s.questionId);
 
-  // Only serve questions the submit flow can grade (index-based MCQ grading)
-  const mcqFilter = { questionType: { $in: ["mcq", "assertion_reason", "case_based"] } };
+  // Only serve gradeable questions: MCQ type AND must have at least one option
+  const mcqFilter = {
+    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    "options.0": { $exists: true },
+  };
 
   // Try unseen questions near target difficulty
   let questions = await Question.find({

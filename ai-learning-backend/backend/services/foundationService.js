@@ -30,6 +30,7 @@ export const checkFoundation = async (userId, topic) => {
   const question = await Question.findOne({
     topic: foundationTopic,
     questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    "options.0": { $exists: true },
     deletedAt: null,
   });
 

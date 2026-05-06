@@ -134,7 +134,7 @@ topicId: String (sparse, e.g. "ch1_s1_c1_t1") ← fine-grained DAG key
 level:   Number (0-7) ← DAG depth (0 = no prerequisites)
 
 Subjects seeded: Math, Science, English, Social Science, Hindi (50+ broad topics)
-Fine-grained Math topics seeded: 43 nodes (seedTopicDAG.js)
+Fine-grained Math topics seeded: 52 nodes (seedTopicDAG.js + seedDesktopContent.js)
   Level 0: Euclid's Lemma, Prime Factorisation, Polynomial basics, AP basics, Similar triangles, Stats/Probability
   Level 7: Two-triangle elevation, Volume of composites
 ```
@@ -170,6 +170,7 @@ placementRole: "primary" | "secondary" ← placement quiz only
 
 Seeded content:
   880 questions  — 43 topic banks (seedQuestionsAndMockPapers.js)
+  162 questions  — 9 new topic banks ch1§4,ch2§4,ch3§4,ch4§4,ch6§5,ch8§4,ch11§2,ch12§3,ch13§5 (seedDesktopContent.js)
    40 questions  — CBSE board-style 2024/2025 (seedBoardStyleQuestions.js)
    20 questions  — Placement quiz diagnostic (seedPlacementQuiz.js)
   152 questions  — answer-key solution steps enriched (seedMockPaperAnswerKeys.js)
@@ -335,6 +336,31 @@ Unique index: { subject, grade, board, chapterNumber }
 Seeded subjects:
   Mathematics : 14 chapters (unit = Algebra/Geometry/Trigonometry/etc.)
   Science     : 13 chapters (unit = Chemistry [1-4] / Biology [5-8,13] / Physics [9-12])
+```
+
+### 3.22 NcertTopicContent  (ncertTopicContentModel.js)
+```
+topicId:                String (unique) — e.g. "ch1_s4_c1_t1"
+chapterNumber:          Number 1-14
+name:                   String
+prerequisite_knowledge: [String]
+key_formulas:           [Mixed]
+teaching_content:       Mixed — { intuition, derivation, worked_example, common_misconceptions,
+                                  shortcuts_and_tricks, edge_cases, key_takeaway, ... }
+timestamps: createdAt, updatedAt
+
+Seeded via seedDesktopContent.js (42 topics across ch2-4,6,8,11-13)
+and importNcert.js (ch1 topics from earlier import)
+```
+
+### 3.23 NcertNote
+```
+userId:    String (required)
+topicId:   String (required)
+text:      String (max 5000 chars, default "")
+updatedAt: Date
+Unique index: { userId, topicId }
+Routes: GET/PUT /api/v1/ncert/notes/:topicId (auth required)
 ```
 
 ---

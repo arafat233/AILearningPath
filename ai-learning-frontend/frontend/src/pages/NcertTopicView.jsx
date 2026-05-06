@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getNcertTopicContent, evaluateExplanation, listNcertTopics, getStudiedTopics, toggleNcertStudied,
-         getTopicMastery, getNextQuestion, startTopic, submitAnswer, recordAdaptiveAttempt } from "../services/api";
+import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
+         getStudiedTopics, toggleNcertStudied,
+         getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt } from "../services/api";
 
 const S = { mono: { fontFamily: "ui-monospace, 'SF Mono', monospace" } };
 
@@ -1221,10 +1222,11 @@ function DerivationPart({ label, val }) {
 /* ── Mastery Practice widget ─────────────────────────────────────────────── */
 function MasteryPractice({ topicId, topicName }) {
   const [mastery,   setMastery]   = useState(null);
-  const [phase,     setPhase]     = useState("idle"); // idle | loading | question | revealed
+  const [phase,     setPhase]     = useState("idle"); // idle | loading | question | revealed | error
   const [question,  setQuestion]  = useState(null);
   const [selected,  setSelected]  = useState(null);  // option index
   const [result,    setResult]    = useState(null);
+  const [errMsg,    setErrMsg]    = useState(null);
   const startRef = useRef(null);
 
   useEffect(() => {
@@ -1235,19 +1237,24 @@ function MasteryPractice({ topicId, topicName }) {
   // startTopic uses topic NAME (adaptiveService queries by Question.topic field)
   const loadQuestion = async (preloaded) => {
     if (preloaded?.questionText) {
-      setQuestion(preloaded); setSelected(null); setResult(null);
+      setQuestion(preloaded); setSelected(null); setResult(null); setErrMsg(null);
       startRef.current = Date.now(); setPhase("question"); return;
     }
-    setPhase("loading"); setQuestion(null); setSelected(null); setResult(null);
+    setPhase("loading"); setQuestion(null); setSelected(null); setResult(null); setErrMsg(null);
     try {
       const r = await startTopic(topicName);
-      // startTopic returns question directly as r.data (no wrapper)
-      const q = r.data?.questionText ? r.data : null;
-      if (!q) { setPhase("idle"); return; }
+      // startTopic returns question directly as r.data (no wrapper object)
+      const q = r.data?.questionText ? r.data
+              : r.data?.question?.questionText ? r.data.question  // foundation redirect shape
+              : null;
+      if (!q) { setPhase("error"); setErrMsg("No questions available for this topic yet."); return; }
       setQuestion(q);
       startRef.current = Date.now();
       setPhase("question");
-    } catch { setPhase("idle"); }
+    } catch (e) {
+      const msg = e?.response?.data?.error || "No questions available for this topic yet.";
+      setErrMsg(msg); setPhase("error");
+    }
   };
 
   const handlePick = async (idx) => {
@@ -1308,6 +1315,8 @@ function MasteryPractice({ topicId, topicName }) {
           </button>
         ) : phase === "loading" ? (
           <div style={{ textAlign:"center", color:"#AEAEB2", padding:"8px 0" }}>Loading question…</div>
+        ) : phase === "error" ? (
+          <p style={{ fontSize:"13px", color:"#FF3B30", textAlign:"center", margin:0 }}>{errMsg}</p>
         ) : question ? (
           <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
             <p style={{ fontSize:"14px", fontWeight:600, color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{question.questionText}</p>
@@ -1371,9 +1380,10 @@ export default function NcertTopicView() {
   const [recallRatings, setRecallRatings] = useState({});
   const [formulaState,  setFormulaState]  = useState({});
   const [errorDone,  setErrorDone]  = useState(false);
-  const [siblings,    setSiblings]   = useState([]);
-  const [allTopics,   setAllTopics]  = useState([]);
-  const [studied,     setStudied]   = useState(false);
+  const [siblings,     setSiblings]    = useState([]);
+  const [allTopics,    setAllTopics]   = useState([]);
+  const [chapterTitle, setChapterTitle] = useState(null);
+  const [studied,      setStudied]    = useState(false);
   const [sessionSecs, setSessionSecs] = useState(0);
 
   useEffect(() => { injectCss(); }, []);
@@ -1396,7 +1406,7 @@ export default function NcertTopicView() {
     return () => clearInterval(iv);
   }, [mode]);
 
-  // Fetch all NCERT topics once: derives siblings + builds prereq name→id map
+  // Fetch all NCERT topics + chapter list once to derive siblings, prereqMap, and chapter title
   useEffect(() => {
     if (!topic) return;
     listNcertTopics()
@@ -1404,6 +1414,14 @@ export default function NcertTopicView() {
         const all = r.data?.data || [];
         setAllTopics(all);
         setSiblings(all.filter(t => t.chapterNumber === topic.chapterNumber));
+      })
+      .catch(() => {});
+    // Chapter title (e.g. "Real Numbers") is what Question.topic uses for practice questions
+    listNcertChapters()
+      .then(r => {
+        const chapters = r.data?.data || [];
+        const ch = chapters.find(c => c.number === topic.chapterNumber);
+        if (ch?.title) setChapterTitle(ch.title);
       })
       .catch(() => {});
   }, [topic]);
@@ -1847,7 +1865,8 @@ export default function NcertTopicView() {
       )}
 
       {/* ── ADAPTIVE PRACTICE ─────────────────────────────────── */}
-      <MasteryPractice topicId={topic.topicId} topicName={topic.name} />
+      {/* practiceTopicName uses the chapter title ("Real Numbers") which matches Question.topic in the DB */}
+      <MasteryPractice topicId={topic.topicId} topicName={chapterTitle || topic.name} />
     </div>
   );
 }

@@ -27,7 +27,11 @@ export const checkFoundation = async (userId, topic) => {
 
   // Find a foundation question
   const foundationTopic = weakPrereqs[0];
-  const question = await Question.findOne({ topic: foundationTopic, deletedAt: null });
+  const question = await Question.findOne({
+    topic: foundationTopic,
+    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    deletedAt: null,
+  });
 
   return {
     redirect: true,

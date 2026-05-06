@@ -15,11 +15,12 @@ export default function Bookmarks() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [removing, setRemoving]   = useState(null);
+  const [error, setError]         = useState("");
 
   useEffect(() => {
     getBookmarks()
       .then((r) => setQuestions(r.data))
-      .catch(() => {})
+      .catch((err) => setError(err.response?.data?.error || err.message || "Failed to load bookmarks"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -47,7 +48,13 @@ export default function Bookmarks() {
         </p>
       </div>
 
-      {questions.length === 0 ? (
+      {error && (
+        <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">
+          {error}
+        </div>
+      )}
+
+      {questions.length === 0 && !error ? (
         <div className="card p-12 text-center">
           <p className="text-[32px] mb-3">☆</p>
           <p className="text-[15px] font-semibold text-[var(--label)]">No bookmarks yet</p>
@@ -58,7 +65,7 @@ export default function Bookmarks() {
             Go to Practice
           </button>
         </div>
-      ) : (
+      ) : !error && (
         <div className="space-y-3">
           {questions.map((q) => {
             const color = SUBJECT_COLOR[q.subject] || "#007AFF";

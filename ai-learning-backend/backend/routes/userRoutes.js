@@ -5,6 +5,7 @@ import { Attempt, Badge, DoubtThread, ErrorMemory, Question, Streak, Topic, User
 import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+import { AppError } from "../utils/AppError.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -52,6 +53,7 @@ r.post("/bookmarks/:questionId", auth, async (req, res, next) => {
       return next(new AppError("Invalid question ID", 400));
     }
     const user = await User.findById(req.user.id).select("savedQuestions");
+    if (!user) return next(new AppError("User not found", 404));
     const already = user.savedQuestions.some((id) => id.toString() === questionId);
     if (already) {
       await User.findByIdAndUpdate(req.user.id, { $pull: { savedQuestions: questionId } });
@@ -67,9 +69,10 @@ r.post("/bookmarks/:questionId", auth, async (req, res, next) => {
 r.get("/bookmarks", auth, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("savedQuestions").lean();
+    if (!user) return next(new AppError("User not found", 404));
     const questions = await Question.find({
-      _id: { $in: user.savedQuestions },
-      deletedAt: { $exists: false },
+      _id: { $in: user.savedQuestions || [] },
+      deletedAt: null,
     })
       .select("questionText subject grade conceptTested difficultyScore options")
       .lean();

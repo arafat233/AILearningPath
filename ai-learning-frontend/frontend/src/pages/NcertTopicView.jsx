@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics } from "../services/api";
 
@@ -935,64 +935,207 @@ function VisualDescToggle({ text }) {
   );
 }
 
-/* ── Video story section ─────────────────────────────────────────────────── */
-function VideoStorySection({ hooks }) {
-  const [open, setOpen] = useState(false);
-  if (!hooks?.visual_moments?.length) return null;
-  return (
-    <div style={{ background:"#FFFFFF", borderRadius:"18px", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", overflow:"hidden" }}>
-      <button onClick={() => setOpen(o=>!o)} className="ntv-btn"
-        style={{ width:"100%", background:"linear-gradient(90deg,#1C1C1E,#2C2C2E)", padding:"12px 28px",
-          border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:"8px", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-          <span>📽️</span>
-          <span style={{ fontSize:"12px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#FFFFFF" }}>Watch the Story</span>
-          {hooks.video_target_length_seconds && (
-            <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.45)" }}>{Math.ceil(hooks.video_target_length_seconds/60)} min</span>
+/* ── Video player ────────────────────────────────────────────────────────── */
+function VideoPlayer({ hooks, diagrams }) {
+  const moments  = hooks?.visual_moments || [];
+  const totalSec = hooks?.video_target_length_seconds || 240;
+
+  const [started, setStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [idx,     setIdx]     = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [voice,   setVoice]   = useState(false);
+
+  const voiceRef      = useRef(false);
+  voiceRef.current    = voice;
+  const lastSpokenRef = useRef(-1);
+
+  const cur      = moments[idx] ?? null;
+  const hasVoice = typeof window !== "undefined" && "speechSynthesis" in window;
+
+  const getSvg = useCallback((m) => {
+    const hit = m?.what_happens_on_screen?.match(/\(([a-z0-9_]+)\)/i);
+    return hit ? (diagrams || []).find(d => d.id === hit[1]) ?? null : null;
+  }, [diagrams]);
+
+  const curSvg = cur ? getSvg(cur) : null;
+
+  const speak = useCallback((text) => {
+    if (!voiceRef.current || !hasVoice) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.92; u.pitch = 1;
+    window.speechSynthesis.speak(u);
+  }, [hasVoice]);
+
+  // Auto-advance slides based on timestamp gaps
+  useEffect(() => {
+    if (!playing || !moments.length) return;
+    if (idx >= moments.length - 1) {
+      const remaining = Math.max(2, totalSec - (cur?.timestamp_seconds ?? 0));
+      const t = setTimeout(() => setPlaying(false), remaining * 1000);
+      return () => clearTimeout(t);
+    }
+    const gap = Math.max(1, (moments[idx + 1]?.timestamp_seconds ?? 0) - (cur?.timestamp_seconds ?? 0));
+    const t = setTimeout(() => setIdx(i => i + 1), gap * 1000);
+    return () => clearTimeout(t);
+  }, [playing, idx]);
+
+  // Real-time elapsed ticker
+  useEffect(() => {
+    if (!playing) return;
+    const iv = setInterval(() => setElapsed(e => Math.min(e + 1, totalSec)), 1000);
+    return () => clearInterval(iv);
+  }, [playing]);
+
+  // Speak & sync elapsed when slide changes
+  useEffect(() => {
+    if (lastSpokenRef.current === idx) return;
+    lastSpokenRef.current = idx;
+    if (cur) { speak(cur.narration); setElapsed(cur.timestamp_seconds); }
+  }, [idx, cur, speak]);
+
+  // Cancel speech when voice toggled off
+  useEffect(() => { if (!voice) window.speechSynthesis?.cancel(); }, [voice]);
+
+  // Cleanup on unmount
+  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+
+  const play  = () => { setStarted(true); setPlaying(true); };
+  const pause = () => { setPlaying(false); window.speechSynthesis?.cancel(); };
+  const seek  = (newIdx) => {
+    window.speechSynthesis?.cancel();
+    lastSpokenRef.current = -1;
+    setIdx(Math.max(0, Math.min(newIdx, moments.length - 1)));
+  };
+
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const pct = totalSec > 0 ? Math.round((elapsed / totalSec) * 100) : 0;
+
+  if (!moments.length) return null;
+
+  /* ── Cover screen (before play) ── */
+  if (!started) return (
+    <div style={{ background:"linear-gradient(135deg,#1C1C1E 0%,#2C2C2E 100%)", borderRadius:"20px", overflow:"hidden" }}>
+      <div style={{ padding:"32px" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"20px" }}>
+          <span style={{ fontSize:"11px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"rgba(255,255,255,0.35)" }}>
+            📽️ Story · {moments.length} scenes · {fmt(totalSec)}
+          </span>
+          {hasVoice && (
+            <button onClick={() => setVoice(v=>!v)} className="ntv-btn"
+              style={{ padding:"5px 12px", borderRadius:"20px",
+                border:`1px solid ${voice?"#34C759":"rgba(255,255,255,0.2)"}`,
+                background: voice?"rgba(52,199,89,0.12)":"transparent",
+                color: voice?"#34C759":"rgba(255,255,255,0.45)",
+                fontSize:"12px", fontWeight:600, cursor:"pointer" }}>
+              🎙️ {voice ? "Voice on" : "Voice off"}
+            </button>
           )}
         </div>
-        <span style={{ fontSize:"18px", color:"rgba(255,255,255,0.6)", transform: open?"rotate(90deg)":"none", transition:"transform 0.15s" }}>›</span>
-      </button>
-      {open && (
-        <div style={{ padding:"20px 28px" }}>
-          {hooks.opening_hook_5_sec && (
-            <div style={{ background:"#F5F0FF", borderRadius:"12px", padding:"16px 20px", marginBottom:"20px", borderLeft:"4px solid #BF5AF2" }}>
-              <p style={{ fontSize:"11px", fontWeight:700, color:"#BF5AF2", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"6px" }}>Opening Hook</p>
-              <p style={{ fontSize:"14px", color:"#1D1D1F", lineHeight:1.7, margin:0, fontStyle:"italic" }}>"{hooks.opening_hook_5_sec}"</p>
-            </div>
-          )}
-          <div style={{ position:"relative", paddingLeft:"4px" }}>
-            <div style={{ position:"absolute", left:"20px", top:"18px", bottom:"18px", width:"2px", background:"#F2F2F7", zIndex:0 }} />
-            <div style={{ display:"flex", flexDirection:"column" }}>
-              {hooks.visual_moments.map((m, i) => (
-                <div key={i} style={{ display:"flex", gap:"16px", paddingBottom:"20px", position:"relative", zIndex:1 }}>
-                  <div style={{ flexShrink:0 }}>
-                    <span style={{ display:"flex", alignItems:"center", justifyContent:"center",
-                      width:"40px", height:"40px", borderRadius:"50%", background:"#1C1C1E",
-                      fontSize:"9px", fontWeight:800, color:"#FF9F0A" }}>
-                      {m.timestamp_seconds}s
-                    </span>
-                  </div>
-                  <div style={{ flex:1, paddingTop:"10px" }}>
-                    <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:"0 0 6px" }}>{m.narration}</p>
-                    {m.what_happens_on_screen && (
-                      <p style={{ fontSize:"11px", color:"#86868B", lineHeight:1.5, margin:0, fontStyle:"italic" }}>
-                        🎬 {m.what_happens_on_screen}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {hooks.opening_hook_5_sec && (
+          <div style={{ borderLeft:"3px solid #BF5AF2", paddingLeft:"16px", marginBottom:"28px" }}>
+            <p style={{ fontSize:"15px", color:"rgba(255,255,255,0.8)", lineHeight:1.7, margin:0, fontStyle:"italic" }}>
+              "{hooks.opening_hook_5_sec}"
+            </p>
           </div>
-          {hooks.narrative_arc && (
-            <div style={{ background:"#F5F5F7", borderRadius:"10px", padding:"12px 16px", marginTop:"4px" }}>
-              <p style={{ fontSize:"11px", fontWeight:700, color:"#86868B", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"6px" }}>Story Arc</p>
-              <p style={{ fontSize:"12px", color:"#3A3A3C", lineHeight:1.6, margin:0 }}>{hooks.narrative_arc}</p>
-            </div>
-          )}
+        )}
+        <button onClick={play} className="ntv-btn"
+          style={{ display:"inline-flex", alignItems:"center", gap:"10px",
+            background:"#FFFFFF", color:"#1C1C1E", border:"none", borderRadius:"50px",
+            padding:"14px 32px", fontSize:"15px", fontWeight:800, cursor:"pointer",
+            boxShadow:"0 4px 20px rgba(0,0,0,0.4)" }}>
+          ▶ Play Story
+        </button>
+      </div>
+    </div>
+  );
+
+  /* ── Player ── */
+  return (
+    <div style={{ background:"#1C1C1E", borderRadius:"20px", overflow:"hidden" }}>
+      {/* Progress bar */}
+      <div style={{ display:"flex", alignItems:"center", gap:"10px", padding:"10px 16px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+        <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)", fontWeight:700, flexShrink:0 }}>
+          {idx+1}/{moments.length}
+        </span>
+        <div style={{ flex:1, height:"3px", background:"rgba(255,255,255,0.08)", borderRadius:"2px", overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${pct}%`, background:"#BF5AF2", transition:"width 0.8s linear" }} />
+        </div>
+        <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)", fontVariantNumeric:"tabular-nums", flexShrink:0 }}>
+          {fmt(elapsed)} / {fmt(totalSec)}
+        </span>
+        {hasVoice && (
+          <button onClick={() => setVoice(v=>!v)} className="ntv-btn"
+            style={{ padding:"3px 10px", borderRadius:"20px",
+              border:`1px solid ${voice?"#34C759":"rgba(255,255,255,0.15)"}`,
+              background: voice?"rgba(52,199,89,0.12)":"transparent",
+              color: voice?"#34C759":"rgba(255,255,255,0.3)", fontSize:"11px", cursor:"pointer" }}>
+            🎙️
+          </button>
+        )}
+      </div>
+
+      {/* Diagram panel */}
+      {curSvg ? (
+        <div key={curSvg.id} className="ntv-in"
+          style={{ background:"#FFFFFF", padding:"20px 28px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+          <p style={{ fontSize:"10px", fontWeight:700, color:"#AEAEB2", letterSpacing:"1.5px", textTransform:"uppercase", margin:"0 0 10px" }}>
+            {curSvg.title}
+          </p>
+          <div style={{ lineHeight:0 }} dangerouslySetInnerHTML={{ __html: sanitizeSvg(curSvg.svg) }} />
+        </div>
+      ) : (
+        <div style={{ minHeight:"56px", display:"flex", alignItems:"center", padding:"14px 24px",
+          borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+          <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.18)", fontStyle:"italic", lineHeight:1.4 }}>
+            {cur?.what_happens_on_screen?.slice(0, 100) || ""}…
+          </span>
         </div>
       )}
+
+      {/* Narration text */}
+      <div style={{ padding:"24px 28px 12px" }}>
+        <p key={idx} className="ntv-in"
+          style={{ fontSize:"16px", color:"#FFFFFF", lineHeight:1.8, margin:0, fontWeight:500 }}>
+          {cur?.narration}
+        </p>
+      </div>
+
+      {/* Slide dots */}
+      <div style={{ display:"flex", gap:"5px", padding:"10px 28px 14px", flexWrap:"wrap" }}>
+        {moments.map((_, i) => (
+          <div key={i} onClick={() => seek(i)}
+            style={{ height:"4px", borderRadius:"2px", cursor:"pointer", transition:"all 0.2s",
+              width: i===idx ? "20px" : "7px",
+              background: i < idx ? "#BF5AF2" : i===idx ? "#FFFFFF" : "rgba(255,255,255,0.15)" }} />
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div style={{ display:"flex", gap:"8px", padding:"10px 16px 18px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+        <button onClick={() => seek(idx-1)} disabled={idx===0} className="ntv-btn"
+          style={{ padding:"10px 16px", borderRadius:"10px",
+            border:"1px solid rgba(255,255,255,0.12)", background:"transparent",
+            color: idx===0 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.7)",
+            fontSize:"13px", fontWeight:600, cursor: idx===0 ? "default" : "pointer" }}>
+          ← Prev
+        </button>
+        <button onClick={playing ? pause : play} className="ntv-btn"
+          style={{ flex:1, padding:"11px", borderRadius:"10px", border:"none",
+            background: playing ? "rgba(255,59,48,0.12)" : "#FFFFFF",
+            color: playing ? "#FF3B30" : "#1C1C1E",
+            fontSize:"14px", fontWeight:800, cursor:"pointer" }}>
+          {playing ? "⏸ Pause" : "▶ Continue"}
+        </button>
+        <button onClick={() => seek(idx+1)} disabled={idx===moments.length-1} className="ntv-btn"
+          style={{ padding:"10px 16px", borderRadius:"10px",
+            border:"1px solid rgba(255,255,255,0.12)", background:"transparent",
+            color: idx===moments.length-1 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.7)",
+            fontSize:"13px", fontWeight:600, cursor: idx===moments.length-1 ? "default" : "pointer" }}>
+          Next →
+        </button>
+      </div>
     </div>
   );
 }
@@ -1340,9 +1483,9 @@ export default function NcertTopicView() {
         <RecallCards cards={recallCards} ratings={recallRatings} onRate={rateRecall} />
       )}
 
-      {/* ── VIDEO STORY — deep only ───────────────────────────── */}
+      {/* ── VIDEO PLAYER — deep only ──────────────────────────── */}
       {mode==="deep" && Object.keys(videoHooks).length>0 && (
-        <VideoStorySection hooks={videoHooks} />
+        <VideoPlayer hooks={videoHooks} diagrams={tc.svg_diagrams} />
       )}
 
       {/* ── DERIVATION — deep only ────────────────────────────── */}

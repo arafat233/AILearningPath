@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPlan, createStudyPlan, updatePlanSettings, deleteStudyPlan, markDayComplete, saveTopicOrder, markRevised, listNcertChapters, getStudiedTopics } from "../services/api";
+import { getPlan, listStudyPlans, getPlanById, createStudyPlan, activatePlan, updatePlanSettings, deleteStudyPlan, reschedulePlan, generateShareToken, markDayComplete, saveTopicOrder, saveDayNote, markRevised, listNcertChapters, getStudiedTopics, getTopics } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const GOAL_LABEL = {
@@ -19,15 +19,128 @@ const GOALS = [
 const CBSE_SUBJECTS = ["Math", "Science", "English", "Social Science", "Hindi"];
 const GRADES        = ["8","9","10","11","12"];
 
+const PHASE_COLORS = {
+  foundation: { bg: "#EEF4FF", color: "#007AFF", label: "Foundation" },
+  practice:   { bg: "#FFF4E0", color: "#FF9500", label: "Practice"   },
+  revision:   { bg: "#F3EEFF", color: "#AF52DE", label: "Revision"   },
+  mock:       { bg: "#FFE5E5", color: "#FF3B30", label: "Mock"       },
+};
+
+/* ─── PLAN SWITCHER ──────────────────────────────────────── */
+function PlanSwitcher({ plans, activePlanId, onSwitch, onCreate }) {
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      {plans.map(p => (
+        <button key={p.planId} onClick={() => onSwitch(p.planId)} style={{
+          fontSize: "13px", fontWeight: 600, padding: "6px 14px", borderRadius: "20px",
+          background: p.planId === activePlanId ? "#007AFF" : "transparent",
+          color: p.planId === activePlanId ? "#fff" : "#86868B",
+          border: p.planId === activePlanId ? "none" : "1.5px solid #E5E5EA",
+          cursor: "pointer", transition: "all 0.15s",
+        }}>
+          {p.name || "Study Plan"}
+          {p.progress > 0 && <span style={{ marginLeft: "5px", opacity: 0.75, fontSize: "11px" }}>{p.progress}%</span>}
+        </button>
+      ))}
+      <button onClick={onCreate} style={{
+        fontSize: "13px", fontWeight: 600, padding: "6px 14px", borderRadius: "20px",
+        border: "1.5px dashed #C8C8CE", color: "#86868B", background: "transparent", cursor: "pointer",
+      }}>+ New plan</button>
+    </div>
+  );
+}
+
+/* ─── CATCH-UP BANNER ────────────────────────────────────── */
+function CatchUpBanner({ missedCount, rescheduling, onReschedule }) {
+  return (
+    <div style={{ padding: "14px 20px", background: "#FFF4E0", borderRadius: "14px", border: "1px solid rgba(255,149,0,0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+      <div>
+        <p style={{ fontSize: "14px", fontWeight: 600, color: "#CC6600" }}>
+          {missedCount} missed day{missedCount !== 1 ? "s" : ""} — your plan is behind
+        </p>
+        <p style={{ fontSize: "12px", color: "#86868B", marginTop: "2px" }}>
+          Reschedule to redistribute missed topics across remaining days.
+        </p>
+      </div>
+      <button onClick={onReschedule} disabled={rescheduling} style={{
+        fontSize: "13px", fontWeight: 600, padding: "9px 18px", borderRadius: "10px",
+        background: "#FF9500", color: "#fff", border: "none", cursor: "pointer",
+        opacity: rescheduling ? 0.6 : 1, flexShrink: 0,
+      }}>
+        {rescheduling ? "Rescheduling…" : "Catch up now"}
+      </button>
+    </div>
+  );
+}
+
+/* ─── DAY NOTE ───────────────────────────────────────────── */
+function DayNote({ dayNum, initialNote, planId, onSaved }) {
+  const [open,   setOpen]   = useState(!!initialNote);
+  const [text,   setText]   = useState(initialNote || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    try { await saveDayNote(dayNum, text, planId); onSaved(dayNum, text); }
+    catch {}
+    setSaving(false);
+  };
+
+  return (
+    <div style={{ marginTop: "6px" }}>
+      <button onClick={() => setOpen(o => !o)} style={{ fontSize: "11px", color: "#86868B", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        {open ? "▾ Hide note" : `📝 ${initialNote ? "Edit note" : "Add note"}`}
+      </button>
+      {open && (
+        <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            className="input text-[12px]"
+            style={{ flex: 1, resize: "vertical", minHeight: "52px" }}
+            maxLength={500}
+            placeholder="Add a note for this day…"
+          />
+          <button onClick={save} disabled={saving} className="btn-secondary" style={{ fontSize: "12px", padding: "6px 12px", alignSelf: "flex-start", flexShrink: 0 }}>
+            {saving ? "…" : "Save"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── PLAN FORM (shared by Create + Edit) ────────────────── */
 function PlanForm({ initial, submitting, submitLabel, onSubmit, onCancel }) {
-  const [form, setForm] = useState(initial);
+  const [form,           setForm]           = useState(initial);
+  const [offDayInput,    setOffDayInput]    = useState("");
+  const [availTopics,    setAvailTopics]    = useState([]);
+  const [showTopics,     setShowTopics]     = useState(false);
+  const [loadingTopics,  setLoadingTopics]  = useState(false);
 
-  const toggle = (s) => {
-    const next = form.subjects.includes(s)
-      ? form.subjects.filter(x => x !== s)
-      : [...form.subjects, s];
-    if (next.length) setForm({ ...form, subjects: next });
+  useEffect(() => {
+    if (!showTopics || !form.subjects.length) return;
+    setLoadingTopics(true);
+    Promise.all(form.subjects.map(s => getTopics({ subject: s, grade: form.grade }).catch(() => ({ data: [] }))))
+      .then(results => setAvailTopics(results.flatMap((r, i) => (r.data || []).map(t => ({ name: t.name, subject: form.subjects[i] })))))
+      .finally(() => setLoadingTopics(false));
+  }, [showTopics, form.subjects.join(","), form.grade]);
+
+  const toggleSubject = (s) => {
+    const next = form.subjects.includes(s) ? form.subjects.filter(x => x !== s) : [...form.subjects, s];
+    if (next.length) setForm({ ...form, subjects: next, topicFilter: [] });
+  };
+
+  const toggleTopic = (name) => {
+    const cur = form.topicFilter || [];
+    setForm({ ...form, topicFilter: cur.includes(name) ? cur.filter(x => x !== name) : [...cur, name] });
+  };
+
+  const addOffDay = () => {
+    if (!offDayInput) return;
+    const cur = form.offDays || [];
+    if (!cur.includes(offDayInput)) setForm({ ...form, offDays: [...cur, offDayInput] });
+    setOffDayInput("");
   };
 
   const handleSubmit = (e) => {
@@ -41,68 +154,117 @@ function PlanForm({ initial, submitting, submitLabel, onSubmit, onCancel }) {
       {/* Plan name */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Plan Name <span className="font-normal normal-case">(optional)</span></label>
-        <input
-          className="input"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="e.g. Board Exam 2025"
-          maxLength={100}
-        />
+        <input className="input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Board Exam 2025" maxLength={100} />
       </div>
 
       {/* Grade + Exam date */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Grade</label>
-          <select className="input" value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })}>
+          <select className="input" value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}>
             {GRADES.map(g => <option key={g} value={g}>Class {g}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Exam Date <span className="text-apple-red">*</span></label>
-          <input
-            className="input"
-            type="date"
-            value={form.examDate}
-            onChange={(e) => setForm({ ...form, examDate: e.target.value })}
-            required
-          />
+          <input className="input" type="date" value={form.examDate} onChange={e => setForm({ ...form, examDate: e.target.value })} required />
         </div>
       </div>
 
-      {/* Goal */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Study Goal</label>
-        <select className="input" value={form.goal} onChange={(e) => setForm({ ...form, goal: e.target.value })}>
-          {GOALS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-        </select>
+      {/* Goal + Hours/day */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Study Goal</label>
+          <select className="input" value={form.goal} onChange={e => setForm({ ...form, goal: e.target.value })}>
+            {GOALS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Hours / day</label>
+          <div className="flex items-center gap-3">
+            <input type="range" min={1} max={10} step={0.5} value={form.hoursPerDay || 2}
+              onChange={e => setForm({ ...form, hoursPerDay: parseFloat(e.target.value) })}
+              className="flex-1" />
+            <span className="text-[14px] font-bold text-apple-blue w-10 text-center">{form.hoursPerDay || 2}h</span>
+          </div>
+        </div>
       </div>
 
       {/* Subjects */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Subjects</label>
         <div className="flex flex-wrap gap-2">
-          {CBSE_SUBJECTS.map((s) => {
+          {CBSE_SUBJECTS.map(s => {
             const sel = form.subjects.includes(s);
             return (
-              <button key={s} type="button" onClick={() => toggle(s)} style={{
+              <button key={s} type="button" onClick={() => toggleSubject(s)} style={{
                 fontSize: "13px", fontWeight: 600, padding: "7px 16px", borderRadius: "20px",
                 border: sel ? "none" : "1.5px solid #E5E5EA",
                 background: sel ? "#007AFF" : "transparent",
                 color: sel ? "#fff" : "#86868B", cursor: "pointer", transition: "all 0.15s",
-              }}>
-                {s}
-              </button>
+              }}>{s}</button>
             );
           })}
         </div>
       </div>
 
+      {/* Off-days */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider">Off Days <span className="font-normal normal-case">(holidays, weekends)</span></label>
+        <div className="flex gap-2">
+          <input type="date" className="input flex-1" value={offDayInput} onChange={e => setOffDayInput(e.target.value)} />
+          <button type="button" onClick={addOffDay} className="btn-secondary px-4 shrink-0">Add</button>
+        </div>
+        {(form.offDays || []).length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {form.offDays.map(d => (
+              <span key={d} style={{ fontSize: "12px", padding: "3px 10px", borderRadius: "20px", background: "#F5F5F7", color: "#86868B", display: "flex", alignItems: "center", gap: "6px" }}>
+                {d}
+                <button type="button" onClick={() => setForm({ ...form, offDays: form.offDays.filter(x => x !== d) })} style={{ background: "none", border: "none", cursor: "pointer", color: "#86868B", fontSize: "14px", lineHeight: 1 }}>×</button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Topic filter */}
+      <div className="flex flex-col gap-2">
+        <button type="button" onClick={() => setShowTopics(v => !v)} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 600, color: "#007AFF", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+          {showTopics ? "▾" : "▸"} Choose specific topics
+          {(form.topicFilter || []).length > 0 && <span style={{ fontSize: "11px", background: "#007AFF", color: "#fff", padding: "2px 8px", borderRadius: "20px" }}>{form.topicFilter.length} selected</span>}
+        </button>
+        {showTopics && (
+          <div style={{ border: "1px solid #E5E5EA", borderRadius: "12px", padding: "14px", maxHeight: "240px", overflowY: "auto" }}>
+            {loadingTopics ? (
+              <p style={{ fontSize: "13px", color: "#86868B", textAlign: "center" }}>Loading topics…</p>
+            ) : availTopics.length === 0 ? (
+              <p style={{ fontSize: "13px", color: "#86868B" }}>No topics found. Select a subject first.</p>
+            ) : (
+              <>
+                <div className="flex gap-2 mb-3">
+                  <button type="button" onClick={() => setForm({ ...form, topicFilter: availTopics.map(t => t.name) })} style={{ fontSize: "11px", color: "#007AFF", background: "none", border: "none", cursor: "pointer" }}>Select all</button>
+                  <span style={{ color: "#C8C8CE" }}>·</span>
+                  <button type="button" onClick={() => setForm({ ...form, topicFilter: [] })} style={{ fontSize: "11px", color: "#86868B", background: "none", border: "none", cursor: "pointer" }}>Clear</button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {availTopics.map(t => (
+                    <label key={t.name} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#1D1D1F" }}>
+                      <input type="checkbox" checked={(form.topicFilter || []).includes(t.name)}
+                        onChange={() => toggleTopic(t.name)} style={{ width: "15px", height: "15px", cursor: "pointer" }} />
+                      {t.name}
+                      <span style={{ fontSize: "11px", color: "#86868B" }}>{t.subject}</span>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Actions */}
       <div className="flex gap-3 pt-1">
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>
-        )}
+        {onCancel && <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>}
         <button type="submit" disabled={submitting || !form.examDate} className="btn-primary flex-1 py-3">
           {submitting
             ? <span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>{submitLabel}…</span>
@@ -119,8 +281,8 @@ function CreatePlanCard({ user, onCreated }) {
   const [error,      setError]      = useState("");
   const initial = {
     name: "", grade: user?.grade || "10",
-    subjects: user?.subjects?.length ? user.subjects : [user?.subject || "Math"],
-    examDate: "", goal: "distinction",
+    subjects:    user?.subjects?.length ? user.subjects : [user?.subject || "Math"],
+    examDate: "", goal: "distinction", hoursPerDay: 2, offDays: [], topicFilter: [],
   };
 
   const handleCreate = async (form) => {
@@ -172,17 +334,20 @@ function PlanSettingsModal({ plan, onSaved, onClose }) {
   const [submitting, setSubmitting] = useState(false);
   const [error,      setError]      = useState("");
   const initial = {
-    name:     plan.planName     || "",
-    grade:    plan.planGrade    || "10",
-    subjects: plan.planSubjects || ["Math"],
-    examDate: plan.planExamDate ? new Date(plan.planExamDate).toISOString().split("T")[0] : "",
-    goal:     plan.planGoal     || "distinction",
+    name:        plan.planName     || "",
+    grade:       plan.planGrade    || "10",
+    subjects:    plan.planSubjects || ["Math"],
+    examDate:    plan.planExamDate ? new Date(plan.planExamDate).toISOString().split("T")[0] : "",
+    goal:        plan.planGoal     || "distinction",
+    hoursPerDay: plan.hoursPerDay  || 2,
+    offDays:     plan.offDays      || [],
+    topicFilter: plan.topicFilter  || [],
   };
 
   const handleSave = async (form) => {
     setError(""); setSubmitting(true);
     try {
-      const { data } = await updatePlanSettings(form);
+      const { data } = await updatePlanSettings(plan.planId, form);
       onSaved(data);
     } catch (e) {
       setError(e.response?.data?.error || "Could not update plan.");
@@ -435,7 +600,7 @@ function TodayFocus({ plan, completing, onComplete, navigate }) {
 }
 
 /* ─── DAILY VIEW ─────────────────────────────────────────── */
-function DailyView({ plan, completing, onComplete, navigate }) {
+function DailyView({ plan, completing, onComplete, navigate, onNoteUpdate }) {
   if (!plan?.dailyPlan?.length) {
     return (
       <div className="card p-6 text-center">
@@ -471,26 +636,51 @@ function DailyView({ plan, completing, onComplete, navigate }) {
             const date    = dayToDate(d.day);
             const isToday = d.day === 1;
             return (
-              <div key={d.day} className={`flex items-center justify-between p-4 rounded-apple-xl border transition-all ${
+              <div key={d.day} className={`p-4 rounded-apple-xl border transition-all ${
                 d.completed  ? "border-apple-green/25 bg-apple-green/6" :
+                d.isMockTest ? "border-[#AF52DE]/30 bg-gradient-to-r from-[#AF52DE]/6 to-[#007AFF]/6" :
                 isToday      ? "border-apple-blue/30 bg-apple-blue/4 shadow-apple" :
                                "border-apple-gray5 hover:border-apple-blue/25 hover:bg-apple-blue/3"
               }`}>
-                <div className="flex items-center gap-4">
-                  <div className="text-center w-12 shrink-0">
-                    <p className="text-[9px] mono uppercase text-apple-gray3">{DAY_NAMES[date.getDay()]}</p>
-                    <p className="text-[20px] font-bold text-[var(--label)] leading-tight">{d.day}</p>
-                    <p className="text-[9px] text-apple-gray3">{fmtShort(date)}</p>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap gap-1.5 mb-1">
-                      {d.topics.map(t => <TopicBadge key={t} topic={t} />)}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center w-12 shrink-0">
+                      <p className="text-[9px] mono uppercase text-apple-gray3">{DAY_NAMES[date.getDay()]}</p>
+                      <p className="text-[20px] font-bold text-[var(--label)] leading-tight">{d.day}</p>
+                      <p className="text-[9px] text-apple-gray3">{fmtShort(date)}</p>
                     </div>
-                    <p className="text-[12px] text-apple-gray">~{d.estimatedHours}h</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        {d.phase && PHASE_COLORS[d.phase] && (
+                          <span style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "20px", background: PHASE_COLORS[d.phase].bg, color: PHASE_COLORS[d.phase].color }}>
+                            {PHASE_COLORS[d.phase].label}
+                          </span>
+                        )}
+                        {d.isMockTest && (
+                          <span style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "20px", background: "#F3EEFF", color: "#AF52DE" }}>📝 Mock Test</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mb-1">
+                        {d.topics.map(t => (
+                          <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", padding: "3px 10px", borderRadius: "20px", background: topicColor(t) + "18", color: topicColor(t), fontWeight: 500 }}>
+                            {t}
+                            {plan?.topicAccuracy?.[t] != null && (
+                              <span style={{ fontSize: "10px", opacity: 0.7 }}>{plan.topicAccuracy[t]}%</span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-[12px] text-apple-gray">~{d.estimatedHours}h</p>
+                    </div>
                   </div>
+                  {d.isMockTest ? (
+                    <button onClick={() => navigate("/exam")} className="btn-primary text-[12px] py-1.5 px-4 shrink-0">Take test →</button>
+                  ) : (
+                    <DayActions day={d} isToday={isToday} completing={completing} onComplete={onComplete} navigate={navigate} topics={d.topics} />
+                  )}
                 </div>
-                <DayActions day={d} isToday={isToday} completing={completing}
-                  onComplete={onComplete} navigate={navigate} topics={d.topics} />
+                <DayNote dayNum={d.day} initialNote={d.note} planId={plan?.planId}
+                  onSaved={onNoteUpdate} />
               </div>
             );
           })}
@@ -1008,6 +1198,11 @@ export default function Planner() {
   const [showSettings,     setShowSettings]     = useState(false);
   const [showDeleteConfirm,setShowDeleteConfirm]= useState(false);
   const [deleting,         setDeleting]         = useState(false);
+  const [rescheduling,     setRescheduling]     = useState(false);
+  const [sharing,          setSharing]          = useState(false);
+  const [shareMsg,         setShareMsg]         = useState("");
+  const [showCreateNew,    setShowCreateNew]    = useState(false);
+  const [allPlans,         setAllPlans]         = useState([]);
   const [ncertChapters,    setNcertChapters]    = useState([]);
   const [studiedSet,       setStudiedSet]       = useState(new Set());
 
@@ -1018,9 +1213,12 @@ export default function Planner() {
 
   const loadPlan = useCallback(() => {
     setLoading(true);
-    getPlan()
-      .then(r => applyPlan(r.data))
-      .catch(() => setPlan({ empty: true }))
+    Promise.all([getPlan(), listStudyPlans()])
+      .then(([planRes, listRes]) => {
+        applyPlan(planRes.data);
+        setAllPlans(listRes.data?.data || []);
+      })
+      .catch(() => { setPlan({ empty: true }); setAllPlans([]); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -1073,11 +1271,49 @@ export default function Planner() {
 
   const handleOrderSaved = () => { setShowEditor(false); loadPlan(); };
 
+  const handleReschedule = async () => {
+    setRescheduling(true);
+    try { const { data } = await reschedulePlan(); applyPlan(data); }
+    catch {}
+    setRescheduling(false);
+  };
+
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const { data } = await generateShareToken();
+      const url = `${window.location.origin}/shared-plan/${data.data.shareToken}`;
+      await navigator.clipboard.writeText(url);
+      setShareMsg("Link copied!");
+      setTimeout(() => setShareMsg(""), 3000);
+    } catch { setShareMsg("Could not copy link"); }
+    setSharing(false);
+  };
+
+  const handleSwitchPlan = async (planId) => {
+    setLoading(true);
+    try {
+      const { data } = await getPlanById(planId);
+      applyPlan(data);
+      setAllPlans(prev => prev.map(p => ({ ...p, isActive: p.planId === planId })));
+      await activatePlan(planId).catch(() => {});
+    } catch {}
+    setLoading(false);
+  };
+
   const handleDeletePlan = async () => {
     setDeleting(true);
     try {
-      await deleteStudyPlan();
-      setPlan({ empty: true });
+      await deleteStudyPlan(plan.planId);
+      setAllPlans(prev => prev.filter(p => p.planId !== plan.planId));
+      const remaining = allPlans.filter(p => p.planId !== plan.planId);
+      if (remaining.length > 0) {
+        const { data } = await getPlanById(remaining[0].planId);
+        applyPlan(data);
+        await activatePlan(remaining[0].planId).catch(() => {});
+      } else {
+        setPlan({ empty: true });
+      }
       setShowDeleteConfirm(false);
     } catch {}
     setDeleting(false);
@@ -1093,13 +1329,32 @@ export default function Planner() {
     </div>
   );
 
-  /* ── no plan yet ── */
-  if (plan?.empty) return <CreatePlanCard user={user} onCreated={(data) => { applyPlan(data); }} />;
+  /* ── no plan yet OR creating new ── */
+  if (plan?.empty || showCreateNew) return (
+    <CreatePlanCard user={user} onCreated={(data) => {
+      applyPlan(data);
+      setShowCreateNew(false);
+      setAllPlans(prev => [...prev.filter(p => !p.isActive), { planId: data.planId, name: data.planName, subjects: data.planSubjects, grade: data.planGrade, goal: data.planGoal, examDate: data.planExamDate, isActive: true, progress: 0, totalDays: data.dailyPlan?.length || 0 }]);
+    }} />
+  );
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const missedDays = (plan?.dailyPlan || []).filter(d => !d.completed && new Date(d.date) < today).length;
 
   const totalDays = plan?.dailyPlan?.length || 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-5">
+
+      {/* ── Plan switcher ── */}
+      {allPlans.length > 0 && (
+        <PlanSwitcher
+          plans={allPlans}
+          activePlanId={plan?.planId}
+          onSwitch={handleSwitchPlan}
+          onCreate={() => setShowCreateNew(true)}
+        />
+      )}
 
       {/* ── Header ── */}
       <div className="flex items-start justify-between flex-wrap gap-3">
@@ -1109,19 +1364,10 @@ export default function Planner() {
           </h1>
           <p className="text-[14px] text-apple-gray mt-0.5 flex items-center flex-wrap gap-2">
             {plan?.daysLeft != null ? `${plan.daysLeft} days until exam` : ""}
-            {plan?.planGoal && (
-              <span className="badge bg-apple-blue/10 text-apple-blue">
-                {GOAL_LABEL[plan.planGoal] || plan.planGoal}
-              </span>
-            )}
-            {plan?.planSubjects?.length > 0 && (
-              <span className="badge bg-apple-gray5 text-apple-gray">
-                {plan.planSubjects.join(", ")}
-              </span>
-            )}
-            {plan?.hasCustomOrder && (
-              <span className="badge bg-[#AF52DE]/10 text-[#AF52DE]">Custom order</span>
-            )}
+            {plan?.planGoal && <span className="badge bg-apple-blue/10 text-apple-blue">{GOAL_LABEL[plan.planGoal] || plan.planGoal}</span>}
+            {plan?.planSubjects?.length > 0 && <span className="badge bg-apple-gray5 text-apple-gray">{plan.planSubjects.join(", ")}</span>}
+            {plan?.hoursPerDay && <span className="badge bg-apple-gray5 text-apple-gray">{plan.hoursPerDay}h/day</span>}
+            {plan?.hasCustomOrder && <span className="badge bg-[#AF52DE]/10 text-[#AF52DE]">Custom order</span>}
           </p>
         </div>
 
@@ -1135,24 +1381,20 @@ export default function Planner() {
           )}
           {totalDays > 0 && (
             <button onClick={() => setShowEditor(v => !v)}
-              className={`text-[13px] font-medium px-4 py-2 rounded-apple-xl border transition-all ${
-                showEditor
-                  ? "bg-apple-blue text-white border-apple-blue"
-                  : "bg-white border-apple-gray5 text-[var(--label)] hover:border-apple-blue/40 shadow-apple"
-              }`}>
-              {showEditor ? "✕ Close editor" : "✏ Topic order"}
+              className={`text-[13px] font-medium px-4 py-2 rounded-apple-xl border transition-all ${showEditor ? "bg-apple-blue text-white border-apple-blue" : "bg-white border-apple-gray5 text-[var(--label)] hover:border-apple-blue/40 shadow-apple"}`}>
+              {showEditor ? "✕ Topic order" : "✏ Topic order"}
             </button>
           )}
-          <button
-            onClick={() => setShowSettings(true)}
-            className="text-[13px] font-medium px-4 py-2 rounded-apple-xl border border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-blue/40 shadow-apple transition-all"
-          >
+          <button onClick={handleShare} disabled={sharing}
+            className="text-[13px] font-medium px-4 py-2 rounded-apple-xl border border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-blue/40 shadow-apple transition-all">
+            {shareMsg || (sharing ? "…" : "🔗 Share")}
+          </button>
+          <button onClick={() => setShowSettings(true)}
+            className="text-[13px] font-medium px-4 py-2 rounded-apple-xl border border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-blue/40 shadow-apple transition-all">
             ⚙ Edit plan
           </button>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="text-[13px] font-medium px-3 py-2 rounded-apple-xl border border-apple-red/30 text-apple-red hover:bg-apple-red/6 transition-all"
-          >
+          <button onClick={() => setShowDeleteConfirm(true)}
+            className="text-[13px] font-medium px-3 py-2 rounded-apple-xl border border-apple-red/30 text-apple-red hover:bg-apple-red/6 transition-all">
             Delete
           </button>
         </div>
@@ -1187,6 +1429,22 @@ export default function Planner() {
           onSaved={(data) => { applyPlan(data); setShowSettings(false); }}
           onClose={() => setShowSettings(false)}
         />
+      )}
+
+      {/* ── Catch-up banner ── */}
+      {missedDays > 0 && !showEditor && (
+        <CatchUpBanner missedCount={missedDays} rescheduling={rescheduling} onReschedule={handleReschedule} />
+      )}
+
+      {/* ── Phase legend ── */}
+      {totalDays > 0 && (
+        <div className="flex gap-3 flex-wrap">
+          {Object.entries(PHASE_COLORS).map(([key, val]) => (
+            <span key={key} style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", background: val.bg, color: val.color }}>
+              {val.label}
+            </span>
+          ))}
+        </div>
       )}
 
       {/* ── Summary bar ── */}
@@ -1271,7 +1529,7 @@ export default function Planner() {
       )}
 
       {/* ── Plan view ── */}
-      {view === "daily"   && <DailyView   plan={plan} completing={completing} onComplete={handleComplete} navigate={navigate} />}
+      {view === "daily"   && <DailyView   plan={plan} completing={completing} onComplete={handleComplete} navigate={navigate} onNoteUpdate={(dayN, note) => setPlan(p => ({ ...p, dailyPlan: p.dailyPlan.map(x => x.day === dayN ? { ...x, note } : x) }))} />}
       {view === "weekly"  && <WeeklyView  plan={plan} completing={completing} onComplete={handleComplete} navigate={navigate} />}
       {view === "monthly" && <MonthlyView plan={plan} />}
 

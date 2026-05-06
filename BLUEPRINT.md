@@ -246,11 +246,17 @@ rawScore, normalizedScore (Z-score), rank, percentile, createdAt
 
 ### 3.11 StudyPlan
 ```
-userId, examDate, totalDays
-dailyPlan: [{ day, date, topics [String], estimatedHours, completed }]
-priorityTopics: [{ topic, priority, reason }]
+userId, name, subjects [String], grade, goal, examDate
+hoursPerDay, offDays [Date], topicFilter [String]
+isActive (Boolean) — only one active plan per user
+shareToken (String, sparse index) — public share link token
+dailyPlan: [{ day, date, topics [String], estimatedHours, completed,
+              isMockTest, phase (foundation|practice|revision|mock), note }]
+priorityTopics: [{ topic, priority, isWeak, reason }]
 skipSuggestions: [{ topic, effort, marksLost, reason }]
+customTopicOrder [String]
 createdAt
+Indexes: { userId }, { shareToken } sparse
 ```
 
 ### 3.12 WeeklyLeaderboard
@@ -609,9 +615,19 @@ POST   /api/exam/submit             → server validates elapsed time (30s grace
 GET    /api/exam/history
 GET    /api/exam/review/:attemptId
 
-GET    /api/planner
-POST   /api/planner/generate
-POST   /api/planner/complete
+GET    /api/planner                         ← active plan (or most recent)
+POST   /api/planner                         ← create plan (deactivates others)
+GET    /api/planner/all                     ← list all plans (summaries)
+GET    /api/planner/:planId                 ← specific plan by id
+PUT    /api/planner/:planId/settings        ← update plan settings
+PUT    /api/planner/:planId/activate        ← set active plan
+DELETE /api/planner/:planId                 ← delete plan
+POST   /api/planner/reschedule              ← catch-up: redistribute missed topics
+POST   /api/planner/share                   ← generate share token (auth)
+GET    /api/planner/share/:token            ← public shared plan view (no auth)
+POST   /api/planner/complete                ← mark day complete
+PATCH  /api/planner/reorder                 ← save custom topic order
+PATCH  /api/planner/note                    ← save per-day note
 
 GET    /api/revision/due
 POST   /api/revision/mark
@@ -791,12 +807,19 @@ Server → Client:
 /analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
 /competition   → Competition    — weekly leaderboard, create/join room
 /live          → LiveRoom       — real-time Socket.IO quiz
-/planner       → Planner        — calendar, priority topics, skip suggestions
-                                  Revision Due section (spaced-repetition topics from revisionService)
+/planner       → Planner        — multiple plans (PlanSwitcher); create/edit/delete plans
+                                  PlanForm: name, grade, subjects (multi-select pills), exam date,
+                                  goal, hours/day slider, off-days date picker, topic filter checklist
+                                  Phase markers (Foundation→Practice→Revision→Mock), mock test days
+                                  every 14 days; topic accuracy % chips; per-day notes (DayNote);
+                                  catch-up banner + reschedule; share link; topic order editor;
+                                  Daily/Weekly/Monthly views; NCERT chapter progress; Revision Due
+/shared-plan/:token → SharedPlan — public read-only view of a shared plan (no auth required)
 /exam-review   → ExamReview     — past exams, per-question AI review
 /voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
 /profile       → Profile        — user info, badges grid, invite code generator
-/settings      → Settings       — update subject/grade/goal/examDate; all 5 CBSE subjects
+/settings      → Settings       — update name/grade/subjects (multi-select pills)/weak topics;
+                                  exam date + goal moved to Planner; all 5 CBSE subjects
                                   weak topics tag-editor (type+Enter → red pill tags → synced
                                   to UserProfile.weakAreas via PUT /user/me);
                                   subscription card; Delete Account (GDPR — double-confirm)

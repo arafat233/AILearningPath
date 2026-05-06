@@ -66,6 +66,7 @@ import PrivacyPolicy    from "./pages/PrivacyPolicy";
 import Certificate      from "./pages/Certificate";
 import PlacementQuiz   from "./pages/PlacementQuiz";
 import SchoolGroups    from "./pages/SchoolGroups";
+import SharedPlan      from "./pages/SharedPlan";
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -134,8 +135,9 @@ export default function App() {
           <Route path="/start"                element={<PublicOnly><StartOnboarding /></PublicOnly>} />
           <Route path="/login"                element={<PublicOnly><Login /></PublicOnly>} />
           <Route path="/register"             element={<PublicOnly><Register /></PublicOnly>} />
-          <Route path="/forgot-password"      element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/forgot-password"           element={<ForgotPassword />} />
+          <Route path="/reset-password/:token"      element={<ResetPassword />} />
+          <Route path="/shared-plan/:token"         element={<SharedPlan />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
           <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />
 

@@ -341,27 +341,34 @@ export const ExamAttempt = mongoose.model("ExamAttempt", examAttemptSchema);
 
 // ==================== StudyPlan ====================
 const studyPlanSchema = new mongoose.Schema({
-  userId:   { type: String, required: true },
-  name:     { type: String, default: "" },
-  subjects: { type: [String], default: [] },
-  grade:    { type: String, default: "10" },
-  goal:     { type: String, default: "distinction" },
-  examDate: Date,
-  totalDays: Number,
+  userId:      { type: String, required: true },
+  name:        { type: String, default: "" },
+  subjects:    { type: [String], default: [] },
+  grade:       { type: String, default: "10" },
+  goal:        { type: String, default: "distinction" },
+  examDate:    Date,
+  hoursPerDay: { type: Number, default: 2 },
+  offDays:     { type: [Date],   default: [] },
+  topicFilter: { type: [String], default: [] },
+  isActive:    { type: Boolean, default: true },
+  shareToken:  { type: String, default: null },
   dailyPlan: [{
     day:            Number,
     date:           Date,
     topics:         [String],
     estimatedHours: Number,
     completed:      { type: Boolean, default: false },
+    isMockTest:     { type: Boolean, default: false },
+    phase:          { type: String, default: "foundation" },
+    note:           { type: String, default: "" },
   }],
-  priorityTopics: [{ topic: String, priority: Number, reason: String }],
+  priorityTopics:  [{ topic: String, priority: Number, isWeak: Boolean, reason: String }],
   skipSuggestions: [{ topic: String, effort: String, marksLost: Number, reason: String }],
   customTopicOrder: [String],
   createdAt: { type: Date, default: Date.now },
 });
-// One plan per user — fast lookup
 studyPlanSchema.index({ userId: 1 });
+studyPlanSchema.index({ shareToken: 1 }, { sparse: true });
 export const StudyPlan = mongoose.model("StudyPlan", studyPlanSchema);
 
 // ==================== WeeklyLeaderboard ====================

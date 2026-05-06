@@ -114,12 +114,19 @@ export const startExam      = (examId)  => api.post("/exam/start", { examId });
 export const submitExam     = (answers) => api.post("/exam/submit", { answers });
 export const getLeaderboard = (examId)  => api.get(`/exam/leaderboard/${examId}`);
 
-export const getPlan            = ()      => api.get("/planner");
-export const createStudyPlan    = (data)  => api.post("/planner", data);
-export const updatePlanSettings = (data)  => api.put("/planner/settings", data);
-export const deleteStudyPlan    = ()      => api.delete("/planner");
-export const markDayComplete    = (day)   => api.post("/planner/complete", { day });
-export const saveTopicOrder     = (order) => api.patch("/planner/reorder", { topicOrder: order });
+export const getPlan            = ()              => api.get("/planner");
+export const listStudyPlans     = ()              => api.get("/planner/all");
+export const getPlanById        = (id)            => api.get(`/planner/${id}`);
+export const createStudyPlan    = (data)          => api.post("/planner", data);
+export const activatePlan       = (id)            => api.put(`/planner/${id}/activate`);
+export const updatePlanSettings = (id, data)      => api.put(`/planner/${id}/settings`, data);
+export const deleteStudyPlan    = (id)            => api.delete(`/planner/${id}`);
+export const reschedulePlan     = ()              => api.post("/planner/reschedule");
+export const generateShareToken = ()              => api.post("/planner/share");
+export const getSharedPlan      = (token)         => api.get(`/planner/share/${token}`);
+export const markDayComplete    = (day, planId)   => api.post("/planner/complete", { day, planId });
+export const saveTopicOrder     = (order, planId) => api.patch("/planner/reorder", { topicOrder: order, planId });
+export const saveDayNote        = (day, note, planId) => api.patch("/planner/note", { day, note, planId });
 
 export const getAIAdvice         = ()                           => api.get("/ai/advice");
 export const getAIUsage          = ()                           => api.get("/ai/usage");

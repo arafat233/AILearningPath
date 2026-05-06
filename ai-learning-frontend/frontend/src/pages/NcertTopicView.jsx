@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getNcertTopicContent, evaluateExplanation, listNcertTopics, getStudiedTopics, toggleNcertStudied } from "../services/api";
+import { getNcertTopicContent, evaluateExplanation, listNcertTopics, getStudiedTopics, toggleNcertStudied,
+         getTopicMastery, getNextQuestion, startTopic, submitAnswer, recordAdaptiveAttempt } from "../services/api";
 
 const S = { mono: { fontFamily: "ui-monospace, 'SF Mono', monospace" } };
 
@@ -1217,6 +1218,146 @@ function DerivationPart({ label, val }) {
   );
 }
 
+/* ── Mastery Practice widget ─────────────────────────────────────────────── */
+function MasteryPractice({ topicId }) {
+  const [mastery,    setMastery]    = useState(null);
+  const [phase,      setPhase]      = useState("idle"); // idle | loading | question | revealed | done
+  const [question,   setQuestion]   = useState(null);
+  const [sessionId,  setSessionId]  = useState(null);
+  const [selected,   setSelected]   = useState(null);  // option index
+  const [result,     setResult]     = useState(null);   // {correct, correctOptionIndex, explanation}
+  const startRef = useRef(null);
+
+  useEffect(() => {
+    if (!topicId) return;
+    getTopicMastery(topicId)
+      .then(r => setMastery(r.data))
+      .catch(() => {});
+  }, [topicId]);
+
+  const refreshMastery = () => getTopicMastery(topicId).then(r => setMastery(r.data)).catch(() => {});
+
+  const loadQuestion = async () => {
+    setPhase("loading"); setQuestion(null); setSelected(null); setResult(null);
+    try {
+      const r = await startTopic(topicId);
+      const sess = r.data?.sessionId || r.data?.data?.sessionId;
+      const q    = r.data?.question  || r.data?.data?.question;
+      if (!q) { setPhase("idle"); return; }
+      setSessionId(sess);
+      setQuestion(q);
+      startRef.current = Date.now();
+      setPhase("question");
+    } catch { setPhase("idle"); }
+  };
+
+  const handlePick = async (idx) => {
+    if (phase !== "question" || selected !== null) return;
+    setSelected(idx);
+    const timeTaken = Math.round((Date.now() - startRef.current) / 1000);
+    try {
+      const r = await submitAnswer({ sessionId, selectedOptionIndex: idx, timeTaken });
+      const res = r.data?.data || r.data;
+      setResult(res);
+      setPhase("revealed");
+      if (question?.questionId) {
+        recordAdaptiveAttempt({
+          topicId,
+          questionId: question.questionId,
+          correct:    !!res?.correct,
+          timeSec:    timeTaken,
+          selectedOptionIndex: idx,
+        }).then(refreshMastery).catch(() => {});
+      }
+    } catch { setPhase("revealed"); }
+  };
+
+  const DIFF_COLOR = { easy:"#34C759", medium:"#FF9500", hard:"#FF3B30" };
+  const mastered = mastery?.mastery ?? { easy:false, medium:false, hard:false };
+  const cur = mastery?.currentDifficulty ?? "easy";
+  const attempts = mastery?.totalAttempts ?? 0;
+
+  return (
+    <div style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", overflow:"hidden" }}>
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg,#007AFF 0%,#5856D6 100%)", padding:"20px 24px" }}>
+        <p style={{ fontSize:"12px", fontWeight:700, letterSpacing:"1px", color:"rgba(255,255,255,0.7)", marginBottom:"6px" }}>ADAPTIVE PRACTICE</p>
+        <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
+          {["easy","medium","hard"].map(d => (
+            <div key={d} style={{ display:"flex", alignItems:"center", gap:"4px" }}>
+              <span style={{ width:"10px", height:"10px", borderRadius:"50%",
+                background: mastered[d] ? "#34C759" : d===cur ? DIFF_COLOR[d] : "rgba(255,255,255,0.25)",
+                border: !mastered[d] && d!==cur ? "1.5px solid rgba(255,255,255,0.4)" : "none",
+                flexShrink:0 }} />
+              <span style={{ fontSize:"11px", color: mastered[d]||d===cur ? "#fff" : "rgba(255,255,255,0.5)", fontWeight:600, textTransform:"capitalize" }}>{d}</span>
+            </div>
+          ))}
+          {attempts > 0 && <span style={{ marginLeft:"auto", fontSize:"11px", color:"rgba(255,255,255,0.6)" }}>{attempts} attempt{attempts!==1?"s":""}</span>}
+        </div>
+      </div>
+
+      <div style={{ padding:"20px 24px" }}>
+        {(mastered.easy && mastered.medium && mastered.hard) ? (
+          <p style={{ fontSize:"14px", fontWeight:700, color:"#34C759", textAlign:"center", margin:0 }}>
+            ✓ Topic fully mastered! All difficulties cleared.
+          </p>
+        ) : phase === "idle" ? (
+          <button onClick={loadQuestion} className="ntv-btn"
+            style={{ width:"100%", background:DIFF_COLOR[cur]||"#007AFF", color:"#fff", fontWeight:800,
+              fontSize:"14px", padding:"13px", borderRadius:"12px", border:"none", cursor:"pointer" }}>
+            Try {cur} question →
+          </button>
+        ) : phase === "loading" ? (
+          <div style={{ textAlign:"center", color:"#AEAEB2", padding:"8px 0" }}>Loading question…</div>
+        ) : question ? (
+          <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
+            <p style={{ fontSize:"14px", fontWeight:600, color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{question.questionText}</p>
+            <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
+              {(question.options||[]).map((opt, i) => {
+                const isSelected = selected === i;
+                const isCorrect  = result?.correctOptionIndex === i;
+                const isWrong    = phase==="revealed" && isSelected && !result?.correct;
+                const bg = phase==="revealed"
+                  ? isCorrect ? "#F0FFF4" : isWrong ? "#FFF5F5" : "#FAFAFA"
+                  : isSelected ? "#EEF4FF" : "#F5F5F7";
+                const border = phase==="revealed"
+                  ? isCorrect ? "#34C759" : isWrong ? "#FF3B30" : "#E5E5EA"
+                  : isSelected ? "#007AFF" : "#E5E5EA";
+                return (
+                  <button key={i} onClick={() => handlePick(i)} disabled={phase==="revealed"}
+                    className="ntv-btn"
+                    style={{ textAlign:"left", padding:"10px 14px", borderRadius:"10px", border:`1.5px solid ${border}`,
+                      background:bg, fontSize:"13px", color:"#1D1D1F", cursor: phase==="revealed"?"default":"pointer" }}>
+                    <span style={{ fontWeight:700, marginRight:"8px", color:"#AEAEB2" }}>{String.fromCharCode(65+i)}.</span>
+                    {opt.text}
+                    {phase==="revealed" && isCorrect && <span style={{ float:"right", color:"#34C759", fontWeight:700 }}>✓</span>}
+                    {phase==="revealed" && isWrong  && <span style={{ float:"right", color:"#FF3B30", fontWeight:700 }}>✗</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {phase==="revealed" && (
+              <div style={{ background: result?.correct ? "#F0FFF4":"#FFF5F5", borderRadius:"10px", padding:"10px 14px", borderLeft:`3px solid ${result?.correct?"#34C759":"#FF3B30"}` }}>
+                <p style={{ fontSize:"13px", fontWeight:700, color: result?.correct?"#34C759":"#FF3B30", margin:"0 0 4px" }}>
+                  {result?.correct ? "Correct!" : "Not quite"}
+                </p>
+                {result?.explanation && <p style={{ fontSize:"12px", color:"#3A3A3C", lineHeight:1.6, margin:0 }}>{result.explanation}</p>}
+              </div>
+            )}
+            {phase==="revealed" && (
+              <button onClick={loadQuestion} className="ntv-btn"
+                style={{ background:"#F5F5F7", color:"#1D1D1F", fontWeight:700, fontSize:"13px",
+                  padding:"10px", borderRadius:"10px", border:"none", cursor:"pointer" }}>
+                Next question →
+              </button>
+            )}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════════════════════════════════════ */
@@ -1709,18 +1850,8 @@ export default function NcertTopicView() {
           onToggle={toggleStudied} onNavigate={id => navigate(`/ncert/topics/${id}`)} />
       )}
 
-      {/* ── PRACTICE CTA ──────────────────────────────────────── */}
-      <div style={{ background:"linear-gradient(135deg,#007AFF 0%,#5856D6 100%)", borderRadius:"20px", padding:"28px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px" }}>
-        <div>
-          <p style={{ fontSize:"17px", fontWeight:800, color:"#fff", margin:"0 0 4px" }}>Ready to test yourself?</p>
-          <p style={{ fontSize:"12px", color:"rgba(255,255,255,0.7)", margin:0 }}>Apply what you just learned</p>
-        </div>
-        <button onClick={() => navigate("/practice", { state:{ topic: topic.name } })} className="ntv-btn"
-          style={{ background:"#fff", color:"#007AFF", fontWeight:800, fontSize:"14px", padding:"12px 26px",
-            borderRadius:"22px", border:"none", cursor:"pointer", flexShrink:0, boxShadow:"0 2px 12px rgba(0,0,0,0.15)" }}>
-          Practice Questions →
-        </button>
-      </div>
+      {/* ── ADAPTIVE PRACTICE ─────────────────────────────────── */}
+      {topic.topicId && <MasteryPractice topicId={topic.topicId} />}
     </div>
   );
 }

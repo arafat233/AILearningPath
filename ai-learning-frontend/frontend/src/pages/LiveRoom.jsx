@@ -2,17 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useAuthStore } from "../store/authStore";
-import axios from "axios";
+import { getRoomQuestions } from "../services/api";
 
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:5001";
 
 export default function LiveRoom() {
   const { user, token } = useAuthStore();
   const location = useLocation();
   const prefilledRoom = new URLSearchParams(location.search).get("room") || "";
-  const [phase, setPhase]         = useState("lobby");   // lobby | game | result
+  const [phase, setPhase]         = useState("lobby");   // lobby | waiting | game | result
   const [roomId, setRoomId]       = useState("");
   const [inputRoom, setInputRoom] = useState(prefilledRoom);
+  const [selectedTopic, setSelectedTopic] = useState("Mathematics");
   const [players, setPlayers]     = useState({});
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -93,15 +94,12 @@ export default function LiveRoom() {
 
   const startGame = async () => {
     setLoadingQ(true);
+    setError("");
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/competition/room-questions",
-        { count: 8 },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const { data } = await getRoomQuestions(selectedTopic, 8);
       socketRef.current.emit("start_room", { roomId, questions: data });
     } catch {
-      setError("Could not load questions. Make sure backend is running and questions are seeded.");
+      setError("Could not load questions. Make sure the backend is running and questions are seeded.");
     } finally {
       setLoadingQ(false);
     }
@@ -148,6 +146,18 @@ export default function LiveRoom() {
             <span className="text-sm text-gray-700">{p.userName}</span>
           </div>
         ))}
+      </div>
+      <div className="card p-5 mb-4">
+        <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Topic</p>
+        <select
+          className="input w-full"
+          value={selectedTopic}
+          onChange={(e) => setSelectedTopic(e.target.value)}
+        >
+          {["Mathematics","Science","English","Social Science","Hindi"].map(t => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
       </div>
       <button onClick={startGame} disabled={loadingQ || Object.keys(players).length < 1} className="btn-primary w-full">
         {loadingQ ? "Loading questions…" : "Start Game →"}

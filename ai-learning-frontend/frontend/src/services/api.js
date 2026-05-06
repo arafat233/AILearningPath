@@ -9,7 +9,7 @@ const api = axios.create({
 // Read CSRF token cookie (set by server on login/register) and send as header
 // on every state-changing request so the server can validate it in production.
 const getCsrfToken = () => {
-  const match = document.cookie.match(/(?:^|;\s*)csrf=([^;]+)/);
+  const match = document.cookie.match(/(?:^|;\s*)(?:__Host-)?csrf=([^;]+)/);
   return match ? match[1] : null;
 };
 

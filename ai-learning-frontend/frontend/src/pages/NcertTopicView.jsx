@@ -274,6 +274,25 @@ function FormulaBlanks({ formulas, state, onAnswer }) {
             </div>
           );
         })}
+
+        {allCorrect && (
+          <div className="ntv-pop" style={{ borderTop:"1px solid #F2F2F7", paddingTop:"16px", marginTop:"4px" }}>
+            <p style={{ fontSize:"11px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#5856D6", marginBottom:"12px" }}>
+              🎉 Formulas unlocked — your reference sheet
+            </p>
+            <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
+              {formulas.map((f, i) => (
+                <div key={i} style={{ background:"#F5F0FF", borderRadius:"10px", padding:"12px 16px", display:"flex", alignItems:"center", gap:"12px" }}>
+                  <span style={{ width:"22px", height:"22px", borderRadius:"50%", background:"#5856D6", color:"#fff",
+                    fontSize:"11px", fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{i+1}</span>
+                  <code style={{ fontSize:"15px", ...S.mono, color:"#1D1D1F", fontWeight:600 }}>
+                    {typeof f === "string" ? f : JSON.stringify(f)}
+                  </code>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1378,7 +1397,19 @@ export default function NcertTopicView() {
             ))}
           </div>
         )}
-        <FormulaList formulas={topic.key_formulas} />
+        {mode === "deep" && topic.key_formulas?.length > 0 ? (
+          <div style={{ marginTop:"16px", paddingTop:"16px", borderTop:"1px solid #F2F2F7", display:"flex", alignItems:"center", gap:"12px" }}>
+            <span style={{ fontSize:"20px" }}>🧩</span>
+            <div>
+              <p style={{ fontSize:"13px", fontWeight:700, color:"#5856D6", margin:"0 0 2px" }}>
+                {topic.key_formulas.length} key formula{topic.key_formulas.length > 1 ? "s" : ""} — unlock via Formula Builder below
+              </p>
+              <p style={{ fontSize:"11px", color:"#AEAEB2", margin:0 }}>Complete the interactive quiz to reveal them ↓</p>
+            </div>
+          </div>
+        ) : (
+          <FormulaList formulas={topic.key_formulas} />
+        )}
       </div>
 
       {/* ── MODE SELECTOR ─────────────────────────────────────── */}

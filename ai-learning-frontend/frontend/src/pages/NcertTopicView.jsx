@@ -1532,23 +1532,40 @@ export default function NcertTopicView() {
           {Object.keys(whenToUse).length>0 && (
             <Section title="🎯 When to Use This Method">
               <div style={{ display:"flex", flexDirection:"column", gap:"14px", marginTop:"16px" }}>
-                {whenToUse.use_euclids_algorithm_when?.length>0 && (
-                  <div>
-                    <p style={{ fontSize:"11px", fontWeight:700, color:"#34C759", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"8px" }}>Use this method when:</p>
-                    {whenToUse.use_euclids_algorithm_when.map((t,i) => (
-                      <div key={i} style={{ display:"flex", gap:"8px", marginBottom:"6px" }}>
-                        <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:"#34C759", flexShrink:0, marginTop:"7px" }} />
-                        <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{typeof t==="string"?t:t.text}</p>
+                {Object.entries(whenToUse).map(([key, val], i) => {
+                  const label   = key.replace(/_/g," ").replace(/\b\w/g, c => c.toUpperCase());
+                  const isAvoid = /instead|not_|neither|avoid/i.test(key);
+                  const isDecision = /decision|question/i.test(key);
+                  const isSpeed    = /speed|time|step|log/i.test(key);
+                  const accent  = isAvoid ? "#FF9500" : isDecision ? "#007AFF" : isSpeed ? "#AF52DE" : "#34C759";
+                  const bg      = isAvoid ? "#FFF5F0" : isDecision ? "#EEF4FF" : isSpeed ? "#F5F0FF" : "#F0FFF4";
+                  const symbol  = isAvoid ? "✗" : "✓";
+
+                  if (Array.isArray(val) && val.length > 0) return (
+                    <div key={i}>
+                      <p style={{ fontSize:"11px", fontWeight:700, color:accent, letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"8px" }}>{label}</p>
+                      <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
+                        {val.map((item, j) => (
+                          <div key={j} style={{ display:"flex", gap:"10px", background:bg, borderRadius:"8px", padding:"9px 12px" }}>
+                            <span style={{ color:accent, fontWeight:800, flexShrink:0, fontSize:"13px" }}>{symbol}</span>
+                            <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:0 }}>
+                              {typeof item === "string" ? item : item.text || JSON.stringify(item)}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-                {whenToUse.key_decision_question && (
-                  <div style={{ background:"#EEF4FF", borderRadius:"10px", padding:"12px 16px" }}>
-                    <p style={{ fontSize:"11px", fontWeight:700, color:"#007AFF", marginBottom:"4px" }}>Key Decision Question</p>
-                    <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{whenToUse.key_decision_question}</p>
-                  </div>
-                )}
+                    </div>
+                  );
+
+                  if (typeof val === "string" && val) return (
+                    <div key={i} style={{ background:bg, borderRadius:"10px", padding:"12px 16px" }}>
+                      <p style={{ fontSize:"11px", fontWeight:700, color:accent, marginBottom:"6px", letterSpacing:"1px", textTransform:"uppercase" }}>{label}</p>
+                      <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:0 }}>{val}</p>
+                    </div>
+                  );
+
+                  return null;
+                })}
               </div>
             </Section>
           )}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
-         getStudiedTopics, toggleNcertStudied,
+         getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt } from "../services/api";
 
 const S = { mono: { fontFamily: "ui-monospace, 'SF Mono', monospace" } };
@@ -1219,6 +1219,118 @@ function DerivationPart({ label, val }) {
   );
 }
 
+/* ── Topic Note + AI evaluator ──────────────────────────────────────────── */
+function TopicNote({ topicId, topicName }) {
+  const [text,      setText]      = useState("");
+  const [saving,    setSaving]    = useState(false);
+  const [saved,     setSaved]     = useState(false);
+  const [feedback,  setFeedback]  = useState(null);  // AI evaluation result
+  const [evaling,   setEvaling]   = useState(false);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (!topicId) return;
+    getNcertNote(topicId)
+      .then(r => setText(r.data?.data?.text || ""))
+      .catch(() => {});
+  }, [topicId]);
+
+  const handleChange = (e) => {
+    setText(e.target.value);
+    setSaved(false);
+    setFeedback(null);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSaving(true);
+      saveNcertNote(topicId, e.target.value)
+        .then(() => { setSaved(true); setSaving(false); })
+        .catch(() => setSaving(false));
+    }, 1500);
+  };
+
+  const handleEvaluate = async () => {
+    if (!text.trim() || evaling) return;
+    setEvaling(true); setFeedback(null);
+    try {
+      const r = await evaluateExplanation(topicName, text);
+      setFeedback(r.data?.data || r.data);
+    } catch { setFeedback({ error: true }); }
+    finally { setEvaling(false); }
+  };
+
+  const score = feedback?.score ?? null;
+  const scoreColor = score >= 80 ? "#34C759" : score >= 50 ? "#FF9500" : "#FF3B30";
+
+  return (
+    <div style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", padding:"24px 28px" }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"14px" }}>
+        <div>
+          <h2 style={{ fontSize:"16px", fontWeight:700, color:"#1D1D1F", margin:0 }}>📝 My Notes</h2>
+          <p style={{ fontSize:"12px", color:"#AEAEB2", margin:"3px 0 0" }}>
+            Write your own explanation — AI will grade it
+          </p>
+        </div>
+        <span style={{ fontSize:"11px", color: saving?"#FF9500":saved?"#34C759":"#AEAEB2", fontWeight:600 }}>
+          {saving ? "Saving…" : saved ? "Saved ✓" : ""}
+        </span>
+      </div>
+
+      <textarea
+        value={text}
+        onChange={handleChange}
+        placeholder={`Explain "${topicName}" in your own words…`}
+        style={{ width:"100%", minHeight:"120px", padding:"12px 14px", borderRadius:"12px",
+          border:"1.5px solid #E5E5EA", fontSize:"14px", lineHeight:1.6, color:"#1D1D1F",
+          background:"#FAFAFA", resize:"vertical", fontFamily:"inherit", boxSizing:"border-box",
+          outline:"none" }}
+        onFocus={e => e.target.style.borderColor = "#007AFF"}
+        onBlur={e => e.target.style.borderColor = "#E5E5EA"}
+      />
+
+      <button onClick={handleEvaluate} disabled={!text.trim() || evaling} className="ntv-btn"
+        style={{ marginTop:"10px", width:"100%", padding:"11px", borderRadius:"11px", border:"none",
+          background: text.trim() ? "#5856D6" : "#F2F2F7",
+          color: text.trim() ? "#fff" : "#AEAEB2",
+          fontWeight:700, fontSize:"13px", cursor: text.trim()?"pointer":"default" }}>
+        {evaling ? "Evaluating…" : "Evaluate with AI →"}
+      </button>
+
+      {feedback && !feedback.error && (
+        <div style={{ marginTop:"14px", background:"#F9F9FF", borderRadius:"14px", padding:"16px 18px",
+          border:`1.5px solid ${scoreColor}33` }}>
+          {score !== null && (
+            <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"10px" }}>
+              <span style={{ fontSize:"24px", fontWeight:800, color:scoreColor }}>{score}</span>
+              <span style={{ fontSize:"12px", color:"#86868B" }}>/ 100</span>
+              <div style={{ flex:1, height:"6px", background:"#E5E5EA", borderRadius:"3px", overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${score}%`, background:scoreColor, borderRadius:"3px", transition:"width 0.5s ease" }} />
+              </div>
+            </div>
+          )}
+          {feedback.feedback && (
+            <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.7, margin:0 }}>{feedback.feedback}</p>
+          )}
+          {feedback.missing?.length > 0 && (
+            <div style={{ marginTop:"10px" }}>
+              <p style={{ fontSize:"11px", fontWeight:700, color:"#FF9500", margin:"0 0 6px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Could add:</p>
+              <ul style={{ margin:0, paddingLeft:"16px" }}>
+                {feedback.missing.map((m, i) => (
+                  <li key={i} style={{ fontSize:"12px", color:"#3A3A3C", lineHeight:1.6 }}>{m}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+      {feedback?.error && (
+        <p style={{ fontSize:"12px", color:"#FF3B30", marginTop:"8px", textAlign:"center" }}>
+          Evaluation failed — try again.
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* ── Mastery Practice widget ─────────────────────────────────────────────── */
 function MasteryPractice({ topicId, topicName }) {
   const [mastery,   setMastery]   = useState(null);
@@ -1863,6 +1975,9 @@ export default function NcertTopicView() {
         <TopicNavBar prev={prevTopic} next={nextTopic} studied={studied}
           onToggle={toggleStudied} onNavigate={id => navigate(`/ncert/topics/${id}`)} />
       )}
+
+      {/* ── MY NOTES ──────────────────────────────────────────── */}
+      <TopicNote topicId={topicId} topicName={topic.name} />
 
       {/* ── ADAPTIVE PRACTICE ─────────────────────────────────── */}
       {/* practiceTopicName uses the chapter title ("Real Numbers") which matches Question.topic in the DB */}

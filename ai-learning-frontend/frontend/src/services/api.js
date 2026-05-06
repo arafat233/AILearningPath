@@ -178,6 +178,8 @@ export const listNcertTopics      = (chapterNumber)     => api.get("/v1/ncert/to
 export const getNcertTopicContent = (topicId)           => api.get(`/v1/ncert/topics/${topicId}`);
 export const getStudiedTopics     = ()                  => api.get("/v1/ncert/studied");
 export const toggleNcertStudied   = (topicId)           => api.post(`/v1/ncert/studied/${topicId}`);
+export const getNcertNote         = (topicId)           => api.get(`/v1/ncert/notes/${topicId}`);
+export const saveNcertNote        = (topicId, text)     => api.put(`/v1/ncert/notes/${topicId}`, { text });
 
 export const getPYQTopics    = (params)  => api.get("/v1/pyq/topics", { params });
 export const getPYQYears     = (params)  => api.get("/v1/pyq/years",  { params });

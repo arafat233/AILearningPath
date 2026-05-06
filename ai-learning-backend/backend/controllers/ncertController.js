@@ -1,6 +1,6 @@
 import { NcertChapter } from "../models/ncertChapterModel.js";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
-import { User } from "../models/index.js";
+import { User, NcertNote } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 // GET /api/v1/ncert/chapters
@@ -78,6 +78,32 @@ export async function toggleStudiedTopic(req, res, next) {
       await User.findByIdAndUpdate(req.user.id, { $addToSet: { studiedNcertTopics: topicId } });
     }
     res.json({ data: { studied: !already, topicId } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/v1/ncert/notes/:topicId
+export async function getNcertNote(req, res, next) {
+  try {
+    const note = await NcertNote.findOne({ userId: req.user.id, topicId: req.params.topicId }).lean();
+    res.json({ data: { text: note?.text || "" } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PUT /api/v1/ncert/notes/:topicId  — upsert
+export async function saveNcertNote(req, res, next) {
+  try {
+    const { text } = req.body;
+    if (typeof text !== "string") return next(new AppError("text must be a string", 400));
+    await NcertNote.findOneAndUpdate(
+      { userId: req.user.id, topicId: req.params.topicId },
+      { text: text.slice(0, 5000), updatedAt: new Date() },
+      { upsert: true }
+    );
+    res.json({ data: { saved: true } });
   } catch (err) {
     next(err);
   }

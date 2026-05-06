@@ -527,3 +527,13 @@ linkRequestSchema.index({ requesterId: 1, studentId: 1, status: 1 });
 // Fast lookup for student inbox
 linkRequestSchema.index({ studentId: 1, status: 1 });
 export const LinkRequest = mongoose.model("LinkRequest", linkRequestSchema);
+
+// ==================== NcertNote (per-user, per-topic free-form notes) ====================
+const ncertNoteSchema = new mongoose.Schema({
+  userId:  { type: String, required: true },
+  topicId: { type: String, required: true },
+  text:    { type: String, default: "" },
+  updatedAt: { type: Date, default: Date.now },
+});
+ncertNoteSchema.index({ userId: 1, topicId: 1 }, { unique: true });
+export const NcertNote = mongoose.model("NcertNote", ncertNoteSchema);

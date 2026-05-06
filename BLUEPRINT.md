@@ -665,6 +665,8 @@ GET    /api/v1/ncert/topics            ← topic stubs (?chapterNumber= or all)
 GET    /api/v1/ncert/topics/:id        ← single NCERT topic content (full teaching data)
 GET    /api/v1/ncert/studied           ← [auth] list topicIds the user has marked studied
 POST   /api/v1/ncert/studied/:topicId  ← [auth] toggle studied on/off for a topic
+GET    /api/v1/ncert/notes/:topicId    ← [auth] get saved note text for a topic
+PUT    /api/v1/ncert/notes/:topicId    ← [auth] upsert note text (max 5000 chars)
 
 GET    /api/v1/pyq/topics              ← distinct topics that have PYQs
 GET    /api/v1/pyq/years               ← distinct years available

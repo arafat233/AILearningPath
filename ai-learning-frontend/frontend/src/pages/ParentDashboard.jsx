@@ -415,6 +415,39 @@ function StudentView({ data }) {
       {/* subject mastery — always shown, 0% when no practice data yet */}
       <SubjectMastery subjectMastery={data.subjectMastery} />
 
+      {/* NCERT chapter progress */}
+      {data.ncertProgress?.length > 0 && (
+        <div className="card p-5">
+          <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">NCERT Chapter Progress</p>
+          <div className="space-y-3">
+            {data.ncertProgress.map((ch) => {
+              const pct = ch.total > 0 ? Math.round((ch.studied / ch.total) * 100) : 0;
+              return (
+                <div key={ch.chapterId}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[13px] text-[var(--label)] truncate flex-1 mr-2">
+                      Ch {ch.number}. {ch.title}
+                    </span>
+                    <span className="text-[12px] font-semibold shrink-0" style={{ color: pct === 100 ? "#34C759" : "#007AFF" }}>
+                      {ch.studied}/{ch.total}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${pct}%`,
+                        background: pct === 100 ? "#34C759" : pct > 0 ? "#007AFF" : "#E5E5EA",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* weak topics + mastered this week */}
       <div className="grid grid-cols-2 gap-3">
         <div className="card p-4">

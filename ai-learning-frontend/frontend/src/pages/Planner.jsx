@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPlan, markDayComplete, saveTopicOrder, markRevised } from "../services/api";
+import { getPlan, markDayComplete, saveTopicOrder, markRevised, listNcertChapters, getStudiedTopics } from "../services/api";
+import { useAuthStore } from "../store/authStore";
 
 const GOAL_LABEL = {
   pass:        "Pass the exam",
@@ -723,15 +724,67 @@ function RevisionDue({ topics, onRevised, navigate }) {
   );
 }
 
+/* ─── NCERT CHAPTER PROGRESS ─────────────────────────────── */
+function NcertProgress({ chapters, studiedSet, navigate }) {
+  if (!chapters.length) return null;
+  const totalTopics   = chapters.reduce((s, c) => s + c.total, 0);
+  const studiedTopics = chapters.reduce((s, c) => s + c.studied, 0);
+  const overallPct    = totalTopics > 0 ? Math.round((studiedTopics / totalTopics) * 100) : 0;
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-1">
+        <p className="section-label">NCERT Chapter Progress</p>
+        <span className="text-[13px] font-bold" style={{ color: overallPct === 100 ? "#34C759" : "#007AFF" }}>
+          {studiedTopics}/{totalTopics} topics · {overallPct}%
+        </span>
+      </div>
+      {/* Overall bar */}
+      <div className="h-2 bg-apple-gray5 rounded-full overflow-hidden mb-4">
+        <div className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${overallPct}%`, background: overallPct === 100 ? "#34C759" : "linear-gradient(90deg,#007AFF,#5AC8FA)" }} />
+      </div>
+      {/* Per-chapter rows */}
+      <div className="flex flex-col gap-3">
+        {chapters.map((ch) => {
+          const pct = ch.total > 0 ? Math.round((ch.studied / ch.total) * 100) : 0;
+          return (
+            <div key={ch.chapterId}>
+              <div className="flex items-center justify-between mb-1">
+                <button
+                  onClick={() => navigate(`/ncert/chapters/${ch.chapterId}`)}
+                  className="text-[13px] font-medium text-[var(--label)] truncate text-left hover:text-apple-blue transition-colors flex-1 mr-2"
+                >
+                  Ch {ch.number}. {ch.title}
+                </button>
+                <span className="text-[11px] font-semibold shrink-0" style={{ color: pct === 100 ? "#34C759" : "#86868B" }}>
+                  {ch.studied}/{ch.total}
+                </span>
+              </div>
+              <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all"
+                  style={{ width: `${pct}%`, background: pct === 100 ? "#34C759" : "#007AFF" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ─── MAIN PAGE ──────────────────────────────────────────── */
 export default function Planner() {
   const navigate = useNavigate();
-  const [plan,         setPlan]         = useState(null);
-  const [revisionDue,  setRevisionDue]  = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [completing,   setCompleting]   = useState(null);
-  const [view,         setView]         = useState("daily");   // daily | weekly | monthly
-  const [showEditor,   setShowEditor]   = useState(false);
+  const user     = useAuthStore((s) => s.user);
+  const [plan,          setPlan]          = useState(null);
+  const [revisionDue,   setRevisionDue]   = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [completing,    setCompleting]    = useState(null);
+  const [view,          setView]          = useState("daily");
+  const [showEditor,    setShowEditor]    = useState(false);
+  const [ncertChapters, setNcertChapters] = useState([]);
+  const [studiedSet,    setStudiedSet]    = useState(new Set());
 
   const loadPlan = useCallback(() => {
     setLoading(true);
@@ -742,6 +795,32 @@ export default function Planner() {
   }, []);
 
   useEffect(() => { loadPlan(); }, [loadPlan]);
+
+  // Load NCERT chapter list + studied topics in parallel
+  useEffect(() => {
+    const subject = user?.subject === "Math" ? "Mathematics" : (user?.subject || "Mathematics");
+    const grade   = user?.grade || "10";
+    Promise.all([
+      listNcertChapters(subject, grade).catch(() => ({ data: { data: [] } })),
+      getStudiedTopics().catch(() => ({ data: { data: [] } })),
+    ]).then(([chRes, stRes]) => {
+      const studied = new Set(stRes.data?.data || []);
+      setStudiedSet(studied);
+      const chapters = (chRes.data?.data || []).map((ch) => {
+        const allTopicIds = (ch.subchapters || []).flatMap((sc) =>
+          (sc.concepts || []).flatMap((c) => (c.topics || []).map((t) => t.id))
+        );
+        return {
+          chapterId: ch.chapterId,
+          number:    ch.number,
+          title:     ch.title,
+          total:     allTopicIds.length,
+          studied:   allTopicIds.filter((id) => studied.has(id)).length,
+        };
+      }).filter((ch) => ch.total > 0);
+      setNcertChapters(chapters);
+    });
+  }, [user?.subject, user?.grade]);
 
   const handleComplete = async (day) => {
     setCompleting(day);
@@ -814,6 +893,9 @@ export default function Planner() {
 
       {/* ── Summary bar ── */}
       <SummaryBar plan={plan} />
+
+      {/* ── NCERT chapter progress ── */}
+      <NcertProgress chapters={ncertChapters} studiedSet={studiedSet} navigate={navigate} />
 
       {/* ── Revision due ── */}
       {!showEditor && (

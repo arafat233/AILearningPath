@@ -1,5 +1,11 @@
 import { User, UserProfile, Streak, Badge, Attempt, Topic, ExamAttempt, DoubtThread } from "../models/index.js";
 import { LessonProgress } from "../models/lessonModel.js";
+import { NcertChapter } from "../models/ncertChapterModel.js";
+
+const NCERT_SUBJECT_MAP = {
+  Math: "Mathematics", Science: "Science", English: "English",
+  "Social Science": "Social Science", Hindi: "Hindi",
+};
 
 const gradeFromAccuracy = (acc) => {
   if (acc >= 0.91) return { grade: "A1", range: "91-100" };
@@ -31,7 +37,7 @@ export const getStudentDashboard = async (studentId) => {
 
   const [student, profile, streak, badges, recentAttempts, allFourWeekAttempts, topics, recentDoubts, recentExams, recentLessons] =
     await Promise.all([
-      User.findById(studentId).select("name email grade subject goal createdAt").lean(),
+      User.findById(studentId).select("name email grade subject goal createdAt studiedNcertTopics").lean(),
       UserProfile.findOne({ userId: studentId }).lean(),
       Streak.findOne({ userId: studentId }).lean(),
       Badge.find({ userId: studentId }).sort({ awardedAt: -1 }).limit(10).lean(),
@@ -229,6 +235,23 @@ export const getStudentDashboard = async (studentId) => {
   // ── Predicted grade ───────────────────────────────────────────────────────
   const predicted = gradeFromAccuracy(profile?.accuracy || 0);
 
+  // ── NCERT chapter progress ────────────────────────────────────────────────
+  const studiedSet     = new Set(student?.studiedNcertTopics || []);
+  const ncertSubject   = NCERT_SUBJECT_MAP[student?.subject] || "Mathematics";
+  const ncertChapters  = await NcertChapter.find({
+    grade: student?.grade || "10",
+    subject: ncertSubject,
+  }).select("chapterId number title subchapters.concepts.topics.id").lean();
+
+  const ncertProgress = ncertChapters.map((ch) => {
+    const allTopicIds = (ch.subchapters || []).flatMap((sc) =>
+      (sc.concepts || []).flatMap((c) => (c.topics || []).map((t) => t.id))
+    );
+    const total   = allTopicIds.length;
+    const studied = allTopicIds.filter((id) => studiedSet.has(id)).length;
+    return { chapterId: ch.chapterId, number: ch.number, title: ch.title, total, studied };
+  }).filter((ch) => ch.total > 0);
+
   return {
     student: {
       id:        studentId,
@@ -251,5 +274,6 @@ export const getStudentDashboard = async (studentId) => {
     isLearningNow,
     badges,
     weeklyTrend,
+    ncertProgress,
   };
 };

@@ -227,6 +227,7 @@ export default function Practice() {
     try {
       const { data } = await toggleBookmark(question._id);
       setBookmarked(data.bookmarked);
+      setBookmarkCount((c) => data.bookmarked ? c + 1 : Math.max(0, c - 1));
     } catch {}
   };
 

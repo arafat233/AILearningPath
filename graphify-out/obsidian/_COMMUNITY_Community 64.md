@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[VoiceTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
-- [[VoiceTutor.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
-- [[Waveform()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
+- [[Section()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
+- [[TermsOfService()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
+- [[TermsOfService.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
 
 ## Live Query (requires Dataview plugin)
 

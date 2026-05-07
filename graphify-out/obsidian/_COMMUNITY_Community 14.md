@@ -1,30 +1,28 @@
 ---
 type: community
-members: 17
+members: 15
 ---
 
 # Community 14
 
-**Members:** 17 nodes
+**Members:** 15 nodes
 
 ## Members
-- [[buildEmailHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[buildStudentSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[escHtml()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[escHtml()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[frontendUrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[frontendUrl()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[onboardingEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[pct()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[runOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[runWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[sendDay2Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[sendDay7Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[sendReceiptEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[trendArrow()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[weeklyParentEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
+- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -34,9 +32,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 7]]
-- 1 edge to [[_COMMUNITY_Community 13]]
+- 5 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 3]]
 
 ## Top bridge nodes
-- [[sendEmail()]] - degree 7, connects to 1 community
-- [[sendReceiptEmail()]] - degree 3, connects to 1 community
+- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
+- [[serveAtDifficulty()]] - degree 6, connects to 1 community
+- [[recordAttempt()]] - degree 6, connects to 1 community
+- [[getNextTopic()]] - degree 3, connects to 1 community
+- [[getNextQuestion()]] - degree 3, connects to 1 community

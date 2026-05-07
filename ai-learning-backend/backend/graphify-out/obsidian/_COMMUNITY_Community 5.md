@@ -1,37 +1,40 @@
 ---
 type: community
-members: 24
+members: 27
 ---
 
 # Community 5
 
-**Members:** 24 nodes
+**Members:** 27 nodes
 
 ## Members
-- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminUserController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[listUsers()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -41,15 +44,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 6]]
-- 4 edges to [[_COMMUNITY_Community 2]]
-- 4 edges to [[_COMMUNITY_Community 0]]
-- 2 edges to [[_COMMUNITY_Community 9]]
+- 6 edges to [[_COMMUNITY_Community 0]]
+- 4 edges to [[_COMMUNITY_Community 3]]
 - 2 edges to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
-- [[sessionGet()]] - degree 9, connects to 4 communities
-- [[sessionDel()]] - degree 7, connects to 3 communities
-- [[adminAuth()]] - degree 4, connects to 2 communities
-- [[redisClient.js]] - degree 8, connects to 1 community
-- [[updateUserRole()]] - degree 3, connects to 1 community
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[tutorChat()]] - degree 5, connects to 1 community
+- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community

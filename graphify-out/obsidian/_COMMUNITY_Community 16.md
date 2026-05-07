@@ -1,27 +1,22 @@
 ---
 type: community
-members: 14
+members: 9
 ---
 
 # Community 16
 
-**Members:** 14 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[ActivityIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AddChildPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AttemptsPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[MultiChildOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudentView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudyReminderCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[SubjectMastery()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[TeacherClassView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyTrendChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[daysSince()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[hoursMinutes()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[CouponInput()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Field()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[NotificationsCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[ReferralCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[Settings.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx
+- [[urlBase64ToUint8Array()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
+- [[usePushNotifications.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js
 
 ## Live Query (requires Dataview plugin)
 

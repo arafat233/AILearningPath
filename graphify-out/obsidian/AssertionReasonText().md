@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx"
 type: "code"
-community: "Community 39"
-location: "L860"
+community: "Community 26"
+location: "L895"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_39
+  - community/Community_26
 ---
 
 # AssertionReasonText()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Practice.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_39
+#graphify/code #graphify/EXTRACTED #community/Community_26

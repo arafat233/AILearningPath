@@ -1,20 +1,17 @@
 ---
 type: community
-members: 7
+members: 4
 ---
 
 # Community 18
 
-**Members:** 7 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[analysisController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildAccuracyHistory()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[buildWeaknessMap()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getReport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\analysisController.js
-- [[getStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[streakService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
-- [[updateStreak()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\streakService.js
+- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,11 +21,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 4]]
 - 1 edge to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
-- [[getReport()]] - degree 6, connects to 2 communities
-- [[updateStreak()]] - degree 3, connects to 2 communities
+- [[getStudentDashboard()]] - degree 3, connects to 1 community

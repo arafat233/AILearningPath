@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\store\companyStore.js"
 type: "code"
-community: "Community 160"
+community: "Community 163"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_160
+  - community/Community_163
 ---
 
 # companyStore.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_160
+#graphify/code #graphify/EXTRACTED #community/Community_163

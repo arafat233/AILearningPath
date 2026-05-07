@@ -14,6 +14,7 @@ tags:
 ## Connections
 - [[App()]] - `contains` [EXTRACTED]
 - [[ErrorBoundary]] - `contains` [EXTRACTED]
+- [[PageSpinner()]] - `contains` [EXTRACTED]
 - [[Protected()]] - `contains` [EXTRACTED]
 - [[PublicOnly()]] - `contains` [EXTRACTED]
 - [[RootElement()]] - `contains` [EXTRACTED]

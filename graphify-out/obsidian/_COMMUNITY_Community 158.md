@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[main.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\main.jsx
+- [[vite.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\vite.config.js
 
 ## Live Query (requires Dataview plugin)
 

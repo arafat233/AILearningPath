@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\couponService.js"
 type: "code"
-community: "Community 11"
+community: "Community 10"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_10
 ---
 
 # couponService.js
@@ -16,4 +16,4 @@ tags:
 - [[redeemCoupon()]] - `contains` [EXTRACTED]
 - [[validateCoupon()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_10

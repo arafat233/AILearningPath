@@ -3,7 +3,8 @@ import Joi from "joi";
 import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
 
-import { listUsers, updateUserRole, updateUserPlan }                       from "../controllers/admin/adminUserController.js";
+import { listUsers, updateUserRole, updateUserPlan,
+         deleteUser, getUserDetail }                                        from "../controllers/admin/adminUserController.js";
 import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
@@ -77,19 +78,28 @@ const userPlanSchema = Joi.object({
   daysToAdd: Joi.number().integer().min(0).max(3650).optional(),
 });
 r.put("/users/:id/plan",             validate(userPlanSchema), updateUserPlan);
+r.delete("/users/:id",               deleteUser);
+r.get("/users/:id/detail",           getUserDetail);
 
-// Payments (read-only audit log)
+// Payments (read-only audit log with optional plan/date filters)
 r.get("/payments", async (req, res, next) => {
   try {
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 20, plan, from, to } = req.query;
+    const filter = {};
+    if (plan) filter.planKey = plan;
+    if (from || to) {
+      filter.createdAt = {};
+      if (from) filter.createdAt.$gte = new Date(from);
+      if (to)   filter.createdAt.$lte = new Date(to + "T23:59:59.999Z");
+    }
     const [records, total] = await Promise.all([
-      PaymentRecord.find()
+      PaymentRecord.find(filter)
         .sort({ createdAt: -1 })
         .skip((Number(page) - 1) * Number(limit))
         .limit(Number(limit))
         .populate("userId", "name email")
         .lean(),
-      PaymentRecord.countDocuments(),
+      PaymentRecord.countDocuments(filter),
     ]);
     res.json({ data: { records, total, page: Number(page) } });
   } catch (err) { next(err); }
@@ -146,6 +156,18 @@ r.delete("/coupons/:id", async (req, res, next) => {
   try {
     await Coupon.findByIdAndDelete(req.params.id);
     res.json({ data: { message: "Coupon deleted" } });
+  } catch (err) { next(err); }
+});
+
+r.get("/coupons/:id/redemptions", async (req, res, next) => {
+  try {
+    const coupon = await Coupon.findById(req.params.id).lean();
+    if (!coupon) return res.status(404).json({ error: "Coupon not found" });
+    const records = await PaymentRecord.find({ couponCode: coupon.code })
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email")
+      .lean();
+    res.json({ data: records });
   } catch (err) { next(err); }
 });
 

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\global-setup.js"
 type: "code"
-community: "Community 3"
+community: "Community 4"
 location: "L16"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_4
 ---
 
 # globalSetup()
@@ -15,4 +15,4 @@ tags:
 - [[global-setup.js]] - `contains` [EXTRACTED]
 - [[log()_1]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_3
+#graphify/code #graphify/INFERRED #community/Community_4

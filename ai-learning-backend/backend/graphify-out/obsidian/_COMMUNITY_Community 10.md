@@ -1,28 +1,25 @@
 ---
 type: community
-members: 15
+members: 12
 ---
 
 # Community 10
 
-**Members:** 15 nodes
+**Members:** 12 nodes
 
 ## Members
-- [[adaptiveRecommenderService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[checkMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[detectFluke()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[getNextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[getNextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[getOrCreateMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[getTopicMastery()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[nextQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[nextTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[postRecordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[recommenderController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js
-- [[recordAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[resolveRouting()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[serveAtDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
-- [[stripQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js
+- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
+- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -32,13 +29,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 5 edges to [[_COMMUNITY_Community 0]]
-- 2 edges to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 2 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
-- [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community
-- [[serveAtDifficulty()]] - degree 6, connects to 1 community
-- [[recordAttempt()]] - degree 6, connects to 1 community
-- [[getNextTopic()]] - degree 3, connects to 1 community
-- [[getNextQuestion()]] - degree 3, connects to 1 community
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
+- [[createOrder()_1]] - degree 7, connects to 1 community

@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\models\index.js"
 type: "code"
-community: "Community 57"
+community: "Community 60"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_57
+  - community/Community_60
 ---
 
 # index.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_57
+#graphify/code #graphify/EXTRACTED #community/Community_60

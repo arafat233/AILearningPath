@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\hooks\usePushNotifications.js"
 type: "code"
-community: "Community 17"
+community: "Community 16"
 location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_17
+  - community/Community_16
 ---
 
 # usePushNotifications()
@@ -15,4 +15,4 @@ tags:
 - [[NotificationsCard()]] - `calls` [INFERRED]
 - [[usePushNotifications.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_17
+#graphify/code #graphify/EXTRACTED #community/Community_16

@@ -9,7 +9,9 @@ const costUSD = (tokens) => parseFloat(((tokens / 1_000_000) * HAIKU_OUTPUT_PER_
 
 export const getAdminStats = async (req, res, next) => {
   try {
-    const today = new Date().toISOString().split("T")[0];
+    const now   = new Date();
+    const today = now.toISOString().split("T")[0];
+    const d7    = new Date(now - 7 * 86400_000);
 
     const [
       totalUsers,
@@ -20,6 +22,7 @@ export const getAdminStats = async (req, res, next) => {
       planBreakdown,
       revenueAgg,
       claudeAgg,
+      revTrend7,
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ isPaid: true }),
@@ -36,9 +39,22 @@ export const getAdminStats = async (req, res, next) => {
       AIUsageStats.aggregate([
         { $group: { _id: null, calls: { $sum: "$callsMade" }, tokens: { $sum: "$tokensUsed" } } },
       ]),
+      // Revenue per day for last 7 days (sparkline)
+      PaymentRecord.aggregate([
+        { $match: { createdAt: { $gte: d7 }, status: "captured" } },
+        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, rev: { $sum: "$amount" } } },
+      ]),
     ]);
 
     const activeToday = await User.countDocuments({ lastActiveDate: today });
+
+    // Build 7-day sparkline slots
+    const revMap = Object.fromEntries(revTrend7.map((r) => [r._id, r.rev]));
+    const revenueSparkline = Array.from({ length: 7 }, (_, i) => {
+      const d    = new Date(now - (6 - i) * 86400_000);
+      const date = d.toISOString().split("T")[0];
+      return { date, value: Math.round((revMap[date] || 0) / 100) };
+    });
 
     const totalRevenuePaise = revenueAgg[0]?.total  || 0;
     const totalPayments     = revenueAgg[0]?.count  || 0;
@@ -66,6 +82,7 @@ export const getAdminStats = async (req, res, next) => {
         estimatedSavedUSD:  parseFloat(((aiStats.totalClaudeCallsSaved / 1_000_000) * HAIKU_OUTPUT_PER_M * 300).toFixed(4)),
       },
       aiCache: aiStats,
+      revenueSparkline,
     });
   } catch (err) { next(err); }
 };

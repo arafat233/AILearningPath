@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\email.js"
 type: "code"
-community: "Community 14"
+community: "Community 12"
 location: "L8"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_14
+  - community/Community_12
 ---
 
 # sendEmail()
@@ -20,4 +20,4 @@ tags:
 - [[sendDay7Emails()]] - `calls` [INFERRED]
 - [[sendReceiptEmail()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_14
+#graphify/code #graphify/INFERRED #community/Community_12

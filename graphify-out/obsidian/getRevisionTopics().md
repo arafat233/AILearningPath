@@ -13,6 +13,7 @@ tags:
 
 ## Connections
 - [[buildPlanResponse()]] - `calls` [INFERRED]
+- [[getDailyBrief()]] - `calls` [INFERRED]
 - [[getPlan()]] - `calls` [INFERRED]
 - [[revisionService.js]] - `contains` [EXTRACTED]
 - [[sendRevisionReminders()]] - `calls` [INFERRED]

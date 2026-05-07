@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js"
 type: "code"
-community: "Community 0"
+community: "Community 6"
 location: "L48"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_0
+  - community/Community_6
 ---
 
 # scorePlacementQuiz()
@@ -16,4 +16,4 @@ tags:
 - [[applyPlacementResults()]] - `calls` [INFERRED]
 - [[placementController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_0
+#graphify/code #graphify/INFERRED #community/Community_6

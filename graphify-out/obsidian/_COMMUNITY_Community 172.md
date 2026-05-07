@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[06_planner.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\06_planner.spec.js
+- [[03_lessons.spec.js]] - code - E:\AILearningPath\e2e-bot\tests\03_lessons.spec.js
 
 ## Live Query (requires Dataview plugin)
 

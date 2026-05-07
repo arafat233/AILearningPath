@@ -1,32 +1,31 @@
 ---
 type: community
-members: 19
+members: 18
 ---
 
 # Community 11
 
-**Members:** 19 nodes
+**Members:** 18 nodes
 
 ## Members
-- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[CopyButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[QuestionCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolGroups()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolGroups.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[UniqueBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[buildOptions()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterFromTopicId()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[cleanFormula()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestion()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestionType()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedMockPapers()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -36,7 +35,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 7]]
+- 3 edges to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[questionGenerator.js]] - degree 19, connects to 1 community
+- [[seedQuestions()]] - degree 4, connects to 1 community
+- [[seedMockPapers()_1]] - degree 4, connects to 1 community
+- [[main()_5]] - degree 4, connects to 1 community

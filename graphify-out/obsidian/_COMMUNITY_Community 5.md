@@ -1,11 +1,11 @@
 ---
 type: community
-members: 49
+members: 50
 ---
 
 # Community 5
 
-**Members:** 49 nodes
+**Members:** 50 nodes
 
 ## Members
 - [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
@@ -17,6 +17,7 @@ members: 49
 - [[DoubtChat.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\DoubtChat.test.jsx
 - [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
 - [[Layout.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[PageSpinner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
 - [[Pricing.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Pricing.test.jsx
 - [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
 - [[Protected()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
@@ -67,9 +68,9 @@ SORT file.name ASC
 
 ## Connections to other communities
 - 9 edges to [[_COMMUNITY_Community 1]]
-- 2 edges to [[_COMMUNITY_Community 15]]
+- 2 edges to [[_COMMUNITY_Community 14]]
 - 1 edge to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 7]]
+- 1 edge to [[_COMMUNITY_Community 3]]
 - 1 edge to [[_COMMUNITY_Community 13]]
 
 ## Top bridge nodes

@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 42
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[20260503000000-add-indexes-and-soft-delete.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
-- [[down()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
-- [[up()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[AdminOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[AdminOverview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[StatCard()_5]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[UserSplitBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
 
 ## Live Query (requires Dataview plugin)
 

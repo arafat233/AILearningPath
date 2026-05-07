@@ -1,40 +1,47 @@
 ---
 type: community
-members: 27
+members: 34
 ---
 
 # Community 4
 
-**Members:** 27 nodes
+**Members:** 34 nodes
 
 ## Members
-- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
-- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[_randomCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[buildResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[createSchool()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[createSchoolGroup()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollByCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollStudentById()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestionForSchoolVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getHomeworkQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getHomeworkSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getHomeworkSetForStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getHomeworkVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getSchool()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getSchoolGroup()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getSchoolSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getVariantIndex()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[hasDynamicTemplate()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[joinByCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[lcm()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[listDynamicTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[listMySchoolGroups()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[listSchools()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[myEnrollment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[questionTemplateService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
+- [[schoolController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[schoolVariantService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[seedFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -44,14 +51,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 6 edges to [[_COMMUNITY_Community 0]]
-- 4 edges to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 18]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 10 edges to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
-- [[smartAIExplanation()]] - degree 11, connects to 1 community
-- [[smartStudyAdvice()]] - degree 8, connects to 1 community
-- [[tutorChat()]] - degree 5, connects to 1 community
-- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
-- [[getUsageCount()]] - degree 5, connects to 1 community
+- [[questionTemplateService.js]] - degree 9, connects to 1 community
+- [[getHomeworkSetForStudent()]] - degree 4, connects to 1 community
+- [[getDynamicQuestion()]] - degree 4, connects to 1 community
+- [[enrollStudent()]] - degree 4, connects to 1 community
+- [[createSchool()]] - degree 3, connects to 1 community

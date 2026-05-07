@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { adminGetFeedback } from "../../services/api";
+import { exportCsv } from "../../utils/exportCsv";
 
 function ScoreBadge({ score }) {
   const color =
@@ -69,9 +70,21 @@ export default function AdminNPS() {
                    filter === "detractors" ? items.filter((i) => i.score <= 6) :
                    items;
 
+  const doExport = () => {
+    exportCsv(`nps_${Date.now()}.csv`, filtered, [
+      { label: "Date",    value: (i) => new Date(i.createdAt).toLocaleDateString("en-IN") },
+      { label: "Score",   value: (i) => i.score },
+      { label: "Segment", value: (i) => i.score >= 9 ? "Promoter" : i.score >= 7 ? "Passive" : "Detractor" },
+      { label: "Comment", value: (i) => i.comment || "" },
+    ]);
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-[24px] font-bold text-[var(--label)]">NPS Feedback</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-[24px] font-bold text-[var(--label)]">NPS Feedback</h1>
+        <button onClick={doExport} className="btn-ghost text-[13px] border border-apple-gray4">Export CSV</button>
+      </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

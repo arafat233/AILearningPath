@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { adminGetStats, adminRunOnboardingEmails, adminRunWeeklyParentEmails } from "../../services/api";
+
+const REFRESH_INTERVAL = 60_000;
 
 function StatCard({ label, value, sub, color = "text-[var(--label)]" }) {
   return (
@@ -33,17 +35,48 @@ function UserSplitBar({ paid, free, total }) {
   );
 }
 
+function Sparkline7Day({ data }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  return (
+    <div className="flex items-end gap-1" style={{ height: 52 }}>
+      {data.map((d, i) => {
+        const h   = d.value > 0 ? Math.max(Math.round((d.value / max) * 44), 4) : 2;
+        const day = new Date(d.date).toLocaleDateString("en-IN", { weekday: "short" });
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+            <div
+              title={`${day}: ₹${d.value.toLocaleString("en-IN")}`}
+              className="w-full rounded-sm bg-apple-green/70 group-hover:bg-apple-green transition-colors cursor-default"
+              style={{ height: h }}
+            />
+            <p className="text-[8px] text-apple-gray leading-none">{day}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AdminOverview() {
   const [stats,        setStats]        = useState(null);
   const [loading,      setLoading]      = useState(true);
+  const [lastUpdated,  setLastUpdated]  = useState(null);
   const [emailMsg,     setEmailMsg]     = useState("");
   const [emailRunning, setEmailRunning] = useState("");
+  const intervalRef = useRef(null);
+
+  const loadStats = (showSpinner = false) => {
+    if (showSpinner) setLoading(true);
+    adminGetStats()
+      .then((r) => { setStats(r.data); setLastUpdated(new Date()); })
+      .catch(() => {})
+      .finally(() => { if (showSpinner) setLoading(false); });
+  };
 
   useEffect(() => {
-    adminGetStats()
-      .then((r) => setStats(r.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    loadStats(true);
+    intervalRef.current = setInterval(() => loadStats(false), REFRESH_INTERVAL);
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   const runEmails = async (type) => {
@@ -68,23 +101,35 @@ export default function AdminOverview() {
   if (loading) return <p className="text-apple-gray text-[14px]">Loading…</p>;
   if (!stats)  return <p className="text-apple-red text-[14px]">Failed to load stats.</p>;
 
-  const { revenue, claude, planBreakdown } = stats;
+  const { revenue, claude, planBreakdown, revenueSparkline } = stats;
 
-  // Net margin estimate (revenue minus Claude cost, converted to same currency)
-  const revenueUSD   = (revenue?.totalRupees || 0) / 84;  // rough INR→USD
+  const revenueUSD   = (revenue?.totalRupees || 0) / 84;
   const claudeCost   = claude?.estimatedCostUSD || 0;
   const netMarginUSD = revenueUSD - claudeCost;
 
   return (
     <div className="space-y-7">
-      <h1 className="text-[24px] font-bold text-[var(--label)]">Admin Overview</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-[24px] font-bold text-[var(--label)]">Admin Overview</h1>
+        <div className="flex items-center gap-3">
+          {lastUpdated && (
+            <p className="text-[11px] text-apple-gray">
+              Updated {lastUpdated.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+          <button onClick={() => loadStats(false)}
+            className="btn-ghost text-[12px] border border-apple-gray4 px-3 py-1.5">
+            Refresh
+          </button>
+        </div>
+      </div>
 
       {/* ── Student breakdown ─────────────────────────────────── */}
       <section className="space-y-3">
         <h2 className="text-[13px] font-semibold text-apple-gray uppercase tracking-wider">Students</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Total Students"   value={stats.totalUsers.toLocaleString()}  sub={`${stats.activeToday} active today`} />
-          <StatCard label="Free Users"       value={(stats.freeUsers ?? 0).toLocaleString()} sub="no active paid plan" color="text-[var(--label)]" />
+          <StatCard label="Free Users"       value={(stats.freeUsers ?? 0).toLocaleString()} sub="no active paid plan" />
           <StatCard label="Paid Users"       value={(stats.paidUsers ?? 0).toLocaleString()} sub="active subscription" color="text-apple-green" />
           <StatCard label="Conversion Rate"  value={stats.totalUsers > 0 ? `${Math.round(((stats.paidUsers ?? 0) / stats.totalUsers) * 100)}%` : "—"} sub="free → paid" color="text-apple-blue" />
         </div>
@@ -132,6 +177,19 @@ export default function AdminOverview() {
             sub="lifetime value per paid user"
           />
         </div>
+
+        {/* 7-day revenue sparkline */}
+        {revenueSparkline?.length > 0 && (
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[13px] font-semibold text-[var(--label)]">Revenue — Last 7 Days</p>
+              <p className="text-[12px] text-apple-green font-semibold">
+                ₹{revenueSparkline.reduce((s, d) => s + d.value, 0).toLocaleString("en-IN")} total
+              </p>
+            </div>
+            <Sparkline7Day data={revenueSparkline} />
+          </div>
+        )}
       </section>
 
       {/* ── Claude API Cost ───────────────────────────────────── */}
@@ -184,9 +242,9 @@ export default function AdminOverview() {
 
         <div className="card p-4 bg-apple-blue/4 border border-apple-blue/20">
           <p className="text-[12px] text-apple-gray leading-relaxed">
-            <span className="font-semibold text-[var(--label)]">Cost note:</span> Tokens tracked are output tokens only (Claude's responses).
+            <span className="font-semibold text-[var(--label)]">Cost note:</span> Tokens tracked are output tokens only.
             Actual cost includes input tokens too — real cost is ~20–30% higher. Model: claude-haiku-4-5 at $4.00/M output tokens.
-            INR→USD conversion uses ₹84 = $1 (update as needed).
+            INR→USD uses ₹84 = $1. Auto-refreshes every 60 seconds.
           </p>
         </div>
       </section>
@@ -195,10 +253,10 @@ export default function AdminOverview() {
       <section className="space-y-3">
         <h2 className="text-[13px] font-semibold text-apple-gray uppercase tracking-wider">Platform</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Total Questions"    value={stats.totalQuestions.toLocaleString()} sub="in question bank" />
-          <StatCard label="Total Attempts"     value={stats.totalAttempts.toLocaleString()}  sub="across all students" />
-          <StatCard label="Cached Responses"   value={(stats.aiCache?.totalCachedResponses || 0).toLocaleString()} sub="unique AI explanations stored" />
-          <StatCard label="Cache Hits"         value={(stats.aiCache?.totalCacheHits || 0).toLocaleString()} sub="served from cache, $0 cost" color="text-apple-blue" />
+          <StatCard label="Total Questions"  value={stats.totalQuestions.toLocaleString()} sub="in question bank" />
+          <StatCard label="Total Attempts"   value={stats.totalAttempts.toLocaleString()}  sub="across all students" />
+          <StatCard label="Cached Responses" value={(stats.aiCache?.totalCachedResponses || 0).toLocaleString()} sub="unique AI explanations stored" />
+          <StatCard label="Cache Hits"       value={(stats.aiCache?.totalCacheHits || 0).toLocaleString()} sub="served from cache, $0 cost" color="text-apple-blue" />
         </div>
       </section>
 

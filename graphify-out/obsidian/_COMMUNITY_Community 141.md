@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[ai.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\ai.service.test.js
+- [[questionBreakdown.mjs]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\questionBreakdown.mjs
 
 ## Live Query (requires Dataview plugin)
 

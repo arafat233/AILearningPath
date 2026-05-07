@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[VoiceTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
+- [[VoiceTutor.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
+- [[Waveform()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\VoiceTutor.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,11 +1,11 @@
 ---
 type: community
-members: 145
+members: 151
 ---
 
 # Community 0
 
-**Members:** 145 nodes
+**Members:** 151 nodes
 
 ## Members
 - [[activatePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -17,16 +17,21 @@ members: 145
 - [[adminDeleteTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetCoupons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetFeedback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetFlagged()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetPayments()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminRunOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminRunWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUnflagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateCoupon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateRole()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminUpdateUserPlan()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[api.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[askTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[clearDoubtThread()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -52,6 +57,7 @@ members: 145
 - [[getCsrfToken()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getCurriculumChapter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getCurriculumSubjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getDailyBrief()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getDoubtThread()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getDynamicTopics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getErrorMemory()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -165,11 +171,11 @@ SORT file.name ASC
 - 6 edges to [[_COMMUNITY_Community 1]]
 - 2 edges to [[_COMMUNITY_Community 13]]
 - 1 edge to [[_COMMUNITY_Community 5]]
-- 1 edge to [[_COMMUNITY_Community 4]]
+- 1 edge to [[_COMMUNITY_Community 3]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 135, connects to 3 communities
+- [[api.js]] - degree 141, connects to 3 communities
 - [[getHomeworkSetForStudent()]] - degree 4, connects to 2 communities
-- [[post()]] - degree 43, connects to 1 community
+- [[post()]] - degree 45, connects to 1 community
 - [[listTopics()]] - degree 3, connects to 1 community
 - [[listYears()]] - degree 3, connects to 1 community

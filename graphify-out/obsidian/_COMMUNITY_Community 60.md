@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[Pricing()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
-- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
-- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[CopyRoomLink()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
 
 ## Live Query (requires Dataview plugin)
 

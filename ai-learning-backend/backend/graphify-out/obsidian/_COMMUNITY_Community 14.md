@@ -1,22 +1,21 @@
 ---
 type: community
-members: 9
+members: 8
 ---
 
 # Community 14
 
-**Members:** 9 nodes
+**Members:** 8 nodes
 
 ## Members
-- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
-- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
+- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -26,7 +25,8 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 2 edges to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[getRevisionTopics()]] - degree 3, connects to 1 community
+- [[companyLogin()]] - degree 3, connects to 1 community
+- [[getStats()]] - degree 3, connects to 1 community

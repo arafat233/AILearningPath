@@ -143,7 +143,7 @@ export async function createOrder(userId, planKey, couponCode = null) {
   // Store planKey + coupon info in Redis — verifyPayment reads from here, ignoring client input
   await sessionSet(orderPlanKey(order.id), planKey, ORDER_TTL);
   if (couponId) {
-    await sessionSet(orderCouponKey(order.id), JSON.stringify({ couponId, discountAmount }), ORDER_TTL);
+    await sessionSet(orderCouponKey(order.id), JSON.stringify({ couponId, couponCode, discountAmount }), ORDER_TTL);
   }
 
   logger.info("Razorpay order created", { orderId: order.id, userId, planKey, finalPrice, couponCode: couponCode || null });
@@ -223,7 +223,8 @@ export async function verifyPayment(userId, { razorpayOrderId, razorpayPaymentId
     const opts = session ? { session } : {};
     await PaymentRecord.findOneAndUpdate(
       { razorpayOrderId },
-      { userId, razorpayOrderId, razorpayPaymentId, planKey, amount: paymentAmount, status: "captured" },
+      { userId, razorpayOrderId, razorpayPaymentId, planKey, amount: paymentAmount, status: "captured",
+        couponCode: couponData?.couponCode || null },
       { upsert: true, new: true, ...opts }
     );
     await User.findByIdAndUpdate(userId, {

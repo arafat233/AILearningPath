@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[SearchOverlay()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
-- [[SearchOverlay.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
+- [[OfflineBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
+- [[OfflineBanner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
 
 ## Live Query (requires Dataview plugin)
 

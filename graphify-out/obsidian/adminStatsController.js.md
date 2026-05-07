@@ -12,6 +12,7 @@ tags:
 # adminStatsController.js
 
 ## Connections
+- [[costUSD()]] - `contains` [EXTRACTED]
 - [[getAdminStats()]] - `contains` [EXTRACTED]
 - [[getAnalytics()]] - `contains` [EXTRACTED]
 

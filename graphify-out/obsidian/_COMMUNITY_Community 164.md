@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
+- [[authStore.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\authStore.test.js
 
 ## Live Query (requires Dataview plugin)
 

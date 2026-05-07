@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js"
 type: "code"
-community: "Community 15"
+community: "Community 14"
 location: "L173"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_15
+  - community/Community_14
 ---
 
 # recordAttempt()
@@ -19,4 +19,4 @@ tags:
 - [[postRecordAttempt()]] - `calls` [INFERRED]
 - [[save()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_15
+#graphify/code #graphify/EXTRACTED #community/Community_14

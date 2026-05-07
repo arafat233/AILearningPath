@@ -1,31 +1,30 @@
 ---
 type: community
-members: 18
+members: 17
 ---
 
 # Community 12
 
-**Members:** 18 nodes
+**Members:** 17 nodes
 
 ## Members
-- [[CopyButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[QuestionCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolGroups()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolGroups.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[UniqueBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[buildOptions()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterFromTopicId()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[cleanFormula()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestion()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestionType()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedMockPapers()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[buildEmailHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[buildStudentSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[escHtml()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[escHtml()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[frontendUrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[frontendUrl()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[onboardingEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[pct()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[runOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[runWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[sendDay2Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendDay7Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[sendReceiptEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[trendArrow()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[weeklyParentEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -35,9 +34,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 3]]
+- 2 edges to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 13]]
 
 ## Top bridge nodes
-- [[seedQuestions()]] - degree 4, connects to 1 community
-- [[seedMockPapers()_1]] - degree 4, connects to 1 community
-- [[main()_5]] - degree 4, connects to 1 community
+- [[sendEmail()]] - degree 7, connects to 1 community
+- [[sendReceiptEmail()]] - degree 3, connects to 1 community

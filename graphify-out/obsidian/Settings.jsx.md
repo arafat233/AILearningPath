@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
-community: "Community 17"
+community: "Community 16"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_17
+  - community/Community_16
 ---
 
 # Settings.jsx
@@ -18,4 +18,4 @@ tags:
 - [[ReferralCard()]] - `contains` [EXTRACTED]
 - [[Settings()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_17
+#graphify/code #graphify/EXTRACTED #community/Community_16

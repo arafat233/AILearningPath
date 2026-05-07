@@ -1,17 +1,19 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx"
 type: "code"
-community: "Community 99"
+community: "Community 42"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_99
+  - community/Community_42
 ---
 
 # AdminOverview.jsx
 
 ## Connections
 - [[AdminOverview()]] - `contains` [EXTRACTED]
+- [[StatCard()_5]] - `contains` [EXTRACTED]
+- [[UserSplitBar()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_99
+#graphify/code #graphify/EXTRACTED #community/Community_42

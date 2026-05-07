@@ -1,20 +1,19 @@
 ---
 type: community
-members: 7
+members: 6
 ---
 
 # Community 17
 
-**Members:** 7 nodes
+**Members:** 6 nodes
 
 ## Members
-- [[buildOptions()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[main()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[mapQuestion()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[shuffle()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -24,7 +23,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[main()_4]] - degree 2, connects to 1 community
+- [[sendRevisionReminders()]] - degree 4, connects to 1 community

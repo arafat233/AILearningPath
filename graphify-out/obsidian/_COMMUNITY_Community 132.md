@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[pyqRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\pyqRoutes.js
+- [[practiceRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\practiceRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

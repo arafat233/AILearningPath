@@ -34,14 +34,13 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 4]]
+- 3 edges to [[_COMMUNITY_Community 3]]
 - 2 edges to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 7]]
-- 1 edge to [[_COMMUNITY_Community 14]]
+- 1 edge to [[_COMMUNITY_Community 12]]
 - 1 edge to [[_COMMUNITY_Community 5]]
 
 ## Top bridge nodes
-- [[verifyPayment()_1]] - degree 9, connects to 3 communities
+- [[verifyPayment()_1]] - degree 9, connects to 2 communities
 - [[createOrder()_1]] - degree 7, connects to 1 community
 - [[validateCoupon()_1]] - degree 3, connects to 1 community
 - [[renderPractice()]] - degree 3, connects to 1 community

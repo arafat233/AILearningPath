@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[adminStats.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminStats.controller.test.js
-- [[mockRes()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminStats.controller.test.js
-- [[setupAnalyticsMocks()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminStats.controller.test.js
+- [[admin.routes.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
+- [[makeToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
+- [[mockRes()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js"
 type: "code"
-community: "Community 3"
+community: "Community 4"
 location: "L1084"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_3
+  - community/Community_4
 ---
 
 # listDynamicTopics()
@@ -15,4 +15,4 @@ tags:
 - [[getDynamicTopics()]] - `calls` [INFERRED]
 - [[questionTemplateService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_3
+#graphify/code #graphify/INFERRED #community/Community_4

@@ -1,41 +1,32 @@
 ---
 type: community
-members: 28
+members: 19
 ---
 
 # Community 10
 
-**Members:** 28 nodes
+**Members:** 19 nodes
 
 ## Members
-- [[CatchUpBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[CreatePlanCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[NcertProgress()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanForm()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanSettingsModal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanSwitcher()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -43,3 +34,9 @@ members: 28
 TABLE source_file, type FROM #community/Community_10
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 1 edge to [[_COMMUNITY_Community 3]]
+
+## Top bridge nodes
+- [[questionGenerator.js]] - degree 19, connects to 1 community

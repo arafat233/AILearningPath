@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[aiQuota.integration.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
-- [[makeUser()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
+- [[setupStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
+- [[weeklyParentEmailService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
 
 ## Live Query (requires Dataview plugin)
 

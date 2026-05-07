@@ -220,6 +220,9 @@ export const adminUpdateUserPlan         = (id, data)  => api.put(`/admin/users/
 export const adminRunOnboardingEmails    = ()          => api.post("/admin/run-onboarding-emails");
 export const adminRunWeeklyParentEmails  = ()          => api.post("/admin/run-weekly-parent-emails");
 export const adminGetFeedback            = ()          => api.get("/feedback");
+export const adminDeleteUser             = (id)        => api.delete(`/admin/users/${id}`);
+export const adminGetUserDetail          = (id)        => api.get(`/admin/users/${id}/detail`);
+export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupons/${id}/redemptions`);
 
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");

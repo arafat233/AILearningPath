@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js"
 type: "code"
-community: "Community 0"
+community: "Community 6"
 location: "L331"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_0
+  - community/Community_6
 ---
 
 # applyPlacementResults()
@@ -15,4 +15,4 @@ tags:
 - [[adaptiveRecommenderService.js]] - `contains` [EXTRACTED]
 - [[scorePlacementQuiz()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_0
+#graphify/code #graphify/INFERRED #community/Community_6

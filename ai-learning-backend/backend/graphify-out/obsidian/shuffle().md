@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js"
 type: "code"
-community: "Community 16"
+community: "Community 15"
 location: "L54"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_16
+  - community/Community_15
 ---
 
 # shuffle()
@@ -15,4 +15,4 @@ tags:
 - [[buildOptions()]] - `calls` [EXTRACTED]
 - [[seedBoardStyleQuestions.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_16
+#graphify/code #graphify/EXTRACTED #community/Community_15

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx"
 type: "code"
-community: "Community 10"
+community: "Community 9"
 location: "L387"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_10
+  - community/Community_9
 ---
 
 # fmtShort()
@@ -16,4 +16,4 @@ tags:
 - [[WeeklyView()]] - `calls` [EXTRACTED]
 - [[fmtFull()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_10
+#graphify/code #graphify/EXTRACTED #community/Community_9

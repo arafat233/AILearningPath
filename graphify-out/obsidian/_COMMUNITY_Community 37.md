@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[Certificate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[Certificate.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[Stat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
-- [[usePrintStyles()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx
+- [[Analytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
+- [[Analytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
+- [[ConfRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
+- [[StatCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

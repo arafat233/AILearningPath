@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
-import { adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon } from "../../services/api";
+import {
+  adminGetCoupons, adminCreateCoupon, adminUpdateCoupon,
+  adminDeleteCoupon, adminGetCouponRedemptions,
+} from "../../services/api";
 
 const BLANK = { code: "", discountType: "percent", discountValue: 10, planFilter: [], validUntil: "", maxUses: 0, isActive: true };
 const PLANS  = ["pro", "pro_annual", "premium", "premium_annual"];
 
 export default function AdminCoupons() {
-  const [coupons,  setCoupons]  = useState([]);
-  const [editing,  setEditing]  = useState(null);
-  const [form,     setForm]     = useState(BLANK);
-  const [loading,  setLoading]  = useState(false);
-  const [saving,   setSaving]   = useState(false);
-  const [error,    setError]    = useState("");
+  const [coupons,      setCoupons]      = useState([]);
+  const [editing,      setEditing]      = useState(null);
+  const [form,         setForm]         = useState(BLANK);
+  const [loading,      setLoading]      = useState(false);
+  const [saving,       setSaving]       = useState(false);
+  const [error,        setError]        = useState("");
+
+  // Redemptions drawer
+  const [redemptionId,      setRedemptionId]      = useState(null); // coupon _id
+  const [redemptions,       setRedemptions]       = useState([]);
+  const [redemptionsLoading,setRedemptionsLoading]= useState(false);
 
   const load = () => {
     setLoading(true);
@@ -63,6 +71,17 @@ export default function AdminCoupons() {
     if (!confirm("Delete this coupon permanently?")) return;
     await adminDeleteCoupon(id).catch(() => {});
     setCoupons((prev) => prev.filter((x) => x._id !== id));
+    if (redemptionId === id) setRedemptionId(null);
+  };
+
+  const toggleRedemptions = async (id) => {
+    if (redemptionId === id) { setRedemptionId(null); return; }
+    setRedemptionId(id);
+    setRedemptionsLoading(true);
+    adminGetCouponRedemptions(id)
+      .then((r) => setRedemptions(r.data.data))
+      .catch(() => setRedemptions([]))
+      .finally(() => setRedemptionsLoading(false));
   };
 
   return (
@@ -157,35 +176,94 @@ export default function AdminCoupons() {
             ) : coupons.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-8 text-apple-gray text-center">No coupons yet.</td></tr>
             ) : coupons.map((c) => (
-              <tr key={c._id} className="hover:bg-apple-gray6/50">
-                <td className="px-4 py-3 font-mono font-bold text-apple-blue tracking-wide">{c.code}</td>
-                <td className="px-4 py-3 text-apple-gray capitalize">{c.discountType}</td>
-                <td className="px-4 py-3 font-semibold text-[var(--label)]">
-                  {c.discountType === "percent" ? `${c.discountValue}%` : `₹${(c.discountValue / 100).toLocaleString("en-IN")}`}
-                </td>
-                <td className="px-4 py-3 text-apple-gray text-[12px]">
-                  {c.planFilter?.length ? c.planFilter.join(", ") : "All plans"}
-                </td>
-                <td className="px-4 py-3 text-apple-gray">
-                  {c.usedCount} / {c.maxUses === 0 ? "∞" : c.maxUses}
-                </td>
-                <td className="px-4 py-3 text-apple-gray">
-                  {c.validUntil ? new Date(c.validUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" }) : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                    c.isActive ? "bg-apple-green/10 text-apple-green" : "bg-apple-gray5 text-apple-gray"
-                  }`}>
-                    {c.isActive ? "Active" : "Off"}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-3">
-                    <button onClick={() => openEdit(c)} className="text-[12px] text-apple-blue hover:underline">Edit</button>
-                    <button onClick={() => del(c._id)}  className="text-[12px] text-apple-red hover:underline">Delete</button>
-                  </div>
-                </td>
-              </tr>
+              <>
+                <tr key={c._id} className="hover:bg-apple-gray6/50">
+                  <td className="px-4 py-3 font-mono font-bold text-apple-blue tracking-wide">{c.code}</td>
+                  <td className="px-4 py-3 text-apple-gray capitalize">{c.discountType}</td>
+                  <td className="px-4 py-3 font-semibold text-[var(--label)]">
+                    {c.discountType === "percent" ? `${c.discountValue}%` : `₹${(c.discountValue / 100).toLocaleString("en-IN")}`}
+                  </td>
+                  <td className="px-4 py-3 text-apple-gray text-[12px]">
+                    {c.planFilter?.length ? c.planFilter.join(", ") : "All plans"}
+                  </td>
+                  <td className="px-4 py-3 text-apple-gray">
+                    <span className={c.usedCount > 0 ? "font-semibold text-apple-green" : ""}>
+                      {c.usedCount}
+                    </span>
+                    {" "}/ {c.maxUses === 0 ? "∞" : c.maxUses}
+                  </td>
+                  <td className="px-4 py-3 text-apple-gray">
+                    {c.validUntil ? new Date(c.validUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" }) : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                      c.isActive ? "bg-apple-green/10 text-apple-green" : "bg-apple-gray5 text-apple-gray"
+                    }`}>
+                      {c.isActive ? "Active" : "Off"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-3">
+                      <button onClick={() => toggleRedemptions(c._id)}
+                        className={`text-[12px] hover:underline ${redemptionId === c._id ? "text-apple-orange" : "text-apple-gray"}`}>
+                        {redemptionId === c._id ? "Hide" : "Redemptions"}
+                      </button>
+                      <button onClick={() => openEdit(c)} className="text-[12px] text-apple-blue hover:underline">Edit</button>
+                      <button onClick={() => del(c._id)}  className="text-[12px] text-apple-red hover:underline">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+
+                {redemptionId === c._id && (
+                  <tr key={`${c._id}-redemptions`}>
+                    <td colSpan={8} className="px-4 py-4 bg-apple-gray6/60 border-b border-apple-gray5">
+                      {redemptionsLoading ? (
+                        <p className="text-[13px] text-apple-gray">Loading redemptions…</p>
+                      ) : redemptions.length === 0 ? (
+                        <p className="text-[13px] text-apple-gray">No redemptions yet for <span className="font-mono font-bold">{c.code}</span>.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-[12px] font-semibold text-[var(--label)] mb-2">
+                            {redemptions.length} redemption{redemptions.length !== 1 ? "s" : ""} — total revenue:&nbsp;
+                            <span className="text-apple-green">
+                              ₹{(redemptions.reduce((s, r) => s + r.amount, 0) / 100).toLocaleString("en-IN")}
+                            </span>
+                          </p>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-[12px]">
+                              <thead>
+                                <tr className="text-apple-gray">
+                                  <th className="text-left pr-6 pb-1">Date</th>
+                                  <th className="text-left pr-6 pb-1">User</th>
+                                  <th className="text-left pr-6 pb-1">Plan</th>
+                                  <th className="text-left pb-1">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {redemptions.map((r) => (
+                                  <tr key={r._id} className="border-t border-apple-gray5/50">
+                                    <td className="pr-6 py-1 text-apple-gray">
+                                      {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                    </td>
+                                    <td className="pr-6 py-1">
+                                      <p className="text-[var(--label)]">{r.userId?.name || "—"}</p>
+                                      <p className="text-[10px] text-apple-gray">{r.userId?.email || ""}</p>
+                                    </td>
+                                    <td className="pr-6 py-1 text-apple-gray">{r.planKey}</td>
+                                    <td className="py-1 font-semibold text-apple-green">
+                                      ₹{(r.amount / 100).toLocaleString("en-IN")}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>

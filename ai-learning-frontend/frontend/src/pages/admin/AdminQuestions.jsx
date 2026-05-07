@@ -24,8 +24,12 @@ export default function AdminQuestions() {
   const [loading,   setLoading]   = useState(false);
   const [tab,       setTab]       = useState("all");
 
+  // Bulk selection
+  const [selected,    setSelected]    = useState(new Set());
+  const [bulkWorking, setBulkWorking] = useState(false);
+
   // Create / edit form
-  const [editing,  setEditing]  = useState(null); // null | "new" | question
+  const [editing,  setEditing]  = useState(null);
   const [qForm,    setQForm]    = useState(BLANK_Q);
   const [opts,     setOpts]     = useState(BLANK_OPTS);
   const [saving,   setSaving]   = useState(false);
@@ -33,6 +37,7 @@ export default function AdminQuestions() {
 
   const load = (p = 1) => {
     setLoading(true);
+    setSelected(new Set());
     const fn     = tab === "flagged" ? adminGetFlagged : adminGetQuestions;
     const params = tab === "flagged" ? {} : { page: p, limit: 20, ...filter };
     fn(params)
@@ -47,11 +52,39 @@ export default function AdminQuestions() {
 
   useEffect(() => { load(); }, [tab]);
 
+  // Selection helpers
+  const toggleSelect = (id) => setSelected((prev) => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+  const allSelected = questions.length > 0 && selected.size === questions.length;
+  const toggleAll   = () => setSelected(allSelected ? new Set() : new Set(questions.map((q) => q._id)));
+
+  const bulkDelete = async () => {
+    if (!confirm(`Permanently delete ${selected.size} question(s)?`)) return;
+    setBulkWorking(true);
+    await Promise.all([...selected].map((id) => adminDeleteQuestion(id).catch(() => {})));
+    setQuestions((q) => q.filter((x) => !selected.has(x._id)));
+    setTotal((t) => t - selected.size);
+    setSelected(new Set());
+    setBulkWorking(false);
+  };
+
+  const bulkUnflag = async () => {
+    setBulkWorking(true);
+    await Promise.all([...selected].map((id) => adminUnflagQuestion(id).catch(() => {})));
+    setQuestions((q) => q.map((x) => selected.has(x._id) ? { ...x, isFlagged: false } : x));
+    setSelected(new Set());
+    setBulkWorking(false);
+  };
+
   const del = async (id) => {
     if (!confirm("Delete this question permanently?")) return;
     await adminDeleteQuestion(id).catch(() => {});
     setQuestions((q) => q.filter((x) => x._id !== id));
     setTotal((t) => t - 1);
+    setSelected((prev) => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const unflag = async (id) => {
@@ -68,22 +101,20 @@ export default function AdminQuestions() {
 
   const openEdit = (q) => {
     setQForm({
-      questionText: q.questionText || "",
-      topic:        q.topic        || "",
-      subject:      q.subject      || "Math",
-      grade:        q.grade        || "10",
-      difficulty:   q.difficulty   || "medium",
-      questionType: q.questionType || "mcq",
-      marks:        q.marks        ?? 1,
+      questionText:  q.questionText || "",
+      topic:         q.topic        || "",
+      subject:       q.subject      || "Math",
+      grade:         q.grade        || "10",
+      difficulty:    q.difficulty   || "medium",
+      questionType:  q.questionType || "mcq",
+      marks:         q.marks        ?? 1,
       solutionSteps: (q.solutionSteps || []).join("\n"),
     });
-    // Rebuild options: 4 slots, mark first "correct" type as correct
     const existing = q.options || [];
     const mapped = Array.from({ length: 4 }, (_, i) => ({
       text:      existing[i]?.text || "",
       isCorrect: existing[i]?.type === "correct",
     }));
-    // ensure exactly one correct
     if (!mapped.some((o) => o.isCorrect) && mapped.length > 0) mapped[0].isCorrect = true;
     setOpts(mapped);
     setEditing(q);
@@ -145,6 +176,25 @@ export default function AdminQuestions() {
           <button onClick={openNew} className="btn-primary ml-2">+ New Question</button>
         </div>
       </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 bg-apple-blue/8 border border-apple-blue/20 rounded-apple-lg px-4 py-3">
+          <span className="text-[13px] font-semibold text-apple-blue">{selected.size} selected</span>
+          <div className="flex-1" />
+          <button onClick={bulkDelete} disabled={bulkWorking}
+            className="text-[12px] font-semibold text-apple-red hover:underline disabled:opacity-50">
+            {bulkWorking ? "Working…" : "Delete selected"}
+          </button>
+          <button onClick={bulkUnflag} disabled={bulkWorking}
+            className="text-[12px] font-semibold text-apple-orange hover:underline disabled:opacity-50">
+            Unflag selected
+          </button>
+          <button onClick={() => setSelected(new Set())} className="text-[12px] text-apple-gray hover:underline">
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* Create / Edit form */}
       {editing && (
@@ -260,6 +310,10 @@ export default function AdminQuestions() {
         <table className="w-full text-[13px]">
           <thead className="bg-apple-gray6 border-b border-apple-gray5">
             <tr>
+              <th className="px-4 py-3 w-10">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                  className="accent-apple-blue w-4 h-4" />
+              </th>
               {["Question", "Topic", "Type", "Difficulty", "AI?", "Flagged?", "Actions"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left font-semibold text-[var(--label2)]">{h}</th>
               ))}
@@ -267,9 +321,13 @@ export default function AdminQuestions() {
           </thead>
           <tbody className="divide-y divide-apple-gray5">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-6 text-apple-gray text-center">Loading…</td></tr>
+              <tr><td colSpan={8} className="px-4 py-6 text-apple-gray text-center">Loading…</td></tr>
             ) : questions.map((q) => (
-              <tr key={q._id} className="hover:bg-apple-gray6/50">
+              <tr key={q._id} className={`hover:bg-apple-gray6/50 ${selected.has(q._id) ? "bg-apple-blue/4" : ""}`}>
+                <td className="px-4 py-3">
+                  <input type="checkbox" checked={selected.has(q._id)} onChange={() => toggleSelect(q._id)}
+                    className="accent-apple-blue w-4 h-4" />
+                </td>
                 <td className="px-4 py-3 max-w-xs">
                   <p className="text-[var(--label)] truncate">{q.questionText?.slice(0, 80)}…</p>
                 </td>

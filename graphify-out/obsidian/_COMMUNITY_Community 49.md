@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[auth.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
-- [[makeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
-- [[mockReqRes()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\auth.controller.test.js
+- [[adminAuth.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
+- [[makeToken()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
+- [[mockReqRes()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\adminAuth.middleware.test.js
 
 ## Live Query (requires Dataview plugin)
 

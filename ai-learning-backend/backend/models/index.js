@@ -473,6 +473,7 @@ const paymentRecordSchema = new mongoose.Schema({
   razorpayPaymentId: { type: String, required: true, unique: true },
   planKey:         { type: String, required: true },
   amount:          { type: Number, required: true }, // in paise
+  couponCode:      { type: String, default: null },
   status:          { type: String, enum: ["captured", "refunded"], default: "captured" },
   createdAt:       { type: Date, default: Date.now },
 });

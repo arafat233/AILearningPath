@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx"
 type: "code"
-community: "Community 36"
+community: "Community 37"
 location: "L358"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_36
+  - community/Community_37
 ---
 
 # StatCard()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Analytics.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_36
+#graphify/code #graphify/EXTRACTED #community/Community_37

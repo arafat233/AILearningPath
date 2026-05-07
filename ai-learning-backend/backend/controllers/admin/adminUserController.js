@@ -1,4 +1,4 @@
-import { User } from "../../models/index.js";
+import { User, UserProfile, Attempt } from "../../models/index.js";
 import { AppError } from "../../utils/AppError.js";
 import { sessionDel } from "../../utils/redisClient.js";
 
@@ -31,6 +31,33 @@ export const updateUserRole = async (req, res, next) => {
     await sessionDel(`admin_role:${req.params.id}`).catch(() => {});
 
     res.json(user);
+  } catch (err) { next(err); }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return next(new AppError("User not found", 404));
+    await Promise.all([
+      User.findByIdAndDelete(req.params.id),
+      UserProfile.findOneAndDelete({ userId: req.params.id }).catch(() => {}),
+    ]);
+    res.json({ data: { message: "User deleted" } });
+  } catch (err) { next(err); }
+};
+
+export const getUserDetail = async (req, res, next) => {
+  try {
+    const [user, profile, attemptAgg] = await Promise.all([
+      User.findById(req.params.id).select("-password").lean(),
+      UserProfile.findOne({ userId: req.params.id }).lean(),
+      Attempt.aggregate([
+        { $match: { userId: req.params.id } },
+        { $group: { _id: null, total: { $sum: 1 }, correct: { $sum: { $cond: ["$isCorrect", 1, 0] } } } },
+      ]),
+    ]);
+    if (!user) return next(new AppError("User not found", 404));
+    res.json({ data: { user, profile, attemptStats: attemptAgg[0] || { total: 0, correct: 0 } } });
   } catch (err) { next(err); }
 };
 

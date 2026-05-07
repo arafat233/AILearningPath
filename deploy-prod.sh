@@ -12,9 +12,9 @@ cd "$REPO_DIR"
 git pull origin main
 
 echo "=== [2/6] Rebuilding Docker containers ==="
-docker compose down --remove-orphans
-docker compose build --no-cache api
-docker compose up -d
+docker-compose down
+docker-compose build --no-cache api
+docker-compose up -d
 
 echo "=== [3/6] Waiting for API to be healthy ==="
 for i in $(seq 1 20); do

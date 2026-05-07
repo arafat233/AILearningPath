@@ -62,6 +62,7 @@ const AdminCacheStats  = lazy(() => import("./pages/admin/AdminCacheStats"));
 const AdminAnalytics   = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminCoupons     = lazy(() => import("./pages/admin/AdminCoupons"));
 const AdminPayments    = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminNPS         = lazy(() => import("./pages/admin/AdminNPS"));
 const CompanyLogin     = lazy(() => import("./pages/CompanyLogin"));
 const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
 const PYQBank          = lazy(() => import("./pages/PYQBank"));
@@ -165,6 +166,7 @@ export default function App() {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="coupons"   element={<AdminCoupons />} />
             <Route path="payments"  element={<AdminPayments />} />
+            <Route path="nps"       element={<AdminNPS />} />
           </Route>
 
           <Route path="/" element={<RootElement />}>

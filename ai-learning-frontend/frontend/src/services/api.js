@@ -219,6 +219,7 @@ export const adminGetPayments            = (params)    => api.get("/admin/paymen
 export const adminUpdateUserPlan         = (id, data)  => api.put(`/admin/users/${id}/plan`, data);
 export const adminRunOnboardingEmails    = ()          => api.post("/admin/run-onboarding-emails");
 export const adminRunWeeklyParentEmails  = ()          => api.post("/admin/run-weekly-parent-emails");
+export const adminGetFeedback            = ()          => api.get("/feedback");
 
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");

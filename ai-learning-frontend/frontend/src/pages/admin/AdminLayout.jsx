@@ -10,6 +10,7 @@ const links = [
   { to: "/admin/analytics",  label: "Analytics" },
   { to: "/admin/coupons",    label: "Coupons"   },
   { to: "/admin/payments",   label: "Payments"  },
+  { to: "/admin/nps",        label: "NPS"       },
 ];
 
 export default function AdminLayout() {

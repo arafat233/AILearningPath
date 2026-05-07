@@ -1,15 +1,15 @@
-// In-memory cache with TTL
-const store = new Map();
+// Redis-backed cache — shared across all instances, survives restarts.
+// Falls back to Redis in-memory fallback (redisClient.js) when Redis is unavailable.
+import { sessionGet, sessionSet } from "./redisClient.js";
 
-export const getCached = (key) => {
-  const entry = store.get(key);
-  if (!entry) return null;
-  if (Date.now() > entry.expires) { store.delete(key); return null; }
-  return entry.value;
+const PREFIX = "cache:";
+
+// TTL is in milliseconds (matches old API) — converted to seconds for Redis.
+export const getCached = async (key) => {
+  return sessionGet(`${PREFIX}${key}`);
 };
 
-export const setCache = (key, value, ttlMs = 60 * 60 * 1000) => {
-  store.set(key, { value, expires: Date.now() + ttlMs });
+export const setCache = async (key, value, ttlMs = 60 * 60 * 1000) => {
+  const ttlSeconds = Math.max(1, Math.round(ttlMs / 1000));
+  await sessionSet(`${PREFIX}${key}`, value, ttlSeconds);
 };
-
-export const cacheSize = () => store.size;

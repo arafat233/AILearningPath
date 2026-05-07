@@ -128,8 +128,8 @@ async function storeCacheResult(cacheKey, questionSnippet, mistakeType, response
     if (err.code !== 11000) logger.warn("DB cache store error", { err: err.message, cacheKey });
   }
 
-  // RAM — fast lookup for hot questions
-  setCache(cacheKey, response, CACHE_TTL_MS);
+  // Redis — fast lookup for hot questions
+  await setCache(cacheKey, response, CACHE_TTL_MS);
 }
 
 // ── MAIN: Smart explanation router ───────────────────────────────
@@ -153,8 +153,8 @@ export const smartAIExplanation = async (
   // Layer 4 & 5: Check caches before hitting Claude
   const cacheKey = makeCacheKey(questionText, selectedType, subject);
 
-  // Layer 4: In-memory cache (fastest — microseconds)
-  const memCached = getCached(cacheKey);
+  // Layer 4: Redis cache (shared across all instances)
+  const memCached = await getCached(cacheKey);
   if (memCached) {
     recordCacheHit(cacheKey, userId);
     return memCached;
@@ -164,8 +164,8 @@ export const smartAIExplanation = async (
   try {
     const dbCached = await AIResponseCache.findOne({ cacheKey }).lean();
     if (dbCached?.response) {
-      // Warm the memory cache so next request is even faster
-      setCache(cacheKey, dbCached.response, CACHE_TTL_MS);
+      // Warm Redis cache so next request skips DB
+      await setCache(cacheKey, dbCached.response, CACHE_TTL_MS);
       recordCacheHit(cacheKey, userId);
       return dbCached.response;
     }
@@ -205,15 +205,15 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
   const profileKey = `advice::${subject}::${profile.thinkingProfile}::${Math.round((profile.accuracy || 0) * 10)}::${(profile.weakAreas || []).slice(0, 2).join(",")}`;
   const cacheKey = crypto.createHash("md5").update(profileKey).digest("hex");
 
-  // Check memory cache first (30-min TTL for advice)
-  const memCached = getCached(`adv:${cacheKey}`);
+  // Check Redis cache first (30-min TTL for advice)
+  const memCached = await getCached(`adv:${cacheKey}`);
   if (memCached) return memCached;
 
   // Check DB cache
   try {
     const dbCached = await AIResponseCache.findOne({ cacheKey: `adv:${cacheKey}` }).lean();
     if (dbCached?.response) {
-      setCache(`adv:${cacheKey}`, dbCached.response, 30 * 60 * 1000);
+      await setCache(`adv:${cacheKey}`, dbCached.response, 30 * 60 * 1000);
       return dbCached.response;
     }
   } catch { /* fallthrough */ }
@@ -225,7 +225,7 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
   const advice = await getStudyAdvice(profile, subject);
   if (advice) {
     storeCacheResult(`adv:${cacheKey}`, profileKey, "study_advice", advice);
-    setCache(`adv:${cacheKey}`, advice, 30 * 60 * 1000);
+    await setCache(`adv:${cacheKey}`, advice, 30 * 60 * 1000);
   }
   return advice || "Focus on your weakest topics first and practice at least one timed test per week.";
 };

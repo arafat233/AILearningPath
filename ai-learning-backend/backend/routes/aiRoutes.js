@@ -122,15 +122,15 @@ r.post("/evaluate-explanation", auth, perUserAILimit, validate(evalSchema), asyn
       .update(`${concept.toLowerCase()}::${normalised}`)
       .digest("hex")}`;
 
-    const memHit = getCached(cacheKey);
+    const memHit = await getCached(cacheKey);
     if (memHit) {
-      logger.info("AI eval cache hit (memory)", { userId: req.user.id, concept });
+      logger.info("AI eval cache hit (Redis)", { userId: req.user.id, concept });
       return res.json({ feedback: memHit, fromCache: true });
     }
 
     const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
     if (dbHit?.response) {
-      setCache(cacheKey, dbHit.response, EVAL_CACHE_TTL);
+      await setCache(cacheKey, dbHit.response, EVAL_CACHE_TTL);
       AIResponseCache.findOneAndUpdate(
         { cacheKey },
         { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
@@ -154,7 +154,7 @@ Be encouraging but honest.`;
         { cacheKey, questionSnippet: concept.slice(0, 120), mistakeType: "eval", response: reply, expiresAt },
         { upsert: true }
       ).catch(() => {});
-      setCache(cacheKey, reply, EVAL_CACHE_TTL);
+      await setCache(cacheKey, reply, EVAL_CACHE_TTL);
     }
 
     res.json({ feedback: reply || "Good effort! Review the concept and try explaining it again." });
@@ -174,15 +174,15 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), async (req, res, nex
       .update(questionText.toLowerCase().trim())
       .digest("hex")}`;
 
-    const memHit = getCached(cacheKey);
+    const memHit = await getCached(cacheKey);
     if (memHit) {
-      logger.info("AI hint cache hit (memory)", { userId: req.user.id });
+      logger.info("AI hint cache hit (Redis)", { userId: req.user.id });
       return res.json({ hint: memHit, fromCache: true });
     }
 
     const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
     if (dbHit?.response) {
-      setCache(cacheKey, dbHit.response, HINT_CACHE_TTL);
+      await setCache(cacheKey, dbHit.response, HINT_CACHE_TTL);
       AIResponseCache.findOneAndUpdate(
         { cacheKey },
         { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
@@ -200,7 +200,7 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), async (req, res, nex
         { cacheKey, questionSnippet: questionText.slice(0, 120), mistakeType: "hint", response: hint, expiresAt },
         { upsert: true }
       ).catch(() => {});
-      setCache(cacheKey, hint, HINT_CACHE_TTL);
+      await setCache(cacheKey, hint, HINT_CACHE_TTL);
     }
 
     res.json({ hint: hint || "Think about which formula applies here. Review the concept and try again!" });

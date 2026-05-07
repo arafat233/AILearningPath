@@ -2,8 +2,6 @@
 // AI TEACHER MODE — continuous guidance engine
 // Generates contextual guidance based on user state
 // ============================================================
-import { getCached, setCache } from "../utils/cache.js";
-
 // Goal-specific push messages shown when student is performing well
 const GOAL_PUSH = {
   pass:        "You're on track to pass. Keep covering the high-frequency topics.",

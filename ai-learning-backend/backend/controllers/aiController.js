@@ -42,12 +42,12 @@ export const tutorChat = async (req, res, next) => {
         .update(`${topic || "general"}::${message.toLowerCase().trim()}`)
         .digest("hex")}`;
 
-      const memHit = getCached(cacheKey);
+      const memHit = await getCached(cacheKey);
       if (memHit) return res.json({ reply: memHit, fromCache: true });
 
       const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
       if (dbHit?.response) {
-        setCache(cacheKey, dbHit.response, CHAT_CACHE_TTL);
+        await setCache(cacheKey, dbHit.response, CHAT_CACHE_TTL);
         AIResponseCache.findOneAndUpdate(
           { cacheKey },
           { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
@@ -63,7 +63,7 @@ export const tutorChat = async (req, res, next) => {
           { cacheKey, questionSnippet: message.slice(0, 120), mistakeType: "chat", response: reply, expiresAt },
           { upsert: true }
         ).catch(() => {});
-        setCache(cacheKey, reply, CHAT_CACHE_TTL);
+        await setCache(cacheKey, reply, CHAT_CACHE_TTL);
       }
       return res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
     }

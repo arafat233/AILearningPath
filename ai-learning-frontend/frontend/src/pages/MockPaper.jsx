@@ -292,7 +292,7 @@ export default function MockPaper() {
         selectedOptionIndex: answers[q._id] ?? null,
         timeTaken:           0,
       }));
-      const res = await submitExam({ answers: payload });
+      const res = await submitExam(payload);
       setResult(res.data);
       setPhase("results");
     } catch (e) {

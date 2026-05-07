@@ -482,7 +482,6 @@ const paymentRecordSchema = new mongoose.Schema({
   status:          { type: String, enum: ["captured", "refunded"], default: "captured" },
   createdAt:       { type: Date, default: Date.now },
 });
-paymentRecordSchema.index({ razorpayPaymentId: 1 });
 export const PaymentRecord = mongoose.model("PaymentRecord", paymentRecordSchema);
 
 // ==================== Coupon (discount codes) ====================
@@ -498,7 +497,6 @@ const couponSchema = new mongoose.Schema({
   isActive:      { type: Boolean, default: true },
   createdAt:     { type: Date, default: Date.now },
 });
-couponSchema.index({ code: 1 });
 export const Coupon = mongoose.model("Coupon", couponSchema);
 
 // ==================== UserTopicMastery (fine-grained adaptive engine state) ====================

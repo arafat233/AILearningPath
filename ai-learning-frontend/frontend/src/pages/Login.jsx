@@ -20,8 +20,12 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await login(form);
-      setAuth(null, data.data.user);
-      navigate("/");
+      const u = data.data.user;
+      setAuth(null, u);
+      if (u.role === "admin") { navigate("/"); return; }
+      const kids = u.linkedStudents || [];
+      if (kids.length === 0) navigate("/onboarding");
+      else navigate("/child-picker");
     } catch (err) {
       const message = err.response?.data?.error || "Login failed";
       setError(message);

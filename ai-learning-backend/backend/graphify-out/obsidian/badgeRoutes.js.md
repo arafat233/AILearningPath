@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\routes\badgeRoutes.js"
 type: "code"
-community: "Community 67"
+community: "Community 65"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_67
+  - community/Community_65
 ---
 
 # badgeRoutes.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_67
+#graphify/code #graphify/EXTRACTED #community/Community_65

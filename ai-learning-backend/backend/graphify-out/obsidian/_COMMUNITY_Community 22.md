@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[MockQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
-- [[makeQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
-- [[makeStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
-- [[selfLearning.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[_setup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[clearCollections()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[connectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
+- [[disconnectTestDB()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\_setup.js
 
 ## Live Query (requires Dataview plugin)
 

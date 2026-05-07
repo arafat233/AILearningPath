@@ -6,9 +6,11 @@ import { persist } from "zustand/middleware";
 export const useAuthStore = create(
   persist(
     (set) => ({
-      user: null,
-      setAuth: (_token, user) => set({ user }),   // token arg ignored — cookie handles it
-      logout: () => set({ user: null }),
+      user:        null,
+      activeChild: null,   // { _id, name, grade, examBoard, schoolName, location }
+      setAuth:        (_token, user) => set({ user }),
+      setActiveChild: (child)        => set({ activeChild: child }),
+      logout: () => set({ user: null, activeChild: null }),
     }),
     { name: "auth-storage" }
   )

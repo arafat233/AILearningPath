@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[envOverride()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\featureFlags.js
+- [[featureFlags.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\featureFlags.js
+- [[getFlagsForUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\featureFlags.js
+- [[isEnabled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\featureFlags.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -19,9 +19,3 @@ members: 4
 TABLE source_file, type FROM #community/Community_18
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
-
-## Top bridge nodes
-- [[getStudentDashboard()]] - degree 3, connects to 1 community

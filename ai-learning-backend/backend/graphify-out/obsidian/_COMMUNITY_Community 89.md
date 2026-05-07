@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[cookieNames.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cookieNames.js
+- [[aiRouter.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\aiRouter.test.js
 
 ## Live Query (requires Dataview plugin)
 

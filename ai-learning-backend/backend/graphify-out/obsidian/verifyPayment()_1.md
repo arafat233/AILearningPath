@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js"
 type: "code"
-community: "Community 10"
-location: "L164"
+community: "Community 4"
+location: "L165"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_10
+  - community/Community_4
 ---
 
 # verifyPayment()
@@ -22,4 +22,4 @@ tags:
 - [[sessionGet()]] - `calls` [INFERRED]
 - [[withTransaction()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_10
+#graphify/code #graphify/EXTRACTED #community/Community_4

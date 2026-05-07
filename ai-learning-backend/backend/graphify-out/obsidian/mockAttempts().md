@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js"
 type: "code"
-community: "Community 3"
+community: "Community 2"
 location: "L25"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_2
 ---
 
 # mockAttempts()
@@ -15,4 +15,4 @@ tags:
 - [[getDifficulty()]] - `calls` [EXTRACTED]
 - [[profile.service.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_3
+#graphify/code #graphify/EXTRACTED #community/Community_2

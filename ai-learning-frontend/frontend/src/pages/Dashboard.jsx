@@ -27,8 +27,9 @@ const PROFILE_STYLE = {
 };
 
 export default function Dashboard() {
-  const { user } = useAuthStore();
+  const { user, activeChild } = useAuthStore();
   const navigate  = useNavigate();
+  const child     = activeChild || user;          // fall back to user for admin accounts
   const [report, setReport]         = useState(null);
   const [advice, setAdvice]         = useState(null);
   const [topics, setTopics]         = useState([]);
@@ -37,7 +38,7 @@ export default function Dashboard() {
   const [error, setError]           = useState("");
   const [aiUsage, setAiUsage]       = useState(null);
   const [cacheStats, setCacheStats] = useState(null);
-  const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
+  const [activeSubject, setActiveSubject] = useState(child?.subject || user?.subject || "Math");
   const [scienceSub,    setScienceSub]    = useState(null);
   const [brief,         setBrief]         = useState(null);
 
@@ -73,11 +74,18 @@ export default function Dashboard() {
   // reload topics when subject tab changes
   useEffect(() => {
     setTopicsLoading(true);
-    getTopics({ subject: activeSubject, grade: user?.grade || "10" })
+    getTopics({ subject: activeSubject, grade: child?.grade || user?.grade || "10" })
       .then((r) => setTopics(r.data))
       .catch(() => setTopics([]))
       .finally(() => setTopicsLoading(false));
   }, [activeSubject, user?.grade]);
+
+  // Non-admin users must have selected a child before seeing the dashboard
+  useEffect(() => {
+    if (user?.role !== "admin" && !activeChild) {
+      navigate("/child-picker", { replace: true });
+    }
+  }, [activeChild, user]);
 
   if (loading) return <DashboardSkeleton />;
 

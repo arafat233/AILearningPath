@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe, validateCoupon, createOrder } from "../services/api";
+import { getMe, updateMe, getTopicsMeta, getSubscription, deleteMe, validateCoupon, createOrder, getChildren, deleteChild } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 
 export default function Settings() {
-  const { user, setAuth } = useAuthStore();
+  const { user, setAuth, activeChild, setActiveChild } = useAuthStore();
   const navigate = useNavigate();
 
   const [form, setForm]           = useState({ name: "", grade: "10", subjects: ["Math"], weakTopics: [] });
@@ -20,9 +20,11 @@ export default function Settings() {
   const { logout } = useAuthStore();
   const [meta, setMeta]           = useState({ subjects: ["English","Hindi","Math","Science","Social Science"], grades: ["8","9","10","11","12"] });
   const [subscription, setSub]    = useState(null);
+  const [children,     setChildrenList] = useState([]);
 
   useEffect(() => {
     getTopicsMeta().then((r) => setMeta(r.data)).catch(() => {});
+    getChildren().then((r) => setChildrenList(r.data.data.children || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -77,6 +79,55 @@ export default function Settings() {
       <div>
         <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Settings</h1>
         <p className="text-[14px] text-apple-gray mt-0.5">Update your profile and exam details</p>
+      </div>
+
+      {/* My Children */}
+      <div className="card p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-[var(--label)]">My Children</h2>
+          <button onClick={() => navigate("/onboarding")}
+            className="text-[12px] text-apple-blue font-medium hover:opacity-70 transition-opacity">
+            + Add child
+          </button>
+        </div>
+        {children.length === 0 ? (
+          <p className="text-[13px] text-apple-gray">No children added yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {children.map((c) => (
+              <div key={c._id} className={`flex items-center gap-3 p-3 rounded-apple border transition-colors ${
+                activeChild?._id === c._id ? "border-apple-blue bg-apple-blue/5" : "border-apple-gray5"
+              }`}>
+                <div className="w-9 h-9 rounded-xl bg-apple-blue flex items-center justify-center text-white text-[13px] font-bold shrink-0">
+                  {c.name?.[0]?.toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-[var(--label)] truncate">{c.name}</p>
+                  <p className="text-[11px] text-apple-gray">Class {c.grade} · {c.examBoard}{c.schoolName ? ` · ${c.schoolName}` : ""}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {activeChild?._id !== c._id && (
+                    <button onClick={() => { setActiveChild(c); navigate("/"); }}
+                      className="text-[11px] text-apple-blue hover:opacity-70 transition-opacity font-medium">
+                      Switch
+                    </button>
+                  )}
+                  {activeChild?._id === c._id && (
+                    <span className="text-[10px] text-apple-blue font-semibold px-2 py-0.5 bg-apple-blue/10 rounded-full">Active</span>
+                  )}
+                  <button onClick={async () => {
+                    if (!confirm(`Remove ${c.name}?`)) return;
+                    await deleteChild(c._id).catch(() => {});
+                    setChildrenList((prev) => prev.filter((x) => x._id !== c._id));
+                    if (activeChild?._id === c._id) setActiveChild(null);
+                  }} className="text-[11px] text-apple-red hover:opacity-70 transition-opacity">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Trial banner */}

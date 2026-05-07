@@ -73,6 +73,7 @@ const Certificate      = lazy(() => import("./pages/Certificate"));
 const PlacementQuiz    = lazy(() => import("./pages/PlacementQuiz"));
 const SchoolGroups     = lazy(() => import("./pages/SchoolGroups"));
 const SharedPlan       = lazy(() => import("./pages/SharedPlan"));
+const ChildPicker      = lazy(() => import("./pages/ChildPicker"));
 
 function PageSpinner() {
   return (
@@ -154,6 +155,7 @@ export default function App() {
           <Route path="/reset-password/:token"      element={<ResetPassword />} />
           <Route path="/shared-plan/:token"         element={<SharedPlan />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
+          <Route path="/child-picker"         element={<Protected><ChildPicker /></Protected>} />
           <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />
 
           {/* Admin panel — AdminLayout handles role guard internally */}

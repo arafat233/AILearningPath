@@ -1,6 +1,7 @@
 import express from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
+import bcrypt from "bcryptjs";
 import { Attempt, Badge, DoubtThread, ErrorMemory, Question, Streak, Topic, User, UserProfile } from "../models/index.js";
 import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
@@ -169,5 +170,63 @@ r.get("/daily-brief", auth, async (req, res, next) => {
     next(err);
   }
 });
+
+// ── Children (multi-child per parent account) ────────────────────────────────
+
+const childSchema = Joi.object({
+  childName:  Joi.string().trim().min(1).max(80).required(),
+  grade:      Joi.string().required(),
+  examBoard:  Joi.string().valid("CBSE","ICSE","IB","SSC","State Board").required(),
+  schoolName: Joi.string().trim().max(120).optional().allow(""),
+  location:   Joi.string().trim().max(100).optional().allow(""),
+});
+
+r.post("/children", auth, validate(childSchema), async (req, res, next) => {
+  try {
+    const { childName, grade, examBoard, schoolName, location } = req.body;
+    const randomPwd     = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
+    const syntheticEmail = `child_${req.user.id}_${Date.now()}@stellar.child`;
+
+    const child = await User.create({
+      name:       childName.trim(),
+      email:      syntheticEmail,
+      password:   randomPwd,
+      role:       "student",
+      grade,
+      examBoard,
+      schoolName: schoolName?.trim() || null,
+      location:   location?.trim()   || null,
+    });
+
+    await User.findByIdAndUpdate(req.user.id, {
+      $addToSet: { linkedStudents: child._id.toString() },
+    });
+
+    res.json({ data: { child: _childView(child) } });
+  } catch (err) { next(err); }
+});
+
+r.get("/children", auth, async (req, res, next) => {
+  try {
+    const parent   = await User.findById(req.user.id).select("linkedStudents").lean();
+    const children = await User.find({ _id: { $in: parent.linkedStudents || [] } })
+      .select("_id name grade examBoard schoolName location createdAt")
+      .lean();
+    res.json({ data: { children } });
+  } catch (err) { next(err); }
+});
+
+r.delete("/children/:childId", auth, async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { linkedStudents: req.params.childId },
+    });
+    res.json({ data: { message: "Child removed" } });
+  } catch (err) { next(err); }
+});
+
+function _childView(u) {
+  return { _id: u._id, name: u.name, grade: u.grade, examBoard: u.examBoard, schoolName: u.schoolName, location: u.location };
+}
 
 export default r;

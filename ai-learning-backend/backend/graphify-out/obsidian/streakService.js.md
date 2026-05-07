@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\streakService.js"
 type: "code"
-community: "Community 11"
+community: "Community 16"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_16
 ---
 
 # streakService.js
@@ -15,4 +15,4 @@ tags:
 - [[getStreak()]] - `contains` [EXTRACTED]
 - [[updateStreak()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_16

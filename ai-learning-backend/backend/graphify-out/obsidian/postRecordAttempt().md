@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\recommenderController.js"
 type: "code"
-community: "Community 6"
+community: "Community 10"
 location: "L40"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_6
+  - community/Community_10
 ---
 
 # postRecordAttempt()
@@ -16,4 +16,4 @@ tags:
 - [[recommenderController.js]] - `contains` [EXTRACTED]
 - [[recordAttempt()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_10

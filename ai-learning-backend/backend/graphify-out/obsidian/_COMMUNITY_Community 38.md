@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
-- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[errorHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
+- [[errorHandler.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\errorHandler.js
 
 ## Live Query (requires Dataview plugin)
 

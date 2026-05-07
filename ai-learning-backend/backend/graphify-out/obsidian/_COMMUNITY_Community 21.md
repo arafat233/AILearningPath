@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[findByIdSelect()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[findByIdSelectLean()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[mockReqRes()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
-- [[portal.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js
+- [[MockQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[makeQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[makeStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[selfLearning.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

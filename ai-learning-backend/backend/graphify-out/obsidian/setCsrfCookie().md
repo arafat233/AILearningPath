@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js"
 type: "code"
-community: "Community 2"
+community: "Community 6"
 location: "L8"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_6
 ---
 
 # setCsrfCookie()
@@ -17,4 +17,4 @@ tags:
 - [[refresh()]] - `calls` [INFERRED]
 - [[register()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_6

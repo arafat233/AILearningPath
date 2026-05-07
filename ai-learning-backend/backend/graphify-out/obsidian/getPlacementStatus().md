@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js"
 type: "code"
-community: "Community 6"
+community: "Community 0"
 location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_0
 ---
 
 # getPlacementStatus()
@@ -15,4 +15,4 @@ tags:
 - [[.next()]] - `calls` [INFERRED]
 - [[placementController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_6
+#graphify/code #graphify/EXTRACTED #community/Community_0

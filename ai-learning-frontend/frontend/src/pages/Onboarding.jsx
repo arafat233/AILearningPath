@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateMe } from "../services/api";
+import { createChild } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const CLASSES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
 const BOARDS  = ["CBSE","ICSE","IB","SSC","State Board"];
 
 export default function Onboarding() {
-  const { user, setAuth } = useAuthStore();
+  const { user, setAuth, setActiveChild } = useAuthStore();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -28,9 +28,10 @@ export default function Onboarding() {
     setSaving(true);
     setError("");
     try {
-      const { data } = await updateMe(form);
-      setAuth(null, { ...user, ...data.user });
-      navigate("/dashboard");
+      const { data } = await createChild(form);
+      setActiveChild(data.data.child);
+      setAuth(null, { ...user, linkedStudents: [...(user?.linkedStudents || []), data.data.child._id] });
+      navigate("/");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

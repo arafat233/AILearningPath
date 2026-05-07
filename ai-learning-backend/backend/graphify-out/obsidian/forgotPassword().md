@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 2"
+community: "Community 6"
 location: "L285"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_2
+  - community/Community_6
 ---
 
 # forgotPassword()
@@ -18,4 +18,4 @@ tags:
 - [[save()]] - `calls` [INFERRED]
 - [[sendEmail()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_2
+#graphify/code #graphify/INFERRED #community/Community_6

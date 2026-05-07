@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\portal.controller.test.js"
 type: "code"
-community: "Community 21"
+community: "Community 20"
 location: "L61"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_20
 ---
 
 # findByIdSelect()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[portal.controller.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_20

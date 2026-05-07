@@ -1,21 +1,20 @@
 ---
 type: community
-members: 8
+members: 7
 ---
 
 # Community 14
 
-**Members:** 8 nodes
+**Members:** 7 nodes
 
 ## Members
-- [[companyController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[companyLogin()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[companyService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[getDashboardStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
-- [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
-- [[todayStr()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
+- [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[chapterFromTopicId()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[cleanAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[main()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -25,8 +24,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 1]]
 
 ## Top bridge nodes
-- [[companyLogin()]] - degree 3, connects to 1 community
-- [[getStats()]] - degree 3, connects to 1 community
+- [[main()_1]] - degree 2, connects to 1 community

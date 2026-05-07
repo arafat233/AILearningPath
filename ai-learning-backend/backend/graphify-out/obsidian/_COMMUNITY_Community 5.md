@@ -1,13 +1,14 @@
 ---
 type: community
-members: 27
+members: 31
 ---
 
 # Community 5
 
-**Members:** 27 nodes
+**Members:** 31 nodes
 
 ## Members
+- [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 - [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
@@ -15,10 +16,13 @@ members: 27
 - [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
 - [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 - [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[costUSD()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
+- [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
 - [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
@@ -44,9 +48,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 6 edges to [[_COMMUNITY_Community 0]]
-- 4 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 11]]
+- 7 edges to [[_COMMUNITY_Community 0]]
+- 4 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 16]]
+- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
 - [[smartAIExplanation()]] - degree 11, connects to 1 community

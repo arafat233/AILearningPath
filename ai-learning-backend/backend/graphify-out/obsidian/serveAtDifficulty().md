@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js"
 type: "code"
-community: "Community 6"
+community: "Community 10"
 location: "L92"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_10
 ---
 
 # serveAtDifficulty()
@@ -19,4 +19,4 @@ tags:
 - [[resolveRouting()]] - `calls` [EXTRACTED]
 - [[stripQuestion()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_6
+#graphify/code #graphify/EXTRACTED #community/Community_10

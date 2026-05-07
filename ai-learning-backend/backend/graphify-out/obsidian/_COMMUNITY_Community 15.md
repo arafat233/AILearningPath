@@ -8,13 +8,13 @@ members: 7
 **Members:** 7 nodes
 
 ## Members
-- [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[chapterFromTopicId()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[cleanAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[main()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
+- [[buildOptions()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[main()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[mapQuestion()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[shuffle()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,4 +27,4 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Community 1]]
 
 ## Top bridge nodes
-- [[main()_1]] - degree 2, connects to 1 community
+- [[main()_4]] - degree 2, connects to 1 community

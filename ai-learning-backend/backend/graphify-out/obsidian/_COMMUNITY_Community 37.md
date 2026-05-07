@@ -1,16 +1,15 @@
 ---
 type: community
-members: 3
+members: 2
 ---
 
 # Community 37
 
-**Members:** 3 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[callDeleteMe()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
-- [[mockRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
-- [[user.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -18,9 +17,3 @@ members: 3
 TABLE source_file, type FROM #community/Community_37
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
-
-## Top bridge nodes
-- [[callDeleteMe()]] - degree 3, connects to 1 community

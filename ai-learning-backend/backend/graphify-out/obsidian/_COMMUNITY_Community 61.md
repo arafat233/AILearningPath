@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[lessonModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\lessonModel.js
+- [[ncertTopicContentModel.js]] - code - E:\AILearningPath\ai-learning-backend\backend\models\ncertTopicContentModel.js
 
 ## Live Query (requires Dataview plugin)
 

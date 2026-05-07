@@ -76,6 +76,7 @@ export default function Layout() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const { activeChild } = useAuthStore();
   const isParent = user?.role === "parent" || user?.role === "teacher";
 
   const initials = user?.name
@@ -111,7 +112,18 @@ export default function Layout() {
             </div>
             <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
           </div>
-          <p className="text-[11px] text-apple-gray ml-9">CBSE · Class 10</p>
+          {activeChild ? (
+            <button onClick={() => navigate("/child-picker")}
+              className="flex items-center gap-1 ml-9 text-[11px] text-apple-gray hover:text-apple-blue transition-colors group">
+              <span>{activeChild.examBoard} · Class {activeChild.grade}</span>
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <path d="M2 4l3 3 3-3"/>
+              </svg>
+            </button>
+          ) : (
+            <p className="text-[11px] text-apple-gray ml-9">Stellar</p>
+          )}
         </div>
 
         <div className="divider mx-4 mb-3" />
@@ -228,7 +240,15 @@ export default function Layout() {
             <span className="text-white text-[11px] font-semibold">{initials}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-semibold text-[var(--label)] truncate">{user?.name}</p>
+            <p className="text-[12px] font-semibold text-[var(--label)] truncate">
+              {activeChild ? activeChild.name : user?.name}
+            </p>
+            {activeChild && (
+              <button onClick={() => navigate("/child-picker")}
+                className="text-[10px] text-apple-blue hover:opacity-70 transition-opacity">
+                Switch child
+              </button>
+            )}
             <button
               onClick={async () => { await logoutApi().catch(() => {}); logout(); navigate("/login"); }}
               className="btn-destructive text-[11px]"

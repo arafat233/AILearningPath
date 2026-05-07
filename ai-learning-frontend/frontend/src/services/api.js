@@ -226,6 +226,10 @@ export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupon
 
 export const getPublicStats = () => api.get("/public/stats");
 
+export const createChild  = (data) => api.post("/user/children", data);
+export const getChildren  = ()     => api.get("/user/children");
+export const deleteChild  = (id)   => api.delete(`/user/children/${id}`);
+
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");
 export const scorePlacementQuiz = (answers)   => api.post("/v1/placement-quiz/score", { answers });

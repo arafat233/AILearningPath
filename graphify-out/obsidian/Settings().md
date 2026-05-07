@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
 community: "Community 17"
-location: "L14"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED

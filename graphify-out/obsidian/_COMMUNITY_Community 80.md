@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[aiQuota.integration.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
-- [[makeUser()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\integration\aiQuota.integration.test.js
+- [[Streak()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
+- [[streak.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\streak.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

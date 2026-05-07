@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
 community: "Community 17"
-location: "L366"
+location: "L353"
 tags:
   - graphify/code
   - graphify/INFERRED

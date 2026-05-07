@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\competition.controller.test.js"
 type: "code"
-community: "Community 50"
+community: "Community 52"
 location: "L35"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_50
+  - community/Community_52
 ---
 
 # mockRes()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[competition.controller.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_50
+#graphify/code #graphify/EXTRACTED #community/Community_52

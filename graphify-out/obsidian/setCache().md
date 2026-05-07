@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\cache.js"
 type: "code"
-community: "Community 9"
+community: "Community 8"
 location: "L11"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_9
+  - community/Community_8
 ---
 
 # setCache()
@@ -18,4 +18,4 @@ tags:
 - [[storeCacheResult()]] - `calls` [INFERRED]
 - [[tutorChat()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_9
+#graphify/code #graphify/INFERRED #community/Community_8

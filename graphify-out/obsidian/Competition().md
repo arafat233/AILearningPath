@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx"
 type: "code"
-community: "Community 5"
+community: "Community 6"
 location: "L7"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_5
+  - community/Community_6
 ---
 
 # Competition()
@@ -15,4 +15,4 @@ tags:
 - [[Competition.jsx]] - `contains` [EXTRACTED]
 - [[fmt()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_5
+#graphify/code #graphify/INFERRED #community/Community_6

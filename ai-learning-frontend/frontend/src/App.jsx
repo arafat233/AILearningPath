@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import { getMe } from "./services/api";
@@ -24,49 +24,60 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-import Layout           from "./components/Layout";
-import Login            from "./pages/Login";
-import Register         from "./pages/Register";
-import Onboarding       from "./pages/Onboarding";
-import StartOnboarding  from "./pages/StartOnboarding";
-import Dashboard        from "./pages/Dashboard";
-import Lessons          from "./pages/Lessons";
-import LessonView       from "./pages/LessonView";
-import Practice         from "./pages/Practice";
-import Bookmarks        from "./pages/Bookmarks";
-import Analytics        from "./pages/Analytics";
-import Competition      from "./pages/Competition";
-import LiveRoom         from "./pages/LiveRoom";
-import Planner          from "./pages/Planner";
-import Profile          from "./pages/Profile";
-import Settings         from "./pages/Settings";
-import VoiceTutor       from "./pages/VoiceTutor";
-import ExamReview       from "./pages/ExamReview";
-import Portal           from "./pages/Portal";
-import ChapterView         from "./pages/ChapterView";
-import NcertChapterView    from "./pages/NcertChapterView";
-import NcertTopicView      from "./pages/NcertTopicView";
-import Pricing             from "./pages/Pricing";
-import ForgotPassword   from "./pages/ForgotPassword";
-import ResetPassword    from "./pages/ResetPassword";
-import AdminLayout      from "./pages/admin/AdminLayout";
-import AdminOverview    from "./pages/admin/AdminOverview";
-import AdminUsers       from "./pages/admin/AdminUsers";
-import AdminQuestions   from "./pages/admin/AdminQuestions";
-import AdminTopics      from "./pages/admin/AdminTopics";
-import AdminCacheStats  from "./pages/admin/AdminCacheStats";
-import AdminAnalytics  from "./pages/admin/AdminAnalytics";
-import Landing          from "./pages/Landing";
-import CompanyLogin     from "./pages/CompanyLogin";
-import CompanyDashboard from "./pages/CompanyDashboard";
-import PYQBank          from "./pages/PYQBank";
-import ParentDashboard  from "./pages/ParentDashboard";
-import TermsOfService   from "./pages/TermsOfService";
-import PrivacyPolicy    from "./pages/PrivacyPolicy";
-import Certificate      from "./pages/Certificate";
-import PlacementQuiz   from "./pages/PlacementQuiz";
-import SchoolGroups    from "./pages/SchoolGroups";
-import SharedPlan      from "./pages/SharedPlan";
+// Shell — always needed, loaded eagerly so the frame never flickers
+import Layout  from "./components/Layout";
+import Landing from "./pages/Landing";
+
+// Route-level code splitting — each page loads only when navigated to
+const Login            = lazy(() => import("./pages/Login"));
+const Register         = lazy(() => import("./pages/Register"));
+const Onboarding       = lazy(() => import("./pages/Onboarding"));
+const StartOnboarding  = lazy(() => import("./pages/StartOnboarding"));
+const Dashboard        = lazy(() => import("./pages/Dashboard"));
+const Lessons          = lazy(() => import("./pages/Lessons"));
+const LessonView       = lazy(() => import("./pages/LessonView"));
+const Practice         = lazy(() => import("./pages/Practice"));
+const Bookmarks        = lazy(() => import("./pages/Bookmarks"));
+const Analytics        = lazy(() => import("./pages/Analytics"));
+const Competition      = lazy(() => import("./pages/Competition"));
+const LiveRoom         = lazy(() => import("./pages/LiveRoom"));
+const Planner          = lazy(() => import("./pages/Planner"));
+const Profile          = lazy(() => import("./pages/Profile"));
+const Settings         = lazy(() => import("./pages/Settings"));
+const VoiceTutor       = lazy(() => import("./pages/VoiceTutor"));
+const ExamReview       = lazy(() => import("./pages/ExamReview"));
+const Portal           = lazy(() => import("./pages/Portal"));
+const ChapterView      = lazy(() => import("./pages/ChapterView"));
+const NcertChapterView = lazy(() => import("./pages/NcertChapterView"));
+const NcertTopicView   = lazy(() => import("./pages/NcertTopicView"));
+const Pricing          = lazy(() => import("./pages/Pricing"));
+const ForgotPassword   = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword    = lazy(() => import("./pages/ResetPassword"));
+const AdminLayout      = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview    = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminUsers       = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminQuestions   = lazy(() => import("./pages/admin/AdminQuestions"));
+const AdminTopics      = lazy(() => import("./pages/admin/AdminTopics"));
+const AdminCacheStats  = lazy(() => import("./pages/admin/AdminCacheStats"));
+const AdminAnalytics   = lazy(() => import("./pages/admin/AdminAnalytics"));
+const CompanyLogin     = lazy(() => import("./pages/CompanyLogin"));
+const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
+const PYQBank          = lazy(() => import("./pages/PYQBank"));
+const ParentDashboard  = lazy(() => import("./pages/ParentDashboard"));
+const TermsOfService   = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy    = lazy(() => import("./pages/PrivacyPolicy"));
+const Certificate      = lazy(() => import("./pages/Certificate"));
+const PlacementQuiz    = lazy(() => import("./pages/PlacementQuiz"));
+const SchoolGroups     = lazy(() => import("./pages/SchoolGroups"));
+const SharedPlan       = lazy(() => import("./pages/SharedPlan"));
+
+function PageSpinner() {
+  return (
+    <div className="min-h-screen bg-apple-gray6 flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-apple-blue border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 // SEC-03: check user object (persisted from login) not the JWT (now in httpOnly cookie)
 const Protected = ({ children }) => {
@@ -127,7 +138,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <Routes>
+      <Suspense fallback={<PageSpinner />}>
+        <Routes>
           {/* Company-internal dashboard — completely independent auth, no student/parent access */}
           <Route path="/company-login" element={<CompanyLogin />} />
           <Route path="/company"       element={<CompanyDashboard />} />
@@ -178,6 +190,7 @@ export default function App() {
             <Route path="school"                      element={<SchoolGroups />} />
           </Route>
         </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest, submitFeedback, getNpsEligibility } from "../services/api";
+import { getReport, getAIAdvice, getAIUsage, getAICacheStats, getTopics, getLinkRequests, respondToLinkRequest, submitFeedback, getNpsEligibility, getDailyBrief } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { DashboardSkeleton } from "../components/Skeleton";
 
@@ -39,8 +39,13 @@ export default function Dashboard() {
   const [cacheStats, setCacheStats] = useState(null);
   const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
   const [scienceSub,    setScienceSub]    = useState(null);
+  const [brief,         setBrief]         = useState(null);
 
-  // initial load — report + advice + ai usage (cache-stats is admin-only, fetched separately)
+  // initial load — report + advice + ai usage + daily brief
+  useEffect(() => {
+    getDailyBrief().then((r) => setBrief(r.data?.data)).catch(() => {});
+  }, []);
+
   useEffect(() => {
     Promise.all([getReport(), getAIAdvice(), getAIUsage()])
       .then(([r, a, u]) => {
@@ -112,6 +117,9 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Daily Brief */}
+      {brief && <DailyBriefCard brief={brief} navigate={navigate} />}
 
       {/* Placement quiz nudge — shown once to users who haven't taken it yet */}
       {!user?.placementCompletedAt && (
@@ -467,6 +475,95 @@ function NPSSurveyBanner() {
       >
         {submitting ? "Submitting…" : "Submit feedback"}
       </button>
+    </div>
+  );
+}
+
+function DailyBriefCard({ brief, navigate }) {
+  const { weakTopics = [], revisionDue = [], planProgress } = brief;
+  const hasContent = weakTopics.length > 0 || revisionDue.length > 0 || planProgress;
+  if (!hasContent) return null;
+
+  return (
+    <div className="card p-6 border-l-4 border-apple-blue">
+      <p className="section-label text-apple-blue mb-4">Today's Brief</p>
+      <div className="grid md:grid-cols-3 gap-5">
+
+        {/* Weak topics */}
+        {weakTopics.length > 0 && (
+          <div>
+            <p className="text-[11px] font-semibold text-apple-red uppercase tracking-wider mb-2">Focus on</p>
+            <div className="flex flex-col gap-2">
+              {weakTopics.map((t) => (
+                <button
+                  key={t.topic}
+                  onClick={() => navigate("/practice", { state: { topic: t.topic } })}
+                  className="group flex items-center justify-between p-2.5 rounded-apple bg-apple-red/6 hover:bg-apple-red/12 transition-colors text-left"
+                >
+                  <span className="text-[13px] font-medium text-[var(--label)] truncate">{t.topic}</span>
+                  <span className="text-[11px] text-apple-red font-semibold shrink-0 ml-2">{t.accuracy}%</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Revision due */}
+        {revisionDue.length > 0 && (
+          <div>
+            <p className="text-[11px] font-semibold text-apple-orange uppercase tracking-wider mb-2">Revise today</p>
+            <div className="flex flex-col gap-2">
+              {revisionDue.map((r) => (
+                <button
+                  key={r.topic}
+                  onClick={() => navigate("/practice", { state: { topic: r.topic } })}
+                  className="group flex items-center justify-between p-2.5 rounded-apple bg-apple-orange/6 hover:bg-apple-orange/12 transition-colors text-left"
+                >
+                  <span className="text-[13px] font-medium text-[var(--label)] truncate">{r.topic}</span>
+                  <span className="text-[11px] text-apple-orange shrink-0 ml-2">{r.daysSince}d ago</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Plan progress */}
+        {planProgress && (
+          <div>
+            <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider mb-2">Plan progress</p>
+            <div className="p-2.5 rounded-apple bg-apple-blue/6">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[12px] font-medium text-[var(--label)] truncate">{planProgress.name}</span>
+                <span className="text-[12px] font-semibold text-apple-blue shrink-0 ml-2">{planProgress.pct}%</span>
+              </div>
+              <div className="h-1.5 bg-apple-gray5 rounded-full overflow-hidden mb-2">
+                <div
+                  className="h-full bg-apple-blue rounded-full transition-all duration-500"
+                  style={{ width: `${planProgress.pct}%` }}
+                />
+              </div>
+              {planProgress.todayTopics.length > 0 && (
+                <div>
+                  <p className="text-[10px] text-apple-gray mb-1">Today</p>
+                  {planProgress.todayTopics.slice(0, 2).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => navigate("/practice", { state: { topic: t } })}
+                      className={`block w-full text-left text-[12px] truncate px-2 py-1 rounded-apple transition-colors
+                        ${planProgress.todayCompleted
+                          ? "text-apple-green line-through"
+                          : "text-apple-blue hover:bg-apple-blue/10"}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

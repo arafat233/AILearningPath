@@ -1,11 +1,11 @@
 ---
 type: community
-members: 70
+members: 65
 ---
 
 # Community 3
 
-**Members:** 70 nodes
+**Members:** 65 nodes
 
 ## Members
 - [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
@@ -18,16 +18,13 @@ members: 70
 - [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
 - [[backup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
 - [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[buildOptions()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
+- [[bulkUpsertQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[chapterFromTopicId()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[chapterFromTopicId()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterFromTopicId()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[cleanAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 - [[cleanAnswer()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
-- [[cleanAnswer()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[cleanFormula()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[cleanFormula()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[err()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
 - [[err()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - [[global-setup.js]] - code - E:\AILearningPath\e2e-bot\global-setup.js
@@ -41,14 +38,12 @@ members: 70
 - [[logger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 - [[main()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
 - [[main()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[main()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
-- [[main()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[main()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
+- [[main()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
+- [[main()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
+- [[main()_6]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
 - [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[mapQuestion()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestionType()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
+- [[mapQuestionType()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[restore.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
 - [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
@@ -57,25 +52,25 @@ members: 70
 - [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
 - [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 - [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
+- [[seedDesktopContent.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
 - [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
 - [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
 - [[seedMockPaperAnswerKeys.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
-- [[seedMockPapers()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedMockPapers()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedNcertContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedNcertContent.js
 - [[seedNcertContent.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedNcertContent.js
 - [[seedPYQ()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPYQ.js
 - [[seedPYQ.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPYQ.js
-- [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestionBanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
 - [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
 - [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[seedTeachingContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
+- [[seedTopicDAG()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedTopicDAG.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
 - [[shuffle()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
-- [[shuffle()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
-- [[shuffle()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[shuffle()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[upsertTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\importNcert.js
 - [[write()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\logger.js
 
@@ -87,9 +82,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 3 edges to [[_COMMUNITY_Community 12]]
 - 1 edge to [[_COMMUNITY_Community 20]]
-- 1 edge to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[log()_1]] - degree 24, connects to 1 community
-- [[buildOptions()_2]] - degree 5, connects to 1 community
+- [[log()_1]] - degree 30, connects to 3 communities

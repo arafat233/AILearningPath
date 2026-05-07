@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js"
 type: "code"
-community: "Community 1"
-location: "L37"
+community: "Community 7"
+location: "L36"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_1
+  - community/Community_7
 ---
 
 # assignRanks()
@@ -15,4 +15,4 @@ tags:
 - [[scoringService.js]] - `contains` [EXTRACTED]
 - [[submitExam()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_1
+#graphify/code #graphify/INFERRED #community/Community_7

@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Bookmarks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
-- [[Bookmarks.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
+- [[SearchOverlay()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
+- [[SearchOverlay.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\SearchOverlay.jsx
 
 ## Live Query (requires Dataview plugin)
 

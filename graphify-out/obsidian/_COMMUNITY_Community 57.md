@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[CopyRoomLink()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
-- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
-- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[ChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[ChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[SectionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

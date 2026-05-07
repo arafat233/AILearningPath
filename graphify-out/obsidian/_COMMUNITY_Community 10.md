@@ -1,17 +1,24 @@
 ---
 type: community
-members: 21
+members: 28
 ---
 
 # Community 10
 
-**Members:** 21 nodes
+**Members:** 28 nodes
 
 ## Members
+- [[CatchUpBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[CreatePlanCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DayNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[NcertProgress()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanForm()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanSettingsModal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanSwitcher()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 - [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx

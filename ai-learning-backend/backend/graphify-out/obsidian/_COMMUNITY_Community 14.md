@@ -1,23 +1,22 @@
 ---
 type: community
-members: 10
+members: 9
 ---
 
 # Community 14
 
-**Members:** 10 nodes
+**Members:** 9 nodes
 
 ## Members
-- [[getPYQById()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQs()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[pyqController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[pyqService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[markRevised()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
+- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,10 +26,7 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 0]]
 
 ## Top bridge nodes
-- [[listTopics()]] - degree 3, connects to 1 community
-- [[listYears()]] - degree 3, connects to 1 community
-- [[listQuestions()]] - degree 3, connects to 1 community
-- [[getQuestion()]] - degree 3, connects to 1 community
+- [[getRevisionTopics()]] - degree 3, connects to 1 community

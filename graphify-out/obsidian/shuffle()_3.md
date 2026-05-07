@@ -1,17 +1,18 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js"
 type: "code"
-community: "Community 5"
-location: "L37"
+community: "Community 12"
+location: "L59"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_5
+  - community/Community_12
 ---
 
 # shuffle()
 
 ## Connections
-- [[NcertTopicView.jsx]] - `contains` [EXTRACTED]
+- [[buildOptions()_3]] - `calls` [EXTRACTED]
+- [[seedQuestionsAndMockPapers.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_5
+#graphify/code #graphify/EXTRACTED #community/Community_12

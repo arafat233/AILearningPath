@@ -13,5 +13,6 @@ tags:
 
 ## Connections
 - [[generateStudyPlan()]] - `contains` [EXTRACTED]
+- [[phaseOf()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_1

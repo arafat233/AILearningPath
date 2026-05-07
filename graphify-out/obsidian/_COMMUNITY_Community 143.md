@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[coupon.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\coupon.service.test.js
+- [[analysis.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\analysis.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

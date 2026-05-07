@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[playwright.config.js_1]] - code - E:\AILearningPath\e2e-bot\playwright.config.js
+- [[Save-Checkpoint.ps1]] - code - E:\AILearningPath\ClaudeTools\Save-Checkpoint.ps1
 
 ## Live Query (requires Dataview plugin)
 

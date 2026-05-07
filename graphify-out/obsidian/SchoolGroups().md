@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx"
 type: "code"
-community: "Community 20"
+community: "Community 12"
 location: "L199"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_20
+  - community/Community_12
 ---
 
 # SchoolGroups()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[SchoolGroups.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_20
+#graphify/code #graphify/EXTRACTED #community/Community_12

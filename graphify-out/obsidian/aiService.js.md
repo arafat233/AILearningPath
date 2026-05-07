@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiService.js"
 type: "code"
-community: "Community 9"
+community: "Community 8"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_9
+  - community/Community_8
 ---
 
 # aiService.js
@@ -20,4 +20,4 @@ tags:
 - [[getStudyAdvice()]] - `contains` [EXTRACTED]
 - [[getSystemPrompt()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_9
+#graphify/code #graphify/EXTRACTED #community/Community_8

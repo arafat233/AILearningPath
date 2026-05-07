@@ -45,7 +45,7 @@ SORT file.name ASC
 - 4 edges to [[_COMMUNITY_Community 2]]
 - 4 edges to [[_COMMUNITY_Community 0]]
 - 2 edges to [[_COMMUNITY_Community 9]]
-- 2 edges to [[_COMMUNITY_Community 12]]
+- 2 edges to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
 - [[sessionGet()]] - degree 9, connects to 4 communities

@@ -1,27 +1,30 @@
 ---
 type: community
-members: 14
+members: 17
 ---
 
 # Community 14
 
-**Members:** 14 nodes
+**Members:** 17 nodes
 
 ## Members
-- [[ActivityIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AddChildPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[AttemptsPanel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[MultiChildOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[ParentDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudentView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[StudyReminderCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[SubjectMastery()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[TeacherClassView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[WeeklyTrendChart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[daysSince()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
-- [[hoursMinutes()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ParentDashboard.jsx
+- [[buildEmailHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[buildStudentSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[escHtml()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[escHtml()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[frontendUrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[frontendUrl()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[onboardingEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[pct()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[runOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[runWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[sendDay2Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendDay7Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[sendReceiptEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[trendArrow()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[weeklyParentEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -29,3 +32,11 @@ members: 14
 TABLE source_file, type FROM #community/Community_14
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 7]]
+- 1 edge to [[_COMMUNITY_Community 13]]
+
+## Top bridge nodes
+- [[sendEmail()]] - degree 7, connects to 1 community
+- [[sendReceiptEmail()]] - degree 3, connects to 1 community

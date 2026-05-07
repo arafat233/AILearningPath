@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\adaptiveRecommenderService.js"
 type: "code"
-community: "Community 1"
+community: "Community 15"
 location: "L276"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_1
+  - community/Community_15
 ---
 
 # nextTopic()
@@ -15,4 +15,4 @@ tags:
 - [[adaptiveRecommenderService.js]] - `contains` [EXTRACTED]
 - [[getNextTopic()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_1
+#graphify/code #graphify/INFERRED #community/Community_15

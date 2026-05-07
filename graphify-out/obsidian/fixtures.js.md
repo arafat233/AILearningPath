@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\e2e-bot\helpers\fixtures.js"
 type: "code"
-community: "Community 103"
+community: "Community 105"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_103
+  - community/Community_105
 ---
 
 # fixtures.js
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[loadToken()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_103
+#graphify/code #graphify/EXTRACTED #community/Community_105

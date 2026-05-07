@@ -1,11 +1,11 @@
 ---
 type: community
-members: 73
+members: 80
 ---
 
 # Community 0
 
-**Members:** 73 nodes
+**Members:** 80 nodes
 
 ## Members
 - [[.choice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
@@ -29,6 +29,7 @@ members: 73
 - [[deleteStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[deleteTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
 - [[escapeRegex()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
+- [[generateStudyPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
 - [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
@@ -41,8 +42,10 @@ members: 73
 - [[getNcertChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[getNcertNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[getNcertTopicContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
+- [[getPaperQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[getPlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
 - [[getPlacementStatus()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 - [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getStudentAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
@@ -61,15 +64,19 @@ members: 73
 - [[listQuestions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
 - [[listSubjects()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
 - [[listTopics()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
+- [[markDayComplete()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[mockRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
 - [[ncertController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[paymentController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 - [[placementController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
+- [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
 - [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 - [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[saveNcertNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[saveProgress()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
+- [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[scorePlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
 - [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[setStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
@@ -95,16 +102,16 @@ SORT file.name ASC
 - 6 edges to [[_COMMUNITY_Community 4]]
 - 5 edges to [[_COMMUNITY_Community 9]]
 - 5 edges to [[_COMMUNITY_Community 10]]
-- 4 edges to [[_COMMUNITY_Community 14]]
+- 4 edges to [[_COMMUNITY_Community 13]]
 - 4 edges to [[_COMMUNITY_Community 5]]
-- 3 edges to [[_COMMUNITY_Community 11]]
 - 3 edges to [[_COMMUNITY_Community 2]]
 - 2 edges to [[_COMMUNITY_Community 15]]
 - 1 edge to [[_COMMUNITY_Community 18]]
+- 1 edge to [[_COMMUNITY_Community 14]]
 
 ## Top bridge nodes
-- [[.next()]] - degree 98, connects to 11 communities
+- [[.next()]] - degree 99, connects to 10 communities
 - [[portalController.js]] - degree 15, connects to 1 community
 - [[Rng]] - degree 6, connects to 1 community
+- [[getPlan()]] - degree 4, connects to 1 community
 - [[getLesson()]] - degree 3, connects to 1 community
-- [[getAdminStats()]] - degree 3, connects to 1 community

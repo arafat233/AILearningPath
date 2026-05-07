@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[ChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
-- [[SectionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ChapterView.jsx
+- [[isCacheableApi()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[isStaticAsset()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
 
 ## Live Query (requires Dataview plugin)
 

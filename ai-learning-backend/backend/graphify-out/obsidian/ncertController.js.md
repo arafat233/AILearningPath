@@ -15,6 +15,7 @@ tags:
 - [[getNcertChapter()]] - `contains` [EXTRACTED]
 - [[getNcertNote()]] - `contains` [EXTRACTED]
 - [[getNcertTopicContent()]] - `contains` [EXTRACTED]
+- [[getPaperQuestions()]] - `contains` [EXTRACTED]
 - [[getStudiedTopics()]] - `contains` [EXTRACTED]
 - [[listNcertChapters()]] - `contains` [EXTRACTED]
 - [[listNcertTopics()]] - `contains` [EXTRACTED]

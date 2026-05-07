@@ -6,6 +6,7 @@ import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
+import { getDailyBrief } from "../services/dailyBriefService.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -146,6 +147,15 @@ r.delete("/me", auth, async (req, res, next) => {
     res.clearCookie("token");
     res.clearCookie("refreshToken");
     res.json({ data: { message: "Account and all personal data deleted." } });
+  } catch (err) {
+    next(err);
+  }
+});
+
+r.get("/daily-brief", auth, async (req, res, next) => {
+  try {
+    const brief = await getDailyBrief(req.user.id);
+    res.json({ data: brief });
   } catch (err) {
     next(err);
   }

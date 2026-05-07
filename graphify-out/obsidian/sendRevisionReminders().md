@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\pushService.js"
 type: "code"
-community: "Community 15"
+community: "Community 21"
 location: "L131"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_15
+  - community/Community_21
 ---
 
 # sendRevisionReminders()
@@ -17,4 +17,4 @@ tags:
 - [[pushService.js]] - `contains` [EXTRACTED]
 - [[sendPush()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_15
+#graphify/code #graphify/EXTRACTED #community/Community_21

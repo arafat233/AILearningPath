@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[StatCard()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[Icon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[Layout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
+- [[Layout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\Layout.jsx
 
 ## Live Query (requires Dataview plugin)
 

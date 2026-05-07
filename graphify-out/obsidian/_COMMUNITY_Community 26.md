@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[MarksChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[PYQBank()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[PYQBank.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[QuestionCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[YearChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[Lessons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[Lessons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[ScienceSubBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[SubjectBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
+- [[ncertSubject()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx
 
 ## Live Query (requires Dataview plugin)
 

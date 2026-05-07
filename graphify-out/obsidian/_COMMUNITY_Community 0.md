@@ -1,13 +1,14 @@
 ---
 type: community
-members: 133
+members: 145
 ---
 
 # Community 0
 
-**Members:** 133 nodes
+**Members:** 145 nodes
 
 ## Members
+- [[activatePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminCreateCoupon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminCreateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminCreateTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -32,12 +33,15 @@ members: 133
 - [[clearVoiceHistory()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[createOrder()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[createSchool()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[createStudyPlan()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[deleteMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[deleteStudyPlan()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[deleteStudyReminder()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[evaluateExplanation()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[flagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[flushQueue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[forgotPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[generateShareToken()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIAdvice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAICacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIUsage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -72,9 +76,11 @@ members: 133
 - [[getPYQTopics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPYQYears()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPYQs()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPaperQuestions()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlacementQuiz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlacementStatus()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getPlanById()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPlans()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getPrediction()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
@@ -82,6 +88,7 @@ members: 133
 - [[getRevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getRoomQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getSchoolDetail()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getSharedPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudentAnalytics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudentAttempts()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudiedTopics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -102,6 +109,7 @@ members: 133
 - [[listNcertChapters()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listNcertTopics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
+- [[listStudyPlans()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[listTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
 - [[listYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
 - [[login()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -114,9 +122,11 @@ members: 133
 - [[recordAdaptiveAttempt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[removeLinkedStudent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[reschedulePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[resetPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[respondToLinkRequest()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
+- [[saveDayNote()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveNcertNote()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveProgress()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveTopicOrder()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -125,6 +135,7 @@ members: 133
 - [[searchTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[sendDoubtMessage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[setStudyReminder()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[startBookmarkPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startExam()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startMixedPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startTopic()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -136,6 +147,7 @@ members: 133
 - [[toggleNcertStudied()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[unsubscribePush()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[updateMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[updatePlanSettings()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
 - [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
 - [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
@@ -152,12 +164,12 @@ SORT file.name ASC
 ## Connections to other communities
 - 6 edges to [[_COMMUNITY_Community 1]]
 - 2 edges to [[_COMMUNITY_Community 13]]
+- 1 edge to [[_COMMUNITY_Community 5]]
 - 1 edge to [[_COMMUNITY_Community 4]]
-- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 123, connects to 3 communities
+- [[api.js]] - degree 135, connects to 3 communities
 - [[getHomeworkSetForStudent()]] - degree 4, connects to 2 communities
-- [[post()]] - degree 39, connects to 1 community
+- [[post()]] - degree 43, connects to 1 community
 - [[listTopics()]] - degree 3, connects to 1 community
 - [[listYears()]] - degree 3, connects to 1 community

@@ -1,56 +1,62 @@
 ---
 type: community
-members: 43
+members: 49
 ---
 
 # Community 5
 
-**Members:** 43 nodes
+**Members:** 49 nodes
 
 ## Members
-- [[AhaRevealCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[BarRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Card()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[CentralIdeaCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ClosingChallenge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[CompanyDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[CompanyDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
-- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
-- [[ConfidencePing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ConfidenceSummary()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[DerivationPart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ErrorHunt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[FeynmanBox()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[FormulaBlanks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[HookCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[InteractiveWorkedExample()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[MasteryPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[MiniTrend()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[MisconceptionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[MisconceptionChallenge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[MisconceptionDetails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ModeSelector()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[NcertTopicView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[NcertTopicView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[PlainEnglishCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ProgressBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[RealWorldCards()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[RecallCards()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[Section()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[SectionCheckpoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[TopicNavBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[TopicNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[VideoPlayer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[VisualDescToggle()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[ago()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[fmt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[injectCss()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[pct()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
-- [[sanitizeSvg()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
-- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.getDerivedStateFromError()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[.render()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[AdminOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[App()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[App.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[DoubtChat.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\DoubtChat.test.jsx
+- [[ErrorBoundary]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[Layout.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[Pricing.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Pricing.test.jsx
+- [[Protected()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[Protected()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[PublicOnly()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[PublicOnly()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[RootElement()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
+- [[VoiceTutor.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\VoiceTutor.test.jsx
+- [[_randomCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[buildResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[createSchool()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[createSchoolGroup()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollByCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[enrollStudentById()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[gcd()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicQuestionForSchoolVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[getDynamicTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getHomeworkQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getHomeworkSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getHomeworkVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getSchool()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[getSchoolGroup()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getSchoolSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getVariantIndex()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[hasDynamicTemplate()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[joinByCode()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[lcm()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[listDynamicTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[listMySchoolGroups()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[listSchools()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[myEnrollment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[openChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\DoubtChat.test.jsx
+- [[questionTemplateService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[renderPricing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Pricing.test.jsx
+- [[renderTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\VoiceTutor.test.jsx
+- [[renderWithRouter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[schoolController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
+- [[schoolVariantService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[seedFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -58,3 +64,17 @@ members: 43
 TABLE source_file, type FROM #community/Community_5
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 9 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 15]]
+- 1 edge to [[_COMMUNITY_Community 0]]
+- 1 edge to [[_COMMUNITY_Community 7]]
+- 1 edge to [[_COMMUNITY_Community 13]]
+
+## Top bridge nodes
+- [[schoolController.js]] - degree 9, connects to 1 community
+- [[questionTemplateService.js]] - degree 9, connects to 1 community
+- [[.render()]] - degree 8, connects to 1 community
+- [[getDynamicQuestion()]] - degree 5, connects to 1 community
+- [[enrollStudent()]] - degree 4, connects to 1 community

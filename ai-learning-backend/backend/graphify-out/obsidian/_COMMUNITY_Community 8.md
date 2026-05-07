@@ -35,7 +35,7 @@ SORT file.name ASC
 
 ## Connections to other communities
 - 3 edges to [[_COMMUNITY_Community 6]]
-- 1 edge to [[_COMMUNITY_Community 12]]
+- 1 edge to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
 - [[sendEmail()]] - degree 8, connects to 1 community

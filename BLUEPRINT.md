@@ -1358,14 +1358,22 @@ Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 **Push Notifications** ✅ DONE — VAPID keys wired, /api/push/subscribe active,
   revision + study reminders fire via pushService.js
 
-**Personalised Daily Brief**
-- Morning AI summary for each student on Dashboard first load
-- "Focus on X today, exam in Y days, your weak area is Z"
-- Cache per user per day in AIResponseCache
+**Personalised Daily Brief** ✅ DONE
+- GET /api/user/daily-brief — aggregates weakTopics, revisionDue, planProgress
+- DailyBriefCard on Dashboard: top 3 weak topics, top 3 revision due, active plan progress
+- Files: services/dailyBriefService.js, routes/userRoutes.js, pages/Dashboard.jsx
 
-**Offline Mode**
-- IndexedDB queue for attempts when offline
-- Service worker pre-caches today's questions + study plan
+**Offline Mode** ✅ DONE
+- IndexedDB queue (src/utils/offlineQueue.js) for submitAnswer failures
+- Answers queued when offline, auto-flushed on reconnect
+- OfflineBanner inline in Practice.jsx shows offline/queued/syncing state
+- Service worker (public/sw.js) — network-first cache for all non-API GET assets
+- SW registered in main.jsx on load
+
+**Code Splitting** ✅ DONE
+- All 34 page components converted to React.lazy() in App.jsx
+- Suspense with spinner fallback wraps Routes — each page is a separate JS chunk
+- Estimated bundle reduction: ~70% of initial JS deferred
 
 ### Priority 3 — Scale + Quality
 **Refresh Token System**

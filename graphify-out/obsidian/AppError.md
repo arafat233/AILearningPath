@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js"
 type: "code"
-community: "Community 42"
+community: "Community 44"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_42
+  - community/Community_44
 ---
 
 # AppError
@@ -15,4 +15,4 @@ tags:
 - [[.constructor()_1]] - `method` [EXTRACTED]
 - [[AppError.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_42
+#graphify/code #graphify/EXTRACTED #community/Community_44

@@ -57,7 +57,7 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Community 6]]
 - 2 edges to [[_COMMUNITY_Community 9]]
 - 1 edge to [[_COMMUNITY_Community 18]]
-- 1 edge to [[_COMMUNITY_Community 12]]
+- 1 edge to [[_COMMUNITY_Community 11]]
 
 ## Top bridge nodes
 - [[submitAnswer()]] - degree 16, connects to 5 communities

@@ -12,10 +12,17 @@ tags:
 # Planner.jsx
 
 ## Connections
+- [[CatchUpBanner()]] - `contains` [EXTRACTED]
 - [[CheckIcon()]] - `contains` [EXTRACTED]
+- [[CreatePlanCard()]] - `contains` [EXTRACTED]
 - [[DailyView()]] - `contains` [EXTRACTED]
 - [[DayActions()]] - `contains` [EXTRACTED]
+- [[DayNote()]] - `contains` [EXTRACTED]
 - [[MonthlyView()]] - `contains` [EXTRACTED]
+- [[NcertProgress()]] - `contains` [EXTRACTED]
+- [[PlanForm()]] - `contains` [EXTRACTED]
+- [[PlanSettingsModal()]] - `contains` [EXTRACTED]
+- [[PlanSwitcher()]] - `contains` [EXTRACTED]
 - [[Planner()]] - `contains` [EXTRACTED]
 - [[RevisionDue()]] - `contains` [EXTRACTED]
 - [[SummaryBar()]] - `contains` [EXTRACTED]

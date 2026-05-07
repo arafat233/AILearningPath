@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Save-Checkpoint.ps1]] - code - E:\AILearningPath\ClaudeTools\Save-Checkpoint.ps1
+- [[companyStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\companyStore.js
 
 ## Live Query (requires Dataview plugin)
 

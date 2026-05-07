@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, getBookmarks } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import FeedbackWidget from "../components/FeedbackWidget";
+import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
 
 // ── subject / sub-subject constants ────────────────────────────────
 const SUBJECTS = [
@@ -76,6 +77,8 @@ export default function Practice() {
   const [timeLimit, setTimeLimit]   = useState(null);
   const [timeWarning, setTimeWarning] = useState(false);
   const timerRef = useRef(null);
+  const [isOnline, setIsOnline]       = useState(navigator.onLine);
+  const [queuedCount, setQueuedCount] = useState(0);
 
   // Keyboard shortcuts: A/B/C/D select answer options
   useEffect(() => {
@@ -178,7 +181,18 @@ export default function Practice() {
         }]);
       }
     } catch (err) {
-      setError(err.response?.data?.error || "Submit failed");
+      const offline = !navigator.onLine || err.code === "ERR_NETWORK";
+      if (offline) {
+        await enqueueAttempt({
+          selectedOptionIndex: optionIndex,
+          timeTaken,
+          confidence: confidence || "medium",
+        }).catch(() => {});
+        setQueuedCount((c) => c + 1);
+        setError("You're offline — answer saved and will sync when you reconnect.");
+      } else {
+        setError(err.response?.data?.error || "Submit failed");
+      }
     } finally {
       setAnswering(false);
     }
@@ -254,6 +268,25 @@ export default function Practice() {
     getBookmarks().then((r) => setBookmarkCount(r.data?.length || 0)).catch(() => {});
   }, []);
 
+  // Offline detection + queue flush on reconnect
+  useEffect(() => {
+    getQueuedCount().then(setQueuedCount).catch(() => {});
+
+    const goOnline = async () => {
+      setIsOnline(true);
+      const flushed = await flushQueue((payload) => submitAnswer(payload)).catch(() => 0);
+      if (flushed > 0) setQueuedCount(0);
+    };
+    const goOffline = () => setIsOnline(false);
+
+    window.addEventListener("online",  goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online",  goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
   // Load topics for the active subject
   useEffect(() => {
     if (!activeSubject) return;
@@ -277,6 +310,7 @@ export default function Practice() {
 
     return (
       <div className="max-w-2xl mx-auto space-y-4">
+        <OfflineBanner isOnline={isOnline} queuedCount={queuedCount} />
         <div>
           <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Practice</h1>
           <p className="text-[14px] text-apple-gray mt-0.5">
@@ -498,6 +532,7 @@ export default function Practice() {
   // ── Question screen ─────────────────────────────────────────────
   return (
     <div className="max-w-2xl mx-auto space-y-4">
+      <OfflineBanner isOnline={isOnline} queuedCount={queuedCount} />
       {/* Header bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -881,5 +916,32 @@ function AssertionReasonText({ text }) {
   // Fallback — render as plain text
   return (
     <h2 className="text-[17px] font-semibold text-[var(--label)] leading-snug mb-6">{text}</h2>
+  );
+}
+
+function OfflineBanner({ isOnline, queuedCount }) {
+  if (isOnline && queuedCount === 0) return null;
+  if (isOnline && queuedCount > 0) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-3 rounded-apple-lg bg-apple-green/10 border border-apple-green/20">
+        <span className="text-apple-green text-[15px]">✓</span>
+        <p className="text-[13px] text-apple-green font-medium">
+          Back online — syncing {queuedCount} queued {queuedCount === 1 ? "answer" : "answers"}…
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-apple-lg bg-apple-orange/10 border border-apple-orange/20">
+      <span className="text-apple-orange text-[15px]">⚡</span>
+      <div>
+        <p className="text-[13px] text-apple-orange font-semibold">You're offline</p>
+        <p className="text-[12px] text-apple-orange/80">
+          {queuedCount > 0
+            ? `${queuedCount} ${queuedCount === 1 ? "answer" : "answers"} saved — will sync when you reconnect`
+            : "Answers will be saved locally and synced when you reconnect"}
+        </p>
+      </div>
+    </div>
   );
 }

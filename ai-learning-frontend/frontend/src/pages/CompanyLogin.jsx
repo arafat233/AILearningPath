@@ -28,7 +28,14 @@ export default function CompanyLogin() {
         body:    JSON.stringify({ email, password }),
       });
       const json = await res.json();
-      if (!res.ok) { setError(json.error || "Login failed"); return; }
+      if (!res.ok) {
+        setError(
+          res.status === 503
+            ? "Company dashboard not configured on this server. Add COMPANY_ADMIN_EMAIL and COMPANY_ADMIN_PASSWORD to the server .env file."
+            : json.error || "Login failed"
+        );
+        return;
+      }
       setToken(json.data.token);
       navigate("/company", { replace: true });
     } catch {

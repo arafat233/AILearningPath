@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js"
 type: "code"
 community: "Community 2"
-location: "L64"
+location: "L69"
 tags:
   - graphify/code
   - graphify/INFERRED

@@ -1,17 +1,18 @@
 ---
 type: community
-members: 4
+members: 5
 ---
 
 # Community 28
 
-**Members:** 4 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
-- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
+- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -76,6 +76,21 @@ export async function sessionDel(key) {
   }
 }
 
+// Atomic integer increment — used for token budget counters.
+// Sets TTL only on first increment (when value equals amount).
+export async function incrBy(key, amount, ttlSeconds) {
+  if (client) {
+    const result = await client.incrby(key, amount);
+    if (result === amount && ttlSeconds) await client.expire(key, ttlSeconds);
+    return result;
+  }
+  const entry = fallbackStore.get(key);
+  const current = (entry && Date.now() < entry.expiresAt) ? entry.value : 0;
+  const newVal = current + amount;
+  fallbackStore.set(key, { value: newVal, expiresAt: Date.now() + (ttlSeconds || 86400) * 1000 });
+  return newVal;
+}
+
 export function isUsingFallback() { return usingFallback || !client; }
 
 export async function pingRedis() {

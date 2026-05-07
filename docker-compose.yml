@@ -58,6 +58,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
+      MONTHLY_TOKEN_BUDGET: ${MONTHLY_TOKEN_BUDGET:-10000000}
       # URLs
       FRONTEND_URL: ${FRONTEND_URL:-https://stellaredu.in}
       BACKEND_URL: ${BACKEND_URL:-https://stellaredu.in}

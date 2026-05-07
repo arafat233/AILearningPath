@@ -15,6 +15,7 @@
 // ============================================================
 import crypto from "crypto";
 import { getCached, setCache } from "../utils/cache.js";
+import { getTokenBudgetStats } from "../utils/tokenBudget.js";
 import logger from "../utils/logger.js";
 import { getAIExplanation, getStudyAdvice } from "./aiService.js";
 
@@ -247,14 +248,16 @@ export const getUsageCount = async (userId) => {
 
 // ── Cache stats (for admin/debugging) ─────────────────────────────
 export const getCacheStats = async () => {
-  const [totalCached, totalHits, totalSaved] = await Promise.all([
+  const [totalCached, totalHits, totalSaved, budget] = await Promise.all([
     AIResponseCache.countDocuments(),
     AIResponseCache.aggregate([{ $group: { _id: null, total: { $sum: "$hitCount" } } }]),
     AIResponseCache.aggregate([{ $group: { _id: null, total: { $sum: "$savedCalls" } } }]),
+    getTokenBudgetStats(),
   ]);
   return {
-    totalCachedResponses: totalCached,
-    totalCacheHits:       totalHits[0]?.total || 0,
+    totalCachedResponses:  totalCached,
+    totalCacheHits:        totalHits[0]?.total || 0,
     totalClaudeCallsSaved: totalSaved[0]?.total || 0,
+    tokenBudget:           budget,
   };
 };

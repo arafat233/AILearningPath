@@ -6,9 +6,21 @@
 // ============================================================
 import Anthropic from "@anthropic-ai/sdk";
 import logger from "../utils/logger.js";
+import { checkTokenBudget, incrementTokenBudget } from "../utils/tokenBudget.js";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL  = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
+
+// Single gated wrapper around every Claude call.
+// Checks monthly token budget before calling and increments after.
+async function callClaude(params) {
+  const allowed = await checkTokenBudget();
+  if (!allowed) throw Object.assign(new Error("Monthly token budget exhausted — try again next month."), { code: "BUDGET_EXCEEDED" });
+  const res = await client.messages.create(params);
+  const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
+  incrementTokenBudget(tokens).catch(() => {});
+  return res;
+}
 
 // ── Subject-aware system prompts ─────────────────────────────────
 // Claude caches these — keep each string IDENTICAL across calls
@@ -70,7 +82,7 @@ Explain in 3-4 sentences:
 Be direct and helpful like a good tutor.`;
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 320,
@@ -112,7 +124,7 @@ Format:
 }`;
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 600,
@@ -150,7 +162,7 @@ Give 3-4 sentence personalised study advice:
 Keep it practical and direct.`;
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 280,
@@ -176,7 +188,7 @@ Give ONE helpful hint (2 sentences max):
 Be a good tutor — guide, don't solve.`;
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 120,
@@ -278,7 +290,7 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
 }`;
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 1800,
@@ -303,7 +315,7 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
   ];
 
   try {
-    const res = await client.messages.create({
+    const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 400,

@@ -58,6 +58,18 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Placement quiz frontend (intro → quiz → results, global timer, Dashboard nudge) | Complete |
 | Dynamic question variants (seeded per-student, 9 topics covered, infinite pool) | Complete |
 | School group system (join code, variant_index, guaranteed unique homework per student) | Complete |
+| RAG knowledge store (NCERT chunks injected as context into every Claude explanation) | Complete |
+| AI failover (primary model → haiku fallback → friendly 503, never hard-crashes) | Complete |
+| Output guardrails (prompt leakage + harmful content blocked before student sees response) | Complete |
+| Per-user token limits (Redis-backed daily + monthly caps) | Complete |
+| Global token budget (MONTHLY_TOKEN_BUDGET + 80% Resend alert email) | Complete |
+| Student model injection (accuracy / thinkingProfile / weakAreas / streak per Claude call) | Complete |
+| Conversation context (last explanation Redis 30 min, auto-injected into first chat turn) | Complete |
+| Lesson cache dual-store (Redis + MongoDB — survives Redis restarts) | Complete |
+| Answer verification for AI questions (PASS/FAIL second Claude call, discards bad Qs) | Complete |
+| Thumbs up/down feedback on AI explanations (20/hour rate limit, stored per user) | Complete |
+| Per-call AI metrics logging (AICallLog 90-day auto-purge) | Complete |
+| Admin AI metrics dashboard widget (calls, tokens, cache/RAG hit rate, latency, feedback) | Complete |
 | Jest backend test suite (285 tests — badge, prediction, coupon, admin, GDPR, middleware) | Complete |
 | Vitest frontend test suite (56 tests — Practice, DoubtChat, Layout guards, useFeatureFlags) | Complete |
 | k6 load tests (100 VU practice-session flow, p95 thresholds) | Complete |
@@ -185,6 +197,11 @@ npm run restore   # restores latest local backup (5-second abort window)
 | `SMTP_USER` | No | Email SMTP username |
 | `SMTP_PASS` | No | Email SMTP password |
 | `EMAIL_FROM` | No | From address for outgoing emails |
+| `MONTHLY_TOKEN_BUDGET` | No | Global monthly Claude token cap (0 = unlimited) |
+| `PER_USER_DAILY_TOKEN_LIMIT` | No | Per-user daily token cap via Redis (0 = disabled) |
+| `PER_USER_MONTHLY_TOKEN_LIMIT` | No | Per-user monthly token cap via Redis (0 = disabled) |
+| `ERROR_ALERT_EMAIL` | No | Receives 80% budget alert email (falls back to `COMPANY_ADMIN_EMAIL`) |
+| `RESEND_API_KEY` | No | Resend API key for budget alert and onboarding emails |
 | `BACKUP_DIR` | No | Local backup directory — default `./backups` |
 | `BACKUP_RETAIN_DAYS` | No | Days to keep local backups — default `7` |
 | `AWS_ACCESS_KEY_ID` | No | Optional S3 upload for backups |
@@ -266,12 +283,23 @@ Most answers are served at zero cost:
 1. Correct answer → return immediately (no call)
 2. Question has solution steps → serve steps (no call)
 3. Known mistake pattern → static response map (no call)
-4. In-memory cache hit → RAM lookup, 24h TTL (no call)
+4. Redis cache hit → shared 24h TTL (no call)
 5. DB cache hit → cross-user `AIResponseCache` collection (no call)
-6. Daily limit check → free 10/day, pro 100/day
-7. Call Claude → save to DB + RAM for all future users
+6. Daily limit check → free 10/day, pro 100/day, premium 500/day
+7. Call Claude → save to DB + Redis for all future users
 
-Cache key: `MD5(questionText + "::" + mistakeType + "::" + subject)`
+Cache key: `MD5(questionText.toLowerCase().trim() + "::" + mistakeType + "::" + subject)`
+
+Every Claude call is enhanced with:
+- **RAG**: top 3 NCERT chapter chunks injected as context
+- **Student model**: accuracy %, thinking profile, weak areas, streak days
+- **Conversation context**: last explanation auto-injected on first chat turn
+
+Every Claude call is protected by:
+- **Failover**: primary model → haiku fallback → 503 (never crashes)
+- **Output guardrails**: prompt leakage + harmful content checked before response reaches student
+- **Budget caps**: global monthly limit + per-user daily/monthly limits (all Redis-backed)
+- **Answer verification**: AI-generated questions verified with PASS/FAIL call before serving
 
 ---
 
@@ -286,7 +314,7 @@ AILearningPath/
 │   ├── routes/             # route definitions + middleware wiring
 │   ├── models/             # Mongoose schemas (22+ collections)
 │   ├── middleware/         # auth, adminAuth, validate, errorHandler, csrf
-│   ├── utils/              # AppError, logger, redisClient, sentry, featureFlags
+│   ├── utils/              # AppError, logger, redisClient, outputGuard, aiMetrics, tokenBudget
 │   ├── config/             # seed scripts (topics, lessons, CBSE curriculum)
 │   ├── scripts/            # backup.js, restore.js
 │   └── __tests__/          # Jest unit tests (285 tests across 29 suites)

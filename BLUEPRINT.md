@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — Multi-child accounts, AI mock papers, admin certificate view, Razorpay webhook backup, public homepage stats, ChildPicker flow.
+> Last updated: May 2026 — RAG knowledge store, AI failover + guardrails, per-user token limits, student model injection, conversation context, lesson cache to MongoDB, answer verification, thumbs up/down feedback, admin AI metrics dashboard, token budget alerts.
 
 ---
 
@@ -372,24 +372,94 @@ Unique index: { userId, topicId }
 Routes: GET/PUT /api/v1/ncert/notes/:topicId (auth required)
 ```
 
+### 3.24 AICallLog  ← NEW (per-call metrics, 90-day auto-purge)
+```
+userId:    ObjectId (ref: User)
+aiType:    String (explanation|hint|lesson|advice|chat|question)
+subject:   String
+model:     String (claude model ID used)
+tokens:    Number
+latencyMs: Number
+cached:    Boolean (was this served from cache?)
+hitRAG:    Boolean (did this call use NCERT RAG context?)
+success:   Boolean
+createdAt: Date (TTL index — expires after 90 days)
+
+Purpose: fire-and-forget logging for admin AI metrics dashboard
+```
+
+### 3.25 AIFeedback  ← NEW (thumbs up/down per response)
+```
+userId:   ObjectId (ref: User)
+cacheKey: String (MD5 of questionText+mistakeType+subject)
+aiType:   String
+rating:   Number (1 = thumbs up, -1 = thumbs down)
+subject:  String
+createdAt: Date
+Unique index: { userId, cacheKey } — one rating per user per response
+```
+
+### 3.26 NcertChunk  ← NEW (RAG knowledge store)
+```
+chapterId:     String (e.g. "ch1")
+chapterNumber: Number
+chapterTitle:  String
+section:       String
+text:          String (knowledge chunk for injection into Claude context)
+createdAt:     Date
+
+Full-text index on text field — $text search used by RAG retrieval
+437 Math chunks seeded via ragStore.js indexChapters()
+```
+
 ---
 
 ## 4. BACKEND SERVICES
 
 ### 4.1 aiService.js — Claude API Calls
 ```
-SUBJECT-AWARE SYSTEM PROMPTS (NEW):
+SUBJECT-AWARE SYSTEM PROMPTS:
   getSystemPrompt(subject) → subject-specific Claude persona
   Subjects: Math | Science | English | Social Science | Hindi
   Each prompt cached by Claude (90% token discount on repeats)
 
+AI RELIABILITY LAYER (callClaude internal):
+  1. Global monthly token budget check (MONTHLY_TOKEN_BUDGET env)
+  2. Per-user token budget check (PER_USER_DAILY/MONTHLY_TOKEN_LIMIT env)
+  3. Primary model call → on failure → claude-haiku-4-5-20251001 fallback → 503 if both fail
+  4. max_tokens truncation detection (stop_reason === "max_tokens") → appends notice
+  5. Output guardrail check (outputGuard.js) before returning to caller
+  6. logAICall() fire-and-forget metrics logging (AICallLog model)
+
+STUDENT MODEL INJECTION:
+  buildStudentContext(userId) → pulls UserProfile (accuracy, thinkingProfile, weakAreas)
+    + Streak → injects as system prompt prefix on every explanation/hint/chat call
+
+CONVERSATION CONTEXT (tutor chat):
+  storeLastExplanation(userId, question, explanation) → Redis 30-min key
+  getLastExplanation(userId) → auto-injected as prior context on first chat turn
+
+LESSON CACHE — DUAL STORE:
+  lessonCacheKey = MD5(topic.toLowerCase().trim() + "::" + subject + "::" + grade)
+  Checks Redis → MongoDB AIResponseCache → calls Claude → stores in both
+  Lesson cache survives Redis restarts (DB layer is permanent)
+
+ANSWER VERIFICATION:
+  verifyAIQuestion(question, userId) → second minimal Claude call: "Is [correctAnswer]
+    correct? Reply PASS or FAIL" → discards generated question on FAIL
+
+RAG CONTEXT:
+  queryRAG(questionText, subject) → NcertChunk full-text search → top 3 chunks
+  Injected as <context> block into getAIExplanation system prompt
+
 Functions:
-- getAIExplanation(question, mistakeType, correctAnswer, subject) → 320 tokens
-- generateAIQuestion(topic, weakness, subject) → JSON MCQ with 4 options + logicTags
-- generateLesson(topic, subject, grade) → structured lesson object
-- getStudyAdvice(profile, subject) → personalised study tip
+- getAIExplanation(question, mistakeType, correctAnswer, subject, userId) → 320 tokens
+- generateAIQuestion(topic, weakness, subject, userId) → MCQ + verification pass
+- generateLesson(topic, subject, grade) → Redis+DB cached structured lesson
+- getStudyAdvice(profile, subject, userId) → personalised study tip
 - generateHint(questionText, topic, subject) → 120 tokens, no answer given
-- getChatResponse(history, userMessage, topic, subject) → 400 tokens, multi-turn
+- getChatResponse(history, userMessage, topic, subject, userId) → 400 tokens, multi-turn
+    first turn auto-injects last explanation context if available
 ```
 
 ### 4.2 aiRouter.js — 7-Layer Cost Minimisation
@@ -397,16 +467,52 @@ Functions:
 Layer 1: isCorrect answer        → return null (0 cost)
 Layer 2: Has solutionSteps       → return steps + static tip (0 cost)
 Layer 3: Simple mistake pattern  → return STATIC_RESPONSES map (0 cost)
-Layer 4: In-memory cache hit     → RAM lookup 24h TTL (0 cost, fast)
-Layer 5: DB cache hit            → AIResponseCache lookup (0 cost, all users)
-Layer 6: Daily limit check       → free=10/day, pro=100/day
-Layer 7: Call Claude             → save to DB + RAM for all future users
+Layer 4: Redis cache hit         → shared across all instances, 24h TTL (0 cost)
+Layer 5: DB cache hit            → AIResponseCache permanent store (0 cost, all users)
+Layer 6: Daily limit check       → free=10/day, pro=100/day, premium=500/day
+Layer 7: Call Claude             → save to DB + Redis for all future users
 
 Cache key = MD5(questionText.lower() + "::" + mistakeType + "::" + subject)
-Subject included in key so Math/Science don't collide (UPDATED)
+Subject included in key so Math/Science don't collide
 
 Exports: smartAIExplanation, smartStudyAdvice, getUsageCount, getCacheStats
          checkAndIncrementUsage (exported — used by doubtRoutes)
+```
+
+### 4.1b ragStore.js — NCERT RAG Knowledge Store  ← NEW
+```
+indexChapters() → iterates NcertChapter.find(), chunks text by section,
+  bulk-upserts NcertChunk documents, builds MongoDB $text index
+  437 Math chunks indexed; run once per subject on first deploy
+
+queryRAG(questionText, subject) → $text search on NcertChunk (subject filter),
+  returns top 3 chunk texts (best-effort, does not throw on failure)
+  Used by getAIExplanation to inject context before Claude call
+
+Route: GET /api/ai/cache-stats checks RAG chunk count (via NcertChunk.countDocuments)
+```
+
+### 4.1c outputGuard.js  ← NEW (utils/outputGuard.js)
+```
+checkOutput(text, context) → { safe: bool, reason: string }
+  Checks:
+    - empty / too-short (<15 chars) → reason: "empty_response"
+    - prompt leakage patterns (system prompt fragments in response) → "prompt_leakage"
+    - harmful content (self-harm, weapons, explicit) → "harmful_content"
+  Called on every Claude response before it reaches the student
+  On unsafe: caller substitutes a safe fallback message
+```
+
+### 4.1d aiMetrics.js  ← NEW (utils/aiMetrics.js)
+```
+logAICall({ userId, aiType, subject, model, tokens, latencyMs, cached, hitRAG, success })
+  → AICallLog.create() fire-and-forget (never throws, errors swallowed)
+  Called at end of every aiService function
+
+Used by GET /api/ai/metrics (adminAuth) to power the admin dashboard widget:
+  - 7-day aggregation: totalCalls, totalTokens, avgLatency, cacheHits, failedCalls, ragHits
+  - Breakdown by aiType and by subject
+  - AIFeedback thumbs count (helpful vs not-helpful)
 ```
 
 ### 4.3 adaptiveService.js — Smart Question Selection (broad topic)
@@ -641,12 +747,16 @@ GET    /api/revision/last-day
 GET    /api/ai/advice
 GET    /api/ai/usage
 GET    /api/ai/cache-stats     → admin only (adminAuth)
+GET    /api/ai/metrics         → admin only: 7-day AICallLog aggregation + AIFeedback counts ← NEW
 POST   /api/ai/chat                 → multi-turn tutor chat
 POST   /api/ai/evaluate-explanation
 POST   /api/ai/hint
 POST   /api/ai/voice-answer         ← VoiceTutor; persists history in Redis (7d TTL, 50-msg cap)
 GET    /api/ai/voice-history        ← load persisted voice conversation
 DELETE /api/ai/voice-history        ← clear voice history
+POST   /api/ai/feedback             ← thumbs up/down rating (rate limit: 20/hour per user) ← NEW
+                                       body: { questionText, mistakeType, subject, rating: 1|-1 }
+                                       upserts AIFeedback (one rating per user per cacheKey)
 
 GET    /api/public/stats         ← homepage stats (totalUsers, aiHints, avgGrade); 5-min cache; no auth
 
@@ -935,6 +1045,18 @@ utils/featureFlags.js    — flag registry with env-var overrides + rollout %; g
   Rollout flags: new_ai_model (0%), new_practice_ui (0%)
   Boolean flags: nps_survey, coupon_codes, voice_tutor, competition_rooms, parent_portal,
                  weekly_digest_email, push_notifications (all default true)
+utils/outputGuard.js     ← NEW: pre-send safety check on every Claude response
+  checkOutput(text) → { safe, reason } — blocks prompt leakage + harmful content
+utils/aiMetrics.js       ← NEW: fire-and-forget per-call logging
+  logAICall({ userId, aiType, subject, model, tokens, latencyMs, cached, hitRAG, success })
+  → AICallLog.create() — powers admin AI metrics dashboard
+utils/tokenBudget.js     ← UPDATED: per-user + global budget functions
+  checkTokenBudget()            — global monthly cap (MONTHLY_TOKEN_BUDGET)
+  incrementTokenBudget(tokens)  — global monthly counter
+  checkUserTokenBudget(userId)  — per-user daily + monthly caps
+  incrementUserTokenBudget(userId, tokens) — per-user counters
+  checkAndAlertBudget()         — hourly cron: Resend email at 80% consumed (once/month)
+  getTokenBudgetStats()         — used by admin cache-stats widget
 scripts/backup.js        — mongodump → gzip archive → optional S3 upload; prunes old local backups; npm run backup
 scripts/restore.js       — mongorestore from local file or S3 path; 5s abort window; npm run restore
 .github/workflows/backup.yml — nightly cron 02:00 UTC; only runs if vars.BACKUP_ENABLED == 'true'
@@ -1042,9 +1164,10 @@ Complete api.js exports:
   Revision: getRevisionDue, markRevised, getLastDayRevision
   Exams:    listExams, startExam, submitExam, getLeaderboard(examId)
   Planner:  getPlan, markDayComplete, saveTopicOrder
-  AI:       getAIAdvice, getAIUsage, getAICacheStats, askTutor,
-            evaluateExplanation, getHint, voiceAnswer,
-            getVoiceHistory, clearVoiceHistory
+  AI:       getAIAdvice, getAIUsage, getAICacheStats, getAIMetrics,
+            askTutor, evaluateExplanation, getHint,
+            voiceAnswer, getVoiceHistory, clearVoiceHistory,
+            rateAIResponse(questionText, mistakeType, subject, rating)
   Badges:   getBadges
   Feedback: submitFeedback, getNpsEligibility
   Doubt:    getDoubtThread, sendDoubtMessage, clearDoubtThread
@@ -1077,23 +1200,52 @@ Complete api.js exports:
 ## 10. AI COST ARCHITECTURE
 
 ```
-Subject is now part of the cache key:
-  cacheKey = MD5(questionText.lower() + "::" + mistakeType + "::" + subject)
+CACHE KEY:
+  cacheKey = MD5(questionText.lower().trim() + "::" + mistakeType + "::" + subject)
+  Topic normalisation (toLowerCase + trim) prevents duplicate cache misses
 
-5 subject-specific system prompts — each cached by Claude:
+5 SUBJECT-SPECIFIC SYSTEM PROMPTS — each cached by Claude (90% token discount):
   Math          → CBSE Math teacher
   Science       → Physics/Chemistry/Biology teacher
   English       → First Flight + grammar teacher
   Social Science → History/Geography/Civics/Economics teacher
   Hindi         → Hindi grammar + prose teacher (prompt in Hindi)
 
-Voice Tutor lang:
+RELIABILITY:
+  Primary model (CLAUDE_MODEL env) → claude-haiku-4-5-20251001 fallback → 503 if both fail
+  max_tokens truncation → appended notice: "My answer was cut short — ask me to continue"
+  Output guardrails → prompt leakage + harmful content blocked before reaching student
+
+PERSONALISATION:
+  Student model injected per request: accuracy %, thinkingProfile, weakAreas, streak days
+  Conversation context: last explanation stored 30 min in Redis, auto-injected into first chat turn
+  RAG: top 3 NCERT chunks injected into explanation system prompt for relevant context
+
+LESSON CACHE — DUAL STORE (survives Redis restart):
+  Check Redis (24h TTL) → check MongoDB AIResponseCache → call Claude → store in both
+
+DAILY LIMITS (per plan): free=10/day, pro=100/day, premium=500/day
+  Enforced via atomic MongoDB $cond pipeline — race-condition safe
+  DoubtChat messages count against the same daily quota
+
+GLOBAL BUDGET:
+  MONTHLY_TOKEN_BUDGET env → blocks calls when exhausted
+  80% threshold → single Resend email alert per month (Redis dedup key)
+  PER_USER_DAILY/MONTHLY_TOKEN_LIMIT → optional per-user Redis caps
+
+VOICE TUTOR LANG:
   Hindi subject → SpeechRecognition.lang = "hi-IN"
   all others    → "en-IN"
 
-Daily limits (per plan): free=10/day, pro=100/day, premium=500/day
-  Enforced via atomic MongoDB $cond pipeline — race-condition safe
-DoubtChat messages count against the same daily quota
+FEEDBACK LOOP:
+  Thumbs up/down on every AI explanation (POST /api/ai/feedback)
+  Rate limited: 20 ratings/hour per user
+  Stored in AIFeedback (one per user per cacheKey) — visible in admin metrics
+
+METRICS:
+  Every Claude call logged to AICallLog (90-day TTL auto-purge)
+  Admin dashboard widget: 7-day totals, cache hit rate, RAG hit rate, avg latency,
+    guardrail blocks, token cost, breakdown by aiType and subject
 ```
 
 ---
@@ -1376,6 +1528,19 @@ To activate push (not yet wired):
 | Razorpay payment.captured webhook backup (idempotent upgrade when client tab closes) | ✅ Complete |
 | Admin Certificates page (/admin/certificates — users by accuracy, attempts, grade) | ✅ Complete |
 | AI Mock Paper (/mock-paper — generates exam from weak areas, timed, full review) | ✅ Complete |
+| RAG knowledge store (NcertChunk — NCERT context injected into Claude explanations) | ✅ Complete |
+| AI failover (primary model → haiku fallback → 503, never crashes) | ✅ Complete |
+| Output guardrails (prompt leakage + harmful content blocked before student sees response) | ✅ Complete |
+| Per-user token limits (Redis-backed daily + monthly caps via PER_USER_*_TOKEN_LIMIT env) | ✅ Complete |
+| Global token budget (MONTHLY_TOKEN_BUDGET + 80% Resend alert email, hourly cron) | ✅ Complete |
+| Student model injection (accuracy/thinkingProfile/weakAreas/streak per Claude call) | ✅ Complete |
+| Conversation context (last explanation stored Redis 30min, auto-injected on first chat turn) | ✅ Complete |
+| Lesson cache dual-store (Redis + MongoDB AIResponseCache — survives Redis restarts) | ✅ Complete |
+| Answer verification (PASS/FAIL second Claude call before serving AI-generated questions) | ✅ Complete |
+| max_tokens truncation handling (stop_reason check + user-visible continue prompt) | ✅ Complete |
+| Thumbs up/down feedback on AI explanations (AIFeedback model, 20/hour rate limit) | ✅ Complete |
+| Per-call AI metrics logging (AICallLog model, 90-day auto-purge TTL index) | ✅ Complete |
+| Admin AI metrics dashboard widget (7-day: calls, tokens, cache/RAG hit rate, latency, feedback) | ✅ Complete |
 
 ---
 
@@ -1466,6 +1631,14 @@ EMAIL_FROM=
 # Redis (falls back to in-memory Map in dev if not set)
 REDIS_URL=
 
+# AI token budgets (leave at 0 to disable)
+MONTHLY_TOKEN_BUDGET=0              # global monthly cap (e.g. 10000000 = 10M tokens)
+PER_USER_DAILY_TOKEN_LIMIT=0        # per-user daily token cap
+PER_USER_MONTHLY_TOKEN_LIMIT=0      # per-user monthly token cap
+ERROR_ALERT_EMAIL=                  # receives 80% budget alert email (falls back to COMPANY_ADMIN_EMAIL)
+RESEND_API_KEY=                     # Resend API key for budget alert emails
+RESEND_FROM=alerts@stellaredu.in    # From address for alert emails
+
 # Database backup
 BACKUP_DIR=./backups
 BACKUP_RETAIN_DAYS=7
@@ -1541,7 +1714,7 @@ AILearningPath/
 │   ├── server.js              ← Express + Socket.IO + all routes mounted
 │   │
 │   ├── models/
-│   │   ├── index.js           ← 20 Mongoose schemas (all collections)
+│   │   ├── index.js           ← 26 Mongoose schemas (all collections incl. AICallLog, AIFeedback, NcertChunk)
 │   │   ├── lessonModel.js     ← Lesson + LessonProgress
 │   │   └── chapterModel.js    ← NEW: Chapter (textbook curriculum, subject-agnostic)
 │   │
@@ -1562,8 +1735,9 @@ AILearningPath/
 │   │   └── practiceController.js
 │   │
 │   ├── services/
-│   │   ├── aiService.js                ← getSystemPrompt(subject), 5 subject prompts
+│   │   ├── aiService.js                ← failover + guardrails + student model + RAG + lesson DB cache
 │   │   ├── aiRouter.js                 ← 7-layer cache, subject in key, checkAndIncrementUsage
+│   │   ├── ragStore.js                 ← indexChapters() + queryRAG() (NcertChunk full-text search)
 │   │   ├── adaptiveService.js
 │   │   ├── analysisService.js
 │   │   ├── aiTeacherService.js
@@ -1616,16 +1790,19 @@ AILearningPath/
 │   │
 │   ├── utils/
 │   │   ├── AppError.js          ← operational error class
+│   │   ├── aiMetrics.js         ← NEW: logAICall() fire-and-forget → AICallLog model
 │   │   ├── cache.js             ← in-memory LRU (24h TTL)
 │   │   ├── cookieNames.js       ← __Host-token / __Secure-refreshToken / __Host-csrf (env-aware)
 │   │   ├── email.js             ← nodemailer wrapper (console fallback)
 │   │   ├── featureFlags.js      ← flag registry, env overrides, rollout %, getFlagsForUser
 │   │   ├── logger.js            ← structured logger (pretty dev / JSON prod)
+│   │   ├── outputGuard.js       ← NEW: checkOutput() — prompt leakage + harmful content filter
 │   │   ├── questionGenerator.js
 │   │   ├── redisClient.js       ← ioredis singleton + in-memory fallback
 │   │   ├── sentry.js            ← Sentry init, no-op without DSN
 │   │   ├── socket.js            ← Socket.IO rooms + per-IP conn limit + per-user submit throttle
 │   │   ├── swagger.js           ← OpenAPI 3.0 spec + setupSwagger(app) → /api-docs
+│   │   ├── tokenBudget.js       ← UPDATED: global + per-user token budgets + 80% alert email
 │   │   └── validateEnv.js       ← startup crash if required env vars missing
 │   │
 │   ├── config/

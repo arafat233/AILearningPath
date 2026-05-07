@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getPlans, createOrder, verifyPayment, getSubscription } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
-const PLAN_ORDER = ["pro", "premium"];
+const BASE_PLANS = ["pro", "premium"];
 
 const PLAN_ICONS = {
   pro:     "⚡",
@@ -23,14 +23,15 @@ function loadRazorpayScript() {
 }
 
 export default function Pricing() {
-  const navigate   = useNavigate();
-  const { user }   = useAuthStore();
+  const navigate  = useNavigate();
+  const { user }  = useAuthStore();
 
-  const [plans,       setPlans]       = useState({});
+  const [plans,        setPlans]        = useState({});
   const [subscription, setSubscription] = useState(null);
-  const [loading,     setLoading]     = useState(true);
-  const [paying,      setPaying]      = useState(null); // planKey being processed
-  const [error,       setError]       = useState("");
+  const [loading,      setLoading]      = useState(true);
+  const [paying,       setPaying]       = useState(null);
+  const [error,        setError]        = useState("");
+  const [billing,      setBilling]      = useState("monthly"); // "monthly" | "annual"
 
   useEffect(() => {
     Promise.all([getPlans(), getSubscription()])
@@ -45,20 +46,20 @@ export default function Pricing() {
   const handleUpgrade = async (planKey) => {
     setError("");
     setPaying(planKey);
-
     try {
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error("Razorpay failed to load. Check your internet connection.");
 
       const { data } = await createOrder(planKey);
       const { orderId, amount, currency, keyId, planName } = data.data;
+      const isAnnual = planKey.endsWith("_annual");
 
       const options = {
         key:         keyId,
         amount,
         currency,
         name:        "Stellar",
-        description: `${planName} Plan — 30 days`,
+        description: `${planName} — ${isAnnual ? "12 months" : "30 days"}`,
         order_id:    orderId,
         prefill: {
           name:  user?.name  || "",
@@ -73,7 +74,6 @@ export default function Pricing() {
               razorpaySignature: response.razorpay_signature,
               planKey,
             });
-            // Refresh subscription state
             const subRes = await getSubscription();
             setSubscription(subRes.data.data);
             navigate("/settings");
@@ -83,9 +83,7 @@ export default function Pricing() {
             setPaying(null);
           }
         },
-        modal: {
-          ondismiss: () => setPaying(null),
-        },
+        modal: { ondismiss: () => setPaying(null) },
       };
 
       const rz = new window.Razorpay(options);
@@ -117,13 +115,42 @@ export default function Pricing() {
         </p>
       </div>
 
+      {/* Billing toggle */}
+      <div className="flex justify-center">
+        <div className="flex bg-apple-gray6 border border-apple-gray5 rounded-full p-1 gap-1">
+          <button
+            onClick={() => setBilling("monthly")}
+            className={`px-5 py-1.5 rounded-full text-[13px] font-semibold transition-all ${
+              billing === "monthly"
+                ? "bg-white shadow text-[var(--label)]"
+                : "text-apple-gray hover:text-[var(--label)]"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBilling("annual")}
+            className={`px-5 py-1.5 rounded-full text-[13px] font-semibold transition-all flex items-center gap-1.5 ${
+              billing === "annual"
+                ? "bg-white shadow text-[var(--label)]"
+                : "text-apple-gray hover:text-[var(--label)]"
+            }`}
+          >
+            Annual
+            <span className="text-[10px] font-bold bg-apple-green text-white px-1.5 py-0.5 rounded-full">
+              Save 25%
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Current plan badge */}
       {currentPlan !== "free" && isActive && (
         <div className="card p-4 flex items-center gap-3 border-apple-green/30 bg-apple-green/5">
           <span className="text-apple-green text-lg">✅</span>
           <div>
             <p className="text-[13px] font-semibold text-apple-green">
-              You're on the {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan
+              You're on the {plans[currentPlan]?.name || currentPlan} plan
             </p>
             <p className="text-[12px] text-apple-gray">
               Expires {new Date(subscription.planExpiry).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
@@ -153,12 +180,7 @@ export default function Pricing() {
           )}
         </div>
         <ul className="mt-4 space-y-2">
-          {[
-            "10 AI explanations/day",
-            "Math subject only",
-            "Basic practice questions",
-            "Study planner",
-          ].map((f) => (
+          {["10 AI explanations/day", "Math subject only", "Basic practice questions", "Study planner"].map((f) => (
             <li key={f} className="flex items-center gap-2 text-[13px] text-apple-gray">
               <span className="text-apple-gray3">○</span> {f}
             </li>
@@ -168,13 +190,29 @@ export default function Pricing() {
 
       {/* Paid plans */}
       <div className="grid md:grid-cols-2 gap-4">
-        {PLAN_ORDER.map((planKey) => {
+        {BASE_PLANS.map((base) => {
+          const planKey   = billing === "annual" ? `${base}_annual` : base;
           const plan      = plans[planKey];
-          if (!plan) return null;
-          const price     = plan.price / 100;
-          const isCurrent = currentPlan === planKey && isActive;
-          const isPaying  = paying === planKey;
-          const isPremium = planKey === "premium";
+          const monthly   = plans[base]; // always the monthly plan for features list
+          if (!plan || !monthly) return null;
+
+          const isPremium    = base === "premium";
+          const isAnnual     = billing === "annual";
+          const isCurrent    = currentPlan === planKey && isActive;
+          // If on monthly but viewing annual tab, or vice versa — show a softer note
+          const isOtherBilling = isActive && (
+            (isAnnual  && currentPlan === base) ||
+            (!isAnnual && currentPlan === `${base}_annual`)
+          );
+          const isPaying     = paying === planKey;
+
+          // Pricing display
+          const totalPrice   = plan.price / 100;                          // e.g. 1799 or 199
+          const perMonth     = isAnnual ? Math.round(totalPrice / 12) : totalPrice;
+          const monthlyFull  = monthly.price / 100;                       // e.g. 199
+          const annualSaving = isAnnual
+            ? Math.round(monthlyFull * 12 - totalPrice)
+            : null;
 
           return (
             <div
@@ -193,25 +231,46 @@ export default function Pricing() {
                 </div>
               )}
 
+              {isAnnual && plan.badge && (
+                <div className="absolute top-4 right-4">
+                  <span className="bg-apple-green text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {plan.badge}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-[12px] font-semibold text-apple-gray uppercase tracking-wider mb-1">
-                    {PLAN_ICONS[planKey]} {plan.name}
+                    {PLAN_ICONS[base]} {monthly.name}
                   </p>
-                  <p className="text-[32px] font-bold text-[var(--label)]">
-                    ₹{price}
-                    <span className="text-[14px] font-normal text-apple-gray">/mo</span>
-                  </p>
+                  <div className="flex items-end gap-1">
+                    <p className="text-[32px] font-bold text-[var(--label)] leading-none">₹{perMonth}</p>
+                    <p className="text-[14px] text-apple-gray mb-0.5">/mo</p>
+                  </div>
+                  {isAnnual ? (
+                    <div className="space-y-0.5 mt-1">
+                      <p className="text-[12px] text-apple-gray">₹{totalPrice.toLocaleString("en-IN")} billed yearly</p>
+                      <p className="text-[11px] text-apple-green font-semibold">Save ₹{annualSaving} vs monthly</p>
+                    </div>
+                  ) : (
+                    <p className="text-[12px] text-apple-gray mt-1">billed monthly</p>
+                  )}
                 </div>
                 {isCurrent && (
                   <span className="text-[11px] font-semibold bg-apple-green/10 text-apple-green px-3 py-1 rounded-full">
                     Active
                   </span>
                 )}
+                {isOtherBilling && (
+                  <span className="text-[11px] font-semibold bg-apple-blue/10 text-apple-blue px-2 py-1 rounded-full">
+                    {isAnnual ? "On monthly" : "On annual"}
+                  </span>
+                )}
               </div>
 
               <ul className="space-y-2 mb-6">
-                {plan.features.map((f) => (
+                {(isAnnual ? plan.features : monthly.features).map((f) => (
                   <li key={f} className="flex items-start gap-2 text-[13px] text-[var(--label)]">
                     <span className="text-apple-green mt-0.5">✓</span> {f}
                   </li>
@@ -234,21 +293,17 @@ export default function Pricing() {
                     <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
                     Processing…
                   </span>
-                ) : isCurrent ? (
-                  "Current plan"
-                ) : (
-                  `Upgrade to ${plan.name}`
-                )}
+                ) : isCurrent ? "Current plan" : `Upgrade to ${monthly.name}${isAnnual ? " Annual" : ""}`}
               </button>
             </div>
           );
         })}
       </div>
 
-      {/* Footer note */}
+      {/* Footer */}
       <p className="text-center text-[12px] text-apple-gray">
-        All payments are secure and processed by Razorpay. Cancel anytime.
-        GST may be applicable. For support, contact us.
+        All payments are secure and processed by Razorpay.
+        {" "}Annual plans are billed once per year. GST may be applicable. For support, contact us.
       </p>
     </div>
   );

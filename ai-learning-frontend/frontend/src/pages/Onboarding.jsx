@@ -120,7 +120,7 @@ export default function Onboarding() {
             {saving ? "Setting up…" : "Continue to Dashboard →"}
           </button>
 
-          <button type="button" onClick={() => navigate("/dashboard")}
+          <button type="button" onClick={() => navigate("/")}
             className="w-full text-center text-[12px] text-apple-gray hover:text-[var(--label)] transition-colors">
             Skip for now
           </button>

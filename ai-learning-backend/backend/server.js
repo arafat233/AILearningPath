@@ -1,4 +1,5 @@
 import express from "express";
+import { alertOnError } from "./utils/errorAlert.js";
 import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -324,3 +325,16 @@ function shutdown(signal) {
 }
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT",  () => shutdown("SIGINT"));
+
+// Catch anything that escaped the Express error handler
+process.on("uncaughtException", (err) => {
+  logger.error("uncaughtException", { err: err.message, stack: err.stack?.split("\n").slice(0, 4).join(" | ") });
+  alertOnError(err, { route: "process", method: "uncaughtException" });
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  logger.error("unhandledRejection", { err: err.message, stack: err.stack?.split("\n").slice(0, 4).join(" | ") });
+  alertOnError(err, { route: "process", method: "unhandledRejection" });
+});

@@ -6,3 +6,4 @@ dist/
 stellar-session-export.md
 stellar-session-clean.md
 stellar-yc-session.md
+.env.production

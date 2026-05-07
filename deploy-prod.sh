@@ -29,7 +29,7 @@ done
 
 echo "=== [4/6] Building frontend ==="
 cd "$FRONTEND_DIR"
-npm ci --prefer-offline
+npm install --prefer-offline
 npm run build
 
 echo "=== [5/6] Deploying frontend to Nginx ==="

@@ -9,6 +9,7 @@ import { AIResponseCache } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
 import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
+import { inputGuard } from "../middleware/inputGuard.js";
 import { AppError } from "../utils/AppError.js";
 import logger from "../utils/logger.js";
 import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
@@ -57,7 +58,7 @@ const hintSchema = Joi.object({
 r.get("/advice",      auth,      studyAdvice);
 r.get("/usage",       auth,      usageInfo);
 r.get("/cache-stats", adminAuth, cacheStats); // admin only — business metrics
-r.post("/chat",       auth, perUserAILimit, validate(chatSchema), tutorChat);
+r.post("/chat",       auth, perUserAILimit, validate(chatSchema), inputGuard, tutorChat);
 
 // Admin: invalidate cached AI responses by cacheKey prefix or mistakeType
 r.delete("/cache", adminAuth, async (req, res, next) => {
@@ -90,7 +91,7 @@ r.delete("/voice-history", auth, async (req, res, next) => {
 });
 
 // VoiceTutor endpoint — uses + persists per-user history
-r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), async (req, res, next) => {
+r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), inputGuard, async (req, res, next) => {
   try {
     const { transcript, topic, subject } = req.body;
     const userId = req.user.id;
@@ -113,7 +114,7 @@ r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), async (req,
 });
 
 // Evaluate a student's written explanation — DB-cached by concept+explanation hash
-r.post("/evaluate-explanation", auth, perUserAILimit, validate(evalSchema), async (req, res, next) => {
+r.post("/evaluate-explanation", auth, perUserAILimit, validate(evalSchema), inputGuard, async (req, res, next) => {
   try {
     const { concept, userExplanation } = req.body;
 
@@ -166,7 +167,7 @@ Be encouraging but honest.`;
 // Hint for a stuck student — DB-cached by question text hash
 const HINT_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 
-r.post("/hint", auth, perUserAILimit, validate(hintSchema), async (req, res, next) => {
+r.post("/hint", auth, perUserAILimit, validate(hintSchema), inputGuard, async (req, res, next) => {
   try {
     const { questionText, topic } = req.body;
 

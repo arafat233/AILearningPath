@@ -15,7 +15,7 @@ function currentWeekStr() {
 
 export const listExams = async (req, res, next) => {
   try {
-    const exams = await Exam.find({ isActive: true }).select("title topic duration negativeMarking isMockPaper isPlacementQuiz").limit(50).lean();
+    const exams = await Exam.find({ isActive: true }).select("title topic duration totalQuestions questionDistribution negativeMarking isMockPaper isPlacementQuiz").limit(50).lean();
     res.json(exams);
   } catch (err) { next(err); }
 };

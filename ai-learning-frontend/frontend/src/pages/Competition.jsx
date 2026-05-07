@@ -183,9 +183,11 @@ export default function Competition() {
               <p className="text-[13px] text-apple-gray mt-0.5">
                 {exam.topic} · {exam.totalQuestions} questions · {exam.duration} min
               </p>
-              <p className="text-[12px] text-apple-gray3 mt-1">
-                {exam.questionDistribution.easy} easy · {exam.questionDistribution.medium} medium · {exam.questionDistribution.hard} hard
-              </p>
+              {exam.questionDistribution && (
+                <p className="text-[12px] text-apple-gray3 mt-1">
+                  {exam.questionDistribution.easy} easy · {exam.questionDistribution.medium} medium · {exam.questionDistribution.hard} hard
+                </p>
+              )}
             </div>
             <button
               onClick={() => handleJoin(exam)}

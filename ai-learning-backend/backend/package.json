@@ -13,6 +13,7 @@
     "seed:english-curriculum": "node config/seedEnglishCurriculum.js",
     "seed:hindi-curriculum": "node config/seedHindiCurriculum.js",
     "seed:social-science-curriculum": "node config/seedSocialScienceCurriculum.js",
+    "rag:build": "node scripts/buildRagIndex.js",
     "import:ncert": "node config/importNcert.js",
     "seed:ncert-content": "node config/seedNcertContent.js",
     "seed:pyq": "node config/seedPYQ.js",

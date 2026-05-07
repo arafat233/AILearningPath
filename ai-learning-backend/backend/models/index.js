@@ -463,6 +463,26 @@ const doubtThreadSchema = new mongoose.Schema({
 doubtThreadSchema.index({ userId: 1, questionId: 1 });
 export const DoubtThread = mongoose.model("DoubtThread", doubtThreadSchema);
 
+// ==================== NcertChunk (RAG knowledge store) ====================
+// Each document is one searchable chunk of NCERT content.
+// Built once by scripts/buildRagIndex.js, queried at every Claude call.
+const ncertChunkSchema = new mongoose.Schema({
+  text:          { type: String, required: true },  // the actual content to inject into prompt
+  subject:       { type: String, required: true },  // "Mathematics" | "Science" | etc.
+  grade:         { type: String, default: "10" },
+  chapterNumber: { type: Number },
+  chapterTitle:  { type: String },
+  conceptName:   { type: String },
+  topicId:       { type: String },
+  chunkType:     { type: String, enum: ["overview", "concept", "qa", "formula"] },
+  source:        { type: String },                  // e.g. "NCERT Ch.4 Exercise 4.1"
+});
+// Full-text search index — powers RAG retrieval
+ncertChunkSchema.index({ text: "text", chapterTitle: "text", conceptName: "text" });
+// Filter index — narrows search to subject/chapter before scoring
+ncertChunkSchema.index({ subject: 1, chapterNumber: 1 });
+export const NcertChunk = mongoose.model("NcertChunk", ncertChunkSchema);
+
 // ==================== PushSubscription (PWA push) ====================
 const pushSubscriptionSchema = new mongoose.Schema({
   userId:       { type: String, required: true },

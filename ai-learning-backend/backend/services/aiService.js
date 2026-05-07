@@ -7,6 +7,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import logger from "../utils/logger.js";
 import { checkTokenBudget, incrementTokenBudget } from "../utils/tokenBudget.js";
+import { retrieveContext } from "../utils/ragStore.js";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL  = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
@@ -81,12 +82,18 @@ Explain in 3-4 sentences:
 
 Be direct and helpful like a good tutor.`;
 
+  // Retrieve relevant NCERT content — grounds the explanation in the actual textbook
+  const ncertContext = await retrieveContext(question, subject);
+  const systemPrompt = ncertContext
+    ? `${getSystemPrompt(subject)}\n\nRelevant NCERT content for this question:\n${ncertContext}`
+    : getSystemPrompt(subject);
+
   try {
     const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 320,
-      system: getSystemPrompt(subject),
+      system: systemPrompt,
       messages: [{ role: "user", content: prompt }],
     });
     const text   = res.content[0]?.text?.trim() || null;
@@ -187,12 +194,17 @@ Give ONE helpful hint (2 sentences max):
 
 Be a good tutor — guide, don't solve.`;
 
+  const ncertContext = await retrieveContext(questionText, subject);
+  const systemPrompt = ncertContext
+    ? `${getSystemPrompt(subject)}\n\nRelevant NCERT content:\n${ncertContext}`
+    : getSystemPrompt(subject);
+
   try {
     const res = await callClaude({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 120,
-      system: getSystemPrompt(subject),
+      system: systemPrompt,
       messages: [{ role: "user", content: prompt }],
     });
     return res.content[0]?.text?.trim() || null;

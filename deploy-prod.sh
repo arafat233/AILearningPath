@@ -12,7 +12,7 @@ cd "$REPO_DIR"
 git pull origin main
 
 echo "=== [2/6] Rebuilding Docker containers ==="
-docker-compose down
+docker-compose down --remove-orphans
 docker-compose build --no-cache api
 docker-compose up -d
 

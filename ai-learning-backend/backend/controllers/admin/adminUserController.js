@@ -33,3 +33,20 @@ export const updateUserRole = async (req, res, next) => {
     res.json(user);
   } catch (err) { next(err); }
 };
+
+export const updateUserPlan = async (req, res, next) => {
+  try {
+    const { plan, isPaid, daysToAdd = 30 } = req.body;
+    const update = { plan, isPaid };
+    if (isPaid && daysToAdd > 0) {
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + daysToAdd);
+      update.planExpiry = expiry;
+    } else if (!isPaid) {
+      update.planExpiry = null;
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
+    if (!user) return next(new AppError("User not found", 404));
+    res.json({ data: user });
+  } catch (err) { next(err); }
+};

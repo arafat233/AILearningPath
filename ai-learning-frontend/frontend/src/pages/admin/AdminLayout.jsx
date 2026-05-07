@@ -2,12 +2,14 @@ import { NavLink, Outlet, Navigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 
 const links = [
-  { to: "/admin",           label: "Overview",  exact: true },
-  { to: "/admin/questions", label: "Questions" },
-  { to: "/admin/topics",    label: "Topics"    },
-  { to: "/admin/users",     label: "Users"     },
-  { to: "/admin/cache",     label: "AI Cache"     },
-  { to: "/admin/analytics", label: "Analytics"   },
+  { to: "/admin",            label: "Overview",  exact: true },
+  { to: "/admin/questions",  label: "Questions" },
+  { to: "/admin/topics",     label: "Topics"    },
+  { to: "/admin/users",      label: "Users"     },
+  { to: "/admin/cache",      label: "AI Cache"  },
+  { to: "/admin/analytics",  label: "Analytics" },
+  { to: "/admin/coupons",    label: "Coupons"   },
+  { to: "/admin/payments",   label: "Payments"  },
 ];
 
 export default function AdminLayout() {

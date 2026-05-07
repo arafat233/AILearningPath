@@ -211,10 +211,14 @@ export const unsubscribePush = ()    => api.delete("/push/subscribe");
 
 export const getFlags           = ()          => api.get("/flags");
 
-export const adminGetCoupons    = ()          => api.get("/admin/coupons");
-export const adminCreateCoupon  = (data)      => api.post("/admin/coupons", data);
-export const adminUpdateCoupon  = (id, data)  => api.put(`/admin/coupons/${id}`, data);
-export const adminDeleteCoupon  = (id)        => api.delete(`/admin/coupons/${id}`);
+export const adminGetCoupons             = ()          => api.get("/admin/coupons");
+export const adminCreateCoupon           = (data)      => api.post("/admin/coupons", data);
+export const adminUpdateCoupon           = (id, data)  => api.put(`/admin/coupons/${id}`, data);
+export const adminDeleteCoupon           = (id)        => api.delete(`/admin/coupons/${id}`);
+export const adminGetPayments            = (params)    => api.get("/admin/payments", { params });
+export const adminUpdateUserPlan         = (id, data)  => api.put(`/admin/users/${id}/plan`, data);
+export const adminRunOnboardingEmails    = ()          => api.post("/admin/run-onboarding-emails");
+export const adminRunWeeklyParentEmails  = ()          => api.post("/admin/run-weekly-parent-emails");
 
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");

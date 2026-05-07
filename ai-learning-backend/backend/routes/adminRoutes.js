@@ -3,14 +3,14 @@ import Joi from "joi";
 import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
 
-import { listUsers, updateUserRole }                                       from "../controllers/admin/adminUserController.js";
+import { listUsers, updateUserRole, updateUserPlan }                       from "../controllers/admin/adminUserController.js";
 import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
 import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
 import { runOnboardingEmails }                                             from "../services/onboardingEmailService.js";
 import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
-import { Coupon }                                                          from "../models/index.js";
+import { Coupon, PaymentRecord }                                           from "../models/index.js";
 
 const r = Router();
 r.use(adminAuth);
@@ -70,6 +70,30 @@ r.post("/run-weekly-parent-emails", async (req, res, next) => {
 // Users
 r.get("/users",                      listUsers);
 r.put("/users/:id/role",             validate(roleSchema),     updateUserRole);
+
+const userPlanSchema = Joi.object({
+  plan:      Joi.string().valid("free", "pro", "pro_annual", "premium", "premium_annual").required(),
+  isPaid:    Joi.boolean().required(),
+  daysToAdd: Joi.number().integer().min(0).max(3650).optional(),
+});
+r.put("/users/:id/plan",             validate(userPlanSchema), updateUserPlan);
+
+// Payments (read-only audit log)
+r.get("/payments", async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const [records, total] = await Promise.all([
+      PaymentRecord.find()
+        .sort({ createdAt: -1 })
+        .skip((Number(page) - 1) * Number(limit))
+        .limit(Number(limit))
+        .populate("userId", "name email")
+        .lean(),
+      PaymentRecord.countDocuments(),
+    ]);
+    res.json({ data: { records, total, page: Number(page) } });
+  } catch (err) { next(err); }
+});
 
 // Questions — SEC-09: validate() added to PUT route
 r.get("/questions",                  listQuestions);

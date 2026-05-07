@@ -1,25 +1,70 @@
-import { User, Question, Attempt, PaymentRecord } from "../../models/index.js";
+import { User, Question, Attempt, PaymentRecord, AIUsageStats } from "../../models/index.js";
 import { getCacheStats } from "../../services/aiRouter.js";
+
+// Claude Haiku 4.5 pricing (USD)
+const HAIKU_INPUT_PER_M  = 0.80;
+const HAIKU_OUTPUT_PER_M = 4.00;
+// We track output tokens only; use output price for cost estimate
+const costUSD = (tokens) => parseFloat(((tokens / 1_000_000) * HAIKU_OUTPUT_PER_M).toFixed(4));
 
 export const getAdminStats = async (req, res, next) => {
   try {
-    const [totalUsers, totalQuestions, totalAttempts, aiStats, planBreakdown] = await Promise.all([
+    const today = new Date().toISOString().split("T")[0];
+
+    const [
+      totalUsers,
+      paidUsers,
+      totalQuestions,
+      totalAttempts,
+      aiStats,
+      planBreakdown,
+      revenueAgg,
+      claudeAgg,
+    ] = await Promise.all([
       User.countDocuments(),
+      User.countDocuments({ isPaid: true }),
       Question.countDocuments(),
       Attempt.countDocuments(),
       getCacheStats(),
       User.aggregate([{ $group: { _id: "$plan", count: { $sum: 1 } } }]),
+      // All-time captured revenue in paise
+      PaymentRecord.aggregate([
+        { $match: { status: "captured" } },
+        { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } },
+      ]),
+      // All-time Claude API usage
+      AIUsageStats.aggregate([
+        { $group: { _id: null, calls: { $sum: "$callsMade" }, tokens: { $sum: "$tokensUsed" } } },
+      ]),
     ]);
 
-    const today = new Date().toISOString().split("T")[0];
     const activeToday = await User.countDocuments({ lastActiveDate: today });
+
+    const totalRevenuePaise = revenueAgg[0]?.total  || 0;
+    const totalPayments     = revenueAgg[0]?.count  || 0;
+    const claudeCalls       = claudeAgg[0]?.calls   || 0;
+    const claudeTokens      = claudeAgg[0]?.tokens  || 0;
 
     res.json({
       totalUsers,
+      paidUsers,
+      freeUsers:    totalUsers - paidUsers,
       activeToday,
       totalQuestions,
       totalAttempts,
       planBreakdown: planBreakdown.reduce((acc, p) => { acc[p._id || "free"] = p.count; return acc; }, {}),
+      revenue: {
+        totalPaise:   totalRevenuePaise,
+        totalRupees:  Math.round(totalRevenuePaise / 100),
+        totalPayments,
+      },
+      claude: {
+        totalCalls:         claudeCalls,
+        totalTokens:        claudeTokens,
+        estimatedCostUSD:   costUSD(claudeTokens),
+        callsSaved:         aiStats.totalClaudeCallsSaved,
+        estimatedSavedUSD:  parseFloat(((aiStats.totalClaudeCallsSaved / 1_000_000) * HAIKU_OUTPUT_PER_M * 300).toFixed(4)),
+      },
       aiCache: aiStats,
     });
   } catch (err) { next(err); }

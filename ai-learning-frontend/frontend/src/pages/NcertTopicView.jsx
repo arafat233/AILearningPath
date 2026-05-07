@@ -1516,7 +1516,7 @@ function PaperPracticeCard({ q, index }) {
 
       {/* Show answer toggle */}
       <button onClick={() => setRevealed(r => !r)}
-        style={{ width:"100%", padding:"10px 20px", borderTop:"1px solid #F5F5F7", background: revealed ? "#F5F5F7":"transparent",
+        style={{ width:"100%", padding:"10px 20px", background: revealed ? "#F5F5F7":"transparent",
           display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", border:"none", borderTop:"1px solid #F5F5F7" }}>
         <span style={{ fontSize:"12px", fontWeight:600, color:"#007AFF" }}>{revealed ? "Hide Answer" : "Show Answer"}</span>
         <span style={{ color:"#007AFF", fontSize:"14px", transform: revealed ? "rotate(90deg)":"rotate(0deg)", transition:"transform 0.15s" }}>›</span>

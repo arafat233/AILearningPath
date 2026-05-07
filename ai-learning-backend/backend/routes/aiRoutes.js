@@ -5,7 +5,7 @@ import Joi from "joi";
 import { studyAdvice, usageInfo, cacheStats, tutorChat } from "../controllers/aiController.js";
 import { getChatResponse, generateHint } from "../services/aiService.js";
 import { getCached, setCache } from "../utils/cache.js";
-import { AIResponseCache } from "../models/index.js";
+import { AIResponseCache, AIFeedback, AICallLog } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
 import { adminAuth } from "../middleware/adminAuth.js";
 import { validate } from "../middleware/validate.js";
@@ -193,7 +193,7 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), inputGuard, async (r
     }
 
     logger.info("AI hint — calling Claude", { userId: req.user.id, topic });
-    const hint = await generateHint(questionText, topic || "Math");
+    const hint = await generateHint(questionText, topic || "Math", req.body.subject || "Math", req.user.id);
     if (hint) {
       const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
       AIResponseCache.findOneAndUpdate(
@@ -208,6 +208,79 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), inputGuard, async (r
   } catch (err) {
     next(err);
   }
+});
+
+// 5. Thumbs up/down on AI explanations
+const feedbackSchema = Joi.object({
+  questionText: Joi.string().min(1).max(500).required(),
+  mistakeType:  Joi.string().max(50).optional().allow(""),
+  subject:      Joi.string().max(50).optional().allow(""),
+  aiType:       Joi.string().valid("explanation","hint","chat").default("explanation"),
+  rating:       Joi.number().valid(-1, 1).required(),
+});
+
+r.post("/feedback", auth, validate(feedbackSchema), async (req, res, next) => {
+  try {
+    const { questionText, mistakeType = "unknown", subject = "Math", aiType = "explanation", rating } = req.body;
+    const cacheKey = crypto.createHash("md5")
+      .update(`${questionText.toLowerCase().trim()}::${mistakeType}::${subject}`)
+      .digest("hex");
+
+    await AIFeedback.findOneAndUpdate(
+      { userId: req.user.id, cacheKey },
+      { userId: req.user.id, cacheKey, aiType, rating, subject },
+      { upsert: true, new: true }
+    );
+    res.json({ data: { saved: true } });
+  } catch (err) { next(err); }
+});
+
+// 6. Admin: AI call metrics
+r.get("/metrics", adminAuth, async (req, res, next) => {
+  try {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // last 7 days
+    const [totals, byType, bySubject, ragHits, feedback] = await Promise.all([
+      AICallLog.aggregate([
+        { $match: { createdAt: { $gte: since } } },
+        { $group: { _id: null, calls: { $sum: 1 }, tokens: { $sum: "$tokens" }, avgLatency: { $avg: "$latencyMs" }, cached: { $sum: { $cond: ["$cached", 1, 0] } }, failed: { $sum: { $cond: ["$success", 0, 1] } } } },
+      ]),
+      AICallLog.aggregate([
+        { $match: { createdAt: { $gte: since } } },
+        { $group: { _id: "$aiType", calls: { $sum: 1 }, tokens: { $sum: "$tokens" } } },
+        { $sort: { calls: -1 } },
+      ]),
+      AICallLog.aggregate([
+        { $match: { createdAt: { $gte: since } } },
+        { $group: { _id: "$subject", calls: { $sum: 1 } } },
+        { $sort: { calls: -1 } },
+      ]),
+      AICallLog.countDocuments({ createdAt: { $gte: since }, hitRAG: true }),
+      AIFeedback.aggregate([
+        { $group: { _id: "$rating", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const t = totals[0] || {};
+    const thumbsUp   = feedback.find((f) => f._id === 1)?.count  || 0;
+    const thumbsDown = feedback.find((f) => f._id === -1)?.count || 0;
+
+    res.json({
+      data: {
+        period: "last 7 days",
+        totalCalls:   t.calls       || 0,
+        totalTokens:  t.tokens      || 0,
+        avgLatencyMs: Math.round(t.avgLatency || 0),
+        cacheHits:    t.cached      || 0,
+        failedCalls:  t.failed      || 0,
+        ragHits,
+        cacheHitRate: t.calls ? `${Math.round((t.cached / t.calls) * 100)}%` : "0%",
+        ragHitRate:   t.calls ? `${Math.round((ragHits  / t.calls) * 100)}%` : "0%",
+        byType,
+        bySubject,
+        feedback: { thumbsUp, thumbsDown, total: thumbsUp + thumbsDown },
+      },
+    });
+  } catch (err) { next(err); }
 });
 
 export default r;

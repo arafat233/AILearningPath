@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, getBookmarks } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, getBookmarks, rateAIResponse } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import FeedbackWidget from "../components/FeedbackWidget";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
@@ -65,6 +65,7 @@ export default function Practice() {
   const [bookmarked, setBookmarked]     = useState(false);
   const [hint, setHint]                 = useState(null);
   const [hintLoading, setHintLoading]   = useState(false);
+  const [explRating, setExplRating]     = useState(null); // 1 | -1 | null
   const [showSummary, setShowSummary]   = useState(false);
   const [wrongAnswers, setWrongAnswers] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -254,6 +255,7 @@ export default function Practice() {
     setBookmarked(false);
     setHint(null);
     setHintLoading(false);
+    setExplRating(null);
     if (!bookmarkMode && feedback?.nextQuestion) {
       setQuestion(feedback.nextQuestion);
       setFeedback(null);
@@ -513,6 +515,7 @@ export default function Practice() {
               setBookmarked(false);
               setHint(null);
               setHintLoading(false);
+              setExplRating(null);
               setConfidence("");
               setError("");
               handleStart();
@@ -540,7 +543,7 @@ export default function Practice() {
             onClick={() => {
               setQuestion(null); setFeedback(null); setFoundationMsg(null);
               setEvalFeedback(null); setRecallMode(true); setRecallAttempt("");
-              setShowSteps(false); setHint(null); setHintLoading(false);
+              setShowSteps(false); setHint(null); setHintLoading(false); setExplRating(null);
               setFlagged(false); setBookmarked(false); setConfidence("");
               setSessionStats({ correct: 0, total: 0 }); setWrongAnswers([]);
               setError(""); clearInterval(timerRef.current);
@@ -725,7 +728,29 @@ export default function Practice() {
           {/* AI Explanation */}
           {feedback.aiExplanation && (
             <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg p-4">
-              <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider mb-2">AI Explanation</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[11px] font-semibold text-apple-blue uppercase tracking-wider">AI Explanation</p>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      const r = explRating === 1 ? null : 1;
+                      setExplRating(r);
+                      if (r) rateAIResponse(question?.questionText || "", feedback.selectedType || "", activeSubject || "Math", r).catch(() => {});
+                    }}
+                    title="Helpful"
+                    className={`text-[14px] px-1 transition-opacity ${explRating === 1 ? "opacity-100" : "opacity-30 hover:opacity-70"}`}
+                  >👍</button>
+                  <button
+                    onClick={() => {
+                      const r = explRating === -1 ? null : -1;
+                      setExplRating(r);
+                      if (r) rateAIResponse(question?.questionText || "", feedback.selectedType || "", activeSubject || "Math", r).catch(() => {});
+                    }}
+                    title="Not helpful"
+                    className={`text-[14px] px-1 transition-opacity ${explRating === -1 ? "opacity-100" : "opacity-30 hover:opacity-70"}`}
+                  >👎</button>
+                </div>
+              </div>
               <p className="text-[13px] text-[var(--label2)] leading-relaxed">{feedback.aiExplanation}</p>
             </div>
           )}

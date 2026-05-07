@@ -574,3 +574,36 @@ const ncertNoteSchema = new mongoose.Schema({
 });
 ncertNoteSchema.index({ userId: 1, topicId: 1 }, { unique: true });
 export const NcertNote = mongoose.model("NcertNote", ncertNoteSchema);
+
+// ==================== AICallLog (per-call AI metrics) ====================
+// Logs every Claude call for cost tracking, latency analysis, RAG hit rate.
+// Auto-purged after 90 days via TTL index.
+const aiCallLogSchema = new mongoose.Schema({
+  userId:    { type: String, required: true },
+  aiType:    { type: String, required: true }, // explanation|hint|lesson|question|advice|chat
+  subject:   { type: String, default: "Math" },
+  model:     { type: String },
+  tokens:    { type: Number, default: 0 },
+  latencyMs: { type: Number, default: 0 },
+  cached:    { type: Boolean, default: false },
+  hitRAG:    { type: Boolean, default: false },
+  success:   { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+});
+aiCallLogSchema.index({ userId: 1, createdAt: -1 });
+aiCallLogSchema.index({ createdAt: -1 });
+aiCallLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+export const AICallLog = mongoose.model("AICallLog", aiCallLogSchema);
+
+// ==================== AIFeedback (thumbs up/down on AI explanations) ====================
+const aiFeedbackSchema = new mongoose.Schema({
+  userId:   { type: String, required: true },
+  cacheKey: { type: String, required: true },
+  aiType:   { type: String, default: "explanation" }, // explanation|hint|chat
+  rating:   { type: Number, enum: [-1, 1], required: true },
+  subject:  { type: String },
+  createdAt: { type: Date, default: Date.now },
+});
+aiFeedbackSchema.index({ userId: 1, cacheKey: 1 }, { unique: true }); // one rating per user per response
+aiFeedbackSchema.index({ cacheKey: 1 });                               // aggregate ratings per cached response
+export const AIFeedback = mongoose.model("AIFeedback", aiFeedbackSchema);

@@ -138,6 +138,8 @@ export const getHint             = (questionText, topic)       => api.post("/ai/
 export const voiceAnswer         = (transcript, subject, topic) => api.post("/ai/voice-answer", { transcript, subject, topic });
 export const getVoiceHistory     = ()     => api.get("/ai/voice-history");
 export const clearVoiceHistory   = ()     => api.delete("/ai/voice-history");
+export const rateAIResponse      = (questionText, mistakeType, subject, rating) =>
+  api.post("/ai/feedback", { questionText, mistakeType, subject, rating });
 
 export const getBadges = () => api.get("/badges");
 

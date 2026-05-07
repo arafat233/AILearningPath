@@ -1,30 +1,65 @@
 // ============================================================
-// AI SERVICE — Claude Haiku 4.5
-// All student-facing AI calls go through here.
-// Do NOT call this directly — always go through aiRouter.js
-// which checks DB cache first before calling Claude.
+// AI SERVICE — Claude wrapper for all student-facing AI calls.
+//
+// Features:
+//   1. Response caching     — lessons cached 7 days in Redis+DB
+//   2. Per-user token cap   — daily/monthly limits per student
+//   3. Failover             — primary model → haiku → friendly error
+//   4. Output guardrails    — checks Claude's reply before it reaches student
+//   6. Metrics logging      — fire-and-forget per-call log to MongoDB
+//   7. Conversation context — last explanation stored in Redis for follow-up
+//   8. Student model        — UserProfile injected into every system prompt
 // ============================================================
+import crypto from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import logger from "../utils/logger.js";
-import { checkTokenBudget, incrementTokenBudget } from "../utils/tokenBudget.js";
+import {
+  checkTokenBudget, incrementTokenBudget,
+  checkUserTokenBudget, incrementUserTokenBudget,
+} from "../utils/tokenBudget.js";
 import { retrieveContext } from "../utils/ragStore.js";
+import { getCached, setCache } from "../utils/cache.js";
+import { checkOutput } from "../utils/outputGuard.js";
+import { logAICall } from "../utils/aiMetrics.js";
+import { UserProfile, Streak } from "../models/index.js";
+import { sessionGet, sessionSet } from "../utils/redisClient.js";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL  = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
+const client        = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const MODEL         = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
+const FALLBACK_MODEL = "claude-haiku-4-5-20251001";
+const LESSON_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-// Single gated wrapper around every Claude call.
-// Checks monthly token budget before calling and increments after.
-async function callClaude(params) {
-  const allowed = await checkTokenBudget();
-  if (!allowed) throw Object.assign(new Error("Monthly token budget exhausted — try again next month."), { code: "BUDGET_EXCEEDED" });
-  const res = await client.messages.create(params);
-  const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
-  incrementTokenBudget(tokens).catch(() => {});
-  return res;
+// ── 7. Conversation context — last explanation per user (30 min) ──
+const lastExplKey = (uid) => `ai:lastexpl:${uid}`;
+
+function storeLastExplanation(userId, question, explanation) {
+  if (!userId || !explanation) return;
+  sessionSet(lastExplKey(userId), { question, explanation }, 30 * 60).catch(() => {});
 }
 
-// ── Subject-aware system prompts ─────────────────────────────────
-// Claude caches these — keep each string IDENTICAL across calls
+export async function getLastExplanation(userId) {
+  if (!userId) return null;
+  try { return await sessionGet(lastExplKey(userId)); } catch { return null; }
+}
+
+// ── 8. Student model — pulls UserProfile + Streak for context ─────
+async function buildStudentContext(userId) {
+  if (!userId) return null;
+  try {
+    const [profile, streak] = await Promise.all([
+      UserProfile.findOne({ userId }).select("accuracy thinkingProfile weakAreas strongAreas").lean(),
+      Streak.findOne({ userId }).select("currentStreak").lean(),
+    ]);
+    if (!profile) return null;
+    const acc    = Math.round((profile.accuracy || 0) * 100);
+    const weak   = (profile.weakAreas   || []).slice(0, 3).join(", ") || "not identified yet";
+    const strong = (profile.strongAreas || []).slice(0, 3).join(", ") || "none identified";
+    const streakTxt = streak?.currentStreak > 0 ? `${streak.currentStreak}-day streak` : "no active streak";
+    return `Student context: ${acc}% accuracy overall, ${profile.thinkingProfile || "Surface Learner"}, ${streakTxt}. Weak areas: ${weak}. Strong areas: ${strong}. Tailor depth and encouragement to their level.`;
+  } catch { return null; }
+}
+
+// ── Subject-aware system prompts ──────────────────────────────────
 const SUBJECT_PROMPTS = {
   Math: `You are an expert CBSE Class 10 Math teacher in India.
 Your students are 15-16 year olds preparing for board exams.
@@ -60,8 +95,56 @@ Keep responses under 4 sentences unless asked for steps.`,
 export const getSystemPrompt = (subject = "Math") =>
   SUBJECT_PROMPTS[subject] || SUBJECT_PROMPTS.Math;
 
+// ── 3. callClaude — failover + per-user budget ────────────────────
+async function callClaude(params, userId = null) {
+  // Global monthly budget
+  const allowed = await checkTokenBudget();
+  if (!allowed) throw Object.assign(
+    new Error("Monthly token budget exhausted — try again next month."),
+    { code: "BUDGET_EXCEEDED" }
+  );
+
+  // Per-user daily/monthly budget
+  if (userId) {
+    const userOk = await checkUserTokenBudget(userId);
+    if (!userOk) throw Object.assign(
+      new Error("You've reached your daily AI limit. Try again tomorrow or upgrade your plan!"),
+      { code: "USER_BUDGET_EXCEEDED", status: 429 }
+    );
+  }
+
+  const tryModel = async (model) => {
+    const res    = await client.messages.create({ ...params, model });
+    const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
+    incrementTokenBudget(tokens).catch(() => {});
+    if (userId) incrementUserTokenBudget(userId, tokens).catch(() => {});
+    res._usedModel = model;
+    return res;
+  };
+
+  try {
+    return await tryModel(params.model || MODEL);
+  } catch (err) {
+    const primary = params.model || MODEL;
+    if (primary !== FALLBACK_MODEL) {
+      logger.warn("Claude primary failed, trying haiku fallback", { err: err.message });
+      try { return await tryModel(FALLBACK_MODEL); } catch (fallbackErr) {
+        logger.error("Claude fallback also failed", { err: fallbackErr.message });
+      }
+    }
+    throw Object.assign(
+      new Error("AI tutor is taking a short break. Please try again in a minute."),
+      { code: "AI_UNAVAILABLE", status: 503 }
+    );
+  }
+}
+
+// ── 1. Lesson cache key ───────────────────────────────────────────
+const lessonCacheKey = (topic, subject, grade) =>
+  `lesson::${crypto.createHash("md5").update(`${topic}::${subject}::${grade}`).digest("hex")}`;
+
 // ── Wrong answer explanation ──────────────────────────────────────
-export const getAIExplanation = async (question, mistakeType, correctAnswer, subject = "Math") => {
+export const getAIExplanation = async (question, mistakeType, correctAnswer, subject = "Math", userId = null) => {
   const mistakeLabel = {
     concept_error:     "a concept misunderstanding",
     calculation_error: "a calculation mistake",
@@ -82,31 +165,48 @@ Explain in 3-4 sentences:
 
 Be direct and helpful like a good tutor.`;
 
-  // Retrieve relevant NCERT content — grounds the explanation in the actual textbook
-  const ncertContext = await retrieveContext(question, subject);
-  const systemPrompt = ncertContext
-    ? `${getSystemPrompt(subject)}\n\nRelevant NCERT content for this question:\n${ncertContext}`
-    : getSystemPrompt(subject);
+  // 8. Student model — personalize system prompt
+  const [ncertContext, studentCtx] = await Promise.all([
+    retrieveContext(question, subject),
+    buildStudentContext(userId),
+  ]);
 
+  let systemPrompt = getSystemPrompt(subject);
+  if (ncertContext) systemPrompt += `\n\nRelevant NCERT content for this question:\n${ncertContext}`;
+  if (studentCtx)  systemPrompt += `\n\n${studentCtx}`;
+
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
-      temperature: 0.3,
-      max_tokens: 320,
-      system: systemPrompt,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const res    = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 320, system: systemPrompt, messages: [{ role: "user", content: prompt }] }, userId);
     const text   = res.content[0]?.text?.trim() || null;
     const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
+
+    // 4. Output guardrails
+    if (text) {
+      const { safe, reason } = checkOutput(text, { aiType: "explanation", subject });
+      if (!safe) {
+        logger.warn("getAIExplanation: output blocked", { reason, subject });
+        logAICall({ userId, aiType: "explanation", subject, model: res._usedModel, tokens, latencyMs: Date.now() - start, hitRAG: !!ncertContext, success: false });
+        return { text: null, tokens };
+      }
+    }
+
+    // 7. Store last explanation for follow-up chat context
+    if (text && userId) storeLastExplanation(userId, question, text);
+
+    // 6. Metrics
+    logAICall({ userId, aiType: "explanation", subject, model: res._usedModel, tokens, latencyMs: Date.now() - start, hitRAG: !!ncertContext, success: !!text });
+
     return { text, tokens };
   } catch (err) {
     logger.error("Claude explanation error", { err: err.message, topic: question?.slice(0, 60), subject });
+    logAICall({ userId, aiType: "explanation", subject, latencyMs: Date.now() - start, success: false });
     return { text: null, tokens: 0 };
   }
 };
 
 // ── Generate a targeted AI question ───────────────────────────────
-export const generateAIQuestion = async (topic, weakness, subject = "Math") => {
+export const generateAIQuestion = async (topic, weakness, subject = "Math", userId = null) => {
   const prompt = `Generate 1 multiple-choice question for CBSE Class 10 ${subject} topic: "${topic}"
 Focus on testing the mistake type: "${weakness}"
 
@@ -130,25 +230,22 @@ Format:
   "shortcut": "optional tip"
 }`;
 
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
-      temperature: 0.3,
-      max_tokens: 600,
-      system: getSystemPrompt(subject),
-      messages: [{ role: "user", content: prompt }],
-    });
-    const raw = res.content[0]?.text?.trim() || "";
+    const res  = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 600, system: getSystemPrompt(subject), messages: [{ role: "user", content: prompt }] }, userId);
+    const raw  = res.content[0]?.text?.trim() || "";
     const clean = raw.replace(/```json|```/g, "").trim();
+    logAICall({ userId, aiType: "question", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: true });
     return JSON.parse(clean);
   } catch (err) {
     logger.error("Claude question generation error", { err: err.message, topic, subject });
+    logAICall({ userId, aiType: "question", subject, latencyMs: Date.now()-start, success: false });
     return null;
   }
 };
 
 // ── Personalised study advice ──────────────────────────────────────
-export const getStudyAdvice = async (profile, subject = "Math") => {
+export const getStudyAdvice = async (profile, subject = "Math", userId = null) => {
   const { weakAreas = [], strongAreas = [], thinkingProfile, accuracy, examDate } = profile;
   const daysLeft = examDate
     ? Math.max(1, Math.ceil((new Date(examDate) - new Date()) / 864e5))
@@ -168,23 +265,21 @@ Give 3-4 sentence personalised study advice:
 3. One daily habit that will help the most
 Keep it practical and direct.`;
 
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
-      temperature: 0.3,
-      max_tokens: 280,
-      system: getSystemPrompt(subject),
-      messages: [{ role: "user", content: prompt }],
-    });
-    return res.content[0]?.text?.trim() || null;
+    const res  = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 280, system: getSystemPrompt(subject), messages: [{ role: "user", content: prompt }] }, userId);
+    const text = res.content[0]?.text?.trim() || null;
+    logAICall({ userId, aiType: "advice", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: !!text });
+    return text;
   } catch (err) {
     logger.error("Claude advice error", { err: err.message, subject });
+    logAICall({ userId, aiType: "advice", subject, latencyMs: Date.now()-start, success: false });
     return null;
   }
 };
 
-// ── Generate a hint for a question (without giving away answer) ───
-export const generateHint = async (questionText, topic, subject = "Math") => {
+// ── Generate a hint (without giving away the answer) ─────────────
+export const generateHint = async (questionText, topic, subject = "Math", userId = null) => {
   const prompt = `A student is stuck on this question: "${questionText}"
 Topic: ${topic}
 
@@ -194,28 +289,45 @@ Give ONE helpful hint (2 sentences max):
 
 Be a good tutor — guide, don't solve.`;
 
-  const ncertContext = await retrieveContext(questionText, subject);
-  const systemPrompt = ncertContext
-    ? `${getSystemPrompt(subject)}\n\nRelevant NCERT content:\n${ncertContext}`
-    : getSystemPrompt(subject);
+  const [ncertContext, studentCtx] = await Promise.all([
+    retrieveContext(questionText, subject),
+    buildStudentContext(userId),
+  ]);
 
+  let systemPrompt = getSystemPrompt(subject);
+  if (ncertContext) systemPrompt += `\n\nRelevant NCERT content:\n${ncertContext}`;
+  if (studentCtx)  systemPrompt += `\n\n${studentCtx}`;
+
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
-      temperature: 0.3,
-      max_tokens: 120,
-      system: systemPrompt,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return res.content[0]?.text?.trim() || null;
+    const res  = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 120, system: systemPrompt, messages: [{ role: "user", content: prompt }] }, userId);
+    const text = res.content[0]?.text?.trim() || null;
+
+    // 4. Output guardrails
+    if (text) {
+      const { safe } = checkOutput(text, { aiType: "hint", subject });
+      if (!safe) return null;
+    }
+
+    logAICall({ userId, aiType: "hint", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, hitRAG: !!ncertContext, success: !!text });
+    return text;
   } catch (err) {
     logger.error("Claude hint error", { err: err.message, topic, subject });
+    logAICall({ userId, aiType: "hint", subject, latencyMs: Date.now()-start, success: false });
     return null;
   }
 };
 
-// ── Generate a full lesson for a topic ───────────────────────────
-export const generateLesson = async (topic, subject = "Math", grade = "10") => {
+// ── Generate a full lesson — Redis+DB cached 7 days ───────────────
+export const generateLesson = async (topic, subject = "Math", grade = "10", userId = null) => {
+  // 1. Check Redis cache first
+  const cKey = lessonCacheKey(topic, subject, grade);
+  const cached = await getCached(cKey);
+  if (cached) {
+    logAICall({ userId, aiType: "lesson", subject, cached: true, success: true });
+    return cached;
+  }
+
   const prompt = `Generate a complete lesson for "${topic}" (${subject}, Grade ${grade}, CBSE India).
 
 Return ONLY valid JSON — no markdown, no explanation outside the JSON.
@@ -301,42 +413,65 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
   "prerequisites": ["topic1", "topic2"]
 }`;
 
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
-      temperature: 0.3,
-      max_tokens: 1800,
-      system: getSystemPrompt(subject),
-      messages: [{ role: "user", content: prompt }],
-    });
+    const res   = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 1800, system: getSystemPrompt(subject), messages: [{ role: "user", content: prompt }] }, userId);
     const raw   = res.content[0]?.text?.trim() || "";
     const clean = raw.replace(/```json|```/g, "").trim();
-    return JSON.parse(clean);
+    const lesson = JSON.parse(clean);
+
+    // 1. Cache for 7 days so repeat visitors pay zero Claude cost
+    setCache(cKey, lesson, LESSON_CACHE_TTL).catch(() => {});
+
+    logAICall({ userId, aiType: "lesson", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: true });
+    return lesson;
   } catch (err) {
     logger.error("Claude lesson generation error", { err: err.message, topic, subject, grade });
+    logAICall({ userId, aiType: "lesson", subject, latencyMs: Date.now()-start, success: false });
     return null;
   }
 };
 
 // ── Multi-turn AI tutor chat ──────────────────────────────────────
+// 7. Auto-injects last explanation as context on first turn so follow-ups work.
 // history = [{role:"user"|"assistant", content:"..."}]
-export const getChatResponse = async (history, userMessage, topic, subject = "Math") => {
-  const messages = [
-    ...history.slice(-8),
-    { role: "user", content: userMessage },
-  ];
+export const getChatResponse = async (history, userMessage, topic, subject = "Math", userId = null) => {
+  let messages = [...history.slice(-8), { role: "user", content: userMessage }];
 
+  // 7. If first turn and userId provided, prepend last explanation as context
+  if (userId && history.length === 0) {
+    const lastExpl = await getLastExplanation(userId);
+    if (lastExpl) {
+      messages = [
+        { role: "user",      content: `I just got this question wrong: "${lastExpl.question}"` },
+        { role: "assistant", content: lastExpl.explanation },
+        { role: "user",      content: userMessage },
+      ];
+    }
+  }
+
+  const start = Date.now();
   try {
-    const res = await callClaude({
-      model: MODEL,
+    const res  = await callClaude({
+      model:       MODEL,
       temperature: 0.3,
-      max_tokens: 400,
-      system: `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.`,
+      max_tokens:  400,
+      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.`,
       messages,
-    });
-    return res.content[0]?.text?.trim() || null;
+    }, userId);
+    const text = res.content[0]?.text?.trim() || null;
+
+    // 4. Output guardrails
+    if (text) {
+      const { safe } = checkOutput(text, { aiType: "chat", subject });
+      if (!safe) return null;
+    }
+
+    logAICall({ userId, aiType: "chat", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: !!text });
+    return text;
   } catch (err) {
     logger.error("Claude chat error", { err: err.message, topic, subject });
+    logAICall({ userId, aiType: "chat", subject, latencyMs: Date.now()-start, success: false });
     return null;
   }
 };

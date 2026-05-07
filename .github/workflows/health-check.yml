@@ -14,7 +14,7 @@ jobs:
       - name: Check stellaredu.in
         id: check
         run: |
-          STATUS=$(curl -s -o /tmp/body.txt -w "%{http_code}" --max-time 20 https://stellaredu.in/health)
+          STATUS=$(curl -s -o /tmp/body.txt -w "%{http_code}" --max-time 20 https://stellaredu.in/api/health)
           BODY=$(cat /tmp/body.txt | head -c 300)
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "body=$BODY"     >> $GITHUB_OUTPUT
@@ -40,5 +40,5 @@ jobs:
               \"from\": \"alerts@resend.dev\",
               \"to\": \"najeebarafat@gmail.com\",
               \"subject\": \"[Stellar] stellaredu.in is DOWN\",
-              \"html\": \"<div style='font-family:sans-serif;max-width:500px;padding:24px'><h2 style='color:#ff3b30;margin:0 0 16px'>stellaredu.in is not responding</h2><table style='font-size:14px;width:100%'><tr><td style='color:#636366;padding:4px 0'>Time</td><td><strong>$TIMESTAMP</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>HTTP Status</td><td><strong>${STATUS:-timeout}</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>URL</td><td>https://stellaredu.in/health</td></tr></table><p style='margin-top:20px;font-size:13px;color:#636366'>SSH: <code>ssh -i ssh-key-2026-05-01.key ubuntu@144.24.154.247</code><br>Then: <code>cd AILearningPath && docker-compose up -d</code></p></div>\"
+              \"html\": \"<div style='font-family:sans-serif;max-width:500px;padding:24px'><h2 style='color:#ff3b30;margin:0 0 16px'>stellaredu.in is not responding</h2><table style='font-size:14px;width:100%'><tr><td style='color:#636366;padding:4px 0'>Time</td><td><strong>$TIMESTAMP</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>HTTP Status</td><td><strong>${STATUS:-timeout}</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>URL</td><td>https://stellaredu.in/api/health</td></tr></table><p style='margin-top:20px;font-size:13px;color:#636366'>SSH: <code>ssh -i ssh-key-2026-05-01.key ubuntu@144.24.154.247</code><br>Then: <code>cd AILearningPath && docker-compose up -d</code></p></div>\"
             }"

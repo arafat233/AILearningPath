@@ -27,6 +27,10 @@ const updateMeSchema = Joi.object({
   subjects:   Joi.array().items(Joi.string().max(100)).max(10).optional(),
   goal:       Joi.string().optional(),
   weakTopics: Joi.array().items(Joi.string().max(200)).max(20).optional(),
+  childName:  Joi.string().trim().max(80).optional().allow(""),
+  examBoard:  Joi.string().valid("CBSE","ICSE","IB","SSC","State Board").optional(),
+  schoolName: Joi.string().trim().max(120).optional().allow(""),
+  location:   Joi.string().trim().max(100).optional().allow(""),
 });
 
 // SEC-16: requires auth — topics list is product IP, not public data
@@ -101,11 +105,12 @@ r.get("/me", auth, async (req, res, next) => {
 
 r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, next) => {
   try {
-    const { name, examDate, grade, subject, subjects, goal, weakTopics } = req.body;
+    const { name, examDate, grade, subject, subjects, goal, weakTopics,
+            childName, examBoard, schoolName, location } = req.body;
     const updates = {};
-    if (name)     updates.name     = name.trim();
-    if (examDate) updates.examDate = new Date(examDate);
-    if (grade)    updates.grade    = grade;
+    if (name)       updates.name       = name.trim();
+    if (examDate)   updates.examDate   = new Date(examDate);
+    if (grade)      updates.grade      = grade;
     if (subjects && Array.isArray(subjects) && subjects.length > 0) {
       updates.subjects = subjects;
       updates.subject  = subjects[0];
@@ -113,7 +118,11 @@ r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, n
       updates.subject  = subject;
       updates.subjects = [subject];
     }
-    if (goal) updates.goal = goal;
+    if (goal)       updates.goal       = goal;
+    if (childName  !== undefined) updates.childName  = childName.trim();
+    if (examBoard)               updates.examBoard  = examBoard;
+    if (schoolName !== undefined) updates.schoolName = schoolName.trim();
+    if (location   !== undefined) updates.location   = location.trim();
     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
 
     if (Array.isArray(weakTopics)) {

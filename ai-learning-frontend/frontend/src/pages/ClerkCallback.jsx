@@ -15,8 +15,9 @@ function normalizeRedirect(value) {
   return value;
 }
 
-function authedRedirectTarget(requestedRedirect) {
-  return ["/login", "/register", "/start", "/clerk-callback", "/onboarding"].includes(requestedRedirect)
+function authedRedirectTarget(requestedRedirect, needsOnboarding) {
+  if (needsOnboarding) return "/onboarding";
+  return ["/login", "/register", "/start", "/clerk-callback"].includes(requestedRedirect)
     ? "/dashboard"
     : requestedRedirect;
 }
@@ -63,7 +64,7 @@ export default function ClerkCallback() {
         if (!token) { didExchange.current = false; return; }
         const { data } = await clerkLogin(token);
         setAuth(null, data.data.user);
-        const dest = authedRedirectTarget(redirectTo);
+        const dest = authedRedirectTarget(redirectTo, data.data.needsOnboarding);
         try { sessionStorage.removeItem("postGoogleRedirect"); } catch { /* ignore */ }
         window.location.href = dest;
       } catch (err) {

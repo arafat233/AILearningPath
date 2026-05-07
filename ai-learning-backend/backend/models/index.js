@@ -51,6 +51,11 @@ const userSchema = new mongoose.Schema({
   referredBy:       { type: String, default: null },  // userId of the user who referred them
   referralCount:    { type: Number, default: 0 },     // paid conversions from this user's referral code
   referralRewarded: { type: Boolean, default: false }, // has this user's upgrade been rewarded to their referrer?
+  // Student details (collected during onboarding)
+  childName:   { type: String, default: null },
+  examBoard:   { type: String, default: "CBSE" },
+  schoolName:  { type: String, default: null },
+  location:    { type: String, default: null },
   // Study reminders set by parent for linked students
   studyReminders: [{
     studentId: { type: String, required: true },

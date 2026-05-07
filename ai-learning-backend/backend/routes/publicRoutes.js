@@ -14,8 +14,10 @@ r.get("/stats", async (req, res, next) => {
       return res.json(_cache);
     }
 
+    const realUsers = { email: { $not: /stellar\.child$/ } };
+
     const [totalUsers, attemptAgg, aiAgg] = await Promise.all([
-      User.countDocuments(),
+      User.countDocuments(realUsers),
       Attempt.aggregate([
         { $group: { _id: null, total: { $sum: 1 }, correct: { $sum: { $cond: ["$isCorrect", 1, 0] } } } },
       ]),

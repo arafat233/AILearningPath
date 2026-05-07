@@ -2,22 +2,48 @@ import { User, UserProfile, Attempt } from "../../models/index.js";
 import { AppError } from "../../utils/AppError.js";
 import { sessionDel } from "../../utils/redisClient.js";
 
+const CHILD_EMAIL_SUFFIX = "@stellar.child";
+
 export const listUsers = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, search = "" } = req.query;
+
+    // Always exclude synthetic child sub-accounts
+    const base = { email: { $not: /stellar\.child$/ } };
     const filter = search
-      ? { $or: [{ name: new RegExp(search, "i") }, { email: new RegExp(search, "i") }] }
-      : {};
+      ? { ...base, $or: [{ name: new RegExp(search, "i") }, { email: new RegExp(search, "i") }] }
+      : base;
+
     const [users, total] = await Promise.all([
       User.find(filter)
         .select("-password")
         .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
+        .skip((Number(page) - 1) * Number(limit))
         .limit(Number(limit))
         .lean(),
       User.countDocuments(filter),
     ]);
-    res.json({ users, total, page: Number(page), pages: Math.ceil(total / limit) });
+
+    // For each user, attach their parent name if they're a child account linked by a parent
+    const userIds = users.map((u) => u._id.toString());
+    const parents = await User.find(
+      { linkedStudents: { $in: userIds } },
+      { name: 1, email: 1, linkedStudents: 1 }
+    ).lean();
+
+    const childToParent = {};
+    for (const p of parents) {
+      for (const cid of p.linkedStudents) {
+        childToParent[cid] = { name: p.name, email: p.email };
+      }
+    }
+
+    const enriched = users.map((u) => ({
+      ...u,
+      parentInfo: childToParent[u._id.toString()] || null,
+    }));
+
+    res.json({ users: enriched, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) { next(err); }
 };
 

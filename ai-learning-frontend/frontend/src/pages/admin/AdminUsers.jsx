@@ -267,7 +267,14 @@ export default function AdminUsers() {
                       {u.name}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-apple-gray">{u.email}</td>
+                  <td className="px-4 py-3 text-apple-gray">
+                    <p>{u.email}</p>
+                    {u.parentInfo && (
+                      <p className="text-[10px] text-apple-purple mt-0.5">
+                        ↳ parent: {u.parentInfo.name}
+                      </p>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-apple-gray">{u.subject} / {u.grade}</td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${

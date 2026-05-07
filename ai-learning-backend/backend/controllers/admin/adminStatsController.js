@@ -13,6 +13,8 @@ export const getAdminStats = async (req, res, next) => {
     const today = now.toISOString().split("T")[0];
     const d7    = new Date(now - 7 * 86400_000);
 
+    const realUsers = { email: { $not: /stellar\.child$/ } };
+
     const [
       totalUsers,
       paidUsers,
@@ -24,12 +26,12 @@ export const getAdminStats = async (req, res, next) => {
       claudeAgg,
       revTrend7,
     ] = await Promise.all([
-      User.countDocuments(),
-      User.countDocuments({ isPaid: true }),
+      User.countDocuments(realUsers),
+      User.countDocuments({ ...realUsers, isPaid: true }),
       Question.countDocuments(),
       Attempt.countDocuments(),
       getCacheStats(),
-      User.aggregate([{ $group: { _id: "$plan", count: { $sum: 1 } } }]),
+      User.aggregate([{ $match: realUsers }, { $group: { _id: "$plan", count: { $sum: 1 } } }]),
       // All-time captured revenue in paise
       PaymentRecord.aggregate([
         { $match: { status: "captured" } },
@@ -46,7 +48,7 @@ export const getAdminStats = async (req, res, next) => {
       ]),
     ]);
 
-    const activeToday = await User.countDocuments({ lastActiveDate: today });
+    const activeToday = await User.countDocuments({ ...realUsers, lastActiveDate: today });
 
     // Build 7-day sparkline slots
     const revMap = Object.fromEntries(revTrend7.map((r) => [r._id, r.rev]));

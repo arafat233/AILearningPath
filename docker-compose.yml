@@ -15,9 +15,10 @@ services:
           memory: 512m
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   # ── Redis ─────────────────────────────────────────────────────────
   redis:
@@ -83,9 +84,9 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
     depends_on:
       mongo:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
+        condition: service_started
 
 volumes:
   mongo_data:

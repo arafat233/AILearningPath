@@ -13,7 +13,7 @@ import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { csrfProtect } from "./middleware/csrf.js";
 import { runOnboardingEmails } from "./services/onboardingEmailService.js";
-import { sendRevisionReminders, sendStudyReminders } from "./services/pushService.js";
+import { sendRevisionReminders, sendStudyReminders, sendStreakRiskReminders } from "./services/pushService.js";
 import { runWeeklyParentEmails } from "./services/weeklyParentEmailService.js";
 import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
@@ -293,6 +293,15 @@ const httpServer = server.listen(PORT, () => {
     if (await acquireCronLock("study_reminders", 55))
       sendStudyReminders().catch(() => {});
   }, 60 * 1000);
+
+  // Streak-risk reminders: daily at 8 PM — lock for 23 h
+  const runStreakRisk = async () => {
+    const hour = new Date().getHours();
+    if (hour !== 20) return; // only fire at 8 PM server time
+    if (await acquireCronLock("streak_risk_reminders", 23 * 60 * 60))
+      sendStreakRiskReminders().catch(() => {});
+  };
+  setInterval(runStreakRisk, 60 * 60 * 1000); // check every hour, fire only at 20:00
 
   // Weekly parent digest: every 7 days — lock for 6 d 23 h
   const runWeekly = async () => {

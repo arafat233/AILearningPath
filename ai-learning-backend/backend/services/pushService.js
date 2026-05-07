@@ -1,5 +1,5 @@
 import webpush from "web-push";
-import { User } from "../models/index.js";
+import { User, Streak } from "../models/index.js";
 import { getRevisionTopics } from "./revisionService.js";
 import logger from "../utils/logger.js";
 
@@ -168,4 +168,50 @@ export async function sendRevisionReminders() {
 
   logger.info("Revision push notifications completed", { sent, failed });
   return { sent, failed };
+}
+
+// Evening job (runs at 8 PM): find users with an active streak who haven't
+// practiced today and remind them before their streak resets at midnight.
+export async function sendStreakRiskReminders() {
+  if (!ensureVapid()) return { sent: 0 };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  // Find streaks > 0 where lastActiveDate is not today
+  const atRisk = await Streak.find({
+    currentStreak: { $gt: 0 },
+    lastActiveDate: { $ne: today },
+  }).select("userId currentStreak").lean();
+
+  if (!atRisk.length) return { sent: 0 };
+
+  const userIds = atRisk.map((s) => s.userId);
+  const streakMap = Object.fromEntries(atRisk.map((s) => [s.userId, s.currentStreak]));
+
+  const users = await User.find({
+    _id: { $in: userIds },
+    "pushSubscription.endpoint": { $exists: true, $ne: null },
+  }).select("_id pushSubscription name").lean();
+
+  let sent = 0;
+  for (const user of users) {
+    const streak = streakMap[user._id.toString()] || 1;
+    try {
+      await sendPush(user.pushSubscription, {
+        title: `🔥 Your ${streak}-day streak is at risk!`,
+        body:  "You haven't practiced today. Keep it alive — just one question →",
+        icon:  "/icon-192.png",
+        url:   "/practice",
+        tag:   "streak-risk",
+      });
+      sent++;
+    } catch (err) {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        await User.findByIdAndUpdate(user._id, { $unset: { pushSubscription: 1 } }).catch(() => {});
+      }
+    }
+  }
+
+  if (sent > 0) logger.info("Streak risk reminders sent", { sent });
+  return { sent };
 }

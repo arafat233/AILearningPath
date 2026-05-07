@@ -79,6 +79,7 @@ const userSchema = new mongoose.Schema({
   schoolGroupId: { type: mongoose.Schema.Types.ObjectId, ref: "SchoolGroup", default: null },
 });
 userSchema.index({ "pushSubscription.endpoint": 1 }, { sparse: true });
+userSchema.index({ googleId: 1 }, { sparse: true }); // OAuth login lookup — every Google sign-in
 export const User = mongoose.model("User", userSchema);
 
 // ==================== SchoolGroup ====================

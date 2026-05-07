@@ -120,14 +120,25 @@ export async function createOrder(userId, planKey, couponCode = null) {
   }
 
   const razorpay = getRazorpay();
-  const receipt  = `order_${userId}_${Date.now()}`;
+  // Razorpay receipt max 40 chars: "r_" + last-8 of userId + "_" + base-36 timestamp = ~20 chars
+  const receipt  = `r_${userId.toString().slice(-8)}_${Date.now().toString(36)}`;
 
-  const order = await razorpay.orders.create({
-    amount:   finalPrice,
-    currency: plan.currency,
-    receipt,
-    notes: { userId: userId.toString(), planKey },
-  });
+  let order;
+  try {
+    order = await razorpay.orders.create({
+      amount:   finalPrice,
+      currency: plan.currency,
+      receipt,
+      notes: { userId: userId.toString(), planKey },
+    });
+  } catch (rzErr) {
+    logger.error("Razorpay order creation failed", {
+      msg:    rzErr?.message,
+      status: rzErr?.statusCode,
+      error:  JSON.stringify(rzErr?.error || rzErr),
+    });
+    throw rzErr;
+  }
 
   // Store planKey + coupon info in Redis — verifyPayment reads from here, ignoring client input
   await sessionSet(orderPlanKey(order.id), planKey, ORDER_TTL);

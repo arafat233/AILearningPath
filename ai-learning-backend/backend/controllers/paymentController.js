@@ -19,6 +19,13 @@ export const createOrder = async (req, res, next) => {
     const result = await paymentService.createOrder(req.user.id, planKey, couponCode || null);
     res.json({ data: result });
   } catch (err) {
+    // Razorpay SDK throws plain objects — wrap so errorHandler can log the message
+    if (!(err instanceof Error)) {
+      const wrapped = new Error(JSON.stringify(err));
+      wrapped.statusCode = err?.statusCode || 500;
+      wrapped.razorpayError = err;
+      return next(wrapped);
+    }
     next(err);
   }
 };

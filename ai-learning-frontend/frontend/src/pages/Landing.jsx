@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { getPublicStats } from "../services/api";
 
 const ACCENT = "#AF52DE";
 
@@ -77,12 +78,34 @@ function TrustMetric({ n, l }) {
   );
 }
 
+function fmtN(n) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
+  if (n >= 1_000)     return `${Math.floor(n / 1_000)}k+`;
+  return String(n);
+}
+
 function Hero() {
   const [idx, setIdx] = useState(0);
+  const [stats, setStats] = useState({ students: "…", hints: "…", grade: "…" });
+
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % PROFILES.length), 2400);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    getPublicStats()
+      .then(r => {
+        const { totalUsers, aiHints, avgGrade } = r.data;
+        setStats({
+          students: fmtN(totalUsers),
+          hints:    fmtN(aiHints),
+          grade:    avgGrade,
+        });
+      })
+      .catch(() => setStats({ students: "—", hints: "—", grade: "—" }));
+  }, []);
+
   const p = PROFILES[idx];
   return (
     <section id="top" className="relative overflow-hidden">
@@ -106,11 +129,11 @@ function Hero() {
             Stellar reads <em>how</em> your child thinks, then builds a study path just for them. From Class 1 to Class 10, across every major board.
           </p>
           <div className="mt-8 flex items-center gap-6 text-[12px] text-ink-3">
-            <TrustMetric n="0" l="students practising" />
+            <TrustMetric n={stats.students} l="students practising" />
             <div className="w-px h-8 bg-ink-3/20" />
-            <TrustMetric n="0" l="AI hints served" />
+            <TrustMetric n={stats.hints} l="AI hints served" />
             <div className="w-px h-8 bg-ink-3/20" />
-            <TrustMetric n="—" l="avg predicted grade" />
+            <TrustMetric n={stats.grade} l="avg predicted grade" />
           </div>
         </div>
         <div className="md:col-span-5">

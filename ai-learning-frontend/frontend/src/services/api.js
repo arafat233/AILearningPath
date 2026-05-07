@@ -224,6 +224,8 @@ export const adminDeleteUser             = (id)        => api.delete(`/admin/use
 export const adminGetUserDetail          = (id)        => api.get(`/admin/users/${id}/detail`);
 export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupons/${id}/redemptions`);
 
+export const getPublicStats = () => api.get("/public/stats");
+
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");
 export const scorePlacementQuiz = (answers)   => api.post("/v1/placement-quiz/score", { answers });

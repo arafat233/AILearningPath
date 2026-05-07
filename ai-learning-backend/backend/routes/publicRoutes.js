@@ -1,0 +1,46 @@
+import { Router } from "express";
+import { User, Attempt, AIUsageStats } from "../models/index.js";
+
+const r = Router();
+
+// In-memory cache — refreshed every 5 minutes so homepage loads fast without hammering DB
+let _cache   = null;
+let _cacheAt = 0;
+const TTL = 5 * 60 * 1000;
+
+r.get("/stats", async (req, res, next) => {
+  try {
+    if (_cache && Date.now() - _cacheAt < TTL) {
+      return res.json(_cache);
+    }
+
+    const [totalUsers, attemptAgg, aiAgg] = await Promise.all([
+      User.countDocuments(),
+      Attempt.aggregate([
+        { $group: { _id: null, total: { $sum: 1 }, correct: { $sum: { $cond: ["$isCorrect", 1, 0] } } } },
+      ]),
+      AIUsageStats.aggregate([
+        { $group: { _id: null, calls: { $sum: "$callsMade" } } },
+      ]),
+    ]);
+
+    const total   = attemptAgg[0]?.total   || 0;
+    const correct = attemptAgg[0]?.correct || 0;
+    const acc     = total > 0 ? correct / total : 0;
+
+    const avgGrade =
+      total === 0  ? "—"  :
+      acc >= 0.91  ? "A1" :
+      acc >= 0.81  ? "A2" :
+      acc >= 0.71  ? "B1" :
+      acc >= 0.61  ? "B2" :
+      acc >= 0.51  ? "C1" : "C2";
+
+    _cache   = { totalUsers, aiHints: aiAgg[0]?.calls || 0, avgGrade };
+    _cacheAt = Date.now();
+
+    res.json(_cache);
+  } catch (err) { next(err); }
+});
+
+export default r;

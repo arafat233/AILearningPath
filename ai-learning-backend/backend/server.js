@@ -51,6 +51,7 @@ import feedbackRoutes     from "./routes/feedbackRoutes.js";
 import placementRoutes    from "./routes/placementRoutes.js";
 import recommenderRoutes  from "./routes/recommenderRoutes.js";
 import schoolRoutes       from "./routes/schoolRoutes.js";
+import publicRoutes      from "./routes/publicRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
 dotenv.config();
@@ -157,6 +158,7 @@ app.use((req, res, next) => {
 });
 
 // REST API routes
+app.use("/api/public",      publicRoutes);
 app.use("/api/auth",        authRoutes);
 app.use("/api/practice",    practiceRoutes);
 app.use("/api/analysis",    analysisRoutes);

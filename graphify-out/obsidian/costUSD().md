@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js"
 type: "code"
-community: "Community 1"
+community: "Community 2"
 location: "L8"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # costUSD()
@@ -15,4 +15,4 @@ tags:
 - [[adminStatsController.js]] - `contains` [EXTRACTED]
 - [[getAdminStats()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_2

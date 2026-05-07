@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js"
 type: "code"
-community: "Community 7"
+community: "Community 12"
 location: "L34"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_7
+  - community/Community_12
 ---
 
 # tutorChat()
@@ -18,4 +18,4 @@ tags:
 - [[getChatResponse()]] - `calls` [INFERRED]
 - [[setCache()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_7
+#graphify/code #graphify/INFERRED #community/Community_12

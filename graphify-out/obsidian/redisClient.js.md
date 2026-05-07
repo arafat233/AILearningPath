@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js"
 type: "code"
-community: "Community 3"
+community: "Community 5"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_5
 ---
 
 # redisClient.js
@@ -15,10 +15,11 @@ tags:
 - [[acquireCronLock()]] - `contains` [EXTRACTED]
 - [[connectRedis()]] - `contains` [EXTRACTED]
 - [[createClient()]] - `contains` [EXTRACTED]
+- [[incrBy()]] - `contains` [EXTRACTED]
 - [[isUsingFallback()]] - `contains` [EXTRACTED]
 - [[pingRedis()]] - `contains` [EXTRACTED]
 - [[sessionDel()]] - `contains` [EXTRACTED]
 - [[sessionGet()]] - `contains` [EXTRACTED]
 - [[sessionSet()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_3
+#graphify/code #graphify/EXTRACTED #community/Community_5

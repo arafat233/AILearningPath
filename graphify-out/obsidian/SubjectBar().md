@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx"
 type: "code"
-community: "Community 26"
+community: "Community 24"
 location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_26
+  - community/Community_24
 ---
 
 # SubjectBar()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Lessons.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_26
+#graphify/code #graphify/EXTRACTED #community/Community_24

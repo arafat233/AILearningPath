@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[auth.js_1]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[injectAuth()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
+- [[waitForPage()]] - code - E:\AILearningPath\e2e-bot\helpers\auth.js
 
 ## Live Query (requires Dataview plugin)
 

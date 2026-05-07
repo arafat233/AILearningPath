@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\badge.service.test.js"
 type: "code"
-community: "Community 54"
+community: "Community 52"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_54
+  - community/Community_52
 ---
 
 # badge.service.test.js
@@ -15,4 +15,4 @@ tags:
 - [[existingBadge()]] - `contains` [EXTRACTED]
 - [[newBadge()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_54
+#graphify/code #graphify/EXTRACTED #community/Community_52

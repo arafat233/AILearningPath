@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\admin.routes.test.js"
 type: "code"
-community: "Community 49"
+community: "Community 47"
 location: "L37"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_49
+  - community/Community_47
 ---
 
 # mockRes()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[admin.routes.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_49
+#graphify/code #graphify/EXTRACTED #community/Community_47

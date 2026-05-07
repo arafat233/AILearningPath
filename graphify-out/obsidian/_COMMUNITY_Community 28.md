@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[MarksChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[PYQBank()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[PYQBank.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[QuestionCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
-- [[YearChip()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PYQBank.jsx
+- [[AdminOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[AdminOverview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[Sparkline7Day()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[StatCard()_5]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[UserSplitBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
 
 ## Live Query (requires Dataview plugin)
 

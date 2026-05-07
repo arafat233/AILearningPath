@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx"
 type: "code"
-community: "Community 96"
+community: "Community 94"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_96
+  - community/Community_94
 ---
 
 # CompanyLogin.jsx
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[CompanyLogin()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_96
+#graphify/code #graphify/EXTRACTED #community/Community_94

@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[Analytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[Analytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[ConfRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
-- [[StatCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Analytics.jsx
+- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

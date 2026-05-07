@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[OfflineBanner()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
-- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

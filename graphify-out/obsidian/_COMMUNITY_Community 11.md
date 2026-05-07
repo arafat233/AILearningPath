@@ -1,31 +1,46 @@
 ---
 type: community
-members: 18
+members: 33
 ---
 
 # Community 11
 
-**Members:** 18 nodes
+**Members:** 33 nodes
 
 ## Members
-- [[CopyButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[QuestionCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolGroups()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[SchoolGroups.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[UniqueBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[buildOptions()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterFromTopicId()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[chapterLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
-- [[cleanFormula()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestion()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[mapQuestionType()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedMockPapers()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
-- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[AdaptiveViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[BentoCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[CardHeader()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FAQ()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Features()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[FinalCTA()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Footer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[GoalPreviewSimple()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Hero()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[HowItWorks()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LandingPage.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LearningGoals()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[LiveRoomViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Logo()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Marquee()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Parents()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PlannerViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[PredictionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Pricing()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[ProfileViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[RevisionViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[SectionEyebrow()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[StickyCta()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Subjects()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[Testimonials()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TopBar()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[TrustMetric()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[VoiceViz()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[sampleTopicsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[statsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[subjectsFor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
+- [[useStep()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -33,11 +48,3 @@ members: 18
 TABLE source_file, type FROM #community/Community_11
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 4]]
-
-## Top bridge nodes
-- [[seedQuestions()]] - degree 4, connects to 1 community
-- [[seedMockPapers()_1]] - degree 4, connects to 1 community
-- [[main()_5]] - degree 4, connects to 1 community

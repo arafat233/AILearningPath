@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js"
 type: "code"
-community: "Community 31"
+community: "Community 29"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_31
+  - community/Community_29
 ---
 
 # offlineQueue.js
@@ -17,4 +17,4 @@ tags:
 - [[getQueuedCount()]] - `contains` [EXTRACTED]
 - [[openDB()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_31
+#graphify/code #graphify/EXTRACTED #community/Community_29

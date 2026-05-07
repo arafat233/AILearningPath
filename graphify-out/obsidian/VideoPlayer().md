@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx"
 type: "code"
-community: "Community 6"
+community: "Community 9"
 location: "L944"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
-  - community/Community_6
+  - graphify/INFERRED
+  - community/Community_9
 ---
 
 # VideoPlayer()
@@ -14,6 +14,7 @@ tags:
 ## Connections
 - [[NcertTopicView.jsx]] - `contains` [EXTRACTED]
 - [[fmt()]] - `calls` [INFERRED]
+- [[fmt()_1]] - `calls` [INFERRED]
 - [[sanitizeSvg()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_6
+#graphify/code #graphify/INFERRED #community/Community_9

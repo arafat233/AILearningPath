@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[practiceRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\practiceRoutes.js
+- [[pushRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\pushRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

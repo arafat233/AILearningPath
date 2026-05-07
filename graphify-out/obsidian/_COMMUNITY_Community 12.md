@@ -1,30 +1,42 @@
 ---
 type: community
-members: 17
+members: 29
 ---
 
 # Community 12
 
-**Members:** 17 nodes
+**Members:** 29 nodes
 
 ## Members
-- [[Practice.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[renderPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[startAndAnswer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[startSession()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
-- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[validateCoupon()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[callClaude()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[ragStore.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\ragStore.js
+- [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[retrieveContext()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\ragStore.js
+- [[setCache()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
+- [[smartAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[smartStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[storeCacheResult()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[studyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[todayStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
+- [[tutorChat()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
+- [[usageInfo()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -34,13 +46,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 3 edges to [[_COMMUNITY_Community 3]]
-- 2 edges to [[_COMMUNITY_Community 0]]
-- 1 edge to [[_COMMUNITY_Community 13]]
-- 1 edge to [[_COMMUNITY_Community 5]]
+- 6 edges to [[_COMMUNITY_Community 2]]
+- 4 edges to [[_COMMUNITY_Community 10]]
+- 2 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[verifyPayment()_1]] - degree 9, connects to 2 communities
-- [[createOrder()_1]] - degree 7, connects to 1 community
-- [[validateCoupon()_1]] - degree 3, connects to 1 community
-- [[renderPractice()]] - degree 3, connects to 1 community
+- [[smartAIExplanation()]] - degree 11, connects to 1 community
+- [[smartStudyAdvice()]] - degree 8, connects to 1 community
+- [[setCache()]] - degree 6, connects to 1 community
+- [[tutorChat()]] - degree 5, connects to 1 community
+- [[getUsageCount()]] - degree 5, connects to 1 community

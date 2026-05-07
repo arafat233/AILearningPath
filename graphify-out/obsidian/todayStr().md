@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js"
 type: "code"
-community: "Community 7"
-location: "L37"
+community: "Community 12"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_12
 ---
 
 # todayStr()
@@ -18,4 +18,4 @@ tags:
 - [[recordCacheHit()]] - `calls` [EXTRACTED]
 - [[smartAIExplanation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_12

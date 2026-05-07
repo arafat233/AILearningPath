@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js"
 type: "code"
-community: "Community 1"
+community: "Community 2"
 location: "L54"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # getPlan()
@@ -18,4 +18,4 @@ tags:
 - [[getRevisionTopics()]] - `calls` [INFERRED]
 - [[plannerController.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/INFERRED #community/Community_1
+#graphify/code #graphify/INFERRED #community/Community_2

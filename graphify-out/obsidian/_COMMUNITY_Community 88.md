@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
-- [[practice.spec.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
+- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
 
 ## Live Query (requires Dataview plugin)
 

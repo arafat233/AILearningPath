@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
-- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[OfflineBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
+- [[OfflineBanner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
 
 ## Live Query (requires Dataview plugin)
 

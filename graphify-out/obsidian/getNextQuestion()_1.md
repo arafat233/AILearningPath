@@ -5,7 +5,7 @@ community: "Community 7"
 location: "L4"
 tags:
   - graphify/code
-  - graphify/EXTRACTED
+  - graphify/INFERRED
   - community/Community_7
 ---
 
@@ -15,5 +15,8 @@ tags:
 - [[adaptiveService.js]] - `contains` [EXTRACTED]
 - [[generateAIQuestion()]] - `calls` [INFERRED]
 - [[getInterleavedQuestion()]] - `calls` [EXTRACTED]
+- [[toString_2]] - `calls` [INFERRED]
+- [[toString_1]] - `calls` [INFERRED]
+- [[toString]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/INFERRED #community/Community_7

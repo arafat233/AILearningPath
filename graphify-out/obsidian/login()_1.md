@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js"
 type: "code"
-community: "Community 88"
+community: "Community 86"
 location: "L8"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_88
+  - community/Community_86
 ---
 
 # login()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[practice.spec.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_88
+#graphify/code #graphify/EXTRACTED #community/Community_86

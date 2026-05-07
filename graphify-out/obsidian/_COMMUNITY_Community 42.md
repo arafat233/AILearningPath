@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[SharedPlan()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
-- [[SharedPlan.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
-- [[fmtShort()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
-- [[topicColor()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
+- [[api.interceptors.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[getCsrfFromCookie()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[handle401()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[shouldAttachCsrf()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
 
 ## Live Query (requires Dataview plugin)
 

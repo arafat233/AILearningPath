@@ -1,17 +1,16 @@
 ---
 type: community
-members: 4
+members: 3
 ---
 
 # Community 44
 
-**Members:** 4 nodes
+**Members:** 3 nodes
 
 ## Members
-- [[api.interceptors.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[getCsrfFromCookie()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[handle401()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[shouldAttachCsrf()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[gradeFor()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
+- [[predictionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\predictionService.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[migrate-mongo-config.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrate-mongo-config.js
+- [[seedLessons.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedLessons.js
 
 ## Live Query (requires Dataview plugin)
 

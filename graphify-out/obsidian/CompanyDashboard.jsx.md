@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx"
 type: "code"
-community: "Community 6"
+community: "Community 9"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_9
 ---
 
 # CompanyDashboard.jsx
@@ -22,4 +22,4 @@ tags:
 - [[fmt()]] - `contains` [EXTRACTED]
 - [[pct()_1]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_6
+#graphify/code #graphify/EXTRACTED #community/Community_9

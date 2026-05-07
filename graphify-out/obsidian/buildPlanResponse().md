@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js"
 type: "code"
-community: "Community 1"
+community: "Community 2"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_1
+  - community/Community_2
 ---
 
 # buildPlanResponse()
@@ -21,6 +21,9 @@ tags:
 - [[getSharedPlan()]] - `calls` [EXTRACTED]
 - [[plannerController.js]] - `contains` [EXTRACTED]
 - [[reschedulePlan()]] - `calls` [EXTRACTED]
+- [[toString_2]] - `calls` [INFERRED]
+- [[toString_1]] - `calls` [INFERRED]
+- [[toString]] - `calls` [INFERRED]
 - [[updatePlanSettings()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_1
+#graphify/code #graphify/EXTRACTED #community/Community_2

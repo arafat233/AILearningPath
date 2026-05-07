@@ -1,19 +1,18 @@
 ---
 type: community
-members: 6
+members: 5
 ---
 
 # Community 22
 
-**Members:** 6 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[ensureVapid()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[notifyParentsOfMilestone()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[pushService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendPush()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendRevisionReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
-- [[sendStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pushService.js
+- [[getPYQById()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[getPYQs()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[pyqService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -21,9 +20,3 @@ members: 6
 TABLE source_file, type FROM #community/Community_22
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 1]]
-
-## Top bridge nodes
-- [[sendRevisionReminders()]] - degree 4, connects to 1 community

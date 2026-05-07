@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1"
 type: "code"
-community: "Community 171"
+community: "Community 169"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_171
+  - community/Community_169
 ---
 
 # Setup-Accounts.ps1
 
-#graphify/code #graphify/EXTRACTED #community/Community_171
+#graphify/code #graphify/EXTRACTED #community/Community_169

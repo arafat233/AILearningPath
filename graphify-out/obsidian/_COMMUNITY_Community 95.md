@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[Bookmarks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
-- [[Bookmarks.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Bookmarks.jsx
+- [[LessonView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LessonView.jsx
+- [[LessonView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LessonView.jsx
 
 ## Live Query (requires Dataview plugin)
 

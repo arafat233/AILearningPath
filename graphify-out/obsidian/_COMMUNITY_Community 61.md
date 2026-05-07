@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[ExamReview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[ExamReview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
-- [[StatCard()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ExamReview.jsx
+- [[Pricing()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[Pricing.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
+- [[loadRazorpayScript()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Pricing.jsx
 
 ## Live Query (requires Dataview plugin)
 

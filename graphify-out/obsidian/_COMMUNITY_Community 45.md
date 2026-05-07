@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[20260503000000-add-indexes-and-soft-delete.js]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
-- [[down()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
-- [[up()]] - code - E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js
+- [[.constructor()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
+- [[AppError.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\AppError.js
 
 ## Live Query (requires Dataview plugin)
 

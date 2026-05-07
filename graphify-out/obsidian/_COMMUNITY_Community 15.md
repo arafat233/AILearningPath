@@ -1,23 +1,31 @@
 ---
 type: community
-members: 10
+members: 18
 ---
 
 # Community 15
 
-**Members:** 10 nodes
+**Members:** 18 nodes
 
 ## Members
-- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
-- [[getDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
-- [[makeAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
-- [[mockAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
-- [[profile.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
-- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
-- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[CopyButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[QuestionCard()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolGroups()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[SchoolGroups.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[UniqueBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[buildOptions()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterFromTopicId()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx
+- [[cleanFormula()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestion()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestionType()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedMockPapers()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,8 +35,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 3]]
+- 3 edges to [[_COMMUNITY_Community 4]]
 
 ## Top bridge nodes
-- [[updateUserProfile()]] - degree 4, connects to 1 community
-- [[analyzeAnswer()]] - degree 3, connects to 1 community
+- [[seedQuestions()]] - degree 4, connects to 1 community
+- [[seedMockPapers()_1]] - degree 4, connects to 1 community
+- [[main()_5]] - degree 4, connects to 1 community

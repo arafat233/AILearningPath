@@ -1,41 +1,58 @@
 ---
 type: community
-members: 28
+members: 45
 ---
 
 # Community 9
 
-**Members:** 28 nodes
+**Members:** 45 nodes
 
 ## Members
-- [[CatchUpBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[CreatePlanCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[DayNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[NcertProgress()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanForm()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanSettingsModal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[PlanSwitcher()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
-- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[AhaRevealCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[BarRow()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Card()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CentralIdeaCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ClosingChallenge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[CompanyDashboard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[CompanyDashboard.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Competition()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[Competition.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Competition.jsx
+- [[ConfidencePing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ConfidenceSummary()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[DerivationPart()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ErrorHunt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[FeynmanBox()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[FormulaBlanks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[HookCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[InteractiveWorkedExample()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MasteryPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MiniTrend()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[MisconceptionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MisconceptionChallenge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[MisconceptionDetails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ModeSelector()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[NcertTopicView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[PaperPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[PaperPracticeCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[PlainEnglishCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ProgressBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[RealWorldCards()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[RecallCards()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[Section()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[Section()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[SectionCheckpoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[StatCard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[TopicNavBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[TopicNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[VideoPlayer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[VisualDescToggle()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[ago()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[fmt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[injectCss()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[pct()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyDashboard.jsx
+- [[sanitizeSvg()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
+- [[shuffle()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -43,3 +60,10 @@ members: 28
 TABLE source_file, type FROM #community/Community_9
 SORT file.name ASC
 ```
+
+## Connections to other communities
+- 2 edges to [[_COMMUNITY_Community 7]]
+
+## Top bridge nodes
+- [[VideoPlayer()]] - degree 4, connects to 1 community
+- [[Competition()]] - degree 3, connects to 1 community

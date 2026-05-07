@@ -1,17 +1,18 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiService.js"
 type: "code"
-community: "Community 7"
+community: "Community 12"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_12
 ---
 
 # aiService.js
 
 ## Connections
+- [[callClaude()]] - `contains` [EXTRACTED]
 - [[generateAIQuestion()]] - `contains` [EXTRACTED]
 - [[generateHint()]] - `contains` [EXTRACTED]
 - [[generateLesson()]] - `contains` [EXTRACTED]
@@ -20,4 +21,4 @@ tags:
 - [[getStudyAdvice()]] - `contains` [EXTRACTED]
 - [[getSystemPrompt()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_12

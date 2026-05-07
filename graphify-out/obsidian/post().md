@@ -25,6 +25,7 @@ tags:
 - [[evaluateExplanation()]] - `calls` [INFERRED]
 - [[flagQuestion()]] - `calls` [INFERRED]
 - [[forgotPassword()_1]] - `calls` [INFERRED]
+- [[generateMock()_1]] - `calls` [INFERRED]
 - [[generateShareToken()_1]] - `calls` [INFERRED]
 - [[getHint()]] - `calls` [INFERRED]
 - [[getHomeworkSet()_1]] - `calls` [INFERRED]

@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Certificate.jsx"
 type: "code"
-community: "Community 40"
+community: "Community 38"
 location: "L48"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_40
+  - community/Community_38
 ---
 
 # Certificate()
@@ -15,4 +15,4 @@ tags:
 - [[Certificate.jsx]] - `contains` [EXTRACTED]
 - [[usePrintStyles()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_40
+#graphify/code #graphify/EXTRACTED #community/Community_38

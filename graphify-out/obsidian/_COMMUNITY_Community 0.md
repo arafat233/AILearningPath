@@ -1,11 +1,11 @@
 ---
 type: community
-members: 152
+members: 160
 ---
 
 # Community 0
 
-**Members:** 152 nodes
+**Members:** 160 nodes
 
 ## Members
 - [[activatePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -17,6 +17,7 @@ members: 152
 - [[adminDeleteTopic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminDeleteUser()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetCertificates()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetCouponRedemptions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetCoupons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetFeedback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -51,6 +52,7 @@ members: 152
 - [[flagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[flushQueue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[forgotPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[generateMock()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[generateShareToken()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIAdvice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAICacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -70,6 +72,8 @@ members: 152
 - [[getFlags()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getHint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getHomeworkQuestion()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getHomeworkSet()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getHomeworkSetForStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[getLastDayRevision()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getLeaderboard()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getLesson()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -136,6 +140,7 @@ members: 152
 - [[reschedulePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[resetPassword()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[respondToLinkRequest()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
 - [[saveDayNote()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveNcertNote()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[saveProgress()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -158,6 +163,9 @@ members: 152
 - [[unsubscribePush()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[updateMe()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[updatePlanSettings()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
 - [[verifyPayment()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[voiceAnswer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 
@@ -169,14 +177,14 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 5 edges to [[_COMMUNITY_Community 1]]
-- 2 edges to [[_COMMUNITY_Community 12]]
+- 6 edges to [[_COMMUNITY_Community 2]]
 - 2 edges to [[_COMMUNITY_Community 5]]
-- 1 edge to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 10]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 148, connects to 4 communities
-- [[post()]] - degree 46, connects to 2 communities
+- [[api.js]] - degree 150, connects to 3 communities
+- [[getHomeworkSetForStudent()]] - degree 4, connects to 2 communities
+- [[post()]] - degree 47, connects to 1 community
 - [[listTopics()]] - degree 3, connects to 1 community
 - [[listYears()]] - degree 3, connects to 1 community
-- [[listQuestions()]] - degree 3, connects to 1 community

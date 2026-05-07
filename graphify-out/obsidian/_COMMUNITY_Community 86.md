@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[setupStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
-- [[weeklyParentEmailService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
+- [[login()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
+- [[practice.spec.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\e2e\practice.spec.js
 
 ## Live Query (requires Dataview plugin)
 

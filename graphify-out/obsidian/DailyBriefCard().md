@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Dashboard.jsx"
 type: "code"
-community: "Community 21"
-location: "L490"
+community: "Community 20"
+location: "L491"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_21
+  - community/Community_20
 ---
 
 # DailyBriefCard()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Dashboard.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_21
+#graphify/code #graphify/EXTRACTED #community/Community_20

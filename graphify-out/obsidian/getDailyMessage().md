@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js"
 type: "code"
-community: "Community 3"
-location: "L102"
+community: "Community 10"
+location: "L100"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_3
+  - community/Community_10
 ---
 
 # getDailyMessage()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[aiTeacherService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_3
+#graphify/code #graphify/EXTRACTED #community/Community_10

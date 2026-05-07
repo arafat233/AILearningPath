@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminPayments()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminPayments.jsx
-- [[AdminPayments.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminPayments.jsx
+- [[AdminTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
+- [[AdminTopics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
 
 ## Live Query (requires Dataview plugin)
 

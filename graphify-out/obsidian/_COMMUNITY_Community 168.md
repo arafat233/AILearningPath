@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[authStore.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\authStore.test.js
+- [[Save-Checkpoint.ps1]] - code - E:\AILearningPath\ClaudeTools\Save-Checkpoint.ps1
 
 ## Live Query (requires Dataview plugin)
 

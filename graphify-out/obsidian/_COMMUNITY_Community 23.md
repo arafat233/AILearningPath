@@ -1,19 +1,18 @@
 ---
 type: community
-members: 6
+members: 5
 ---
 
 # Community 23
 
-**Members:** 6 nodes
+**Members:** 5 nodes
 
 ## Members
-- [[Avatar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Field()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[PlanBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[Profile.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
-- [[badgeMeta()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Profile.jsx
+- [[ClerkCallback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[ClerkCallback.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[authedRedirectTarget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[getStoredRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[normalizeRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
 
 ## Live Query (requires Dataview plugin)
 

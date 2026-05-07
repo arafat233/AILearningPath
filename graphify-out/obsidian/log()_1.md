@@ -14,6 +14,7 @@ tags:
 ## Connections
 - [[.onBegin()]] - `calls` [INFERRED]
 - [[.onEnd()]] - `calls` [INFERRED]
+- [[build()]] - `calls` [INFERRED]
 - [[bulkUpsertQuestions()]] - `calls` [INFERRED]
 - [[globalSetup()]] - `calls` [INFERRED]
 - [[importChapters()]] - `calls` [INFERRED]

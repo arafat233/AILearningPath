@@ -1,30 +1,41 @@
 ---
 type: community
-members: 17
+members: 28
 ---
 
 # Community 13
 
-**Members:** 17 nodes
+**Members:** 28 nodes
 
 ## Members
-- [[buildEmailHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[buildStudentSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[escHtml()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[escHtml()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[frontendUrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[frontendUrl()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[onboardingEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[pct()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[runOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[runWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[sendDay2Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[sendDay7Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
-- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[sendReceiptEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
-- [[trendArrow()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
-- [[weeklyParentEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[CatchUpBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[CheckIcon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[CreatePlanCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DailyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DayActions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[DayNote()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[MonthlyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[NcertProgress()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanForm()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanSettingsModal()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[PlanSwitcher()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Planner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[Planner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[RevisionDue()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[SummaryBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TodayFocus()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TopicBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[TopicEditor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[ViewTab()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[WeeklyView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[calcStreak()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[dayToDate()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[fmtFull()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[fmtShort()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[remainingHours()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[topicColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[urgencyColor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
+- [[urgencyLabel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Planner.jsx
 
 ## Live Query (requires Dataview plugin)
 
@@ -32,11 +43,3 @@ members: 17
 TABLE source_file, type FROM #community/Community_13
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 2 edges to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 12]]
-
-## Top bridge nodes
-- [[sendEmail()]] - degree 7, connects to 1 community
-- [[sendReceiptEmail()]] - degree 3, connects to 1 community

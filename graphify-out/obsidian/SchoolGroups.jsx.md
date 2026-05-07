@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SchoolGroups.jsx"
 type: "code"
-community: "Community 11"
+community: "Community 15"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_15
 ---
 
 # SchoolGroups.jsx
@@ -19,4 +19,4 @@ tags:
 - [[UniqueBadge()]] - `contains` [EXTRACTED]
 - [[chapterLabel()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_15

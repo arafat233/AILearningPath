@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[ClerkCallback()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[ClerkCallback.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[authedRedirectTarget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[getStoredRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
-- [[normalizeRedirect()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\ClerkCallback.jsx
+- [[AssertionReasonText()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[OfflineBanner()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[Practice.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
+- [[diffLevel()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Practice.jsx
 
 ## Live Query (requires Dataview plugin)
 

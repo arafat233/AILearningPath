@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[DoubtChat()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
-- [[DoubtChat.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\DoubtChat.jsx
+- [[GoogleSignInButton()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
+- [[GoogleSignInButton.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\GoogleSignInButton.jsx
 
 ## Live Query (requires Dataview plugin)
 

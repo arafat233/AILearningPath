@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js"
 type: "code"
-community: "Community 7"
-location: "L249"
+community: "Community 12"
+location: "L250"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_7
+  - community/Community_12
 ---
 
 # getCacheStats()
@@ -16,4 +16,4 @@ tags:
 - [[cacheStats()]] - `calls` [INFERRED]
 - [[getAdminStats()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_7
+#graphify/code #graphify/INFERRED #community/Community_12

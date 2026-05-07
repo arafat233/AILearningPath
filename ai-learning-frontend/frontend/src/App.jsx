@@ -153,7 +153,7 @@ export default function App() {
           <Route path="/forgot-password"           element={<ForgotPassword />} />
           <Route path="/reset-password/:token"      element={<ResetPassword />} />
           <Route path="/shared-plan/:token"         element={<SharedPlan />} />
-          <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
+          <Route path="/onboarding"           element={<Navigate to="/dashboard" replace />} />
           <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />
 
           {/* Admin panel — AdminLayout handles role guard internally */}

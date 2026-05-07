@@ -38,7 +38,7 @@ export default function Register() {
     try {
       const { data } = await register(form);
       setAuth(null, data.data.user);
-      navigate("/onboarding");
+      navigate("/dashboard");
     } catch (err) {
       const status  = err.response?.status;
       const message = err.response?.data?.error || "Registration failed";
@@ -149,7 +149,7 @@ export default function Register() {
             <div className="flex-1 h-px bg-[var(--separator)]" />
           </div>
 
-          <GoogleSignInButton redirectTo="/onboarding" />
+          <GoogleSignInButton redirectTo="/dashboard" />
 
           <div className="divider my-5" />
 

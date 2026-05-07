@@ -53,14 +53,34 @@ services:
       PORT: 5001
       MONGO_URI: mongodb://mongo:27017/ai_learning
       REDIS_URL: redis://redis:6379
-      # Secrets — set these in .env or your deployment platform's secret manager
+      # Core secrets
       JWT_SECRET: ${JWT_SECRET}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
+      # URLs
+      FRONTEND_URL: ${FRONTEND_URL:-https://stellaredu.in}
+      BACKEND_URL: ${BACKEND_URL:-https://stellaredu.in}
+      SITE_URL: ${SITE_URL:-https://stellaredu.in}
+      # Google OAuth
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      BACKEND_URL: ${BACKEND_URL:-http://localhost:5001}
+      # Razorpay
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET}
+      # Email
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM: ${RESEND_FROM}
+      # Web Push
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      VAPID_EMAIL: ${VAPID_EMAIL}
+      # Company dashboard
+      COMPANY_ADMIN_EMAIL: ${COMPANY_ADMIN_EMAIL}
+      COMPANY_ADMIN_PASSWORD: ${COMPANY_ADMIN_PASSWORD}
+      COMPANY_JWT_SECRET: ${COMPANY_JWT_SECRET}
+      # Error monitoring
+      SENTRY_DSN: ${SENTRY_DSN:-}
     depends_on:
       mongo:
         condition: service_healthy

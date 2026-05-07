@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[AdminNPS()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
-- [[AdminNPS.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
-- [[NPSGauge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
-- [[ScoreBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
+- [[NcertChapterView()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[NcertChapterView.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[QuestionCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
+- [[TopicBlock()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertChapterView.jsx
 
 ## Live Query (requires Dataview plugin)
 

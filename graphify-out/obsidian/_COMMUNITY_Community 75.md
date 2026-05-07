@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[validateEnv()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
-- [[validateEnv.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\validateEnv.js
+- [[doubtRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
+- [[isValidQuestionId()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\doubtRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

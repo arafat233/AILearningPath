@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminCoupons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCoupons.jsx
-- [[AdminCoupons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCoupons.jsx
+- [[Onboarding()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
+- [[Onboarding.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Onboarding.jsx
 
 ## Live Query (requires Dataview plugin)
 

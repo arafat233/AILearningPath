@@ -91,6 +91,7 @@ tags:
 - [[VoiceViz()]] - `contains` [EXTRACTED]
 - [[easeInOutCubic()]] - `contains` [EXTRACTED]
 - [[easeOutCubic()]] - `contains` [EXTRACTED]
+- [[fmtN()]] - `contains` [EXTRACTED]
 - [[pentPoint()]] - `contains` [EXTRACTED]
 - [[pentPoints()]] - `contains` [EXTRACTED]
 - [[reveal()]] - `contains` [EXTRACTED]

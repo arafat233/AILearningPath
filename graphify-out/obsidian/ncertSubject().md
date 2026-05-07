@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Lessons.jsx"
 type: "code"
-community: "Community 25"
+community: "Community 26"
 location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_25
+  - community/Community_26
 ---
 
 # ncertSubject()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Lessons.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_25
+#graphify/code #graphify/EXTRACTED #community/Community_26

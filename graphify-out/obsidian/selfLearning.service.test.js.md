@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js"
 type: "code"
-community: "Community 34"
+community: "Community 36"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_34
+  - community/Community_36
 ---
 
 # selfLearning.service.test.js
@@ -16,4 +16,4 @@ tags:
 - [[makeQuestion()_1]] - `contains` [EXTRACTED]
 - [[makeStats()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_34
+#graphify/code #graphify/EXTRACTED #community/Community_36

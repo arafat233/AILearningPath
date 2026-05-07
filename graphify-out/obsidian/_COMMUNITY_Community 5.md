@@ -1,11 +1,11 @@
 ---
 type: community
-members: 50
+members: 56
 ---
 
 # Community 5
 
-**Members:** 50 nodes
+**Members:** 56 nodes
 
 ## Members
 - [[.componentDidCatch()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\App.jsx
@@ -38,6 +38,8 @@ members: 50
 - [[getDynamicTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[getHomeworkQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[getHomeworkSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
+- [[getHomeworkSet()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getHomeworkSetForStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[getHomeworkVariant()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
 - [[getSchool()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[getSchoolGroup()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
@@ -55,9 +57,13 @@ members: 50
 - [[renderPricing()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Pricing.test.jsx
 - [[renderTutor()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\VoiceTutor.test.jsx
 - [[renderWithRouter()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Layout.test.jsx
+- [[run()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
 - [[schoolController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\schoolController.js
 - [[schoolVariantService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\schoolVariantService.js
 - [[seedFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
+- [[validate()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\validate.js
+- [[validate.middleware.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\validate.middleware.test.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -67,15 +73,15 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 9 edges to [[_COMMUNITY_Community 1]]
-- 2 edges to [[_COMMUNITY_Community 14]]
-- 1 edge to [[_COMMUNITY_Community 0]]
+- 10 edges to [[_COMMUNITY_Community 1]]
+- 2 edges to [[_COMMUNITY_Community 16]]
+- 2 edges to [[_COMMUNITY_Community 0]]
 - 1 edge to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 13]]
+- 1 edge to [[_COMMUNITY_Community 12]]
 
 ## Top bridge nodes
-- [[schoolController.js]] - degree 9, connects to 1 community
 - [[questionTemplateService.js]] - degree 9, connects to 1 community
 - [[.render()]] - degree 8, connects to 1 community
 - [[getDynamicQuestion()]] - degree 5, connects to 1 community
+- [[getHomeworkSetForStudent()]] - degree 4, connects to 1 community
 - [[enrollStudent()]] - degree 4, connects to 1 community

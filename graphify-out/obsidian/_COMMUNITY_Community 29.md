@@ -8,11 +8,11 @@ members: 5
 **Members:** 5 nodes
 
 ## Members
-- [[enqueueAttempt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js
-- [[flushQueue()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js
-- [[getQueuedCount()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js
-- [[offlineQueue.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js
-- [[openDB()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\offlineQueue.js
+- [[AdminAnalytics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[AdminAnalytics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[ChartCard()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[MiniBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
+- [[StatCard()_4]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminAnalytics.jsx
 
 ## Live Query (requires Dataview plugin)
 

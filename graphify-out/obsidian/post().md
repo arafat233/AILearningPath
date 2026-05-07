@@ -18,6 +18,7 @@ tags:
 - [[adminRunOnboardingEmails()]] - `calls` [INFERRED]
 - [[adminRunWeeklyParentEmails()]] - `calls` [INFERRED]
 - [[askTutor()]] - `calls` [INFERRED]
+- [[createChild()]] - `calls` [INFERRED]
 - [[createOrder()_2]] - `calls` [INFERRED]
 - [[createSchool()_1]] - `calls` [INFERRED]
 - [[createStudyPlan()]] - `calls` [INFERRED]

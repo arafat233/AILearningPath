@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LessonView.jsx"
 type: "code"
-community: "Community 93"
+community: "Community 97"
 location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_93
+  - community/Community_97
 ---
 
 # LessonView()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[LessonView.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_93
+#graphify/code #graphify/EXTRACTED #community/Community_97

@@ -60,7 +60,9 @@ const AdminQuestions   = lazy(() => import("./pages/admin/AdminQuestions"));
 const AdminTopics      = lazy(() => import("./pages/admin/AdminTopics"));
 const AdminCacheStats  = lazy(() => import("./pages/admin/AdminCacheStats"));
 const AdminAnalytics   = lazy(() => import("./pages/admin/AdminAnalytics"));
-const AdminCoupons     = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminCoupons        = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminCertificates   = lazy(() => import("./pages/admin/AdminCertificates"));
+const MockPaper           = lazy(() => import("./pages/MockPaper"));
 const AdminPayments    = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminNPS         = lazy(() => import("./pages/admin/AdminNPS"));
 const CompanyLogin     = lazy(() => import("./pages/CompanyLogin"));
@@ -168,7 +170,8 @@ export default function App() {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="coupons"   element={<AdminCoupons />} />
             <Route path="payments"  element={<AdminPayments />} />
-            <Route path="nps"       element={<AdminNPS />} />
+            <Route path="nps"          element={<AdminNPS />} />
+            <Route path="certificates" element={<AdminCertificates />} />
           </Route>
 
           <Route path="/" element={<RootElement />}>
@@ -186,6 +189,7 @@ export default function App() {
             <Route path="profile"                 element={<Profile />} />
             <Route path="settings"                element={<Settings />} />
             <Route path="exam-review"             element={<ExamReview />} />
+            <Route path="mock-paper"              element={<MockPaper />} />
             <Route path="portal"                  element={<Portal />} />
             <Route path="parent"                  element={<ParentDashboard />} />
             <Route path="chapters/:chapterNumber"      element={<ChapterView />} />

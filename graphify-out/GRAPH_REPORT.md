@@ -1,12 +1,12 @@
 # Graph Report - E:\AILearningPath  (2026-05-07)
 
 ## Corpus Check
-- 259 files · ~1,834,970 words
+- 261 files · ~1,839,507 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1173 nodes · 1459 edges · 184 communities detected
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 311 edges (avg confidence: 0.8)
+- 1185 nodes · 1476 edges · 184 communities detected
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 316 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -196,16 +196,16 @@
 - [[_COMMUNITY_Community 183|Community 183]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `post()` - 46 edges
+1. `post()` - 47 edges
 2. `log()` - 30 edges
 3. `useStep()` - 18 edges
 4. `submitAnswer()` - 16 edges
 5. `smartAIExplanation()` - 11 edges
 6. `buildPlanResponse()` - 10 edges
-7. `reveal()` - 10 edges
-8. `submitExam()` - 9 edges
-9. `verifyPayment()` - 9 edges
-10. `save()` - 9 edges
+7. `sessionSet()` - 10 edges
+8. `reveal()` - 10 edges
+9. `submitExam()` - 9 edges
+10. `verifyPayment()` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `log()`  [INFERRED]
@@ -223,115 +223,115 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (52): adminCreateCoupon(), adminCreateQuestion(), adminCreateTopic(), adminRunOnboardingEmails(), adminRunWeeklyParentEmails(), askTutor(), createChild(), createOrder() (+44 more)
+Nodes (57): adminCreateCoupon(), adminCreateQuestion(), adminCreateTopic(), adminRunOnboardingEmails(), adminRunWeeklyParentEmails(), askTutor(), createChild(), createOrder() (+49 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.03
-Nodes (82): applyPlacementResults(), nextTopic(), createQuestion(), deleteQuestion(), getFlaggedQuestions(), listQuestions(), unflagQuestion(), updateQuestion() (+74 more)
+Nodes (80): applyPlacementResults(), nextTopic(), createQuestion(), deleteQuestion(), getFlaggedQuestions(), listQuestions(), unflagQuestion(), updateQuestion() (+72 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.03
 Nodes (36): easeInOutCubic(), easeOutCubic(), PreviewArithmetic(), PreviewChemistry(), PreviewCivics(), PreviewCoding(), PreviewGeography(), PreviewGovernment() (+28 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.04
-Nodes (56): adminAuth(), updateUserRole(), generateTeacherMessage(), getNextQuestion(), auth(), escHtml(), forgotPassword(), isProd() (+48 more)
-
-### Community 4 - "Community 4"
 Cohesion: 0.05
 Nodes (40): err(), log(), globalSetup(), importChapters(), importTopicContent(), main(), upsertTopic(), IssueReporter (+32 more)
 
+### Community 4 - "Community 4"
+Cohesion: 0.06
+Nodes (42): adminAuth(), updateUserRole(), auth(), escHtml(), forgotPassword(), isProd(), issueTokens(), login() (+34 more)
+
 ### Community 5 - "Community 5"
 Cohesion: 0.05
-Nodes (32): getHomeworkSet(), ErrorBoundary, openChat(), renderWithRouter(), renderPricing(), gcd(), getDynamicQuestion(), getDynamicQuestionForSchoolVariant() (+24 more)
+Nodes (36): checkMastery(), detectFluke(), getOrCreateMastery(), nextQuestion(), recordAttempt(), resolveRouting(), serveAtDifficulty(), stripQuestion() (+28 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.05
-Nodes (7): BarRow(), CompanyDashboard(), fmt(), pct(), Competition(), sanitizeSvg(), VideoPlayer()
+Cohesion: 0.04
+Nodes (9): BarRow(), CompanyDashboard(), fmt(), pct(), Competition(), ExamScreen(), fmt(), sanitizeSvg() (+1 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.1
-Nodes (29): getInterleavedQuestion(), getNextQuestion(), cacheStats(), studyAdvice(), tutorChat(), usageInfo(), checkAndIncrementUsage(), getCacheStats() (+21 more)
+Cohesion: 0.08
+Nodes (26): generateTeacherMessage(), buildAccuracyHistory(), buildWeaknessMap(), getReport(), analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), getNextQuestion() (+18 more)
 
 ### Community 8 - "Community 8"
+Cohesion: 0.11
+Nodes (27): getInterleavedQuestion(), getNextQuestion(), costUSD(), getAdminStats(), getAnalytics(), cacheStats(), studyAdvice(), tutorChat() (+19 more)
+
+### Community 9 - "Community 9"
 Cohesion: 0.07
 Nodes (5): GoalPreviewSimple(), sampleTopicsFor(), statsFor(), Subjects(), useStep()
 
-### Community 9 - "Community 9"
+### Community 10 - "Community 10"
 Cohesion: 0.1
 Nodes (12): calcStreak(), dayToDate(), fmtFull(), fmtShort(), remainingHours(), SummaryBar(), TodayFocus(), TopicBadge() (+4 more)
 
-### Community 10 - "Community 10"
+### Community 11 - "Community 11"
 Cohesion: 0.2
 Nodes (10): ap(), coordinateGeometry(), diff(), ds(), linear(), polynomials(), quadratic(), rand() (+2 more)
 
-### Community 11 - "Community 11"
+### Community 12 - "Community 12"
 Cohesion: 0.18
 Nodes (12): chapterLabel(), QuestionCard(), buildOptions(), chapterFromTopicId(), cleanFormula(), collectMockPaperQuestionIds(), main(), mapQuestion() (+4 more)
 
-### Community 12 - "Community 12"
+### Community 13 - "Community 13"
 Cohesion: 0.19
 Nodes (12): validateCoupon(), computeDiscount(), redeemCoupon(), createOrder(), getRazorpay(), orderCouponKey(), orderPlanKey(), verifyPayment() (+4 more)
 
-### Community 13 - "Community 13"
+### Community 14 - "Community 14"
 Cohesion: 0.2
 Nodes (11): sendEmail(), sendReceiptEmail(), escHtml(), frontendUrl(), runOnboardingEmails(), sendDay2Emails(), sendDay7Emails(), buildEmailHtml() (+3 more)
 
-### Community 14 - "Community 14"
+### Community 15 - "Community 15"
 Cohesion: 0.16
 Nodes (4): daysSince(), hoursMinutes(), StudentView(), WeeklyChart()
 
-### Community 15 - "Community 15"
-Cohesion: 0.27
-Nodes (7): analyzeAnswer(), classifyThinkingProfile(), generateFeedback(), getDifficulty(), makeAttempt(), mockAttempts(), updateUserProfile()
-
 ### Community 16 - "Community 16"
-Cohesion: 0.47
-Nodes (8): checkMastery(), detectFluke(), getOrCreateMastery(), nextQuestion(), recordAttempt(), resolveRouting(), serveAtDifficulty(), stripQuestion()
-
-### Community 17 - "Community 17"
 Cohesion: 0.22
 Nodes (2): NotificationsCard(), usePushNotifications()
 
-### Community 18 - "Community 18"
+### Community 17 - "Community 17"
 Cohesion: 0.36
 Nodes (6): companyLogin(), getStats(), timingSafe(), getDashboardStats(), startOf(), todayStr()
 
-### Community 19 - "Community 19"
+### Community 18 - "Community 18"
 Cohesion: 0.25
 Nodes (0): 
 
-### Community 20 - "Community 20"
+### Community 19 - "Community 19"
 Cohesion: 0.52
 Nodes (6): buildOptions(), chapterFromStr(), cleanAnswer(), main(), mapQuestion(), shuffle()
 
-### Community 21 - "Community 21"
+### Community 20 - "Community 20"
 Cohesion: 0.33
 Nodes (2): Dashboard(), getGreeting()
 
-### Community 22 - "Community 22"
+### Community 21 - "Community 21"
 Cohesion: 0.8
 Nodes (5): ensureVapid(), notifyParentsOfMilestone(), sendPush(), sendRevisionReminders(), sendStudyReminders()
 
-### Community 23 - "Community 23"
+### Community 22 - "Community 22"
 Cohesion: 0.33
 Nodes (0): 
 
-### Community 24 - "Community 24"
+### Community 23 - "Community 23"
 Cohesion: 0.4
 Nodes (0): 
 
-### Community 25 - "Community 25"
+### Community 24 - "Community 24"
 Cohesion: 0.6
 Nodes (3): ClerkCallback(), getStoredRedirect(), normalizeRedirect()
 
-### Community 26 - "Community 26"
+### Community 25 - "Community 25"
 Cohesion: 0.4
 Nodes (0): 
 
-### Community 27 - "Community 27"
+### Community 26 - "Community 26"
 Cohesion: 0.5
 Nodes (2): diffLevel(), Practice()
+
+### Community 27 - "Community 27"
+Cohesion: 0.4
+Nodes (0): 
 
 ### Community 28 - "Community 28"
 Cohesion: 0.4
@@ -342,24 +342,24 @@ Cohesion: 0.4
 Nodes (0): 
 
 ### Community 30 - "Community 30"
-Cohesion: 0.4
-Nodes (0): 
-
-### Community 31 - "Community 31"
 Cohesion: 0.7
 Nodes (4): enqueueAttempt(), flushQueue(), getQueuedCount(), openDB()
 
-### Community 32 - "Community 32"
+### Community 31 - "Community 31"
 Cohesion: 0.67
 Nodes (2): getStudentDashboard(), gradeFromAccuracy()
 
-### Community 33 - "Community 33"
+### Community 32 - "Community 32"
 Cohesion: 0.67
 Nodes (2): envOverride(), isEnabled()
 
-### Community 34 - "Community 34"
+### Community 33 - "Community 33"
 Cohesion: 0.67
 Nodes (2): today(), userDoc()
+
+### Community 34 - "Community 34"
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 35 - "Community 35"
 Cohesion: 0.5
@@ -378,12 +378,12 @@ Cohesion: 0.5
 Nodes (0): 
 
 ### Community 39 - "Community 39"
-Cohesion: 0.5
-Nodes (0): 
-
-### Community 40 - "Community 40"
 Cohesion: 0.67
 Nodes (2): Certificate(), usePrintStyles()
+
+### Community 40 - "Community 40"
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 41 - "Community 41"
 Cohesion: 0.5
@@ -398,20 +398,20 @@ Cohesion: 0.5
 Nodes (0): 
 
 ### Community 44 - "Community 44"
-Cohesion: 0.5
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 45 - "Community 45"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 46 - "Community 46"
 Cohesion: 1.0
 Nodes (2): gradeFor(), predictExamScore()
 
-### Community 47 - "Community 47"
+### Community 46 - "Community 46"
 Cohesion: 0.67
 Nodes (1): AppError
+
+### Community 47 - "Community 47"
+Cohesion: 0.67
+Nodes (0): 
 
 ### Community 48 - "Community 48"
 Cohesion: 0.67
@@ -478,12 +478,12 @@ Cohesion: 0.67
 Nodes (0): 
 
 ### Community 64 - "Community 64"
-Cohesion: 0.67
-Nodes (0): 
-
-### Community 65 - "Community 65"
 Cohesion: 1.0
 Nodes (2): passwordStrength(), Register()
+
+### Community 65 - "Community 65"
+Cohesion: 0.67
+Nodes (0): 
 
 ### Community 66 - "Community 66"
 Cohesion: 0.67
@@ -1188,14 +1188,14 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `save()` connect `Community 3` to `Community 4`, `Community 5`, `Community 7`, `Community 10`, `Community 16`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
-- **Why does `log()` connect `Community 4` to `Community 3`, `Community 11`, `Community 20`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
-- **Why does `submitAnswer()` connect `Community 3` to `Community 1`, `Community 7`, `Community 15`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Are the 45 inferred relationships involving `post()` (e.g. with `register()` and `login()`) actually correct?**
-  _`post()` has 45 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `save()` connect `Community 4` to `Community 1`, `Community 3`, `Community 5`, `Community 7`, `Community 11`?**
+  _High betweenness centrality (0.091) - this node is a cross-community bridge._
+- **Why does `log()` connect `Community 3` to `Community 19`, `Community 12`, `Community 4`?**
+  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+- **Why does `submitAnswer()` connect `Community 7` to `Community 8`, `Community 1`, `Community 4`?**
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Are the 46 inferred relationships involving `post()` (e.g. with `register()` and `login()`) actually correct?**
+  _`post()` has 46 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 29 inferred relationships involving `log()` (e.g. with `importChapters()` and `upsertTopic()`) actually correct?**
   _`log()` has 29 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 13 inferred relationships involving `submitAnswer()` (e.g. with `sessionGet()` and `.next()`) actually correct?**

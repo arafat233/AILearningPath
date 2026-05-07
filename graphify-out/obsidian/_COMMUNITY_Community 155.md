@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[playwright.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\playwright.config.js
+- [[push.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\push.service.test.js
 
 ## Live Query (requires Dataview plugin)
 

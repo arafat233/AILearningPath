@@ -8,9 +8,10 @@ const links = [
   { to: "/admin/users",      label: "Users"     },
   { to: "/admin/cache",      label: "AI Cache"  },
   { to: "/admin/analytics",  label: "Analytics" },
-  { to: "/admin/coupons",    label: "Coupons"   },
-  { to: "/admin/payments",   label: "Payments"  },
-  { to: "/admin/nps",        label: "NPS"       },
+  { to: "/admin/coupons",       label: "Coupons"      },
+  { to: "/admin/payments",      label: "Payments"     },
+  { to: "/admin/nps",           label: "NPS"          },
+  { to: "/admin/certificates",  label: "Certificates" },
 ];
 
 export default function AdminLayout() {

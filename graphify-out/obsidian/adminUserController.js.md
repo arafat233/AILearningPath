@@ -12,6 +12,8 @@ tags:
 # adminUserController.js
 
 ## Connections
+- [[deleteUser()]] - `contains` [EXTRACTED]
+- [[getUserDetail()]] - `contains` [EXTRACTED]
 - [[listUsers()]] - `contains` [EXTRACTED]
 - [[updateUserPlan()]] - `contains` [EXTRACTED]
 - [[updateUserRole()]] - `contains` [EXTRACTED]

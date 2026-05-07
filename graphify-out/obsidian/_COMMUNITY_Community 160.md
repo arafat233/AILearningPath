@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[sw.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\public\sw.js
+- [[postcss.config.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\postcss.config.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,4 +1,4 @@
-import { Exam, ExamAttempt, Question, WeeklyLeaderboard } from "../models/index.js";
+import { Exam, ExamAttempt, Question, WeeklyLeaderboard, UserProfile } from "../models/index.js";
 import { calculateExamScore, normalizeScores, assignRanks } from "../services/scoringService.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
@@ -188,6 +188,82 @@ export const getExamReview = async (req, res, next) => {
     if (!attempt) return next(new AppError("Attempt not found", 404));
     if (attempt.userId !== req.user.id) return next(new AppError("Not your attempt", 403));
     res.json(attempt);
+  } catch (err) { next(err); }
+};
+
+export const generateMock = async (req, res, next) => {
+  try {
+    const { questionCount = 20, duration = 45, subject } = req.body;
+    const userId = req.user.id;
+
+    const profile  = await UserProfile.findOne({ userId }).lean();
+    const weakAreas = profile?.weakAreas || [];
+
+    const count   = Math.min(50, Math.max(5, Number(questionCount)));
+    const subjectFilter = subject ? { subject } : {};
+
+    let questions = [];
+
+    if (weakAreas.length > 0) {
+      questions = await Question.aggregate([
+        { $match: { topic: { $in: weakAreas }, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
+        { $sample: { size: count } },
+      ]);
+    }
+
+    if (questions.length < count) {
+      const needed      = count - questions.length;
+      const existingIds = questions.map((q) => q._id);
+      const fallback    = await Question.aggregate([
+        { $match: { _id: { $nin: existingIds }, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
+        { $sample: { size: needed } },
+      ]);
+      questions = [...questions, ...fallback];
+    }
+
+    if (questions.length === 0) {
+      return next(new AppError("No questions available for a mock paper", 404));
+    }
+
+    const mockExamId = `mock_${userId}_${Date.now()}`;
+    const startedAt  = Date.now();
+
+    await sessionSet(examKey(userId), {
+      examId:          mockExamId,
+      topic:           weakAreas[0] || subject || "Mixed",
+      negativeMarking: false,
+      negativeValue:   0,
+      questions,
+      startedAt,
+      durationSeconds: Number(duration) * 60,
+    }, EXAM_TTL);
+
+    const sanitized = questions.map((q) => ({
+      _id:             q._id,
+      questionText:    q.questionText,
+      questionType:    q.questionType,
+      topic:           q.topic,
+      options:         q.options?.map((o) => ({ text: o.text })) ?? [],
+      expectedTime:    q.expectedTime,
+      difficultyScore: q.difficultyScore,
+      marks:           q.marks || 1,
+    }));
+
+    const topicLabel = weakAreas.length > 0
+      ? weakAreas.slice(0, 2).join(" & ")
+      : (subject || "Mixed Topics");
+
+    res.json({
+      examId:          mockExamId,
+      questions:       sanitized,
+      duration:        Number(duration),
+      startedAt,
+      durationSeconds: Number(duration) * 60,
+      title:           `AI Mock Paper — ${topicLabel}`,
+      total:           sanitized.length,
+      negativeMarking: false,
+      weakAreas:       weakAreas.slice(0, 5),
+    });
   } catch (err) { next(err); }
 };
 

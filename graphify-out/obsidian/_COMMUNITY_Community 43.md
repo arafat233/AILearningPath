@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[api.interceptors.test.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[getCsrfFromCookie()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[handle401()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
-- [[shouldAttachCsrf()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\api.interceptors.test.js
+- [[AdminNPS()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
+- [[AdminNPS.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
+- [[NPSGauge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
+- [[ScoreBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminNPS.jsx
 
 ## Live Query (requires Dataview plugin)
 

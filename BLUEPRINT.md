@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — 880 questions + 14 mock papers + placement quiz + board-style questions seeded. Adaptive recommender engine ported from Python (mastery/fluke/routing). New: placement quiz API, /api/v1/recommender endpoints, UserTopicMastery model, topic DAG (43 nodes, levels 0-7), answer-key enrichment (152 questions).
+> Last updated: May 2026 — Multi-child accounts, AI mock papers, admin certificate view, Razorpay webhook backup, public homepage stats, ChildPicker flow.
 
 ---
 
@@ -74,7 +74,10 @@ isPaid (bool), plan (free|pro|premium), planExpiry
 trialUsed (bool), trialStart (Date)
 aiCallsToday, aiCallsDate          ← daily AI quota tracking
 role: student|admin|parent|teacher ← role-based access
-linkedStudents: [String]           ← parent/teacher portal
+linkedStudents: [String]           ← child sub-account ObjectIds (multi-child parent flow)
+childName, examBoard, schoolName, location ← child profile (collected at onboarding)
+  Child sub-accounts use synthetic email  child_<parentId>_<ts>@stellar.child
+  Created via POST /api/user/children; excluded from admin stats via $not:/stellar\.child$/
 inviteCode: String (sparse unique) ← 8-char student invite code
 npsLastShownAt: Date               ← NPS survey throttle (30-day cooldown)
 placementCompletedAt: Date         ← set once after placement quiz scored (gates re-take)
@@ -608,6 +611,8 @@ GET    /api/topics
 GET    /api/topics/meta             → unique subjects + grades
 
 GET    /api/exam/list
+POST   /api/exam/generate-mock      ← AI mock paper: selects from weak areas; body: { questionCount, duration, subject }
+                                      Returns live exam session (same submit flow as /exam/submit)
 POST   /api/exam/start              → returns startedAt (epoch ms) + durationSeconds for
                                       server-side timer sync; option `type` field stripped
 POST   /api/exam/submit             → server validates elapsed time (30s grace); auto-fills
@@ -643,9 +648,14 @@ POST   /api/ai/voice-answer         ← VoiceTutor; persists history in Redis (7
 GET    /api/ai/voice-history        ← load persisted voice conversation
 DELETE /api/ai/voice-history        ← clear voice history
 
+GET    /api/public/stats         ← homepage stats (totalUsers, aiHints, avgGrade); 5-min cache; no auth
+
 GET    /api/user/me
 PUT    /api/user/me            → rate-limited (20 updates/hour per user)
 DELETE /api/user/me            ← GDPR/PDPB: deletes User + all personal data
+POST   /api/user/children      ← create child sub-account + link to parent
+GET    /api/user/children      ← list parent's linked children
+DELETE /api/user/children/:id  ← unlink child account
 GET    /api/user/bookmarks
 POST   /api/user/bookmarks/:questionId ← toggle bookmark
 
@@ -692,6 +702,7 @@ GET    /api/admin/topics
 POST   /api/admin/topics
 PUT    /api/admin/topics/:id
 DELETE /api/admin/topics/:id
+GET    /api/admin/certificates      ← users who have earned a certificate (minAttempts, minAccuracy filters)
 GET    /api/admin/coupons           ← admin coupon CRUD
 POST   /api/admin/coupons
 PUT    /api/admin/coupons/:id
@@ -721,7 +732,8 @@ POST   /api/v1/payment/create-order    ← create Razorpay order (body: planKey,
 POST   /api/v1/payment/verify          ← verify Razorpay payment signature + activate plan
 POST   /api/v1/payment/validate-coupon ← preview discount without creating order
 
-POST   /api/webhooks/razorpay          ← Razorpay webhook (raw body, no CSRF, no auth)
+POST   /api/webhooks/razorpay          ← Razorpay webhook: payment.captured (idempotent upgrade backup)
+                                         payment.failed (log only), refund.processed (downgrade)
 
 GET    /api/push/vapid-public-key      ← returns VAPID_PUBLIC_KEY for SW subscription
 POST   /api/push/subscribe             ← save Web Push subscription object
@@ -784,6 +796,12 @@ Server → Client:
 
 ### Student Pages (inside Layout, protected)
 ```
+/child-picker  → ChildPicker    — post-login router: 0 children → /onboarding,
+                                   1 child → auto-select + Dashboard, 2+ → grid picker
+/onboarding    → Onboarding     — single-page child details form (name, class, board,
+                                   school, location); creates child sub-account via POST /user/children
+/mock-paper    → MockPaper      — AI-generated mock paper: pick subject/count/duration,
+                                   generates questions from weak areas, timed exam + review
 /              → Dashboard      — streak, AI teacher msg, revision due, quick links
                                   Subject tabs (Maths/Science/English/Social/Hindi) in Topics
                                   Science sub-tabs (All/Physics/Chemistry/Biology)
@@ -833,15 +851,19 @@ Server → Client:
 
 ### Admin Pages (inside AdminLayout, admin role required)
 ```
-/admin              → AdminOverview   — user counts, plan breakdown, AI cache stats
-/admin/questions    → AdminQuestions  — CRUD + flag/unflag, filter by topic/subject
-/admin/topics       → AdminTopics     — CRUD for all topics
-/admin/users        → AdminUsers      — paginated user list, role management
-/admin/cache        → AdminCacheStats — cache hit rates, Claude calls saved, cost estimate
-/admin/analytics    → AdminAnalytics  — DAU, MAU, paid conversion %, 7-day retention,
-                                        total revenue, 30-day bar charts (registrations,
-                                        attempts, daily revenue)
-/admin/coupons      → AdminCoupons    — coupon CRUD (code, type, value, planFilter, maxUses, expiry)
+/admin                 → AdminOverview      — user counts, plan breakdown, AI cache stats
+/admin/questions       → AdminQuestions     — CRUD + flag/unflag, filter by topic/subject
+/admin/topics          → AdminTopics        — CRUD for all topics
+/admin/users           → AdminUsers         — paginated list; child accounts filtered out;
+                                               parentInfo shown next to child-linked users
+/admin/cache           → AdminCacheStats    — cache hit rates, Claude calls saved, cost estimate
+/admin/analytics       → AdminAnalytics     — DAU, MAU, paid conversion %, 7-day retention,
+                                               total revenue, 30-day bar charts
+/admin/coupons         → AdminCoupons       — coupon CRUD (code, type, value, planFilter, maxUses, expiry)
+/admin/payments        → AdminPayments      — payment audit log with plan/date filters + CSV export
+/admin/nps             → AdminNPS           — NPS score (promoters - detractors), raw responses, CSV export
+/admin/certificates    → AdminCertificates  — students who have earned certificates; filter by
+                                               min accuracy % and min attempts; shows grade, topics mastered
 ```
 
 ### Key page updates
@@ -1003,7 +1025,8 @@ Backup (.github/workflows/backup.yml):
 authStore (Zustand + persist):
   token, user → { id, name, email, subject, grade, goal,
                   examDate, isPaid, plan, role }  ← role added
-  login(token, user), logout()
+  activeChild → { _id, name, grade, examBoard, … } ← selected child sub-account (null for admin)
+  setActiveChild(child), logout() (clears both user + activeChild)
 
 api.js (axios, baseURL: http://localhost:5001/api):
   CSRF: reads csrf= cookie, sends x-csrf-token header on POST/PUT/PATCH/DELETE
@@ -1038,11 +1061,15 @@ Complete api.js exports:
             verifyPayment, validateCoupon
   Push:     getVapidKey, subscribePush, unsubscribePush
   Flags:    getFlags
+  Children: createChild, getChildren, deleteChild
+  Exams:    listExams, startExam, submitExam, getLeaderboard(examId), generateMock
+  Public:   getPublicStats
   Admin:    adminGetStats, adminGetAnalytics, adminGetUsers, adminUpdateRole,
             adminGetQuestions, adminGetFlagged, adminCreateQuestion,
             adminUpdateQuestion, adminDeleteQuestion, adminUnflagQuestion,
             adminGetTopics, adminCreateTopic, adminUpdateTopic, adminDeleteTopic,
-            adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon
+            adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon,
+            adminGetCertificates
 ```
 
 ---
@@ -1341,6 +1368,14 @@ To activate push (not yet wired):
 | Admin analytics dashboard (DAU/MAU/revenue/30-day charts) | ✅ Complete |
 | Admin coupon CRUD | ✅ Complete |
 | Question bookmarks (toggle + list) | ✅ Complete |
+| Multi-child accounts (parent creates child sub-accounts via /onboarding + /settings) | ✅ Complete |
+| ChildPicker (post-login routing for 0/1/2+ children) | ✅ Complete |
+| Homepage live stats (totalUsers, aiHints, avgGrade via public /api/public/stats, 5-min cache) | ✅ Complete |
+| Admin: @stellar.child accounts filtered from Users list + totalUsers stats | ✅ Complete |
+| Admin: parentInfo shown next to child accounts in Users list | ✅ Complete |
+| Razorpay payment.captured webhook backup (idempotent upgrade when client tab closes) | ✅ Complete |
+| Admin Certificates page (/admin/certificates — users by accuracy, attempts, grade) | ✅ Complete |
+| AI Mock Paper (/mock-paper — generates exam from weak areas, timed, full review) | ✅ Complete |
 
 ---
 
@@ -1714,6 +1749,8 @@ AILearningPath/
             ├── Pricing.jsx          ← plan cards + Razorpay checkout + annual options
             ├── TermsOfService.jsx
             ├── PrivacyPolicy.jsx
+            ├── MockPaper.jsx            ← AI-generated timed mock exam from weak areas
+            ├── ChildPicker.jsx          ← post-login child selector (0/1/2+ children)
             └── admin/
                 ├── AdminLayout.jsx
                 ├── AdminOverview.jsx
@@ -1721,6 +1758,9 @@ AILearningPath/
                 ├── AdminQuestions.jsx
                 ├── AdminTopics.jsx
                 ├── AdminCacheStats.jsx
-                ├── AdminAnalytics.jsx   ← DAU/MAU/revenue/30-day charts
-                └── AdminCoupons.jsx     ← coupon CRUD
+                ├── AdminAnalytics.jsx      ← DAU/MAU/revenue/30-day charts
+                ├── AdminCoupons.jsx        ← coupon CRUD
+                ├── AdminPayments.jsx       ← payment audit log
+                ├── AdminNPS.jsx            ← NPS scores + export
+                └── AdminCertificates.jsx   ← users who earned certificates
 ```

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[apply()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[getInitial()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
-- [[themeStore.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\store\themeStore.js
+- [[Section()_3]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
+- [[TermsOfService()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
+- [[TermsOfService.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\TermsOfService.jsx
 
 ## Live Query (requires Dataview plugin)
 

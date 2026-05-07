@@ -223,6 +223,9 @@ export const adminGetFeedback            = ()          => api.get("/feedback");
 export const adminDeleteUser             = (id)        => api.delete(`/admin/users/${id}`);
 export const adminGetUserDetail          = (id)        => api.get(`/admin/users/${id}/detail`);
 export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupons/${id}/redemptions`);
+export const adminGetCertificates        = (params)    => api.get("/admin/certificates", { params });
+
+export const generateMock = (opts) => api.post("/exam/generate-mock", opts);
 
 export const getPublicStats = () => api.get("/public/stats");
 

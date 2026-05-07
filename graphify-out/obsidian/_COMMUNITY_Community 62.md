@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[PrivacyPolicy()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
-- [[PrivacyPolicy.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
-- [[Section()_2]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PrivacyPolicy.jsx
+- [[CopyRoomLink()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
+- [[LiveRoom.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LiveRoom.jsx
 
 ## Live Query (requires Dataview plugin)
 

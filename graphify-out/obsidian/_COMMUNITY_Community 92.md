@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[CompanyLogin()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
-- [[CompanyLogin.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\CompanyLogin.jsx
+- [[OfflineBanner()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
+- [[OfflineBanner.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\OfflineBanner.jsx
 
 ## Live Query (requires Dataview plugin)
 

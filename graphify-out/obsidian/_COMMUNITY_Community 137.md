@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[schoolRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\schoolRoutes.js
+- [[publicRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\publicRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -1,11 +1,11 @@
 ---
 type: community
-members: 91
+members: 92
 ---
 
 # Community 2
 
-**Members:** 91 nodes
+**Members:** 92 nodes
 
 ## Members
 - [[AdaptiveViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
@@ -92,6 +92,7 @@ members: 91
 - [[VoiceViz()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
 - [[easeInOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
 - [[easeOutCubic()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
+- [[fmtN()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
 - [[fmtTime()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\PlacementQuiz.jsx
 - [[pentPoint()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx
 - [[pentPoints()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Landing.jsx

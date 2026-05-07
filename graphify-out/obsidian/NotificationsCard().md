@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Settings.jsx"
 type: "code"
-community: "Community 16"
-location: "L353"
+community: "Community 17"
+location: "L404"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_16
+  - community/Community_17
 ---
 
 # NotificationsCard()
@@ -15,4 +15,4 @@ tags:
 - [[Settings.jsx]] - `contains` [EXTRACTED]
 - [[usePushNotifications()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_16
+#graphify/code #graphify/INFERRED #community/Community_17

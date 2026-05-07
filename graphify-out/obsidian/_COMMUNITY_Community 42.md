@@ -8,10 +8,10 @@ members: 4
 **Members:** 4 nodes
 
 ## Members
-- [[AdminOverview()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
-- [[AdminOverview.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
-- [[StatCard()_5]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
-- [[UserSplitBar()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminOverview.jsx
+- [[SharedPlan()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
+- [[SharedPlan.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
+- [[fmtShort()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
+- [[topicColor()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\SharedPlan.jsx
 
 ## Live Query (requires Dataview plugin)
 

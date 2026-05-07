@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js"
 type: "code"
-community: "Community 12"
+community: "Community 13"
 location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_12
+  - community/Community_13
 ---
 
 # buildStudentSummary()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[weeklyParentEmailService.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_12
+#graphify/code #graphify/EXTRACTED #community/Community_13

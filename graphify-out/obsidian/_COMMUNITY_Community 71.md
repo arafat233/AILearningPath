@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[aiRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
-- [[voiceHistoryKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js
+- [[server.js]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
+- [[shutdown()]] - code - E:\AILearningPath\ai-learning-backend\backend\server.js
 
 ## Live Query (requires Dataview plugin)
 

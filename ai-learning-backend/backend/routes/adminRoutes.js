@@ -11,7 +11,7 @@ import { listTopics, createTopic, updateTopic, deleteTopic }              from "
 import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
 import { runOnboardingEmails }                                             from "../services/onboardingEmailService.js";
 import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
-import { Coupon, PaymentRecord }                                           from "../models/index.js";
+import { Coupon, PaymentRecord, UserProfile, User }                        from "../models/index.js";
 
 const r = Router();
 r.use(adminAuth);
@@ -156,6 +156,49 @@ r.delete("/coupons/:id", async (req, res, next) => {
   try {
     await Coupon.findByIdAndDelete(req.params.id);
     res.json({ data: { message: "Coupon deleted" } });
+  } catch (err) { next(err); }
+});
+
+// Certificates — users who have earned a certificate (≥1 attempt)
+r.get("/certificates", async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, minAttempts = 1, minAccuracy = 0 } = req.query;
+    const skip       = (Number(page) - 1) * Number(limit);
+    const accFilter  = Number(minAccuracy) / 100;
+
+    const filter = {
+      totalAttempts: { $gte: Number(minAttempts) },
+      ...(accFilter > 0 ? { accuracy: { $gte: accFilter } } : {}),
+    };
+
+    const [profiles, total] = await Promise.all([
+      UserProfile.find(filter).sort({ accuracy: -1 }).skip(skip).limit(Number(limit)).lean(),
+      UserProfile.countDocuments(filter),
+    ]);
+
+    const userIds = profiles.map((p) => p.userId?.toString()).filter(Boolean);
+    const users   = await User.find(
+      { _id: { $in: userIds }, email: { $not: /stellar\.child$/ } }
+    ).select("name email grade plan isPaid createdAt").lean();
+    const userMap = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+
+    const results = profiles
+      .map((p) => {
+        const user = userMap[p.userId?.toString()];
+        if (!user) return null;
+        return {
+          userId:          p.userId,
+          user,
+          accuracy:        Math.round((p.accuracy || 0) * 100),
+          totalAttempts:   p.totalAttempts,
+          topicsMastered:  (p.topicProgress || []).filter((t) => t.accuracy >= 0.7).length,
+          strongAreas:     (p.strongAreas || []).slice(0, 3),
+          thinkingProfile: p.thinkingProfile,
+        };
+      })
+      .filter(Boolean);
+
+    res.json({ data: { results, total, page: Number(page), pages: Math.ceil(total / Number(limit)) } });
   } catch (err) { next(err); }
 });
 

@@ -1,14 +1,15 @@
 ---
 type: community
-members: 1
+members: 2
 ---
 
 # Community 108
 
-**Members:** 1 nodes
+**Members:** 2 nodes
 
 ## Members
-- [[export_content.mjs]] - code - E:\AILearningPath\ai-learning-backend\backend\export_content.mjs
+- [[exportCsv()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\exportCsv.js
+- [[exportCsv.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\exportCsv.js
 
 ## Live Query (requires Dataview plugin)
 

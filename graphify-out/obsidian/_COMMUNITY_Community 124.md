@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[examRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\examRoutes.js
+- [[badgeRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\badgeRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

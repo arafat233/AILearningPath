@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[FeedbackWidget()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
-- [[FeedbackWidget.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\components\FeedbackWidget.jsx
+- [[setupStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
+- [[weeklyParentEmailService.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\weeklyParentEmailService.test.js
 
 ## Live Query (requires Dataview plugin)
 

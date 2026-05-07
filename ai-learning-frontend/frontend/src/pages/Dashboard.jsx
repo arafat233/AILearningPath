@@ -80,9 +80,10 @@ export default function Dashboard() {
       .finally(() => setTopicsLoading(false));
   }, [activeSubject, user?.grade]);
 
-  // Non-admin users must have selected a child before seeing the dashboard
+  // Parents/teachers must pick a child before seeing the dashboard
   useEffect(() => {
-    if (user?.role !== "admin" && !activeChild) {
+    const isParentOrTeacher = user?.role === "parent" || user?.role === "teacher";
+    if (isParentOrTeacher && !activeChild) {
       navigate("/child-picker", { replace: true });
     }
   }, [activeChild, user]);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { adminGetStats, adminRunOnboardingEmails, adminRunWeeklyParentEmails } from "../../services/api";
+import { adminGetStats, adminRunOnboardingEmails, adminRunWeeklyParentEmails, getAIMetrics } from "../../services/api";
 
 const REFRESH_INTERVAL = 60_000;
 
@@ -59,6 +59,7 @@ function Sparkline7Day({ data }) {
 
 export default function AdminOverview() {
   const [stats,        setStats]        = useState(null);
+  const [aiMetrics,    setAiMetrics]    = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [lastUpdated,  setLastUpdated]  = useState(null);
   const [emailMsg,     setEmailMsg]     = useState("");
@@ -67,8 +68,12 @@ export default function AdminOverview() {
 
   const loadStats = (showSpinner = false) => {
     if (showSpinner) setLoading(true);
-    adminGetStats()
-      .then((r) => { setStats(r.data); setLastUpdated(new Date()); })
+    Promise.all([adminGetStats(), getAIMetrics()])
+      .then(([statsRes, metricsRes]) => {
+        setStats(statsRes.data);
+        setAiMetrics(metricsRes.data?.data || null);
+        setLastUpdated(new Date());
+      })
       .catch(() => {})
       .finally(() => { if (showSpinner) setLoading(false); });
   };
@@ -259,6 +264,39 @@ export default function AdminOverview() {
           <StatCard label="Cache Hits"       value={(stats.aiCache?.totalCacheHits || 0).toLocaleString()} sub="served from cache, $0 cost" color="text-apple-blue" />
         </div>
       </section>
+
+      {/* ── AI Intelligence (7 days) ─────────────────────────── */}
+      {aiMetrics && (
+        <section className="space-y-3">
+          <h2 className="text-[13px] font-semibold text-apple-gray uppercase tracking-wider">AI Intelligence — Last 7 Days</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="AI Calls"       value={(aiMetrics.totalCalls || 0).toLocaleString()}    sub={`${aiMetrics.failedCalls || 0} failed`} />
+            <StatCard label="Cache Hit Rate" value={aiMetrics.cacheHitRate || "0%"}                  sub="Redis + DB hits"  color="text-apple-green" />
+            <StatCard label="RAG Hit Rate"   value={aiMetrics.ragHitRate   || "0%"}                  sub="NCERT context injected" color="text-apple-blue" />
+            <StatCard label="Avg Latency"    value={`${aiMetrics.avgLatencyMs || 0}ms`}              sub="per Claude call" />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Tokens (7d)"    value={(aiMetrics.totalTokens || 0).toLocaleString()}   sub="input + output" />
+            <StatCard label="Guardrail Blocks" value={(aiMetrics.failedCalls || 0).toLocaleString()} sub="output blocked before student" color="text-apple-orange" />
+            <StatCard label="👍 Helpful"      value={(aiMetrics.feedback?.thumbsUp   || 0).toLocaleString()} sub="student ratings" color="text-apple-green" />
+            <StatCard label="👎 Not Helpful"  value={(aiMetrics.feedback?.thumbsDown || 0).toLocaleString()} sub="needs improvement"  color="text-apple-red" />
+          </div>
+          {aiMetrics.byType?.length > 0 && (
+            <div className="card p-5">
+              <p className="text-[13px] font-semibold text-[var(--label)] mb-3">Calls by AI Type</p>
+              <div className="flex gap-6 flex-wrap">
+                {aiMetrics.byType.map((t) => (
+                  <div key={t._id}>
+                    <p className="text-[11px] text-apple-gray capitalize">{t._id}</p>
+                    <p className="text-[20px] font-bold text-[var(--label)]">{t.calls.toLocaleString()}</p>
+                    <p className="text-[10px] text-apple-gray">{(t.tokens || 0).toLocaleString()} tokens</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ── Email triggers ────────────────────────────────────── */}
       <section className="card p-5 space-y-3">

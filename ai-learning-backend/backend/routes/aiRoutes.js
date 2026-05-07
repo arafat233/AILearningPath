@@ -210,7 +210,15 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), inputGuard, async (r
   }
 });
 
-// 5. Thumbs up/down on AI explanations
+// 5. Thumbs up/down on AI explanations — 20 ratings/hour per user max
+const feedbackRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  keyGenerator: (req) => req.user?.id || req.ip,
+  handler: (_req, res) => res.status(429).json({ error: "Too many ratings — try again later" }),
+  standardHeaders: true, legacyHeaders: false,
+});
+
 const feedbackSchema = Joi.object({
   questionText: Joi.string().min(1).max(500).required(),
   mistakeType:  Joi.string().max(50).optional().allow(""),
@@ -219,7 +227,7 @@ const feedbackSchema = Joi.object({
   rating:       Joi.number().valid(-1, 1).required(),
 });
 
-r.post("/feedback", auth, validate(feedbackSchema), async (req, res, next) => {
+r.post("/feedback", auth, feedbackRateLimit, validate(feedbackSchema), async (req, res, next) => {
   try {
     const { questionText, mistakeType = "unknown", subject = "Math", aiType = "explanation", rating } = req.body;
     const cacheKey = crypto.createHash("md5")

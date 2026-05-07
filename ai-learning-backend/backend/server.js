@@ -20,6 +20,7 @@ import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
 import { connectRedis, isUsingFallback, acquireCronLock, pingRedis } from "./utils/redisClient.js";
+import { checkAndAlertBudget } from "./utils/tokenBudget.js";
 import { initSentry } from "./utils/sentry.js";
 import { getFlagsForUser } from "./utils/featureFlags.js";
 import jwt from "jsonwebtoken";
@@ -311,6 +312,9 @@ const httpServer = server.listen(PORT, () => {
   };
   runWeekly();
   setInterval(runWeekly, 7 * 24 * 60 * 60 * 1000);
+
+  // Token budget alert: hourly — emails when monthly usage crosses 80%
+  setInterval(() => checkAndAlertBudget().catch(() => {}), 60 * 60 * 1000);
 });
 
 // Graceful shutdown — drain in-flight requests before exiting

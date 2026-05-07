@@ -201,7 +201,8 @@ export const smartAIExplanation = async (
 
 // ── Study advice (cached per profile state, not per user) ─────────
 // Key is based on profile state — same profile = same advice = no repeat call
-export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
+export const smartStudyAdvice = async (userId, profile, subject = "Math", passedUserId = null) => {
+  const effectiveUserId = passedUserId || userId;
   // Key based on what matters in the profile — not userId
   const profileKey = `advice::${subject}::${profile.thinkingProfile}::${Math.round((profile.accuracy || 0) * 10)}::${(profile.weakAreas || []).slice(0, 2).join(",")}`;
   const cacheKey = crypto.createHash("md5").update(profileKey).digest("hex");
@@ -223,7 +224,7 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math") => {
   const allowed = await checkAndIncrementUsage(userId);
   if (!allowed) return "Focus on your weak areas with 30 minutes of practice daily. Consistency beats cramming.";
 
-  const advice = await getStudyAdvice(profile, subject);
+  const advice = await getStudyAdvice(profile, subject, effectiveUserId);
   if (advice) {
     storeCacheResult(`adv:${cacheKey}`, profileKey, "study_advice", advice);
     await setCache(`adv:${cacheKey}`, advice, 30 * 60 * 1000);

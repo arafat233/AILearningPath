@@ -21,7 +21,7 @@ import { retrieveContext } from "../utils/ragStore.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { checkOutput } from "../utils/outputGuard.js";
 import { logAICall } from "../utils/aiMetrics.js";
-import { UserProfile, Streak } from "../models/index.js";
+import { UserProfile, Streak, AIResponseCache } from "../models/index.js";
 import { sessionGet, sessionSet } from "../utils/redisClient.js";
 
 const client        = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -119,6 +119,11 @@ async function callClaude(params, userId = null) {
     incrementTokenBudget(tokens).catch(() => {});
     if (userId) incrementUserTokenBudget(userId, tokens).catch(() => {});
     res._usedModel = model;
+    // 7. Append truncation notice so students know to ask again
+    if (res.stop_reason === "max_tokens" && res.content[0]?.type === "text") {
+      res.content[0].text += "\n\n_(My answer was cut short — ask me to continue if you need more.)_";
+      logger.warn("Claude response truncated at max_tokens", { model, aiType: params._aiType });
+    }
     return res;
   };
 
@@ -139,9 +144,9 @@ async function callClaude(params, userId = null) {
   }
 }
 
-// ── 1. Lesson cache key ───────────────────────────────────────────
+// ── 1. Lesson cache key — normalised to avoid duplicate Claude calls ─
 const lessonCacheKey = (topic, subject, grade) =>
-  `lesson::${crypto.createHash("md5").update(`${topic}::${subject}::${grade}`).digest("hex")}`;
+  `lesson::${crypto.createHash("md5").update(`${topic.toLowerCase().trim()}::${subject}::${grade}`).digest("hex")}`;
 
 // ── Wrong answer explanation ──────────────────────────────────────
 export const getAIExplanation = async (question, mistakeType, correctAnswer, subject = "Math", userId = null) => {
@@ -205,6 +210,31 @@ Be direct and helpful like a good tutor.`;
   }
 };
 
+// ── 8. Self-check verification for AI-generated questions ─────────
+async function verifyAIQuestion(question, userId) {
+  if (!question?.questionText || !question?.options) return true; // can't verify, allow through
+  const correct = question.options.find((o) => o.type === "correct");
+  if (!correct) return false;
+
+  const checkPrompt = `Question: ${question.questionText}
+Marked correct answer: "${correct.text}"
+Is this answer mathematically/factually correct for a CBSE Class 10 student? Reply with exactly one word: PASS or FAIL.`;
+
+  try {
+    const res = await callClaude({
+      model: FALLBACK_MODEL, temperature: 0, max_tokens: 5,
+      system: "You are a CBSE Class 10 answer verifier. Reply only PASS or FAIL.",
+      messages: [{ role: "user", content: checkPrompt }],
+    }, userId);
+    const verdict = res.content[0]?.text?.trim().toUpperCase();
+    if (verdict === "FAIL") {
+      logger.warn("generateAIQuestion: answer verification FAILED — discarding question", { topic: question.questionText?.slice(0, 60) });
+      return false;
+    }
+    return true;
+  } catch { return true; } // verification failure → allow through rather than breaking the flow
+}
+
 // ── Generate a targeted AI question ───────────────────────────────
 export const generateAIQuestion = async (topic, weakness, subject = "Math", userId = null) => {
   const prompt = `Generate 1 multiple-choice question for CBSE Class 10 ${subject} topic: "${topic}"
@@ -233,10 +263,13 @@ Format:
   const start = Date.now();
   try {
     const res  = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 600, system: getSystemPrompt(subject), messages: [{ role: "user", content: prompt }] }, userId);
-    const raw  = res.content[0]?.text?.trim() || "";
+    const raw   = res.content[0]?.text?.trim() || "";
     const clean = raw.replace(/```json|```/g, "").trim();
-    logAICall({ userId, aiType: "question", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: true });
-    return JSON.parse(clean);
+    const parsed = JSON.parse(clean);
+    // 8. Answer verification — discard if Claude's own "correct" answer is wrong
+    const verified = await verifyAIQuestion(parsed, userId);
+    logAICall({ userId, aiType: "question", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: verified });
+    return verified ? parsed : null;
   } catch (err) {
     logger.error("Claude question generation error", { err: err.message, topic, subject });
     logAICall({ userId, aiType: "question", subject, latencyMs: Date.now()-start, success: false });
@@ -320,13 +353,23 @@ Be a good tutor — guide, don't solve.`;
 
 // ── Generate a full lesson — Redis+DB cached 7 days ───────────────
 export const generateLesson = async (topic, subject = "Math", grade = "10", userId = null) => {
-  // 1. Check Redis cache first
+  // 1. Check Redis cache first, then MongoDB (survives Redis restarts)
   const cKey = lessonCacheKey(topic, subject, grade);
   const cached = await getCached(cKey);
   if (cached) {
     logAICall({ userId, aiType: "lesson", subject, cached: true, success: true });
     return cached;
   }
+  try {
+    const dbHit = await AIResponseCache.findOne({ cacheKey: cKey }).lean();
+    if (dbHit?.response) {
+      const parsed = typeof dbHit.response === "string" ? JSON.parse(dbHit.response) : dbHit.response;
+      setCache(cKey, parsed, LESSON_CACHE_TTL).catch(() => {});
+      AIResponseCache.findOneAndUpdate({ cacheKey: cKey }, { $inc: { hitCount: 1 }, $set: { lastHitAt: new Date() } }).catch(() => {});
+      logAICall({ userId, aiType: "lesson", subject, cached: true, success: true });
+      return parsed;
+    }
+  } catch { /* fallthrough to Claude */ }
 
   const prompt = `Generate a complete lesson for "${topic}" (${subject}, Grade ${grade}, CBSE India).
 
@@ -420,8 +463,13 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
     const clean = raw.replace(/```json|```/g, "").trim();
     const lesson = JSON.parse(clean);
 
-    // 1. Cache for 7 days so repeat visitors pay zero Claude cost
+    // 1. Cache in Redis (fast) + MongoDB (survives Redis restarts) for 7 days
     setCache(cKey, lesson, LESSON_CACHE_TTL).catch(() => {});
+    AIResponseCache.findOneAndUpdate(
+      { cacheKey: cKey },
+      { cacheKey: cKey, questionSnippet: topic.slice(0, 120), mistakeType: "lesson", response: JSON.stringify(lesson), expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) },
+      { upsert: true }
+    ).catch(() => {});
 
     logAICall({ userId, aiType: "lesson", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: true });
     return lesson;

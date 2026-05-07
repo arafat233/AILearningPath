@@ -75,6 +75,46 @@ export async function incrementUserTokenBudget(userId, tokens) {
   } catch { /* non-blocking */ }
 }
 
+// ── Budget 80% alert — one email per threshold per month ──────────
+const ALERT_THRESHOLD = 0.80;
+const budgetAlertKey  = () => `budget:alert80:${budgetKey().replace("token_budget:", "")}`;
+
+export async function checkAndAlertBudget() {
+  if (!MONTHLY_BUDGET) return; // unlimited — nothing to alert
+  try {
+    const used = (await sessionGet(budgetKey())) ?? 0;
+    const pct  = used / MONTHLY_BUDGET;
+    if (pct < ALERT_THRESHOLD) return; // under threshold
+
+    // Only alert once per month per threshold crossing
+    const alreadyAlerted = await sessionGet(budgetAlertKey());
+    if (alreadyAlerted) return;
+
+    const alertEmail = process.env.ERROR_ALERT_EMAIL || process.env.COMPANY_ADMIN_EMAIL;
+    const resendKey  = process.env.RESEND_API_KEY;
+    if (!alertEmail || !resendKey || process.env.NODE_ENV !== "production") return;
+
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || "alerts@stellaredu.in",
+        to:   alertEmail,
+        subject: `[Stellar] Claude token budget at ${Math.round(pct * 100)}%`,
+        html: `<p>Monthly Claude token budget is <strong>${Math.round(pct * 100)}%</strong> consumed.</p>
+               <p>Used: <strong>${used.toLocaleString()}</strong> / ${MONTHLY_BUDGET.toLocaleString()} tokens</p>
+               <p>At current burn rate students may hit the cap before month end. Consider upgrading or throttling.</p>`,
+      }),
+    });
+
+    // Mark as alerted — TTL until end of month so it re-alerts next month
+    await sessionSet(budgetAlertKey(), "1", secondsUntilEndOfMonth());
+    logger.warn("Token budget 80% alert sent", { used, budget: MONTHLY_BUDGET, pct: Math.round(pct * 100) });
+  } catch (err) {
+    logger.error("Budget alert failed", { err: err.message });
+  }
+}
+
 export async function getTokenBudgetStats() {
   const used = (await sessionGet(budgetKey())) ?? 0;
   return {

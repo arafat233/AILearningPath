@@ -20,7 +20,7 @@ const MAX_INPUT_LENGTH = 1000;
 const JAILBREAK_PATTERNS = [
   /ignore\s+(previous|above|all|prior)\s+(instructions?|prompts?|rules?)/i,
   /pretend\s+(you\s+are|to\s+be|you're)/i,
-  /act\s+as\s+(if\s+you\s+(are|were)|a\s+)?(?!a\s+(teacher|tutor|student))/i,
+  /act\s+as\s+(?!(?:a\s+)?(?:teacher|tutor|student))/i,
   /you\s+are\s+now\s+(?!a\s+(teacher|tutor))/i,
   /\bDAN\b/,                           // "Do Anything Now" jailbreak
   /jailbreak/i,
@@ -40,7 +40,7 @@ const JAILBREAK_PATTERNS = [
 // Explicit attempts to use the tutor for unrelated purposes
 const OFF_TOPIC_PATTERNS = [
   /\b(write\s+(me\s+a?\s+)?(poem|song|story|essay|cover\s+letter|resume|cv|speech|joke|rap))\b/i,
-  /\b(generate\s+(code|program|script|app|website|html|css|javascript|python|sql))\b/i,
+  /\bgenerate\s+(?:(?:a|an|the|my|some)\s+)?(?:\w+\s+)?(code|program|script|app|website|html|css|javascript|python|sql)\b/i,
   /\b(how\s+to\s+(hack|crack|pirate|torrent|download\s+free|bypass))\b/i,
   /\b(stock\s+(market|tips?|trading|investment))\b/i,
   /\b(crypto(currency)?|bitcoin|nft)\b/i,

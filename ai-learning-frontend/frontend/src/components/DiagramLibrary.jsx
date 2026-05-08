@@ -2892,6 +2892,614 @@ function WasteTypes() {
 
 /* ── MAP + EXPORT ────────────────────────────────────────────────── */
 
+function EuclidDivision() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="30" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Euclid's Division Lemma: a = b·q + r,  0 ≤ r &lt; b</text>
+      {/* Example: 17 = 5·3 + 2 */}
+      <rect x="20" y="50" width="80" height="36" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="60" y="73" fill="currentColor" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">17</text>
+      <text x="120" y="73" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">=</text>
+      <rect x="150" y="50" width="60" height="36" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="180" y="73" fill="currentColor" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">5</text>
+      <text x="225" y="73" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">×</text>
+      <rect x="245" y="50" width="60" height="36" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="275" y="73" fill="currentColor" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">3</text>
+      <text x="320" y="73" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">+</text>
+      <rect x="340" y="50" width="60" height="36" rx="4" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="370" y="73" fill="currentColor" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">2</text>
+      <text x="20" y="115" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">a = dividend (17)</text>
+      <text x="160" y="115" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">b = divisor (5)</text>
+      <text x="280" y="115" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">q = quotient (3)</text>
+      <text x="340" y="115" fill="#FF9500" fontSize="12" fontFamily="system-ui,sans-serif" fontWeight="600">r = remainder (2)</text>
+      <text x="20" y="150" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Condition: 0 ≤ r &lt; b   →   0 ≤ 2 &lt; 5  ✓</text>
+      <text x="20" y="175" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Used to find HCF: apply lemma repeatedly until remainder = 0</text>
+    </svg>
+  );
+}
+
+function PrimeFactorTree() {
+  return (
+    <svg viewBox="0 0 560 280" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Factor Tree — Fundamental Theorem of Arithmetic</text>
+      {/* Tree for 360 */}
+      <text x="260" y="60" fill="currentColor" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">360</text>
+      <line x1="240" y1="65" x2="190" y2="90" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="280" y1="65" x2="330" y2="90" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="180" y="105" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">2</text>
+      <circle cx="180" cy="99" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="340" y="105" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">180</text>
+      <line x1="320" y1="110" x2="280" y2="135" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="360" y1="110" x2="400" y2="135" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="268" y="150" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">2</text>
+      <circle cx="268" cy="144" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="410" y="150" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">90</text>
+      <line x1="395" y1="155" x2="370" y2="180" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="425" y1="155" x2="450" y2="180" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="358" y="195" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">2</text>
+      <circle cx="358" cy="189" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="462" y="195" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">45</text>
+      <line x1="448" y1="200" x2="430" y2="225" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="476" y1="200" x2="494" y2="225" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="420" y="240" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">3</text>
+      <circle cx="420" cy="234" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="505" y="240" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">15</text>
+      <line x1="492" y1="245" x2="478" y2="265" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="518" y1="245" x2="532" y2="265" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="468" y="275" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">3</text>
+      <circle cx="468" cy="269" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="542" y="275" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">5</text>
+      <circle cx="542" cy="269" r="12" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="20" y="240" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">360 = 2³ × 3² × 5</text>
+      <text x="20" y="265" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Every integer &gt;1 has a unique prime factorisation (order doesn't matter)</text>
+    </svg>
+  );
+}
+
+function HcfLcm() {
+  return (
+    <svg viewBox="0 0 560 260" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">HCF and LCM via Prime Factors</text>
+      {/* Venn diagram */}
+      <circle cx="210" cy="145" r="90" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <circle cx="330" cy="145" r="90" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="155" y="110" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle">12 = 2²×3</text>
+      <text x="395" y="110" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle">18 = 2×3²</text>
+      {/* Only in 12 */}
+      <text x="165" y="148" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">2</text>
+      {/* Common */}
+      <text x="270" y="140" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">2 × 3</text>
+      <text x="270" y="158" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">(common)</text>
+      {/* Only in 18 */}
+      <text x="375" y="148" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">3</text>
+      <text x="20" y="220" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">HCF = product of common factors (lowest powers) = 2¹×3¹ = 6</text>
+      <text x="20" y="245" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">LCM = product of all factors (highest powers) = 2²×3² = 36</text>
+      <text x="400" y="245" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">HCF × LCM = 6×36 = 216 = 12×18 ✓</text>
+    </svg>
+  );
+}
+
+function IrrationalProof() {
+  return (
+    <svg viewBox="0 0 560 220" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">√2 is Irrational — Proof by Contradiction</text>
+      <rect x="20" y="45" width="520" height="150" rx="8" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="36" y="72" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Assume √2 = p/q  (lowest terms, p and q have no common factor)</text>
+      <text x="36" y="96" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">⟹  2 = p²/q²  ⟹  p² = 2q²  ⟹  p² is even  ⟹  p is even</text>
+      <text x="36" y="120" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Let p = 2k  ⟹  (2k)² = 2q²  ⟹  4k² = 2q²  ⟹  q² = 2k²</text>
+      <text x="36" y="144" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">⟹  q² is even  ⟹  q is even</text>
+      <text x="36" y="168" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" fontWeight="600">But p and q are BOTH even ⟹ common factor 2 — CONTRADICTS lowest terms!</text>
+      <text x="36" y="188" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" fontWeight="700">∴  √2 is irrational ∎</text>
+    </svg>
+  );
+}
+
+function DecimalExpansion() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Rational Numbers: Terminating vs Non-terminating Recurring</text>
+      {/* Terminating column */}
+      <rect x="20" y="42" width="240" height="130" rx="6" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="62" fill="#34C759" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Terminating</text>
+      <text x="140" y="84" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">Denominator = 2ⁿ × 5ᵐ only</text>
+      <text x="140" y="104" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">3/8 = 0.375  ✓</text>
+      <text x="140" y="122" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">7/25 = 0.28  ✓</text>
+      <text x="140" y="143" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">1/4 = 0.25  ✓</text>
+      <text x="140" y="163" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">Decimal ends</text>
+      {/* Non-terminating column */}
+      <rect x="300" y="42" width="240" height="130" rx="6" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="420" y="62" fill="#FF9500" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Non-terminating Recurring</text>
+      <text x="420" y="84" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">Denominator has prime ≠ 2 or 5</text>
+      <text x="420" y="104" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">1/3 = 0.333…  (3̄)</text>
+      <text x="420" y="122" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">5/6 = 0.8333…</text>
+      <text x="420" y="143" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">7/12 = 0.5833…</text>
+      <text x="420" y="163" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">Digits repeat in a block</text>
+    </svg>
+  );
+}
+
+function PolynomialZeroes() {
+  return (
+    <svg viewBox="0 0 560 280" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Zeroes of a Polynomial — x-intercepts of the graph</text>
+      {/* Axes */}
+      <line x1="40" y1="240" x2="520" y2="240" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="280" y1="50" x2="280" y2="255" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="525" y="244" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">x</text>
+      <text x="284" y="48" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">y</text>
+      {/* Parabola */}
+      <path d="M 100,210 Q 200,290 280,240 Q 360,190 400,120 Q 430,60 460,30" fill="none" stroke="#007AFF" strokeWidth="2.5"/>
+      {/* Zeroes */}
+      <circle cx="167" cy="240" r="5" fill="#FF3B30"/>
+      <circle cx="393" cy="240" r="5" fill="#FF3B30"/>
+      <text x="160" y="258" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">α</text>
+      <text x="393" y="258" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">β</text>
+      <text x="150" y="198" fill="#007AFF" fontSize="12" fontFamily="system-ui,sans-serif">p(x)</text>
+      <text x="20" y="275" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Zeroes α, β are values where p(x) = 0  (graph crosses x-axis)</text>
+    </svg>
+  );
+}
+
+function ZeroesCoefficients() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Relationship between Zeroes and Coefficients</text>
+      <rect x="20" y="45" width="520" height="130" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="280" y="72" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">p(x) = ax² + bx + c,   zeroes: α and β</text>
+      <line x1="20" y1="82" x2="540" y2="82" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="140" y="108" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">Sum of zeroes</text>
+      <text x="140" y="130" fill="#007AFF" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">α + β = −b/a</text>
+      <line x1="280" y1="88" x2="280" y2="168" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="410" y="108" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle">Product of zeroes</text>
+      <text x="410" y="130" fill="#34C759" fontSize="16" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">α × β = c/a</text>
+      <text x="280" y="165" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">Trick: if α+β = S, αβ = P  then  p(x) = k(x² − Sx + P)</text>
+    </svg>
+  );
+}
+
+function PolynomialDivision() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Division Algorithm for Polynomials</text>
+      <rect x="20" y="45" width="520" height="80" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="280" y="75" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">p(x) = g(x) · q(x) + r(x)</text>
+      <text x="280" y="108" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">where  deg r(x) &lt; deg g(x)  or  r(x) = 0</text>
+      <text x="30" y="148" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">p(x) = dividend</text>
+      <text x="170" y="148" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">g(x) = divisor</text>
+      <text x="310" y="148" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">q(x) = quotient</text>
+      <text x="435" y="148" fill="#FF9500" fontSize="12" fontFamily="system-ui,sans-serif" fontWeight="600">r(x) = remainder</text>
+      <text x="20" y="178" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Example: x³−3x+5 ÷ (x−1)  →  quotient x²+x−2,  remainder 3</text>
+    </svg>
+  );
+}
+
+function RemainderFactor() {
+  return (
+    <svg viewBox="0 0 560 220" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Remainder Theorem &amp; Factor Theorem</text>
+      {/* Remainder theorem box */}
+      <rect x="20" y="45" width="240" height="80" rx="6" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="68" fill="#007AFF" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Remainder Theorem</text>
+      <text x="140" y="90" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">p(x) ÷ (x−a)</text>
+      <text x="140" y="112" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">remainder = p(a)</text>
+      {/* Factor theorem box */}
+      <rect x="300" y="45" width="240" height="80" rx="6" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="420" y="68" fill="#34C759" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Factor Theorem</text>
+      <text x="420" y="90" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">(x−a) is a factor of p(x)</text>
+      <text x="420" y="112" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">if and only if p(a) = 0</text>
+      <line x1="270" y1="85" x2="295" y2="85" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <text x="280" y="80" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">⟺</text>
+      <text x="20" y="160" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Example: p(x) = x²−5x+6,  p(2) = 4−10+6 = 0  ⟹  (x−2) is a factor</text>
+      <text x="20" y="185" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">p(3) = 9−15+6 = 0  ⟹  (x−3) is also a factor  ∴ p(x) = (x−2)(x−3)</text>
+    </svg>
+  );
+}
+
+function CubicPolynomial() {
+  return (
+    <svg viewBox="0 0 560 270" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Cubic Polynomial — 3 Zeroes on x-axis</text>
+      <line x1="40" y1="220" x2="520" y2="220" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="280" y1="40" x2="280" y2="235" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="525" y="224" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">x</text>
+      <text x="284" y="38" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">y</text>
+      <path d="M 80,200 Q 120,70 160,190 Q 200,310 280,220 Q 340,160 400,80 Q 440,30 480,50" fill="none" stroke="#007AFF" strokeWidth="2.5"/>
+      <circle cx="118" cy="220" r="5" fill="#FF3B30"/>
+      <circle cx="228" cy="220" r="5" fill="#FF3B30"/>
+      <circle cx="395" cy="220" r="5" fill="#FF3B30"/>
+      <text x="118" y="240" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">α</text>
+      <text x="228" y="240" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">β</text>
+      <text x="395" y="240" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">γ</text>
+      <text x="20" y="265" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">α+β+γ = −b/a   ·   αβ+βγ+γα = c/a   ·   αβγ = −d/a</text>
+    </svg>
+  );
+}
+
+function GraphicalLinear() {
+  return (
+    <svg viewBox="0 0 560 220" width="100%" height="auto">
+      <text x="20" y="24" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Graphical Interpretation of Pair of Linear Equations</text>
+      {/* Box 1: intersecting */}
+      <rect x="10" y="35" width="165" height="170" rx="6" fill="none" stroke="currentColor" strokeWidth="1"/>
+      <line x1="20" y1="130" x2="165" y2="130" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="92" y1="45" x2="92" y2="195" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="20" y1="165" x2="165" y2="80" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="20" y1="80" x2="165" y2="170" stroke="#34C759" strokeWidth="2"/>
+      <circle cx="91" cy="122" r="4" fill="#FF3B30"/>
+      <text x="92" y="207" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">Intersecting</text>
+      <text x="92" y="218" fill="#34C759" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">Unique solution</text>
+      {/* Box 2: parallel */}
+      <rect x="195" y="35" width="165" height="170" rx="6" fill="none" stroke="currentColor" strokeWidth="1"/>
+      <line x1="205" y1="130" x2="350" y2="130" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="277" y1="45" x2="277" y2="195" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="205" y1="85" x2="350" y2="145" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="205" y1="110" x2="350" y2="170" stroke="#34C759" strokeWidth="2"/>
+      <text x="277" y="207" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">Parallel</text>
+      <text x="277" y="218" fill="#FF3B30" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">No solution</text>
+      {/* Box 3: coincident */}
+      <rect x="380" y="35" width="165" height="170" rx="6" fill="none" stroke="currentColor" strokeWidth="1"/>
+      <line x1="390" y1="130" x2="535" y2="130" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="462" y1="45" x2="462" y2="195" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="390" y1="85" x2="535" y2="175" stroke="#007AFF" strokeWidth="3"/>
+      <line x1="390" y1="85" x2="535" y2="175" stroke="#34C759" strokeWidth="1.5" strokeDasharray="5,4"/>
+      <text x="462" y="207" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">Coincident</text>
+      <text x="462" y="218" fill="#FF9500" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">Infinite solutions</text>
+    </svg>
+  );
+}
+
+function SubstitutionMethod() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Substitution Method — Step by Step</text>
+      <rect x="20" y="46" width="70" height="26" rx="4" fill="#007AFF" fillOpacity="0.15"/>
+      <text x="55" y="63" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Step 1</text>
+      <text x="100" y="63" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Express one variable in terms of other</text>
+      <text x="350" y="63" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.8">x + y = 7  →  x = 7 − y</text>
+      <rect x="20" y="84" width="70" height="26" rx="4" fill="#007AFF" fillOpacity="0.15"/>
+      <text x="55" y="101" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Step 2</text>
+      <text x="100" y="101" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Substitute into the second equation</text>
+      <text x="350" y="101" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.8">2(7−y) + 3y = 11  →  14−2y+3y = 11</text>
+      <rect x="20" y="122" width="70" height="26" rx="4" fill="#007AFF" fillOpacity="0.15"/>
+      <text x="55" y="139" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Step 3</text>
+      <text x="100" y="139" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Solve for the remaining variable</text>
+      <text x="350" y="139" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.8">y = −3</text>
+      <rect x="20" y="160" width="70" height="26" rx="4" fill="#007AFF" fillOpacity="0.15"/>
+      <text x="55" y="177" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">Step 4</text>
+      <text x="100" y="177" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Back-substitute to get x</text>
+      <text x="350" y="177" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.8">x = 7−(−3) = 10</text>
+    </svg>
+  );
+}
+
+function EliminationMethod() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Elimination Method</text>
+      <text x="20" y="58" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">Eq 1:   2x + 3y = 11</text>
+      <text x="20" y="82" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">Eq 2:   5x + 2y = 16</text>
+      <line x1="20" y1="93" x2="300" y2="93" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="20" y="115" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Multiply Eq1 × 2:   4x + 6y = 22</text>
+      <text x="20" y="137" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Multiply Eq2 × 3:   15x + 6y = 48</text>
+      <text x="20" y="155" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Subtract:</text>
+      <rect x="95" y="141" width="200" height="26" rx="4" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1"/>
+      <text x="100" y="159" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">11x = 26  →  x = 26/11</text>
+      <text x="20" y="186" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Substitute x back into Eq1 to get y</text>
+      <text x="340" y="115" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Goal: make coefficients</text>
+      <text x="340" y="133" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">of one variable equal,</text>
+      <text x="340" y="151" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">then add or subtract</text>
+    </svg>
+  );
+}
+
+function CrossMultiplication() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Cross-Multiplication Method</text>
+      <text x="20" y="58" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">a₁x + b₁y + c₁ = 0</text>
+      <text x="20" y="80" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">a₂x + b₂y + c₂ = 0</text>
+      <rect x="20" y="100" width="520" height="60" rx="6" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="280" y="126" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">x/(b₁c₂ − b₂c₁) = y/(c₁a₂ − c₂a₁) = 1/(a₁b₂ − a₂b₁)</text>
+      <text x="280" y="148" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">Each ratio equals the same constant k; solve for x and y</text>
+      <text x="20" y="185" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Shortcut: use the "butterfly" / cross-multiply pattern on the coefficient table</text>
+    </svg>
+  );
+}
+
+function ReducibleEquations() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Equations Reducible to Linear Form — Substitution Trick</text>
+      <text x="20" y="58" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">Original:  1/x + 1/y = 2   and   2/x − 1/y = 1</text>
+      <line x1="20" y1="68" x2="540" y2="68" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="20" y="90" fill="#007AFF" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Let  u = 1/x  and  v = 1/y</text>
+      <text x="20" y="114" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">Reduced:  u + v = 2</text>
+      <text x="20" y="136" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">            2u − v = 1</text>
+      <text x="20" y="158" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Solve: u = 1, v = 1  ⟹  x = 1/u = 1,  y = 1/v = 1</text>
+      <text x="20" y="185" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">Same trick works for (ax+b) and (cx+d) type expressions</text>
+    </svg>
+  );
+}
+
+function QuadraticIntro() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Quadratic Equation — Standard Form</text>
+      <rect x="20" y="45" width="520" height="50" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="280" y="76" fill="currentColor" fontSize="18" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">ax² + bx + c = 0,   a ≠ 0</text>
+      <text x="70" y="120" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">a ≠ 0</text>
+      <text x="70" y="136" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">(must be quadratic)</text>
+      <text x="280" y="120" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">b can be 0</text>
+      <text x="280" y="136" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">(e.g. x²−4=0)</text>
+      <text x="460" y="120" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">c can be 0</text>
+      <text x="460" y="136" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">(e.g. x²−5x=0)</text>
+      <text x="20" y="170" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Real-world: projectile height h = −5t² + 20t + 1  →  when does h = 0?</text>
+    </svg>
+  );
+}
+
+function Factorisation() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Factorisation — Splitting the Middle Term (AC Method)</text>
+      <text x="20" y="60" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif">Example: 2x² + 7x + 3 = 0  →  a=2, b=7, c=3</text>
+      <text x="20" y="88" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 1: Find ac = 2×3 = 6.  Find two numbers whose product = 6 and sum = 7.</text>
+      <text x="20" y="112" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Numbers: 1 and 6  (1×6=6, 1+6=7) ✓</text>
+      <text x="20" y="136" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 2: Split middle term:  2x² + 1x + 6x + 3</text>
+      <text x="20" y="158" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 3: Group:  x(2x+1) + 3(2x+1)  =  (x+3)(2x+1) = 0</text>
+      <rect x="20" y="167" width="200" height="24" rx="4" fill="#34C759" fillOpacity="0.15"/>
+      <text x="120" y="183" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">x = −3  or  x = −½</text>
+    </svg>
+  );
+}
+
+function CompletingSquare() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Completing the Square</text>
+      <text x="20" y="58" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Example: x² + 6x + 5 = 0</text>
+      <text x="20" y="82" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 1: Move constant   →   x² + 6x = −5</text>
+      <text x="20" y="106" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 2: Add (b/2)² = (3)² = 9 to both sides</text>
+      <text x="20" y="128" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">          x² + 6x + 9 = −5 + 9 = 4</text>
+      <text x="20" y="152" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 3: Write as perfect square   →   (x + 3)² = 4</text>
+      <text x="20" y="174" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Step 4: Take √   →   x + 3 = ±2   →   x = −1  or  x = −5</text>
+    </svg>
+  );
+}
+
+function QuadraticFormula() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Quadratic Formula (Sridharacharya Formula)</text>
+      <rect x="80" y="45" width="400" height="70" rx="10" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <text x="280" y="90" fill="currentColor" fontSize="22" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">x = (−b ± √(b²−4ac)) / 2a</text>
+      <text x="20" y="145" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Derived by completing the square on ax²+bx+c = 0</text>
+      <text x="20" y="168" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Use when factorisation is not obvious. Always works for any quadratic.</text>
+    </svg>
+  );
+}
+
+function Discriminant() {
+  return (
+    <svg viewBox="0 0 560 220" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Nature of Roots — Discriminant D = b² − 4ac</text>
+      {/* D > 0 */}
+      <rect x="10" y="42" width="170" height="155" rx="6" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="95" y="62" fill="#34C759" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">D &gt; 0</text>
+      <line x1="20" y1="120" x2="170" y2="120" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="95" y1="72" x2="95" y2="185" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <path d="M 25,155 Q 60,60 95,110 Q 130,160 170,80" fill="none" stroke="#34C759" strokeWidth="2"/>
+      <circle cx="55" cy="120" r="3" fill="#34C759"/>
+      <circle cx="138" cy="120" r="3" fill="#34C759"/>
+      <text x="95" y="200" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">2 distinct real roots</text>
+      {/* D = 0 */}
+      <rect x="195" y="42" width="170" height="155" rx="6" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="280" y="62" fill="#FF9500" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">D = 0</text>
+      <line x1="205" y1="130" x2="355" y2="130" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="280" y1="72" x2="280" y2="185" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <path d="M 210,110 Q 280,170 350,110" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <circle cx="280" cy="130" r="3" fill="#FF9500"/>
+      <text x="280" y="200" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">1 repeated real root</text>
+      {/* D < 0 */}
+      <rect x="380" y="42" width="170" height="155" rx="6" fill="#FF3B30" fillOpacity="0.08" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="465" y="62" fill="#FF3B30" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">D &lt; 0</text>
+      <line x1="390" y1="130" x2="540" y2="130" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <line x1="465" y1="72" x2="465" y2="185" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+      <path d="M 395,80 Q 465,155 535,80" fill="none" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="465" y="200" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">No real roots</text>
+    </svg>
+  );
+}
+
+function ArithmeticProgression() {
+  return (
+    <svg viewBox="0 0 560 180" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Arithmetic Progression — Common Difference d</text>
+      {/* Number line with AP terms */}
+      <line x1="30" y1="100" x2="530" y2="100" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="60" cy="100" r="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="60" y="105" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">a</text>
+      <circle cx="170" cy="100" r="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="170" y="105" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">a+d</text>
+      <circle cx="280" cy="100" r="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="280" y="105" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">a+2d</text>
+      <circle cx="390" cy="100" r="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="390" y="105" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">a+3d</text>
+      <circle cx="500" cy="100" r="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="500" y="105" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">a+4d</text>
+      <text x="115" y="72" fill="#FF9500" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">+d</text>
+      <text x="225" y="72" fill="#FF9500" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">+d</text>
+      <text x="335" y="72" fill="#FF9500" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">+d</text>
+      <text x="445" y="72" fill="#FF9500" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">+d</text>
+      <text x="280" y="145" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">aₙ = a + (n−1)d   |   each term = previous + d</text>
+      <text x="280" y="168" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle" opacity="0.7">Example: 2, 5, 8, 11, ...  →  a=2, d=3</text>
+    </svg>
+  );
+}
+
+function NthTermAP() {
+  return (
+    <svg viewBox="0 0 560 190" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">nth Term of an AP</text>
+      <rect x="80" y="42" width="400" height="60" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <text x="280" y="80" fill="currentColor" fontSize="20" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">aₙ = a + (n − 1)d</text>
+      <text x="20" y="130" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">a = first term,  d = common difference,  n = position</text>
+      <text x="20" y="153" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Example: AP 3, 7, 11, 15, …  →  a=3, d=4</text>
+      <text x="20" y="175" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">a₁₀ = 3 + (10−1)×4 = 3 + 36 = 39</text>
+    </svg>
+  );
+}
+
+function SumAP() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Sum of First n Terms — Gauss Pairing Trick</text>
+      <text x="20" y="60" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">1 + 2 + 3 + … + 100</text>
+      <text x="20" y="84" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Pair first + last:  (1+100) + (2+99) + … = 101 × 50 = 5050</text>
+      <line x1="20" y1="95" x2="540" y2="95" stroke="currentColor" strokeWidth="1" strokeDasharray="4,3"/>
+      <rect x="80" y="105" width="400" height="50" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="280" y="126" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">Sₙ = n/2 × (2a + (n−1)d)</text>
+      <text x="280" y="146" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">Or equivalently:  Sₙ = n/2 × (first term + last term)</text>
+      <text x="20" y="182" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Example: S₁₀ of AP 2,5,8,…  = 10/2 × (2×2 + 9×3) = 5 × 31 = 155</text>
+    </svg>
+  );
+}
+
+function APApplications() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">AP in Real Life — Theatre Seating</text>
+      <rect x="175" y="50" width="160" height="22" rx="3" fill="#007AFF" fillOpacity="0.10" stroke="#007AFF" strokeWidth="1"/>
+      <text x="200" y="65" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Row 1: 20 seats</text>
+      <rect x="163" y="78" width="184" height="22" rx="3" fill="#007AFF" fillOpacity="0.14" stroke="#007AFF" strokeWidth="1"/>
+      <text x="188" y="93" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Row 2: 23 seats</text>
+      <rect x="151" y="106" width="208" height="22" rx="3" fill="#007AFF" fillOpacity="0.18" stroke="#007AFF" strokeWidth="1"/>
+      <text x="176" y="121" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Row 3: 26 seats</text>
+      <rect x="139" y="134" width="232" height="22" rx="3" fill="#007AFF" fillOpacity="0.22" stroke="#007AFF" strokeWidth="1"/>
+      <text x="164" y="149" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Row 4: 29 seats</text>
+      <rect x="127" y="162" width="256" height="22" rx="3" fill="#007AFF" fillOpacity="0.26" stroke="#007AFF" strokeWidth="1"/>
+      <text x="152" y="177" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Row 5: 32 seats</text>
+      <text x="20" y="202" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">Rows: 20, 23, 26, 29, 32 … AP with a=20, d=3. Total seats S₅ = 5/2(40+12) = 130</text>
+    </svg>
+  );
+}
+
+function SimilarFigures() {
+  return (
+    <svg viewBox="0 0 560 220" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Similar Triangles — AA Criterion, Scale Factor k</text>
+      {/* Small triangle */}
+      <polygon points="60,180 130,80 200,180" fill="none" stroke="#007AFF" strokeWidth="2"/>
+      <text x="60" y="196" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">A</text>
+      <text x="127" y="72" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">B</text>
+      <text x="197" y="196" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">C</text>
+      <text x="130" y="210" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">ΔABC</text>
+      {/* Large triangle */}
+      <polygon points="270,200 380,50 490,200" fill="none" stroke="#34C759" strokeWidth="2"/>
+      <text x="267" y="215" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">P</text>
+      <text x="376" y="42" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">Q</text>
+      <text x="487" y="215" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif">R</text>
+      <text x="380" y="225" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">ΔPQR (similar)</text>
+      {/* Labels */}
+      <text x="130" y="135" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">3</text>
+      <text x="380" y="128" fill="#34C759" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">6</text>
+      <text x="280" y="95" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">k = 6/3 = 2</text>
+      <text x="20" y="245" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.7">AA: two pairs of equal angles ⟹ triangles similar. Sides in ratio k.</text>
+    </svg>
+  );
+}
+
+function BasicProportionality() {
+  return (
+    <svg viewBox="0 0 560 250" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Basic Proportionality Theorem (BPT / Thales Theorem)</text>
+      {/* Triangle ABC */}
+      <polygon points="280,40 80,220 480,220" fill="none" stroke="currentColor" strokeWidth="2"/>
+      <text x="277" y="32" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">A</text>
+      <text x="66" y="232" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="700">B</text>
+      <text x="483" y="232" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="700">C</text>
+      {/* DE parallel to BC */}
+      <line x1="155" y1="148" x2="405" y2="148" stroke="#007AFF" strokeWidth="2.5"/>
+      <text x="148" y="145" fill="#007AFF" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="end" fontWeight="700">D</text>
+      <text x="413" y="145" fill="#007AFF" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="700">E</text>
+      <text x="280" y="138" fill="#007AFF" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">DE ∥ BC</text>
+      {/* Labels */}
+      <text x="196" y="100" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">AD</text>
+      <text x="107" y="195" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">DB</text>
+      <text x="360" y="100" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">AE</text>
+      <text x="445" y="195" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">EC</text>
+      <text x="280" y="250" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">AD/DB = AE/EC</text>
+    </svg>
+  );
+}
+
+function SimilarityCriteria() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Criteria for Similarity of Triangles</text>
+      {/* AA */}
+      <rect x="10" y="42" width="165" height="140" rx="6" fill="none" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="92" y="62" fill="#007AFF" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">AA</text>
+      <polygon points="92,78 40,165 145,165" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="42" y="180" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif">∠A=∠P</text>
+      <text x="105" y="180" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif">∠B=∠Q</text>
+      <text x="92" y="198" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">2 equal angles</text>
+      {/* SAS */}
+      <rect x="195" y="42" width="165" height="140" rx="6" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="277" y="62" fill="#34C759" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">SAS</text>
+      <polygon points="277,78 225,165 330,165" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="277" y="198" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">2 sides proportional + included ∠ equal</text>
+      {/* SSS */}
+      <rect x="380" y="42" width="165" height="140" rx="6" fill="none" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="462" y="62" fill="#FF9500" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">SSS</text>
+      <polygon points="462,78 410,165 515,165" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="462" y="198" fill="currentColor" fontSize="10" fontFamily="system-ui,sans-serif" textAnchor="middle">All 3 sides in same proportion</text>
+    </svg>
+  );
+}
+
+function AreaSimilarTriangles() {
+  return (
+    <svg viewBox="0 0 560 200" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Areas of Similar Triangles</text>
+      {/* Small triangle */}
+      <polygon points="100,160 60,100 140,100" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="2"/>
+      <text x="100" y="180" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">ΔABC</text>
+      <text x="100" y="90" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">side = a</text>
+      {/* Large triangle */}
+      <polygon points="370,180 290,60 450,60" fill="#34C759" fillOpacity="0.15" stroke="#34C759" strokeWidth="2"/>
+      <text x="370" y="198" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">ΔPQR</text>
+      <text x="370" y="50" fill="currentColor" fontSize="11" fontFamily="system-ui,sans-serif" textAnchor="middle">side = ka</text>
+      <rect x="20" y="145" width="520" height="36" rx="6" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="280" y="168" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="600">Area(ΔABC) / Area(ΔPQR) = (corresponding side)² = k²</text>
+    </svg>
+  );
+}
+
+function PythagorasTheorem() {
+  return (
+    <svg viewBox="0 0 560 260" width="100%" height="auto">
+      <text x="20" y="28" fill="currentColor" fontSize="13" fontFamily="system-ui,sans-serif" fontWeight="600">Pythagoras Theorem</text>
+      {/* Right triangle */}
+      <polygon points="150,200 150,80 300,200" fill="none" stroke="currentColor" strokeWidth="2"/>
+      {/* Right angle mark */}
+      <polyline points="150,185 165,185 165,200" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Squares on sides */}
+      <rect x="70" y="80" width="80" height="120" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="110" y="145" fill="#007AFF" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">b²</text>
+      <rect x="150" y="200" width="150" height="80" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="225" y="248" fill="#34C759" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">a²</text>
+      <polygon points="300,200 150,80 430,80 580,200" fill="#FF9500" fillOpacity="0.12" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="385" y="155" fill="#FF9500" fontSize="13" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">c²</text>
+      <text x="155" y="145" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">b</text>
+      <text x="225" y="215" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif" textAnchor="middle">a</text>
+      <text x="245" y="150" fill="currentColor" fontSize="12" fontFamily="system-ui,sans-serif">c (hyp.)</text>
+      <rect x="20" y="228" width="200" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+      <text x="120" y="247" fill="currentColor" fontSize="14" fontFamily="system-ui,sans-serif" textAnchor="middle" fontWeight="700">a² + b² = c²</text>
+    </svg>
+  );
+}
+
 const DIAGRAM_MAP = {
   // Biology
   sci_ch5_human_digestion:            { label: "Human Digestive System",              Component: DigestiveSystem },
@@ -2954,6 +3562,41 @@ const DIAGRAM_MAP = {
   sci_ch11_power_heating:             { label: "Electric Power Formulas — P=VI=I²R",      Component: PowerHeating },
   sci_ch12_domestic_circuits:         { label: "Domestic Wiring — Earth, Fuse, MCB",     Component: DomesticCircuit },
   sci_ch13_biodegradability:          { label: "Biodegradable vs Non-biodegradable",      Component: WasteTypes },
+  // Math Ch1 — Real Numbers
+  ch1_s1_c1_t1: { label: "Euclid's Division Lemma",                      Component: EuclidDivision },
+  ch1_s2_c1_t1: { label: "Prime Factor Tree — 360 = 2³×3²×5",            Component: PrimeFactorTree },
+  ch1_s2_c1_t2: { label: "HCF and LCM via Venn Diagram",                 Component: HcfLcm },
+  ch1_s3_c1_t1: { label: "√2 is Irrational — Proof by Contradiction",    Component: IrrationalProof },
+  ch1_s4_c1_t1: { label: "Terminating vs Recurring Decimals",             Component: DecimalExpansion },
+  // Math Ch2 — Polynomials
+  ch2_s1_c1_t1: { label: "Zeroes of a Polynomial — x-intercepts",        Component: PolynomialZeroes },
+  ch2_s2_c1_t1: { label: "Zeroes and Coefficients — α+β, αβ",            Component: ZeroesCoefficients },
+  ch2_s3_c1_t1: { label: "Division Algorithm for Polynomials",            Component: PolynomialDivision },
+  ch2_s3_c1_t2: { label: "Remainder Theorem and Factor Theorem",          Component: RemainderFactor },
+  ch2_s4_c1_t1: { label: "Cubic Polynomial — 3 Zeroes",                  Component: CubicPolynomial },
+  // Math Ch3 — Pair of Linear Equations
+  ch3_s1_c1_t1: { label: "Graphical Method — 3 Cases",                   Component: GraphicalLinear },
+  ch3_s1_c1_t2: { label: "Substitution Method — Step by Step",           Component: SubstitutionMethod },
+  ch3_s2_c1_t1: { label: "Elimination Method",                           Component: EliminationMethod },
+  ch3_s3_c1_t1: { label: "Cross-Multiplication Method",                  Component: CrossMultiplication },
+  ch3_s4_c1_t1: { label: "Reducible Equations — 1/x Substitution",       Component: ReducibleEquations },
+  // Math Ch4 — Quadratic Equations
+  ch4_s1_c1_t1: { label: "Quadratic Equation — Standard Form",           Component: QuadraticIntro },
+  ch4_s1_c1_t2: { label: "Factorisation — Splitting Middle Term",        Component: Factorisation },
+  ch4_s2_c1_t1: { label: "Completing the Square Method",                 Component: CompletingSquare },
+  ch4_s3_c1_t1: { label: "Quadratic Formula — x = (−b ± √D) / 2a",      Component: QuadraticFormula },
+  ch4_s4_c1_t1: { label: "Discriminant — Nature of Roots (D>0, D=0, D<0)", Component: Discriminant },
+  // Math Ch5 — Arithmetic Progressions
+  ch5_s1_c1_t1: { label: "Arithmetic Progression — Common Difference",   Component: ArithmeticProgression },
+  ch5_s2_c1_t1: { label: "nth Term of AP — aₙ = a + (n−1)d",            Component: NthTermAP },
+  ch5_s3_c1_t1: { label: "Sum of AP — Gauss Pairing Trick",              Component: SumAP },
+  ch5_s4_c1_t1: { label: "AP Applications — Theatre Seating",            Component: APApplications },
+  // Math Ch6 — Triangles
+  ch6_s1_c1_t1: { label: "Similar Triangles — AA Criterion",             Component: SimilarFigures },
+  ch6_s2_c1_t1: { label: "Basic Proportionality Theorem",                Component: BasicProportionality },
+  ch6_s3_c1_t1: { label: "Similarity Criteria — AA, SAS, SSS",           Component: SimilarityCriteria },
+  ch6_s5_c1_t1: { label: "Areas of Similar Triangles — ratio k²",        Component: AreaSimilarTriangles },
+  ch6_s6_c1_t1: { label: "Pythagoras Theorem — a² + b² = c²",           Component: PythagorasTheorem },
 };
 
 export function Diagram({ topicId }) {

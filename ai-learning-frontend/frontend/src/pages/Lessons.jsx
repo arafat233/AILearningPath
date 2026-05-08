@@ -321,6 +321,7 @@ export default function Lessons() {
                         onPractice={() => navigate("/practice", {
                           state: { mixTopics: g.topics.map((t) => t.topicId), autoStart: true },
                         })}
+                      />
                     ))}
                   </div>
                 )

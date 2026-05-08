@@ -228,16 +228,10 @@ export const adminCreateCoupon           = (data)      => api.post("/admin/coupo
 export const adminUpdateCoupon           = (id, data)  => api.put(`/admin/coupons/${id}`, data);
 export const adminDeleteCoupon           = (id)        => api.delete(`/admin/coupons/${id}`);
 export const adminGetPayments            = (params)    => api.get("/admin/payments", { params });
-export const adminUpdateUserPlan         = (id, data)  => api.put(`/admin/users/${id}/plan`, data);
 export const adminRunOnboardingEmails    = ()          => api.post("/admin/run-onboarding-emails");
 export const adminRunWeeklyParentEmails  = ()          => api.post("/admin/run-weekly-parent-emails");
 export const adminGetFeedback            = ()          => api.get("/feedback");
-export const adminDeleteUser             = (id)        => api.delete(`/admin/users/${id}`);
-export const adminGetUserDetail          = (id)        => api.get(`/admin/users/${id}/detail`);
 export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupons/${id}/redemptions`);
-export const adminGetCertificates        = (params)    => api.get("/admin/certificates", { params });
-export const adminGetRagHealth           = ()          => api.get("/admin/rag-health");
-export const adminSendTestEmail          = (to)        => api.post("/admin/send-test-email", { to });
 
 export const generateMock = (opts) => api.post("/exam/generate-mock", opts);
 

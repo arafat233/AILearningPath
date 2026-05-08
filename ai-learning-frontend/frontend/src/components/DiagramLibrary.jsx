@@ -1801,6 +1801,1095 @@ function ContraceptionMethods() {
   );
 }
 
+/* ── CHEMISTRY: Oxidation / Reduction (OIL RIG) ─────────────────── */
+function OxidationReduction() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">OIL RIG — Oxidation Is Loss, Reduction Is Gain</T>
+
+      {/* Left column — Oxidation */}
+      <rect x={20} y={28} width={240} height={260} rx={10} fill="#FEF9C3" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={140} y={48} size={11} bold align="middle" color="#92400E">OXIDATION (OIL)</T>
+      <T x={140} y={64} size={9} align="middle" color="#92400E">Loses electrons / Loses H₂ / Gains O₂</T>
+
+      {/* Mg atom */}
+      <circle cx={80} cy={110} r={22} fill="#FDE68A" stroke="#D97706" strokeWidth={2}/>
+      <T x={80} y={115} size={11} bold align="middle" color="#78350F">Mg</T>
+      {/* O₂ molecule */}
+      <circle cx={190} cy={100} r={14} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <circle cx={218} cy={100} r={14} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={204} y={104} size={9} bold align="middle" color="#991B1B">O₂</T>
+
+      {/* Arrow Mg -> MgO */}
+      <line x1={20} y1={155} x2={240} y2={155} stroke="#D97706" strokeWidth={1} strokeDasharray="3,2"/>
+      <T x={140} y={148} size={9} align="middle" color="#D97706">Mg + O₂ → MgO</T>
+
+      {/* MgO product */}
+      <circle cx={90} cy={195} r={18} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={90} y={199} size={10} bold align="middle" color="#78350F">Mg²⁺</T>
+      <circle cx={135} cy={195} r={15} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={135} y={199} size={9} bold align="middle" color="#991B1B">O²⁻</T>
+      <T x={140} y={222} size={9} align="middle" color="#374151">Product: MgO</T>
+
+      {/* Electron arrow going OUT */}
+      <path d="M80 130 C60 160 50 180 60 210" fill="none" stroke="#EF4444" strokeWidth={2} strokeDasharray="5,3"/>
+      <polygon points="56,207 64,213 68,204" fill="#EF4444"/>
+      <T x={28} y={180} size={9} color="#EF4444">e⁻ OUT</T>
+
+      <T x={140} y={270} size={10} bold align="middle" color="#D97706">OIL — Oxidation Is Loss</T>
+
+      {/* Right column — Reduction */}
+      <rect x={300} y={28} width={240} height={260} rx={10} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={420} y={48} size={11} bold align="middle" color="#1E40AF">REDUCTION (RIG)</T>
+      <T x={420} y={64} size={9} align="middle" color="#1E40AF">Gains electrons / Gains H₂ / Loses O₂</T>
+
+      {/* CuO */}
+      <circle cx={360} cy={100} r={18} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={360} y={104} size={9} bold align="middle" color="#78350F">Cu²⁺</T>
+      <circle cx={400} cy={100} r={14} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={400} y={104} size={9} bold align="middle" color="#991B1B">O²⁻</T>
+      <T x={380} y={126} size={9} align="middle" color="#374151">CuO + CO → Cu + CO₂</T>
+
+      <line x1={300} y1={155} x2={540} y2={155} stroke="#2563EB" strokeWidth={1} strokeDasharray="3,2"/>
+      <T x={420} y={148} size={9} align="middle" color="#2563EB">reduced by CO</T>
+
+      {/* Cu product */}
+      <circle cx={420} cy={195} r={22} fill="#F97316" stroke="#EA580C" strokeWidth={2}/>
+      <T x={420} y={199} size={11} bold align="middle" color="white">Cu</T>
+      <T x={420} y={222} size={9} align="middle" color="#374151">Product: Cu (metal)</T>
+
+      {/* Electron arrow coming IN */}
+      <path d="M470 210 C490 175 480 155 460 130" fill="none" stroke="#2563EB" strokeWidth={2} strokeDasharray="5,3"/>
+      <polygon points="456,133 464,127 466,137" fill="#2563EB"/>
+      <T x={488} y={175} size={9} color="#2563EB">e⁻ IN</T>
+
+      <T x={420} y={270} size={10} bold align="middle" color="#2563EB">RIG — Reduction Is Gain</T>
+
+      {/* Curved transfer arrow between columns */}
+      <path d="M260 170 C275 160 285 160 300 170" fill="none" stroke="#374151" strokeWidth={2}/>
+      <polygon points="296,166 304,172 296,178" fill="#374151"/>
+      <T x={280} y={158} size={8} align="middle" color="#374151">e⁻</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Decomposition Types ─────────────────────────────── */
+function DecompositionTypes() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">Types of Decomposition Reactions: AB → A + B</T>
+
+      {/* Top arrow */}
+      <rect x={200} y={28} width={160} height={32} rx={8} fill="#E9D5FF" stroke="#7C3AED" strokeWidth={1.5}/>
+      <T x={280} y={48} size={10} bold align="middle" color="#4C1D95">AB (Compound)</T>
+      <line x1={280} y1={60} x2={280} y2={80} stroke="#374151" strokeWidth={2}/>
+      <polygon points="275,78 285,78 280,86" fill="#374151"/>
+      <T x={288} y={73} size={9} color="#6B7280">energy</T>
+
+      {/* Three boxes */}
+      {/* (a) Thermal */}
+      <rect x={20} y={95} width={155} height={175} rx={10} fill="#FEF3C7" stroke="#D97706" strokeWidth={2}/>
+      <T x={98} y={113} size={10} bold align="middle" color="#92400E">(a) Thermal</T>
+      {/* Flame icon */}
+      <path d="M88 145 C85 135 92 128 90 120 C96 128 100 135 97 145 C104 135 102 122 98 115 C108 125 112 140 106 152 C112 148 114 138 110 130 C118 142 116 158 108 165 C116 162 120 155 118 148 C122 158 120 170 112 175 C102 180 84 180 78 172 C68 165 66 150 72 140 C74 148 78 152 82 150 C76 144 74 132 80 120 C82 132 84 140 88 145Z"
+            fill="#F97316" stroke="#EA580C" strokeWidth={1}/>
+      <T x={98} y={200} size={9} align="middle" color="#374151">CaCO₃</T>
+      <T x={98} y={212} size={9} align="middle" color="#374151">↓ heat</T>
+      <T x={98} y={224} size={9} align="middle" color="#374151">CaO + CO₂</T>
+      <T x={98} y={240} size={8} align="middle" color="#6B7280">e.g. limestone</T>
+      <T x={98} y={254} size={8} align="middle" color="#6B7280">decomposition</T>
+
+      {/* (b) Electrolytic */}
+      <rect x={202} y={95} width={155} height={175} rx={10} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={280} y={113} size={10} bold align="middle" color="#1E40AF">(b) Electrolytic</T>
+      {/* Lightning bolt */}
+      <polygon points="290,128 282,148 288,148 280,168 296,145 289,145 298,128" fill="#F59E0B" stroke="#D97706" strokeWidth={1}/>
+      <T x={280} y={200} size={9} align="middle" color="#374151">2H₂O</T>
+      <T x={280} y={212} size={9} align="middle" color="#374151">↓ electricity</T>
+      <T x={280} y={224} size={9} align="middle" color="#374151">2H₂ + O₂</T>
+      <T x={280} y={240} size={8} align="middle" color="#6B7280">Electrolysis</T>
+      <T x={280} y={254} size={8} align="middle" color="#6B7280">of water</T>
+
+      {/* (c) Photolytic */}
+      <rect x={384} y={95} width={155} height={175} rx={10} fill="#DCFCE7" stroke="#16A34A" strokeWidth={2}/>
+      <T x={462} y={113} size={10} bold align="middle" color="#15803D">(c) Photolytic</T>
+      {/* Sun icon */}
+      <circle cx={462} cy={148} r={18} fill="#FEF08A" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={462} y={152} size={9} bold align="middle" color="#92400E">☀</T>
+      {[0,45,90,135,180,225,270,315].map((deg,i) => {
+        const a = deg * Math.PI / 180;
+        return <line key={i} x1={462 + 20 * Math.cos(a)} y1={148 + 20 * Math.sin(a)}
+                              x2={462 + 28 * Math.cos(a)} y2={148 + 28 * Math.sin(a)}
+                              stroke="#CA8A04" strokeWidth={1.5}/>;
+      })}
+      <T x={462} y={200} size={9} align="middle" color="#374151">2AgCl</T>
+      <T x={462} y={212} size={9} align="middle" color="#374151">↓ light</T>
+      <T x={462} y={224} size={9} align="middle" color="#374151">2Ag + Cl₂</T>
+      <T x={462} y={240} size={8} align="middle" color="#6B7280">Silver chloride</T>
+      <T x={462} y={254} size={8} align="middle" color="#6B7280">darkens in light</T>
+
+      {/* Products label */}
+      <T x={280} y={295} size={10} bold align="middle" color="#374151">Products: A  +  B  (two simpler substances)</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Acid-Base Indicators ─────────────────────────────── */
+function AcidBaseIndicators() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">Acid-Base Indicators — Colour Changes</T>
+
+      {/* Litmus strip */}
+      <rect x={20} y={30} width={160} height={36} rx={6} fill="#EF4444" stroke="#DC2626" strokeWidth={1.5}/>
+      <T x={100} y={53} size={10} bold align="middle" color="white">Acid (pH &lt; 7)</T>
+      <rect x={200} y={30} width={160} height={36} rx={6} fill="#8B5CF6" stroke="#7C3AED" strokeWidth={1.5}/>
+      <T x={280} y={53} size={10} bold align="middle" color="white">Neutral (pH = 7)</T>
+      <rect x={380} y={30} width={160} height={36} rx={6} fill="#2563EB" stroke="#1D4ED8" strokeWidth={1.5}/>
+      <T x={460} y={53} size={10} bold align="middle" color="white">Base (pH &gt; 7)</T>
+
+      {/* Table headers */}
+      <rect x={10} y={86} width={540} height={22} rx={4} fill="#F3F4F6" stroke="#D1D5DB" strokeWidth={1}/>
+      <T x={130} y={101} size={9} bold align="middle" color="#374151">Indicator</T>
+      <T x={230} y={101} size={9} bold align="middle" color="#374151">In Acid</T>
+      <T x={330} y={101} size={9} bold align="middle" color="#374151">Neutral</T>
+      <T x={460} y={101} size={9} bold align="middle" color="#374151">In Base</T>
+
+      {/* Row 1 — Litmus */}
+      <rect x={10} y={110} width={540} height={36} rx={0} fill="#FFF7F7" stroke="#E5E7EB" strokeWidth={0.5}/>
+      <T x={130} y={132} size={10} bold align="middle" color="#374151">Litmus</T>
+      <rect x={190} y={114} width={80} height={24} rx={4} fill="#EF4444"/>
+      <T x={230} y={130} size={9} bold align="middle" color="white">Red</T>
+      <rect x={290} y={114} width={80} height={24} rx={4} fill="#8B5CF6"/>
+      <T x={330} y={130} size={9} bold align="middle" color="white">Purple</T>
+      <rect x={390} y={114} width={140} height={24} rx={4} fill="#2563EB"/>
+      <T x={460} y={130} size={9} bold align="middle" color="white">Blue</T>
+
+      {/* Row 2 — Phenolphthalein */}
+      <rect x={10} y={148} width={540} height={36} rx={0} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={0.5}/>
+      <T x={130} y={170} size={10} bold align="middle" color="#374151">Phenolphthalein</T>
+      <rect x={190} y={152} width={80} height={24} rx={4} fill="#F3F4F6" stroke="#9CA3AF" strokeWidth={1}/>
+      <T x={230} y={168} size={9} bold align="middle" color="#374151">Colourless</T>
+      <rect x={290} y={152} width={80} height={24} rx={4} fill="#F3F4F6" stroke="#9CA3AF" strokeWidth={1}/>
+      <T x={330} y={168} size={9} align="middle" color="#9CA3AF">—</T>
+      <rect x={390} y={152} width={140} height={24} rx={4} fill="#EC4899"/>
+      <T x={460} y={168} size={9} bold align="middle" color="white">Pink / Magenta</T>
+
+      {/* Row 3 — Methyl Orange */}
+      <rect x={10} y={186} width={540} height={36} rx={0} fill="#FFF7F7" stroke="#E5E7EB" strokeWidth={0.5}/>
+      <T x={130} y={208} size={10} bold align="middle" color="#374151">Methyl Orange</T>
+      <rect x={190} y={190} width={80} height={24} rx={4} fill="#EF4444"/>
+      <T x={230} y={206} size={9} bold align="middle" color="white">Red</T>
+      <rect x={290} y={190} width={80} height={24} rx={4} fill="#F97316"/>
+      <T x={330} y={206} size={9} bold align="middle" color="white">Orange</T>
+      <rect x={390} y={190} width={140} height={24} rx={4} fill="#EAB308"/>
+      <T x={460} y={206} size={9} bold align="middle" color="white">Yellow</T>
+
+      {/* Summary note */}
+      <rect x={10} y={240} width={540} height={60} rx={8} fill="#F0FFF4" stroke="#86EFAC" strokeWidth={1.5}/>
+      <T x={280} y={258} size={10} bold align="middle" color="#15803D">Key Rules:</T>
+      <T x={280} y={274} size={9} align="middle" color="#374151">Litmus is the universal indicator for quick acid/base tests.</T>
+      <T x={280} y={289} size={9} align="middle" color="#374151">Phenolphthalein used in titrations — turns pink only in base. Methyl orange is acidic range indicator.</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Acid Reactions ────────────────────────────────────── */
+function AcidReactions() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">Reactions of Acids</T>
+
+      {[
+        {
+          y: 34,
+          fill: "#DBEAFE", stroke: "#2563EB",
+          title: "(1) Acid + Metal → Salt + Hydrogen gas ↑",
+          eq: "Zn + 2HCl → ZnCl₂ + H₂↑",
+          note: "H₂ tested with burning splint — gives 'pop' sound",
+          col: "#1E40AF",
+        },
+        {
+          y: 130,
+          fill: "#FEF9C3", stroke: "#CA8A04",
+          title: "(2) Acid + Metal Carbonate → Salt + Water + CO₂ ↑",
+          eq: "CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑",
+          note: "CO₂ turns lime water milky",
+          col: "#78350F",
+        },
+        {
+          y: 226,
+          fill: "#DCFCE7", stroke: "#16A34A",
+          title: "(3) Acid + Base → Salt + Water (Neutralisation)",
+          eq: "NaOH + HCl → NaCl + H₂O",
+          note: "H⁺ + OH⁻ → H₂O  (exothermic reaction)",
+          col: "#15803D",
+        },
+      ].map((r, i) => (
+        <g key={i}>
+          <rect x={20} y={r.y} width={520} height={88} rx={10} fill={r.fill} stroke={r.stroke} strokeWidth={1.5}/>
+          <T x={280} y={r.y + 18} size={10} bold align="middle" color={r.col}>{r.title}</T>
+          <line x1={40} y1={r.y + 28} x2={520} y2={r.y + 28} stroke={r.stroke} strokeWidth={0.8} strokeDasharray="4,3"/>
+          {/* Reactants → Products arrow */}
+          <rect x={40} y={r.y + 36} width={200} height={28} rx={6} fill="rgba(255,255,255,0.6)" stroke={r.stroke} strokeWidth={1}/>
+          <T x={140} y={r.y + 54} size={10} bold align="middle" color={r.col}>{r.eq.split("→")[0]} →</T>
+          <polygon points={`248,${r.y+47} 260,${r.y+52} 248,${r.y+57}`} fill={r.stroke}/>
+          <rect x={265} y={r.y + 36} width={275} height={28} rx={6} fill="rgba(255,255,255,0.6)" stroke={r.stroke} strokeWidth={1}/>
+          <T x={402} y={r.y + 54} size={10} bold align="middle" color={r.col}>{r.eq.split("→")[1]}</T>
+          <T x={280} y={r.y + 80} size={8} align="middle" color="#6B7280">{r.note}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Chlor-Alkali / Salts ─────────────────────────────── */
+function ChlorAlkali() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">Chlor-Alkali Process — Electrolysis of NaCl(aq)</T>
+
+      {/* Electrolysis cell */}
+      <rect x={80} y={35} width={400} height={200} rx={10} fill="#EFF6FF" stroke="#2563EB" strokeWidth={2}/>
+
+      {/* Solution label */}
+      <T x={280} y={148} size={11} bold align="middle" color="#1D4ED8">NaCl (aq)</T>
+      <T x={280} y={164} size={9} align="middle" color="#1D4ED8">sodium chloride solution</T>
+      <T x={280} y={180} size={9} align="middle" color="#16A34A">NaOH formed in solution</T>
+
+      {/* Cathode — left */}
+      <rect x={110} y={50} width={22} height={175} rx={4} fill="#9CA3AF" stroke="#374151" strokeWidth={2}/>
+      <T x={121} y={240} size={9} bold align="middle" color="#374151">−</T>
+      <T x={60} y={44} size={9} bold color="#374151">Cathode (−)</T>
+      {/* H₂ bubbles at cathode */}
+      {[0, 1, 2].map(i => (
+        <circle key={i} cx={100 - i * 8} cy={68 + i * 14} r={5} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1}/>
+      ))}
+      <T x={50} y={72} size={9} bold color="#2563EB">H₂ ↑</T>
+      <line x1={90} y1={70} x2={112} y2={80} stroke="#2563EB" strokeWidth={1} strokeDasharray="2,2"/>
+
+      {/* Anode — right */}
+      <rect x={428} y={50} width={22} height={175} rx={4} fill="#9CA3AF" stroke="#374151" strokeWidth={2}/>
+      <T x={439} y={240} size={9} bold align="middle" color="#374151">+</T>
+      <T x={456} y={44} size={9} bold color="#374151">Anode (+)</T>
+      {/* Cl₂ bubbles at anode */}
+      {[0, 1, 2].map(i => (
+        <circle key={i} cx={462 + i * 8} cy={68 + i * 14} r={5} fill="#FDE68A" stroke="#D97706" strokeWidth={1}/>
+      ))}
+      <T x={462} y={72} size={9} bold color="#D97706">Cl₂ ↑</T>
+      <line x1={450} y1={70} x2={428} y2={80} stroke="#D97706" strokeWidth={1} strokeDasharray="2,2"/>
+
+      {/* Ion movement arrows */}
+      <line x1={260} y1={155} x2={150} y2={155} stroke="#2563EB" strokeWidth={1.5} strokeDasharray="4,2"/>
+      <polygon points="153,151 143,155 153,159" fill="#2563EB"/>
+      <T x={200} y={148} size={8} color="#2563EB">Na⁺, H⁺ →</T>
+
+      <line x1={300} y1={155} x2={410} y2={155} stroke="#D97706" strokeWidth={1.5} strokeDasharray="4,2"/>
+      <polygon points="407,151 417,155 407,159" fill="#D97706"/>
+      <T x={350} y={148} size={8} color="#D97706">Cl⁻, OH⁻ →</T>
+
+      {/* Power supply */}
+      <line x1={121} y1={50} x2={121} y2={28} stroke="#374151" strokeWidth={2}/>
+      <line x1={439} y1={50} x2={439} y2={28} stroke="#374151" strokeWidth={2}/>
+      <line x1={121} y1={28} x2={230} y2={28} stroke="#374151" strokeWidth={2}/>
+      <line x1={310} y1={28} x2={439} y2={28} stroke="#374151" strokeWidth={2}/>
+      <rect x={230} y={18} width={80} height={20} rx={6} fill="#FEF9C3" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={270} y={31} size={9} bold align="middle" color="#78350F">DC Supply</T>
+
+      {/* Products summary */}
+      <rect x={20} y={248} width={520} height={60} rx={8} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={280} y={266} size={10} bold align="middle" color="#374151">Products and Uses:</T>
+      <T x={140} y={282} size={9} align="middle" color="#2563EB">H₂ (cathode) — fuel, margarine</T>
+      <T x={280} y={282} size={9} align="middle" color="#16A34A">NaOH (soln) — soap, paper</T>
+      <T x={430} y={282} size={9} align="middle" color="#D97706">Cl₂ (anode) — PVC, bleach</T>
+      <T x={280} y={298} size={8} align="middle" color="#6B7280">2NaCl + 2H₂O → 2NaOH + H₂ + Cl₂</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Metal vs Non-metal Properties ────────────────────── */
+function MetalNonmetalProperties() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={18} size={12} bold align="middle">Physical Properties: Metals vs Non-metals</T>
+
+      {/* Column headers */}
+      <rect x={20} y={28} width={240} height={32} rx={8} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={140} y={49} size={11} bold align="middle" color="#1E40AF">METALS</T>
+      <rect x={300} y={28} width={240} height={32} rx={8} fill="#FEF9C3" stroke="#D97706" strokeWidth={2}/>
+      <T x={420} y={49} size={11} bold align="middle" color="#92400E">NON-METALS</T>
+
+      {[
+        ["Lustre", "Shiny / lustrous", "Dull (except iodine)"],
+        ["Malleability", "Malleable — can be beaten", "Brittle — shatters"],
+        ["Ductility", "Ductile — drawn into wire", "Not ductile"],
+        ["Conductivity", "Good conductor (heat + elec)", "Poor conductor / insulator"],
+        ["Sound", "Sonorous — makes sound", "Not sonorous"],
+        ["Melting Point", "Generally high MP", "Generally low MP"],
+        ["State at 25°C", "Mostly solid", "Mostly gas / solid"],
+      ].map((row, i) => {
+        const y = 68 + i * 28;
+        const bg = i % 2 === 0 ? "#F0F9FF" : "#FFFFFF";
+        return (
+          <g key={i}>
+            <rect x={20} y={y} width={240} height={26} rx={0} fill={bg} stroke="#BFDBFE" strokeWidth={0.5}/>
+            <rect x={300} y={y} width={240} height={26} rx={0} fill={i % 2 === 0 ? "#FFFBEB" : "#FFFFFF"} stroke="#FDE68A" strokeWidth={0.5}/>
+            <T x={30} y={y + 17} size={9} bold color="#1E40AF">{row[0]}</T>
+            <T x={140} y={y + 17} size={9} align="middle" color="#1D1D1F">{row[1]}</T>
+            <T x={420} y={y + 17} size={9} align="middle" color="#1D1D1F">{row[2]}</T>
+          </g>
+        );
+      })}
+
+      {/* Exceptions box */}
+      <rect x={20} y={270} width={520} height={42} rx={8} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1.5}/>
+      <T x={280} y={286} size={9} bold align="middle" color="#15803D">Important Exceptions:</T>
+      <T x={280} y={302} size={9} align="middle" color="#374151">Graphite (non-metal) conducts electricity  •  Mercury (metal) is liquid at room temperature</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Blast Furnace ────────────────────────────────────── */
+function BlastFurnace() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Blast Furnace — Extraction of Iron</T>
+
+      {/* Furnace body */}
+      <path d="M180 30 L380 30 L410 200 L340 270 L220 270 L150 200 Z"
+            fill="#FEF3C7" stroke="#D97706" strokeWidth={2}/>
+
+      {/* Zone labels inside */}
+      <T x={280} y={75} size={9} bold align="middle" color="#92400E">Zone 3 — Slag Formation</T>
+      <T x={280} y={90} size={8} align="middle" color="#92400E">CaO + SiO₂ → CaSiO₃ (slag)</T>
+      <line x1={165} y1={110} x2={395} y2={110} stroke="#D97706" strokeWidth={1} strokeDasharray="4,2"/>
+
+      <T x={280} y={130} size={9} bold align="middle" color="#B45309">Zone 2 — Reduction Zone</T>
+      <T x={280} y={145} size={8} align="middle" color="#B45309">Fe₂O₃ + 3CO → 2Fe + 3CO₂</T>
+      <line x1={155} y1={165} x2={405} y2={165} stroke="#D97706" strokeWidth={1} strokeDasharray="4,2"/>
+
+      <T x={280} y={183} size={9} bold align="middle" color="#EA580C">Zone 1 — Combustion Zone</T>
+      <T x={280} y={198} size={8} align="middle" color="#EA580C">C + O₂ → CO₂  |  CO₂ + C → 2CO</T>
+
+      {/* Inputs at top — 3 arrows */}
+      {[
+        {x: 180, label: "Iron ore", sub: "(Fe₂O₃)", col: "#EF4444"},
+        {x: 280, label: "Coke", sub: "(C)", col: "#374151"},
+        {x: 380, label: "Limestone", sub: "(CaCO₃)", col: "#6B7280"},
+      ].map((inp, i) => (
+        <g key={i}>
+          <line x1={inp.x} y1={8} x2={inp.x} y2={28} stroke={inp.col} strokeWidth={2}/>
+          <polygon points={`${inp.x - 4},24 ${inp.x + 4},24 ${inp.x},30`} fill={inp.col}/>
+          <T x={inp.x} y={8} size={8} bold align="middle" color={inp.col}>{inp.label}</T>
+        </g>
+      ))}
+
+      {/* Hot air blast — both sides */}
+      <rect x={50} y={195} width={95} height={22} rx={6} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={98} y={210} size={8} bold align="middle" color="#991B1B">Hot Air →</T>
+      <line x1={145} y1={206} x2={160} y2={206} stroke="#EF4444" strokeWidth={2}/>
+      <polygon points="158,202 166,206 158,210" fill="#EF4444"/>
+
+      <rect x={415} y={195} width={95} height={22} rx={6} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={462} y={210} size={8} bold align="middle" color="#991B1B">← Hot Air</T>
+      <line x1={400} y1={206} x2={415} y2={206} stroke="#EF4444" strokeWidth={2}/>
+      <polygon points="402,202 394,206 402,210" fill="#EF4444"/>
+
+      {/* Molten iron at bottom */}
+      <rect x={230} y={255} width={100} height={28} rx={6} fill="#F97316" stroke="#EA580C" strokeWidth={2}/>
+      <T x={280} y={272} size={9} bold align="middle" color="white">Molten Iron</T>
+      <line x1={280} y1={283} x2={280} y2={296} stroke="#EA580C" strokeWidth={2}/>
+      <polygon points="275,294 285,294 280,302" fill="#EA580C"/>
+
+      {/* Slag outlet — side */}
+      <rect x={400} y={242} width={80} height={20} rx={5} fill="#9CA3AF" stroke="#6B7280" strokeWidth={1.5}/>
+      <T x={440} y={255} size={8} bold align="middle" color="#374151">Slag outlet</T>
+      <line x1={400} y1={252} x2={385} y2={252} stroke="#6B7280" strokeWidth={1.5}/>
+      <polygon points="387,248 379,252 387,256" fill="#6B7280"/>
+
+      {/* Gas outlet top */}
+      <line x1={280} y1={30} x2={500} y2={30} stroke="#16A34A" strokeWidth={1.5} strokeDasharray="4,2"/>
+      <T x={450} y={26} size={8} bold color="#16A34A">CO₂ gas out ↑</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Homologous Series ────────────────────────────────── */
+function HomologousSeries() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Homologous Series — Structural Formulas</T>
+
+      {/* Alkane row */}
+      <T x={280} y={36} size={10} bold align="middle" color="#2563EB">Alkanes: CₙH₂ₙ₊₂ (single bonds only — saturated)</T>
+
+      {/* Methane CH4 */}
+      <circle cx={70} cy={90} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={70} y={94} size={9} bold align="middle" color="#78350F">C</T>
+      {[{dx:0,dy:-26},{dx:26,dy:0},{dx:0,dy:26},{dx:-26,dy:0}].map((d, i) => (
+        <g key={i}>
+          <line x1={70 + d.dx * 0.52} y1={90 + d.dy * 0.52} x2={70 + d.dx * 0.85} y2={90 + d.dy * 0.85} stroke="#374151" strokeWidth={1.5}/>
+          <circle cx={70 + d.dx} cy={90 + d.dy} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={70 + d.dx} y={90 + d.dy + 3} size={8} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      <T x={70} y={134} size={9} align="middle" color="#374151">CH₄</T>
+      <T x={70} y={146} size={8} align="middle" color="#6B7280">methane</T>
+
+      {/* +CH₂ arrow */}
+      <T x={130} y={91} size={9} bold align="middle" color="#16A34A">+ CH₂</T>
+      <line x1={130} y1={96} x2={152} y2={96} stroke="#16A34A" strokeWidth={1.5}/>
+      <polygon points="150,92 158,96 150,100" fill="#16A34A"/>
+
+      {/* Ethane C2H6 */}
+      <circle cx={190} cy={90} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={190} y={94} size={9} bold align="middle" color="#78350F">C</T>
+      <line x1={204} y1={90} x2={218} y2={90} stroke="#374151" strokeWidth={1.5}/>
+      <circle cx={232} cy={90} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={232} y={94} size={9} bold align="middle" color="#78350F">C</T>
+      {[{cx:190,dy:-26},{cx:190,dy:26},{cx:232,dy:-26},{cx:232,dy:26}].map((d, i) => (
+        <g key={i}>
+          <line x1={d.cx} y1={90 + (d.dy > 0 ? 14 : -14)} x2={d.cx} y2={90 + d.dy * 0.85} stroke="#374151" strokeWidth={1.5}/>
+          <circle cx={d.cx} cy={90 + d.dy} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={d.cx} y={90 + d.dy + 3} size={8} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      {[{cx:190},{cx:232}].map((d,i)=>(
+        <g key={i}>
+          <circle cx={i===0 ? 167 : 255} cy={90} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={i===0 ? 167 : 255} y={93} size={8} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      <T x={211} y={134} size={9} align="middle" color="#374151">C₂H₆</T>
+      <T x={211} y={146} size={8} align="middle" color="#6B7280">ethane</T>
+
+      {/* + CH2 arrow */}
+      <T x={278} y={91} size={9} bold align="middle" color="#16A34A">+ CH₂</T>
+      <line x1={278} y1={96} x2={296} y2={96} stroke="#16A34A" strokeWidth={1.5}/>
+      <polygon points="294,92 302,96 294,100" fill="#16A34A"/>
+
+      {/* Propane C3H8 — simplified */}
+      <T x={420} y={90} size={10} bold align="middle" color="#374151">C₃H₈</T>
+      <T x={420} y={104} size={9} align="middle" color="#374151">CH₃-CH₂-CH₃</T>
+      <T x={420} y={134} size={9} align="middle" color="#374151">propane</T>
+      <T x={420} y={146} size={8} align="middle" color="#6B7280">(drawn as chain)</T>
+
+      {/* Divider */}
+      <line x1={20} y1={162} x2={540} y2={162} stroke="#E5E7EB" strokeWidth={1.5}/>
+
+      {/* Alkenes / Alkynes */}
+      <T x={280} y={178} size={10} bold align="middle" color="#EF4444">Alkenes: CₙH₂ₙ (one C=C double bond — unsaturated)</T>
+
+      {/* Ethene */}
+      <circle cx={110} cy={230} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={110} y={234} size={9} bold align="middle" color="#78350F">C</T>
+      <line x1={124} y1={227} x2={154} y2={227} stroke="#374151" strokeWidth={2}/>
+      <line x1={124} y1={233} x2={154} y2={233} stroke="#374151" strokeWidth={2}/>
+      <circle cx={168} cy={230} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={168} y={234} size={9} bold align="middle" color="#78350F">C</T>
+      {[{cx:110,dy:-26},{cx:110,dy:26},{cx:168,dy:-26},{cx:168,dy:26}].map((d, i) => (
+        <g key={i}>
+          <circle cx={d.cx} cy={230 + d.dy} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={d.cx} y={230 + d.dy + 3} size={8} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      <T x={139} y={270} size={9} align="middle" color="#EF4444">C₂H₄  ethene (C=C)</T>
+
+      {/* Ethyne */}
+      <circle cx={360} cy={230} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={360} y={234} size={9} bold align="middle" color="#78350F">C</T>
+      <line x1={374} y1={225} x2={404} y2={225} stroke="#374151" strokeWidth={2}/>
+      <line x1={374} y1={230} x2={404} y2={230} stroke="#374151" strokeWidth={2}/>
+      <line x1={374} y1={235} x2={404} y2={235} stroke="#374151" strokeWidth={2}/>
+      <circle cx={418} cy={230} r={14} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={418} y={234} size={9} bold align="middle" color="#78350F">C</T>
+      <circle cx={338} cy={230} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+      <T x={338} y={233} size={8} bold align="middle" color="#1E40AF">H</T>
+      <circle cx={440} cy={230} r={9} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+      <T x={440} y={233} size={8} bold align="middle" color="#1E40AF">H</T>
+      <T x={389} y={270} size={9} align="middle" color="#7C3AED">C₂H₂  ethyne (C≡C triple bond)</T>
+      <T x={280} y={298} size={9} bold align="middle" color="#6B7280">Alkynes: CₙH₂ₙ₋₂ — triple bond — most unsaturated</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Carbon Reaction Types ────────────────────────────── */
+function CarbonReactionTypes() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Carbon Compound Reactions — 4 Types</T>
+
+      {[
+        {
+          x: 20, y: 28, fill: "#FEF9C3", stroke: "#CA8A04",
+          title: "(1) Combustion",
+          eq1: "CH₄ + 2O₂ → CO₂ + 2H₂O + heat",
+          note: "Complete: CO₂ + H₂O | Incomplete: CO + soot",
+          icon: "flame",
+          col: "#78350F",
+        },
+        {
+          x: 300, y: 28, fill: "#DBEAFE", stroke: "#2563EB",
+          title: "(2) Oxidation",
+          eq1: "Ethanol →[KMnO₄]→ Ethanoic acid",
+          note: "CH₃CH₂OH → CH₃COOH (alcohol → acid)",
+          icon: "ox",
+          col: "#1E40AF",
+        },
+        {
+          x: 20, y: 172, fill: "#DCFCE7", stroke: "#16A34A",
+          title: "(3) Addition (Alkenes)",
+          eq1: "CH₂=CH₂ + H₂ →[Ni, 200°C]→ CH₃CH₃",
+          note: "Alkene + H₂/X₂/HX → saturated product",
+          icon: "add",
+          col: "#15803D",
+        },
+        {
+          x: 300, y: 172, fill: "#FEE2E2", stroke: "#EF4444",
+          title: "(4) Substitution (Alkanes)",
+          eq1: "CH₄ + Cl₂ →[UV light]→ CH₃Cl + HCl",
+          note: "H replaced by halogen; chain reaction in sunlight",
+          icon: "sun",
+          col: "#991B1B",
+        },
+      ].map((box, i) => (
+        <g key={i}>
+          <rect x={box.x} y={box.y} width={240} height={135} rx={10} fill={box.fill} stroke={box.stroke} strokeWidth={1.5}/>
+          <T x={box.x + 120} y={box.y + 18} size={10} bold align="middle" color={box.col}>{box.title}</T>
+          <line x1={box.x + 10} y1={box.y + 26} x2={box.x + 230} y2={box.y + 26} stroke={box.stroke} strokeWidth={0.8}/>
+          {/* Icon */}
+          {box.icon === "flame" && (
+            <path d={`M${box.x+110} ${box.y+60} C${box.x+108} ${box.y+50} ${box.x+114} ${box.y+44} ${box.x+112} ${box.y+38} C${box.x+116} ${box.y+44} ${box.x+118} ${box.y+52} ${box.x+116} ${box.y+60} C${box.x+120} ${box.y+52} ${box.x+118} ${box.y+42} ${box.x+116} ${box.y+36} C${box.x+122} ${box.y+44} ${box.x+124} ${box.y+54} ${box.x+122} ${box.y+62} C${box.x+118} ${box.y+70} ${box.x+106} ${box.y+70} ${box.x+104} ${box.y+62} C${box.x+100} ${box.y+56} ${box.x+102} ${box.y+46} ${box.x+106} ${box.y+40} C${box.x+106} ${box.y+50} ${box.x+108} ${box.y+56} ${box.x+110} ${box.y+60}Z`}
+                  fill="#F97316" stroke="#EA580C" strokeWidth={1}/>
+          )}
+          {box.icon === "ox" && (
+            <g>
+              <circle cx={box.x+120} cy={box.y+52} r={18} fill="#C4B5FD" stroke="#7C3AED" strokeWidth={1.5}/>
+              <T x={box.x+120} y={box.y+56} size={9} bold align="middle" color="#4C1D95">KMnO₄</T>
+            </g>
+          )}
+          {box.icon === "add" && (
+            <g>
+              <T x={box.x+120} y={box.y+52} size={18} bold align="middle" color="#16A34A">+</T>
+              <T x={box.x+120} y={box.y+68} size={8} align="middle" color="#15803D">alkene + H₂</T>
+            </g>
+          )}
+          {box.icon === "sun" && (
+            <g>
+              <circle cx={box.x+120} cy={box.y+52} r={14} fill="#FEF08A" stroke="#CA8A04" strokeWidth={1.5}/>
+              <T x={box.x+120} y={box.y+57} size={10} bold align="middle" color="#92400E">☀</T>
+            </g>
+          )}
+          <T x={box.x + 120} y={box.y + 90} size={8} align="middle" color={box.col}>{box.eq1}</T>
+          <line x1={box.x + 10} y1={box.y + 100} x2={box.x + 230} y2={box.y + 100} stroke={box.stroke} strokeWidth={0.5} strokeDasharray="3,2"/>
+          <T x={box.x + 120} y={box.y + 114} size={8} align="middle" color="#6B7280">{box.note}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Natural Selection ──────────────────────────────────── */
+function NaturalSelection() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Natural Selection — Darwin's Theory</T>
+
+      {/* Generation labels */}
+      {["Gen 1\n(Variation)", "Gen 2\n(Selection)", "Gen 3\n(Adapted)"].map((label, i) => (
+        <g key={i}>
+          <T x={100 + i * 170} y={38} size={10} bold align="middle" color="#374151">{label.split("\n")[0]}</T>
+          <T x={100 + i * 170} y={52} size={9} align="middle" color="#6B7280">{label.split("\n")[1]}</T>
+        </g>
+      ))}
+
+      {/* Gen 1 — mixed colours (variation) */}
+      {[
+        "#EF4444","#3B82F6","#EF4444","#16A34A","#3B82F6",
+        "#EF4444","#16A34A","#9CA3AF","#EF4444","#3B82F6",
+      ].map((col, i) => (
+        <circle key={i} cx={55 + (i % 5) * 28} cy={85 + Math.floor(i / 5) * 28} r={10} fill={col} stroke="white" strokeWidth={1.5}/>
+      ))}
+      <T x={100} y={150} size={8} align="middle" color="#374151">Mixed population</T>
+
+      {/* Selection pressure arrow */}
+      <rect x={150} y={82} width={100} height={48} rx={8} fill="#FEF9C3" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={200} y={100} size={9} bold align="middle" color="#92400E">Selection</T>
+      <T x={200} y={113} size={9} bold align="middle" color="#92400E">Pressure</T>
+      <T x={200} y={126} size={8} align="middle" color="#D97706">e.g. predation</T>
+      <line x1={250} y1={106} x2={262} y2={106} stroke="#D97706" strokeWidth={2}/>
+      <polygon points="260,102 268,106 260,110" fill="#D97706"/>
+
+      {/* Gen 2 — fewer, mostly favoured (blue) */}
+      {["#3B82F6","#EF4444","#3B82F6","#3B82F6","#9CA3AF","#3B82F6"].map((col, i) => (
+        <circle key={i} cx={288 + (i % 3) * 26} cy={82 + Math.floor(i / 3) * 26} r={10} fill={col} stroke="white" strokeWidth={1.5} opacity={col === "#9CA3AF" ? 0.3 : 1}/>
+      ))}
+      <T x={315} y={150} size={8} align="middle" color="#374151">Some survive</T>
+
+      {/* Arrow to gen 3 */}
+      <line x1={372} y1={106} x2={384} y2={106} stroke="#374151" strokeWidth={2}/>
+      <polygon points="382,102 390,106 382,110" fill="#374151"/>
+
+      {/* Gen 3 — mostly favoured variant */}
+      {["#3B82F6","#3B82F6","#3B82F6","#3B82F6","#3B82F6","#3B82F6"].map((col, i) => (
+        <circle key={i} cx={408 + (i % 3) * 28} cy={82 + Math.floor(i / 3) * 28} r={10} fill={col} stroke="white" strokeWidth={1.5}/>
+      ))}
+      <T x={436} y={150} size={8} align="middle" color="#3B82F6">Adapted population</T>
+
+      {/* Divider */}
+      <line x1={20} y1={168} x2={540} y2={168} stroke="#E5E7EB" strokeWidth={1.5}/>
+
+      {/* Darwin's finches */}
+      <T x={280} y={185} size={10} bold align="middle" color="#374151">Darwin's Finches — Beak Adaptation</T>
+
+      {[
+        {x: 80, label: "Seeds", beak: "M60,220 L80,215 L100,220 L80,230Z"},
+        {x: 240, label: "Insects", beak: "M220,225 L240,215 L260,225 L250,230 L240,228 L230,230Z"},
+        {x: 400, label: "Cactus", beak: "M380,225 Q400,210 420,225 L420,230 Q400,218 380,230Z"},
+      ].map((f, i) => (
+        <g key={i}>
+          {/* Bird head */}
+          <circle cx={f.x} cy={228} r={18} fill="#FEF9C3" stroke="#D97706" strokeWidth={1.5}/>
+          {/* Beak */}
+          <path d={f.beak} fill="#F97316" stroke="#EA580C" strokeWidth={1}/>
+          {/* Eye */}
+          <circle cx={f.x + 6} cy={222} r={3} fill="#374151"/>
+          <T x={f.x} y={260} size={8} align="middle" color="#374151">{f.label}</T>
+          <T x={f.x} y={272} size={7} align="middle" color="#6B7280">diet</T>
+        </g>
+      ))}
+
+      <T x={280} y={295} size={9} bold align="middle" color="#6B7280">Different food sources → different beak shapes → natural selection over generations</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Variation Diagram ──────────────────────────────────── */
+function VariationDiagram() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Asexual vs Sexual Reproduction — Variation</T>
+
+      {/* LEFT — Asexual */}
+      <rect x={10} y={26} width={250} height={270} rx={10} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={135} y={46} size={11} bold align="middle" color="#1E40AF">Asexual Reproduction</T>
+
+      {/* Single parent */}
+      <circle cx={135} cy={90} r={28} fill="#BFDBFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={135} y={94} size={10} bold align="middle" color="#1E40AF">Parent</T>
+      <T x={135} y={107} size={8} align="middle" color="#2563EB">(1 parent)</T>
+
+      {/* Arrow down */}
+      <line x1={135} y1={118} x2={135} y2={145} stroke="#2563EB" strokeWidth={2}/>
+      <polygon points="130,143 140,143 135,151" fill="#2563EB"/>
+      <T x={145} y={135} size={8} color="#2563EB">Mitosis</T>
+
+      {/* Identical offspring */}
+      {[{x:90,y:165},{x:135,y:165},{x:180,y:165}].map((o, i) => (
+        <g key={i}>
+          <circle cx={o.x} cy={o.y} r={20} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1.5}/>
+          <T x={o.x} y={o.y + 4} size={8} bold align="middle" color="#1E40AF">clone</T>
+        </g>
+      ))}
+      <T x={135} y={200} size={8} align="middle" color="#374151">Genetically identical</T>
+
+      {/* Small variation marker */}
+      <rect x={115} y={210} width={40} height={16} rx={4} fill="#FEF9C3" stroke="#D97706" strokeWidth={1}/>
+      <T x={135} y={222} size={7} bold align="middle" color="#D97706">mutation?</T>
+      <line x1={135} y1={210} x2={135} y2={200} stroke="#D97706" strokeWidth={1} strokeDasharray="2,2"/>
+
+      {/* Small variation arrow */}
+      <rect x={30} y={240} width={210} height={20} rx={5} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1}/>
+      <T x={135} y={254} size={8} bold align="middle" color="#15803D">Very little variation (← small)</T>
+
+      <T x={135} y={283} size={8} align="middle" color="#374151">Examples: bacteria, amoeba,</T>
+      <T x={135} y={295} size={8} align="middle" color="#374151">yeast, strawberry runners</T>
+
+      {/* RIGHT — Sexual */}
+      <rect x={300} y={26} width={250} height={270} rx={10} fill="#FEE2E2" stroke="#EF4444" strokeWidth={2}/>
+      <T x={425} y={46} size={11} bold align="middle" color="#991B1B">Sexual Reproduction</T>
+
+      {/* Two parents */}
+      <circle cx={370} cy={86} r={24} fill="#FCA5A5" stroke="#EF4444" strokeWidth={2}/>
+      <T x={370} y={90} size={9} bold align="middle" color="#991B1B">Parent A</T>
+      <circle cx={480} cy={86} r={24} fill="#BFDBFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={480} y={90} size={9} bold align="middle" color="#1E40AF">Parent B</T>
+
+      {/* Arrows to meiosis */}
+      <line x1={370} y1={110} x2={400} y2={132} stroke="#374151" strokeWidth={1.5}/>
+      <line x1={480} y1={110} x2={450} y2={132} stroke="#374151" strokeWidth={1.5}/>
+      <rect x={400} y={130} width={50} height={22} rx={5} fill="#FEF9C3" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={425} y={145} size={8} bold align="middle" color="#78350F">Meiosis</T>
+      <T x={425} y={158} size={8} align="middle" color="#6B7280">(shuffle genes)</T>
+
+      {/* Fertilisation */}
+      <line x1={425} y1={162} x2={425} y2={178} stroke="#374151" strokeWidth={2}/>
+      <polygon points="420,176 430,176 425,184" fill="#374151"/>
+      <T x={435} y={173} size={8} color="#374151">fertilisation</T>
+
+      {/* Unique offspring */}
+      {[{x:370,y:200},{x:425,y:200},{x:480,y:200}].map((o, i) => (
+        <g key={i}>
+          <circle cx={o.x} cy={o.y} r={20} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+          <T x={o.x} y={o.y + 4} size={7} bold align="middle" color="#78350F">unique</T>
+        </g>
+      ))}
+      <T x={425} y={235} size={8} align="middle" color="#374151">All genetically different</T>
+
+      {/* Large variation arrow */}
+      <rect x={320} y={248} width={210} height={20} rx={5} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1}/>
+      <T x={425} y={262} size={8} bold align="middle" color="#991B1B">LARGE variation (←←←←)</T>
+
+      <T x={425} y={283} size={8} align="middle" color="#374151">Examples: humans, animals,</T>
+      <T x={425} y={295} size={8} align="middle" color="#374151">flowering plants</T>
+
+      {/* Footer */}
+      <T x={280} y={308} size={9} bold align="middle" color="#374151">More variation = more adaptability to environmental change</T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Concave Mirror Ray Diagrams ────────────────────────── */
+function MirrorRayDiagrams() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={14} size={11} bold align="middle">Concave Mirror — Ray Diagrams for Object Positions</T>
+
+      {/* (a) Object beyond C */}
+      <T x={85} y={32} size={9} bold align="middle" color="#374151">(a) Object beyond C</T>
+      <line x1={10} y1={60} x2={170} y2={60} stroke="#9CA3AF" strokeWidth={1} strokeDasharray="3,2"/>
+      <path d="M155 34 Q145 60 155 86" fill="none" stroke="#374151" strokeWidth={2.5}/>
+      <circle cx={120} cy={60} r={2.5} fill="#374151"/><T x={116} y={70} size={8}>C</T>
+      <circle cx={140} cy={60} r={2.5} fill="#374151"/><T x={136} y={70} size={8}>F</T>
+      <circle cx={155} cy={60} r={2.5} fill="#374151"/><T x={151} y={70} size={8}>P</T>
+      <line x1={60} y1={60} x2={60} y2={38} stroke="#2563EB" strokeWidth={2}/>
+      <polygon points="56,40 64,40 60,32" fill="#2563EB"/>
+      <T x={55} y={30} size={8} color="#2563EB">obj</T>
+      <line x1={60} y1={38} x2={155} y2={38} stroke="#EF4444" strokeWidth={1.2}/>
+      <line x1={155} y1={38} x2={110} y2={74} stroke="#EF4444" strokeWidth={1.2}/>
+      <line x1={60} y1={38} x2={120} y2={60} stroke="#16A34A" strokeWidth={1.2}/>
+      <line x1={120} y1={60} x2={110} y2={73} stroke="#16A34A" strokeWidth={1.2}/>
+      <line x1={110} y1={60} x2={110} y2={76} stroke="#7C3AED" strokeWidth={2}/>
+      <polygon points="106,73 114,73 110,79" fill="#7C3AED"/>
+      <T x={85} y={90} size={8} align="middle" color="#7C3AED">Real, inverted, diminished</T>
+
+      {/* (b) Object at F */}
+      <T x={270} y={32} size={9} bold align="middle" color="#374151">(b) Object at F</T>
+      <line x1={190} y1={60} x2={360} y2={60} stroke="#9CA3AF" strokeWidth={1} strokeDasharray="3,2"/>
+      <path d="M345 34 Q335 60 345 86" fill="none" stroke="#374151" strokeWidth={2.5}/>
+      <circle cx={310} cy={60} r={2.5} fill="#374151"/><T x={306} y={70} size={8}>C</T>
+      <circle cx={330} cy={60} r={2.5} fill="#374151"/><T x={326} y={70} size={8}>F</T>
+      <circle cx={345} cy={60} r={2.5} fill="#374151"/><T x={341} y={70} size={8}>P</T>
+      <line x1={330} y1={60} x2={330} y2={38} stroke="#2563EB" strokeWidth={2}/>
+      <polygon points="326,40 334,40 330,32" fill="#2563EB"/>
+      <T x={325} y={30} size={8} color="#2563EB">obj</T>
+      <line x1={330} y1={38} x2={345} y2={38} stroke="#EF4444" strokeWidth={1.5}/>
+      <line x1={345} y1={38} x2={196} y2={38} stroke="#EF4444" strokeWidth={1.5}/>
+      <line x1={330} y1={38} x2={310} y2={60} stroke="#16A34A" strokeWidth={1.5}/>
+      <line x1={310} y1={60} x2={196} y2={60} stroke="#16A34A" strokeWidth={1.5}/>
+      <T x={270} y={90} size={8} align="middle" color="#D97706">Rays parallel — image at ∞</T>
+
+      {/* (c) Object between F and P */}
+      <T x={460} y={32} size={9} bold align="middle" color="#374151">(c) Between F and P</T>
+      <line x1={390} y1={60} x2={550} y2={60} stroke="#9CA3AF" strokeWidth={1} strokeDasharray="3,2"/>
+      <path d="M535 34 Q525 60 535 86" fill="none" stroke="#374151" strokeWidth={2.5}/>
+      <circle cx={500} cy={60} r={2.5} fill="#374151"/><T x={496} y={70} size={8}>C</T>
+      <circle cx={520} cy={60} r={2.5} fill="#374151"/><T x={516} y={70} size={8}>F</T>
+      <circle cx={535} cy={60} r={2.5} fill="#374151"/><T x={531} y={70} size={8}>P</T>
+      <line x1={528} y1={60} x2={528} y2={40} stroke="#2563EB" strokeWidth={2}/>
+      <polygon points="524,42 532,42 528,34" fill="#2563EB"/>
+      <T x={523} y={32} size={8} color="#2563EB">obj</T>
+      <line x1={528} y1={40} x2={535} y2={40} stroke="#EF4444" strokeWidth={1.5}/>
+      <line x1={535} y1={40} x2={500} y2={60} stroke="#EF4444" strokeWidth={1.5}/>
+      <line x1={500} y1={60} x2={395} y2={26} stroke="#EF4444" strokeWidth={1.2} strokeDasharray="3,2"/>
+      <line x1={528} y1={40} x2={395} y2={40} stroke="#16A34A" strokeWidth={1.2} strokeDasharray="3,2"/>
+      <line x1={395} y1={40} x2={395} y2={20} stroke="#7C3AED" strokeWidth={2} strokeDasharray="3,2"/>
+      <polygon points="391,22 399,22 395,14" fill="#7C3AED"/>
+      <T x={460} y={90} size={8} align="middle" color="#7C3AED">Virtual, erect, magnified</T>
+
+      {/* Sign convention table */}
+      <rect x={10} y={108} width={540} height={90} rx={8} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={280} y={124} size={10} bold align="middle" color="#374151">Mirror Formula & Sign Convention (New Cartesian)</T>
+      <T x={280} y={142} size={10} bold align="middle" color="#D97706">1/v + 1/u = 1/f   |   m = −v/u</T>
+      <T x={140} y={160} size={9} align="middle" color="#374151">u = always negative (object in front)</T>
+      <T x={420} y={160} size={9} align="middle" color="#374151">v = negative for real image, +ve for virtual</T>
+      <T x={140} y={178} size={9} align="middle" color="#374151">f = negative for concave mirror</T>
+      <T x={420} y={178} size={9} align="middle" color="#374151">f = positive for convex mirror</T>
+
+      {/* Summary row */}
+      <rect x={10} y={210} width={540} height={100} rx={8} fill="#F0F4FF" stroke="#BFDBFE" strokeWidth={1}/>
+      <T x={280} y={228} size={10} bold align="middle" color="#1E40AF">Summary of Image Positions — Concave Mirror</T>
+      {[
+        {pos: "Object at ∞",         img: "At F",              nature: "Real, inverted, point"},
+        {pos: "Beyond C",            img: "Between F and C",   nature: "Real, inverted, diminished"},
+        {pos: "At C",                img: "At C",              nature: "Real, inverted, same size"},
+        {pos: "Between F & C",       img: "Beyond C",          nature: "Real, inverted, magnified"},
+        {pos: "Between F & P",       img: "Behind mirror",     nature: "Virtual, erect, magnified"},
+      ].map((row, i) => (
+        <g key={i}>
+          <T x={30} y={244 + i * 13} size={8} color="#374151">{row.pos}</T>
+          <T x={220} y={244 + i * 13} size={8} color="#2563EB">{row.img}</T>
+          <T x={370} y={244 + i * 13} size={8} color="#16A34A">{row.nature}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Basic Electric Circuit ─────────────────────────────── */
+function ElectricCircuit() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Basic Electric Circuit — Current, Voltage, Resistance</T>
+
+      {/* Circuit outline — rectangle */}
+      <line x1={80} y1={80} x2={460} y2={80} stroke="#374151" strokeWidth={3}/>
+      <line x1={460} y1={80} x2={460} y2={220} stroke="#374151" strokeWidth={3}/>
+      <line x1={460} y1={220} x2={80} y2={220} stroke="#374151" strokeWidth={3}/>
+      <line x1={80} y1={220} x2={80} y2={80} stroke="#374151" strokeWidth={3}/>
+
+      {/* Battery (cell) — top-left */}
+      <rect x={60} y={95} width={40} height={55} rx={4} fill="#F9FAFB" stroke="#374151" strokeWidth={2}/>
+      <line x1={70} y1={105} x2={90} y2={105} stroke="#374151" strokeWidth={4}/>
+      <line x1={76} y1={115} x2={84} y2={115} stroke="#374151" strokeWidth={1.5}/>
+      <line x1={70} y1={125} x2={90} y2={125} stroke="#374151" strokeWidth={4}/>
+      <line x1={76} y1={135} x2={84} y2={135} stroke="#374151" strokeWidth={1.5}/>
+      <T x={100} y={122} size={9} bold color="#374151">Battery</T>
+      <T x={60} y={166} size={9} color="#374151">+ −</T>
+
+      {/* Switch — top wire */}
+      <circle cx={220} cy={80} r={5} fill="#374151"/>
+      <circle cx={260} cy={80} r={5} fill="#374151"/>
+      <line x1={220} y1={80} x2={252} y2={66} stroke="#374151" strokeWidth={2}/>
+      <T x={240} y={60} size={9} bold align="middle" color="#374151">Switch</T>
+
+      {/* Resistor — bottom wire */}
+      <rect x={190} y={210} width={120} height={20} rx={5} fill="#FDE68A" stroke="#D97706" strokeWidth={2}/>
+      <T x={250} y={224} size={9} bold align="middle" color="#78350F">R (Resistor)</T>
+      <T x={250} y={242} size={8} align="middle" color="#D97706">V = IR</T>
+
+      {/* Ammeter — right wire */}
+      <circle cx={460} cy={150} r={18} fill="#DCFCE7" stroke="#16A34A" strokeWidth={2}/>
+      <T x={460} y={155} size={11} bold align="middle" color="#15803D">A</T>
+      <T x={488} y={153} size={9} color="#15803D">Ammeter</T>
+      <T x={488} y={165} size={8} color="#6B7280">(series)</T>
+
+      {/* Voltmeter — parallel across resistor */}
+      <line x1={190} y1={220} x2={190} y2={268} stroke="#374151" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <line x1={310} y1={220} x2={310} y2={268} stroke="#374151" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <line x1={190} y1={268} x2={235} y2={268} stroke="#374151" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <line x1={265} y1={268} x2={310} y2={268} stroke="#374151" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <circle cx={250} cy={268} r={18} fill="#FEF9C3" stroke="#D97706" strokeWidth={2}/>
+      <T x={250} y={273} size={11} bold align="middle" color="#78350F">V</T>
+      <T x={250} y={294} size={8} align="middle" color="#D97706">Voltmeter (parallel)</T>
+
+      {/* Current direction arrows */}
+      <polygon points="336,76 348,80 336,84" fill="#EF4444"/>
+      <T x={342} y={72} size={8} color="#EF4444">I →</T>
+      <T x={342} y={97} size={8} color="#2563EB">e⁻ ←</T>
+      <polygon points="178,84 166,80 178,76" fill="#2563EB"/>
+
+      {/* Formula box */}
+      <rect x={10} y={300} width={540} height={18} rx={5} fill="#F0F9FF" stroke="#BAE6FD" strokeWidth={1}/>
+      <T x={280} y={313} size={9} bold align="middle" color="#0369A1">V = W/Q (potential difference = work done / charge)  |  I = Q/t  |  V = IR</T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Electric Power & Heating ───────────────────────────── */
+function PowerHeating() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Electric Power and Joule's Heating Effect</T>
+
+      {/* Central box */}
+      <rect x={210} y={28} width={140} height={44} rx={10} fill="#FDE68A" stroke="#D97706" strokeWidth={2}/>
+      <T x={280} y={48} size={11} bold align="middle" color="#78350F">Electric Power</T>
+      <T x={280} y={62} size={10} bold align="middle" color="#92400E">P (Watts)</T>
+
+      {/* Three formula bubbles */}
+      {[
+        {x: 80, y: 105, formula: "P = VI", note: "V=voltage, I=current", col: "#1E40AF", bg: "#DBEAFE", stroke: "#2563EB"},
+        {x: 280, y: 105, formula: "P = I²R", note: "R=resistance (Ω)", col: "#15803D", bg: "#DCFCE7", stroke: "#16A34A"},
+        {x: 480, y: 105, formula: "P = V²/R", note: "V=potential diff", col: "#991B1B", bg: "#FEE2E2", stroke: "#EF4444"},
+      ].map((b, i) => (
+        <g key={i}>
+          <line x1={b.x} y1={72} x2={b.x === 280 ? 280 : (b.x < 280 ? 230 : 330)} y2={72} stroke="#D97706" strokeWidth={1.5}/>
+          <line x1={b.x} y1={72} x2={b.x} y2={82} stroke="#D97706" strokeWidth={1.5}/>
+          <ellipse cx={b.x} cy={b.y} rx={72} ry={30} fill={b.bg} stroke={b.stroke} strokeWidth={1.5}/>
+          <T x={b.x} y={b.y + 4} size={13} bold align="middle" color={b.col}>{b.formula}</T>
+          <T x={b.x} y={b.y + 20} size={8} align="middle" color="#6B7280">{b.note}</T>
+        </g>
+      ))}
+
+      {/* Joule's Law box */}
+      <rect x={10} y={160} width={260} height={90} rx={10} fill="#FEF3C7" stroke="#D97706" strokeWidth={2}/>
+      <T x={140} y={178} size={10} bold align="middle" color="#92400E">Joule's Heating Law</T>
+      <T x={140} y={196} size={13} bold align="middle" color="#D97706">H = I²Rt</T>
+      <T x={140} y={213} size={9} align="middle" color="#374151">H = heat (J), I = current (A)</T>
+      <T x={140} y={227} size={9} align="middle" color="#374151">R = resistance (Ω), t = time (s)</T>
+      {/* Wavy heat lines */}
+      {[0,1,2].map(i => (
+        <path key={i} d={`M${160+i*20} 240 Q${165+i*20} 250 ${160+i*20} 260`} fill="none" stroke="#EF4444" strokeWidth={2}/>
+      ))}
+      <T x={140} y={245} size={8} align="middle" color="#EF4444">heat dissipated ~~~</T>
+
+      {/* Energy unit box */}
+      <rect x={290} y={160} width={260} height={90} rx={10} fill="#EDE9FE" stroke="#7C3AED" strokeWidth={2}/>
+      <T x={420} y={178} size={10} bold align="middle" color="#4C1D95">Commercial Unit of Energy</T>
+      <T x={420} y={196} size={11} bold align="middle" color="#7C3AED">1 kWh = 3.6 × 10⁶ J</T>
+      <T x={420} y={213} size={9} align="middle" color="#374151">kWh = kilowatt-hour</T>
+      <T x={420} y={227} size={9} align="middle" color="#374151">Energy (kWh) = P(kW) × t(h)</T>
+      <T x={420} y={244} size={8} align="middle" color="#6B7280">Electricity bill unit</T>
+
+      {/* Applications row */}
+      <rect x={10} y={268} width={540} height={44} rx={8} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={280} y={284} size={10} bold align="middle" color="#374151">Applications of Heating Effect:</T>
+      {["Electric Iron", "Incandescent Bulb", "Electric Heater", "Fuse wire"].map((app, i) => (
+        <T key={i} x={70 + i * 120} y={302} size={9} align="middle" color="#6B7280">{app}</T>
+      ))}
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Domestic Circuits ──────────────────────────────────── */
+function DomesticCircuit() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Domestic Electric Wiring — Earth, Fuse, MCB</T>
+
+      {/* Meter board */}
+      <rect x={10} y={36} width={75} height={140} rx={6} fill="#F3F4F6" stroke="#374151" strokeWidth={2}/>
+      <T x={48} y={55} size={9} bold align="middle" color="#374151">Meter</T>
+      <T x={48} y={67} size={9} bold align="middle" color="#374151">Board</T>
+      {/* Fuse / MCB */}
+      <rect x={20} y={76} width={55} height={18} rx={4} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={48} y={89} size={8} bold align="middle" color="#78350F">Fuse / MCB</T>
+      <rect x={20} y={100} width={55} height={16} rx={3} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1}/>
+      <T x={48} y={112} size={8} align="middle" color="#1E40AF">Main switch</T>
+
+      {/* Three wires from meter board */}
+      {/* Live — red/brown */}
+      <line x1={86} y1={95} x2={540} y2={95} stroke="#EF4444" strokeWidth={3}/>
+      <T x={94} y={89} size={8} bold color="#EF4444">L (Live — Brown/Red)</T>
+      {/* Neutral — blue */}
+      <line x1={86} y1={150} x2={540} y2={150} stroke="#2563EB" strokeWidth={3}/>
+      <T x={94} y={145} size={8} bold color="#2563EB">N (Neutral — Blue)</T>
+      {/* Earth — green */}
+      <line x1={86} y1={200} x2={540} y2={200} stroke="#16A34A" strokeWidth={2} strokeDasharray="6,3"/>
+      <T x={94} y={195} size={8} bold color="#16A34A">E (Earth — Green/Yellow)</T>
+
+      {/* Three parallel branches */}
+      {[
+        {x: 160, label: "Light Bulb", shape: "bulb"},
+        {x: 320, label: "Fan", shape: "fan"},
+        {x: 480, label: "Geyser", shape: "geyser"},
+      ].map((branch, i) => (
+        <g key={i}>
+          {/* Live down */}
+          <line x1={branch.x} y1={95} x2={branch.x} y2={110} stroke="#EF4444" strokeWidth={2}/>
+          {/* Switch */}
+          <rect x={branch.x - 12} y={110} width={24} height={12} rx={3} fill="#FDE68A" stroke="#D97706" strokeWidth={1.2}/>
+          <T x={branch.x} y={120} size={7} bold align="middle" color="#78350F">SW</T>
+          {/* Appliance */}
+          <line x1={branch.x} y1={122} x2={branch.x} y2={134} stroke="#EF4444" strokeWidth={2}/>
+          <rect x={branch.x - 22} y={134} width={44} height={28} rx={6} fill="#E9D5FF" stroke="#7C3AED" strokeWidth={1.5}/>
+          <T x={branch.x} y={152} size={7} bold align="middle" color="#4C1D95">{branch.label}</T>
+          {/* Neutral up */}
+          <line x1={branch.x} y1={162} x2={branch.x} y2={150} stroke="#2563EB" strokeWidth={2}/>
+          {/* Earth to metal body */}
+          <line x1={branch.x} y1={162} x2={branch.x} y2={200} stroke="#16A34A" strokeWidth={1.5} strokeDasharray="4,2"/>
+        </g>
+      ))}
+
+      {/* Short circuit indicator */}
+      <rect x={400} y={80} width={60} height={24} rx={4} fill="#FEE2E2" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={430} y={96} size={8} bold align="middle" color="#991B1B">Short ✗</T>
+      <line x1={430} y1={104} x2={430} y2={150} stroke="#EF4444" strokeWidth={1} strokeDasharray="2,2"/>
+
+      {/* Fuse strip detail */}
+      <rect x={10} y={215} width={540} height={92} rx={8} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={280} y={232} size={10} bold align="middle" color="#374151">Key Safety Features:</T>
+      <T x={140} y={250} size={9} align="middle" color="#EF4444">Fuse: thin wire melts if I too high — breaks circuit</T>
+      <T x={420} y={250} size={9} align="middle" color="#D97706">MCB: trips automatically, can reset</T>
+      <T x={140} y={267} size={9} align="middle" color="#16A34A">Earth wire: connects metal body to ground — safety</T>
+      <T x={420} y={267} size={9} align="middle" color="#2563EB">Neutral: at 0 V, returns current to supply</T>
+      <T x={280} y={285} size={9} align="middle" color="#374151">Live wire (230 V) is the DANGEROUS wire — fuse always in series with LIVE</T>
+      <T x={280} y={300} size={8} align="middle" color="#6B7280">India: 230 V, 50 Hz AC supply | Three-pin plug: L(right), N(left), E(top)</T>
+    </svg>
+  );
+}
+
+/* ── ECOLOGY: Biodegradability ────────────────────────────────────── */
+function WasteTypes() {
+  return (
+    <svg viewBox="0 0 560 320" style={{ width: "100%", height: "auto" }}>
+      <T x={280} y={16} size={12} bold align="middle">Biodegradable vs Non-biodegradable Waste</T>
+
+      {/* Left — Biodegradable */}
+      <rect x={10} y={28} width={255} height={278} rx={10} fill="#DCFCE7" stroke="#16A34A" strokeWidth={2}/>
+      <T x={137} y={46} size={11} bold align="middle" color="#15803D">Biodegradable</T>
+
+      {/* Examples */}
+      {["Food scraps", "Paper", "Cotton cloth", "Dead leaves", "Wood"].map((item, i) => (
+        <g key={i}>
+          <circle cx={40} cy={68 + i * 22} r={5} fill="#16A34A"/>
+          <T x={52} y={72 + i * 22} size={9} color="#1D1D1F">{item}</T>
+        </g>
+      ))}
+
+      {/* Arrow down to decomposers */}
+      <line x1={137} y1={190} x2={137} y2={208} stroke="#15803D" strokeWidth={2}/>
+      <polygon points="132,206 142,206 137,214" fill="#15803D"/>
+      <T x={137} y={188} size={9} align="middle" color="#15803D">↓ broken down by</T>
+
+      {/* Decomposers box */}
+      <rect x={50} y={214} width={175} height={26} rx={6} fill="#86EFAC" stroke="#16A34A" strokeWidth={1.5}/>
+      <T x={137} y={230} size={9} bold align="middle" color="#14532D">Decomposers (bacteria, fungi)</T>
+
+      {/* Arrow to products */}
+      <line x1={137} y1={240} x2={137} y2={255} stroke="#15803D" strokeWidth={2}/>
+      <polygon points="132,253 142,253 137,261" fill="#15803D"/>
+
+      <T x={137} y={270} size={9} align="middle" color="#15803D">CO₂ + H₂O + nutrients</T>
+      {/* Cycle arrow back to plant */}
+      <path d="M90 278 C50 285 38 295 55 303 C70 310 110 305 137 295" fill="none" stroke="#16A34A" strokeWidth={1.5} strokeDasharray="4,2"/>
+      <polygon points="134,291 140,297 145,289" fill="#16A34A"/>
+      <T x={137} y={293} size={8} align="middle" color="#15803D">→ back to soil / plants</T>
+
+      {/* Right — Non-biodegradable */}
+      <rect x={295} y={28} width={255} height={278} rx={10} fill="#FEE2E2" stroke="#EF4444" strokeWidth={2}/>
+      <T x={422} y={46} size={11} bold align="middle" color="#991B1B">Non-biodegradable</T>
+
+      {/* Examples */}
+      {["Plastic bottles", "DDT (pesticide)", "Styrofoam", "Metal cans", "Nylon / Polyester"].map((item, i) => (
+        <g key={i}>
+          <circle cx={315} cy={68 + i * 22} r={5} fill="#EF4444"/>
+          <T x={327} y={72 + i * 22} size={9} color="#1D1D1F">{item}</T>
+        </g>
+      ))}
+
+      {/* Arrow to environment */}
+      <line x1={422} y1={188} x2={422} y2={208} stroke="#EF4444" strokeWidth={2}/>
+      <polygon points="417,206 427,206 422,214" fill="#EF4444"/>
+      <T x={422} y={186} size={9} align="middle" color="#EF4444">↓ stays in environment</T>
+
+      {/* Biomagnification pyramid */}
+      <polygon points="422,218 380,260 464,260" fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <line x1={380} y1={260} x2={464} y2={260} stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={422} y={244} size={8} bold align="middle" color="#991B1B">Biomagnification</T>
+      <T x={422} y={255} size={7} align="middle" color="#991B1B">↑ concentration</T>
+      <T x={310} y={258} size={8} color="#EF4444">Top</T>
+      <T x={310} y={270} size={8} color="#EF4444">predator</T>
+
+      {/* Trophic level labels beside pyramid */}
+      <T x={422} y={272} size={8} align="middle" color="#374151">Affects entire food chain</T>
+      <T x={422} y={286} size={8} align="middle" color="#374151">e.g. DDT → fish → eagle</T>
+      <T x={422} y={300} size={8} align="middle" color="#6B7280">(reproductive failure)</T>
+    </svg>
+  );
+}
+
 /* ── MAP + EXPORT ────────────────────────────────────────────────── */
 
 const DIAGRAM_MAP = {
@@ -1848,6 +2937,23 @@ const DIAGRAM_MAP = {
   sci_ch4_carbon_allotropes:          { label: "Allotropes of Carbon",                 Component: CarbonAllotropes },
   sci_ch6_endocrine_system:           { label: "Endocrine Glands — Body Map",          Component: EndocrineSystem },
   sci_ch7_reproductive_health:        { label: "Contraception & STD Protection",       Component: ContraceptionMethods },
+  // New Science diagrams — Chapter 1-13
+  sci_ch1_oxidation_reduction:        { label: "OIL RIG — Redox Electron Transfer",      Component: OxidationReduction },
+  sci_ch1_thermal_decomposition:      { label: "Three Types of Decomposition",            Component: DecompositionTypes },
+  sci_ch2_acids_bases_indicators:     { label: "Acid-Base Indicators — Colour Chart",     Component: AcidBaseIndicators },
+  sci_ch2_acids_reactions:            { label: "Acid Reactions — Metal, Carbonate, Base", Component: AcidReactions },
+  sci_ch2_salts:                      { label: "Chlor-Alkali Electrolysis Process",        Component: ChlorAlkali },
+  sci_ch3_physical_properties:        { label: "Metals vs Non-metals — Properties",       Component: MetalNonmetalProperties },
+  sci_ch3_extraction_metallurgy:      { label: "Blast Furnace — Iron Extraction",         Component: BlastFurnace },
+  sci_ch4_homologous_series:          { label: "Homologous Series — Structural Formulas", Component: HomologousSeries },
+  sci_ch4_carbon_reactions:           { label: "Carbon Reactions — 4 Types",              Component: CarbonReactionTypes },
+  sci_ch8_evolution:                  { label: "Natural Selection — Population Change",   Component: NaturalSelection },
+  sci_ch8_variation:                  { label: "Asexual vs Sexual Variation",             Component: VariationDiagram },
+  sci_ch9_mirror_formula:             { label: "Concave Mirror — Ray Diagrams",           Component: MirrorRayDiagrams },
+  sci_ch11_current_potential:         { label: "Basic Electric Circuit with Ammeter",     Component: ElectricCircuit },
+  sci_ch11_power_heating:             { label: "Electric Power Formulas — P=VI=I²R",      Component: PowerHeating },
+  sci_ch12_domestic_circuits:         { label: "Domestic Wiring — Earth, Fuse, MCB",     Component: DomesticCircuit },
+  sci_ch13_biodegradability:          { label: "Biodegradable vs Non-biodegradable",      Component: WasteTypes },
 };
 
 export function Diagram({ topicId }) {

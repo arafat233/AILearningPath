@@ -270,18 +270,210 @@ const EXPECTED = [
   },
 
   // ══════════════════════════════════════════════════════
-  // ADD MORE SUBJECTS HERE as they are built
-  // Example template:
-  // {
-  //   chapterId: "sst_ch1", chapterName: "The Rise of Nationalism in Europe",
-  //   subject: "Social Science", grade: "10",
-  //   expectedTopicIds: [
-  //     "sst_ch1_french_revolution",
-  //     "sst_ch1_nationalism_europe",
-  //     "sst_ch1_making_of_germany",
-  //   ],
-  // },
+  // SOCIAL SCIENCE — Class 10 (CBSE 2023-24)
+  // History (Ch1-5) | Geography (Ch6-12) | Economics (Ch13-17) | Political Science (Ch18-22)
   // ══════════════════════════════════════════════════════
+
+  // ── History ──────────────────────────────────────────
+  {
+    chapterId: "sst_ch1", chapterName: "The Rise of Nationalism in Europe",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch1_french_revolution",
+      "sst_ch1_nationalism_europe",
+      "sst_ch1_unification",
+      "sst_ch1_visualising_nation",
+    ],
+  },
+  {
+    chapterId: "sst_ch2", chapterName: "Nationalism in India",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch2_non_cooperation",
+      "sst_ch2_civil_disobedience",
+      "sst_ch2_collective_belonging",
+    ],
+  },
+  {
+    chapterId: "sst_ch3", chapterName: "The Making of a Global World",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch3_premodern_world",
+      "sst_ch3_interwar_economy",
+      "sst_ch3_post_war",
+    ],
+  },
+  {
+    chapterId: "sst_ch4", chapterName: "The Age of Industrialisation",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch4_proto_industrialisation",
+      "sst_ch4_factory_system",
+      "sst_ch4_india_industrialisation",
+    ],
+  },
+  {
+    chapterId: "sst_ch5", chapterName: "Print Culture and the Modern World",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch5_print_revolution",
+      "sst_ch5_india_print",
+    ],
+  },
+
+  // ── Geography ─────────────────────────────────────────
+  {
+    chapterId: "sst_ch6", chapterName: "Resources and Development",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch6_types_resources",
+      "sst_ch6_land_resources",
+      "sst_ch6_soil_types",
+    ],
+  },
+  {
+    chapterId: "sst_ch7", chapterName: "Forest and Wildlife Resources",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch7_forest_types",
+      "sst_ch7_biodiversity",
+      "sst_ch7_conservation",
+    ],
+  },
+  {
+    chapterId: "sst_ch8", chapterName: "Water Resources",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch8_water_scarcity",
+      "sst_ch8_multipurpose_projects",
+      "sst_ch8_rainwater_harvesting",
+    ],
+  },
+  {
+    chapterId: "sst_ch9", chapterName: "Agriculture",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch9_types_farming",
+      "sst_ch9_major_crops",
+      "sst_ch9_tech_reforms",
+    ],
+  },
+  {
+    chapterId: "sst_ch10", chapterName: "Minerals and Energy Resources",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch10_minerals",
+      "sst_ch10_energy_resources",
+    ],
+  },
+  {
+    chapterId: "sst_ch11", chapterName: "Manufacturing Industries",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch11_industries_types",
+      "sst_ch11_textile_industry",
+      "sst_ch11_environment",
+    ],
+  },
+  {
+    chapterId: "sst_ch12", chapterName: "Lifelines of National Economy",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch12_transport",
+      "sst_ch12_communication",
+      "sst_ch12_international_trade",
+    ],
+  },
+
+  // ── Economics ─────────────────────────────────────────
+  {
+    chapterId: "sst_ch13", chapterName: "Development",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch13_development_goals",
+      "sst_ch13_hdi",
+    ],
+  },
+  {
+    chapterId: "sst_ch14", chapterName: "Sectors of the Indian Economy",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch14_sectors",
+      "sst_ch14_employment",
+      "sst_ch14_services_sector",
+    ],
+  },
+  {
+    chapterId: "sst_ch15", chapterName: "Money and Credit",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch15_money",
+      "sst_ch15_banking",
+      "sst_ch15_credit",
+    ],
+  },
+  {
+    chapterId: "sst_ch16", chapterName: "Globalisation and the Indian Economy",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch16_globalisation",
+      "sst_ch16_impact",
+      "sst_ch16_fair_globalisation",
+    ],
+  },
+  {
+    chapterId: "sst_ch17", chapterName: "Consumer Rights",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch17_consumer_awareness",
+      "sst_ch17_consumer_rights",
+      "sst_ch17_consumer_protection",
+    ],
+  },
+
+  // ── Political Science ─────────────────────────────────
+  {
+    chapterId: "sst_ch18", chapterName: "Power Sharing",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch18_power_sharing",
+      "sst_ch18_forms",
+    ],
+  },
+  {
+    chapterId: "sst_ch19", chapterName: "Federalism",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch19_federalism",
+      "sst_ch19_how_it_works",
+      "sst_ch19_decentralisation",
+    ],
+  },
+  {
+    chapterId: "sst_ch20", chapterName: "Democracy and Diversity",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch20_social_differences",
+      "sst_ch20_politics_division",
+    ],
+  },
+  {
+    chapterId: "sst_ch21", chapterName: "Gender, Religion and Caste",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch21_gender",
+      "sst_ch21_religion_politics",
+      "sst_ch21_caste",
+    ],
+  },
+  {
+    chapterId: "sst_ch22", chapterName: "Popular Struggles and Movements",
+    subject: "Social Science", grade: "10",
+    expectedTopicIds: [
+      "sst_ch22_struggles",
+      "sst_ch22_movements",
+    ],
+  },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -301,7 +493,7 @@ async function getDiagramTopicIds() {
   const filePath = path.resolve(__dirname, "../../../ai-learning-frontend/frontend/src/components/DiagramLibrary.jsx");
   try {
     const content = await readFile(filePath, "utf-8");
-    const matches = [...content.matchAll(/^\s+(sci_\w+|ch\d+[\w_]+):\s*\{/gm)];
+    const matches = [...content.matchAll(/^\s+(sci_\w+|sst_\w+|ch\d+[\w_]+):\s*\{/gm)];
     return new Set(matches.map(m => m[1].trim()));
   } catch {
     return new Set();
@@ -338,7 +530,7 @@ const chapters = filterSubject
   : EXPECTED;
 
 if (chapters.length === 0) {
-  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics`));
+  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science`));
   process.exit(1);
 }
 

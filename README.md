@@ -80,6 +80,10 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Placement quiz (20-question diagnostic — master/intermediate/novice scoring) | Complete |
 | Fine-grained topic DAG (43 nodes, prerequisite graph, levels 0–7) | Complete |
 | Adaptive recommender engine (mastery thresholds, fluke/stuck detection, routing) | Complete |
+| Analytics event tracking (AnalyticsEvent, D1/D7/D30 retention, AI retry rate) | Complete |
+| Admin Retention dashboard (conversion funnel, cohort retention, top topics) | Complete |
+| SVG diagram library — Science 55/55 topics, Math 54/54 topics (895 questions) | Complete |
+| CBSE Class 10 Social Science — 65 fine-grained topics, ~795 questions, 65 SVG diagrams | Complete |
 
 ---
 
@@ -140,6 +144,25 @@ npm run seed:science-curriculum        # CBSE Class 10 Science — 13 chapters
 npm run seed:english-curriculum        # CBSE Class 10 English — 23 chapters
 npm run seed:hindi-curriculum          # CBSE Class 10 Hindi — 32 chapters
 npm run seed:social-science-curriculum # CBSE Class 10 Social Science — 22 chapters
+
+# Fine-grained topic content + questions (Science + SST)
+npm run seed:science-chemistry-content  # Science Chemistry NcertTopicContent (16 topics)
+npm run seed:science-biology-content    # Science Biology NcertTopicContent (19 topics)
+npm run seed:science-physics-content    # Science Physics NcertTopicContent (15 topics)
+npm run seed:science-chemistry-questions
+npm run seed:science-biology-questions
+npm run seed:science-physics-questions
+npm run seed:sst-content               # SST NcertTopicContent — 65 topics (History/Geo/Eco/PolSci)
+npm run seed:sst-questions-a           # SST questions — History + Geography (~435 Qs)
+npm run seed:sst-questions-b           # SST questions — Economics + Political Science (~360 Qs)
+# or run all SST in one shot:
+npm run seed:sst-all
+
+# Coverage audit
+npm run audit:coverage                 # all subjects
+npm run audit:coverage Mathematics     # Math only
+npm run audit:coverage Science         # Science only
+npm run audit:coverage:sst             # Social Science only
 
 # Adaptive question system (run AFTER seed above)
 npm run seed:questions         # 880 CBSE Class 10 Math questions + 14 mock papers
@@ -322,8 +345,8 @@ AILearningPath/
 ├── ai-learning-frontend/frontend/
 │   └── src/
 │       ├── pages/          # one file per route (incl. SchoolGroups)
-│       ├── pages/admin/    # admin-only pages (role-guarded)
-│       ├── components/     # Layout, BadgeToast, DoubtChat, FeedbackWidget
+│       ├── pages/admin/    # admin-only pages (role-guarded, incl. AdminRetention)
+│       ├── components/     # Layout, BadgeToast, DoubtChat, DiagramLibrary (174 SVGs)
 │       ├── hooks/          # useFeatureFlags
 │       ├── services/       # api.js (axios + CSRF + 401 handler)
 │       ├── store/          # Zustand auth store

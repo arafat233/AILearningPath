@@ -1657,7 +1657,7 @@ const QUESTIONS = [
 const DEDUP_FIELD = { questionText: 1, subject: 1 };
 
 async function main() {
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(process.env.MONGO_URI);
   console.log("Connected to MongoDB");
 
   let inserted = 0;

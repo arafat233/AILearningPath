@@ -779,7 +779,7 @@ const QUESTIONS = [
 ];
 
 async function seed() {
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(process.env.MONGO_URI);
   let added = 0, skipped = 0;
   for (const q of QUESTIONS) {
     const exists = await Question.findOne({ questionText: q.questionText, subject: q.subject });

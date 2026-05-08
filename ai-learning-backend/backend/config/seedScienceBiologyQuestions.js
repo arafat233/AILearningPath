@@ -22,6 +22,7 @@ const QUESTIONS = [
   // ── Easy (5) ─────────────────────────────────────────────────────────────────
   {
     topic: "Life Processes", subtopic: "Photosynthesis",
+    topicId: "sci_ch5_photosynthesis",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which pigment in plants is responsible for absorbing sunlight during photosynthesis?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -40,6 +41,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Respiration",
+    topicId: "sci_ch5_respiration",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which organelle is known as the 'powerhouse of the cell' because it produces ATP?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -57,6 +59,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Transportation",
+    topicId: "sci_ch5_transport_blood",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which blood vessel carries oxygenated blood from the lungs to the heart?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -75,6 +78,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Excretion",
+    topicId: "sci_ch5_excretion",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The basic structural and functional unit of the human kidney is the:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -93,6 +97,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Digestion",
+    topicId: "sci_ch5_human_digestion",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which enzyme in saliva begins the chemical digestion of starch?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -112,6 +117,7 @@ const QUESTIONS = [
   // ── Medium (6) ───────────────────────────────────────────────────────────────
   {
     topic: "Life Processes", subtopic: "Photosynthesis",
+    topicId: "sci_ch5_photosynthesis",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In a leaf, which cells regulate the opening and closing of stomata?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -130,6 +136,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Respiration",
+    topicId: "sci_ch5_respiration",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "During vigorous exercise when oxygen supply is insufficient, which end product accumulates in human muscle cells?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -149,6 +156,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Transportation",
+    topicId: "sci_ch5_transport_blood",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which component of blood is responsible for transporting oxygen to body tissues?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -166,6 +174,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Transportation in Plants",
+    topicId: "sci_ch5_transport_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Water and dissolved minerals are transported from roots to leaves through which tissue?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -184,6 +193,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Excretion",
+    topicId: "sci_ch5_excretion",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Urine formation in kidneys involves three processes in the correct order:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -203,6 +213,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Digestion",
+    topicId: "sci_ch5_human_digestion",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which part of the human digestive system absorbs most of the digested food into the blood?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -224,6 +235,7 @@ const QUESTIONS = [
   // ── Hard (4) ──────────────────────────────────────────────────────────────────
   {
     topic: "Life Processes", subtopic: "Photosynthesis",
+    topicId: "sci_ch5_photosynthesis",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A variegated leaf (green and white parts) is subjected to starch testing after 6 hours in sunlight. Which observation correctly explains the result?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -248,6 +260,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Respiration",
+    topicId: "sci_ch5_respiration",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The net gain of ATP molecules from one molecule of glucose during anaerobic respiration in yeast is:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -267,6 +280,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Transportation",
+    topicId: "sci_ch5_transport_blood",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The opening of stomata is triggered by the increase in turgidity of guard cells. Which mechanism primarily drives water entry into guard cells?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -290,6 +304,7 @@ const QUESTIONS = [
   },
   {
     topic: "Life Processes", subtopic: "Excretion",
+    topicId: "sci_ch5_excretion",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A patient's urine test shows high levels of glucose and proteins. Which condition is most likely?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -318,6 +333,7 @@ const QUESTIONS = [
   // ── Easy (5) ─────────────────────────────────────────────────────────────────
   {
     topic: "Control and Coordination", subtopic: "Nervous System",
+    topicId: "sci_ch6_nervous_system",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The functional unit of the nervous system is the:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -335,6 +351,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Reflex Action",
+    topicId: "sci_ch6_reflex_arc",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which part of the central nervous system controls reflex actions?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -353,6 +370,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Plant Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which plant hormone promotes cell elongation and is responsible for phototropism?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -370,6 +388,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Human Brain",
+    topicId: "sci_ch6_brain",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which part of the human brain is responsible for maintaining balance and posture?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -387,6 +406,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which hormone is secreted by the pancreas to lower blood glucose levels?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -407,6 +427,7 @@ const QUESTIONS = [
   // ── Medium (6) ───────────────────────────────────────────────────────────────
   {
     topic: "Control and Coordination", subtopic: "Reflex Action",
+    topicId: "sci_ch6_reflex_arc",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Touching a hot object and quickly withdrawing the hand is a reflex action. The correct pathway of nerve impulse is:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -430,6 +451,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Nervous System",
+    topicId: "sci_ch6_nervous_system",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "At a synapse, the signal from one neuron to another is transmitted by:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -452,6 +474,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Plant Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A potted plant kept in a windowsill bends toward the light over time. This occurs because:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -474,6 +497,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Human Brain",
+    topicId: "sci_ch6_brain",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The medulla oblongata controls all of the following EXCEPT:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -491,6 +515,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Iodine deficiency leads to goitre because:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -513,6 +538,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Nervous System",
+    topicId: "sci_ch6_nervous_system",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following is NOT a difference between nervous and hormonal (endocrine) control?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -536,6 +562,7 @@ const QUESTIONS = [
   // ── Hard (4) ──────────────────────────────────────────────────────────────────
   {
     topic: "Control and Coordination", subtopic: "Plant Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A seed placed in the dark with the radicle pointing sideways will show the radicle growing downward and the plumule growing upward. Which hormonal and directional responses explain this?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -559,6 +586,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Hormones",
+    topicId: "sci_ch6_plant_hormones",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Adrenaline is called the 'fight or flight' hormone. Which combination of effects does it produce?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -581,6 +609,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Nervous System",
+    topicId: "sci_ch6_nervous_system",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Myelin sheath around axons primarily functions to:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -603,6 +632,7 @@ const QUESTIONS = [
   },
   {
     topic: "Control and Coordination", subtopic: "Human Brain",
+    topicId: "sci_ch6_brain",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A person damages the occipital lobe of the cerebrum. Which function would be most directly impaired?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -631,6 +661,7 @@ const QUESTIONS = [
   // ── Easy (5) ─────────────────────────────────────────────────────────────────
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In which of the following organisms does binary fission occur?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -649,6 +680,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Sexual Reproduction — Plants",
+    topicId: "sci_ch7_sexual_reproduction_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Pollination is defined as the transfer of pollen grains from the anther to the:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -667,6 +699,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Human Reproduction",
+    topicId: "sci_ch7_human_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Fertilisation in humans takes place in the:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -685,6 +718,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which type of asexual reproduction involves the formation of a small outgrowth on the parent organism?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -703,6 +737,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Sexual Reproduction — Plants",
+    topicId: "sci_ch7_sexual_reproduction_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The female reproductive part of a flower is called the:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -722,6 +757,7 @@ const QUESTIONS = [
   // ── Medium (6) ───────────────────────────────────────────────────────────────
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Vegetative propagation in Bryophyllum (sprout leaf plant) occurs through:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -744,6 +780,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Sexual Reproduction — Plants",
+    topicId: "sci_ch7_sexual_reproduction_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "After fertilisation in a flower, what do the ovule and ovary respectively develop into?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -766,6 +803,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Human Reproduction",
+    topicId: "sci_ch7_human_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which hormone triggers ovulation in females?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -784,6 +822,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Human Reproduction",
+    topicId: "sci_ch7_human_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which contraceptive method works by preventing implantation of the fertilised egg?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -802,6 +841,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following is NOT an advantage of sexual reproduction over asexual reproduction?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -824,6 +864,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Sexual Reproduction — Plants",
+    topicId: "sci_ch7_sexual_reproduction_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In angiosperms, double fertilisation results in the formation of:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -849,6 +890,7 @@ const QUESTIONS = [
   // ── Hard (4) ──────────────────────────────────────────────────────────────────
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Planaria regenerates a complete organism from a small piece. This ability depends on:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -871,6 +913,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Human Reproduction",
+    topicId: "sci_ch7_human_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "During which stage of foetal development does differentiation of sex organs occur, and what determines gender?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -893,6 +936,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Sexual Reproduction — Plants",
+    topicId: "sci_ch7_sexual_reproduction_plants",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A flower that has both stamens and pistil is called bisexual. However, many bisexual flowers prevent self-pollination. Which mechanism achieves this?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -916,6 +960,7 @@ const QUESTIONS = [
   },
   {
     topic: "How do Organisms Reproduce?", subtopic: "Asexual Reproduction",
+    topicId: "sci_ch7_asexual_reproduction",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Asexual reproduction produces clones (genetically identical offspring). In which scenario is this actually a disadvantage?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -944,6 +989,7 @@ const QUESTIONS = [
   // ── Easy (5) ─────────────────────────────────────────────────────────────────
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In Mendel's experiment, when tall plants (TT) were crossed with short plants (tt), all F₁ plants were:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -962,6 +1008,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In the F₂ generation of a monohybrid cross (Tt × Tt), what is the expected phenotypic ratio?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -980,6 +1027,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Sex Determination",
+    topicId: "sci_ch8_sex_determination",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In humans, the sex of a child is determined by:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1002,6 +1050,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following statements about dominant and recessive alleles is correct?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1024,6 +1073,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Evolution",
+    topicId: "sci_ch8_evolution",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Charles Darwin's theory of evolution is based on the concept of:",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1048,6 +1098,7 @@ const QUESTIONS = [
   // ── Medium (6) ───────────────────────────────────────────────────────────────
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In a dihybrid cross between RRYY and rryy pea plants, what is the expected phenotypic ratio in the F₂ generation?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1066,6 +1117,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Sex Determination",
+    topicId: "sci_ch8_sex_determination",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A colour-blind father (X^b Y) and a carrier mother (X^B X^b) have a daughter. What is the probability that the daughter is colour-blind?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1089,6 +1141,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Evolution",
+    topicId: "sci_ch8_evolution",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Homologous organs are anatomically similar but functionally different. Which set of organs is an example of homologous organs?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1111,6 +1164,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A testcross of a tall pea plant (unknown genotype) produces 50% tall and 50% short offspring. The tall parent must be:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1134,6 +1188,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Evolution",
+    topicId: "sci_ch8_evolution",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which evidence BEST supports the theory of evolution?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1156,6 +1211,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Evolution",
+    topicId: "sci_ch8_evolution",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Acquired characteristics (like a blacksmith's muscular arms) are NOT inherited because:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1180,6 +1236,7 @@ const QUESTIONS = [
   // ── Hard (4) ──────────────────────────────────────────────────────────────────
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In snapdragons, a cross between a red-flowered plant (RR) and a white-flowered plant (WW) produces all pink-flowered offspring (RW). This is an example of:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1203,6 +1260,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Evolution",
+    topicId: "sci_ch8_evolution",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Peppered moths in industrial England evolved from predominantly light-coloured to dark-coloured over decades. This is an example of:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1226,6 +1284,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Mendel's Laws",
+    topicId: "sci_ch8_mendels_laws",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Two heterozygous plants (Rr) for a single gene are crossed. What fraction of the round-seeded offspring will be homozygous (RR)?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1244,6 +1303,7 @@ const QUESTIONS = [
   },
   {
     topic: "Heredity and Evolution", subtopic: "Sex Determination",
+    topicId: "sci_ch8_sex_determination",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "In grasshoppers, sex determination follows the XO system (females are XX, males are XO — only one X chromosome). What ratio of male to female offspring do you expect?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1269,6 +1329,7 @@ const QUESTIONS = [
   // ── Easy (5) ─────────────────────────────────────────────────────────────────
   {
     topic: "Our Environment", subtopic: "Ecosystem",
+    topicId: "sci_ch13_ecosystem",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following is a producer in a food chain?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1287,6 +1348,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Energy Flow",
+    topicId: "sci_ch13_energy_flow",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "What percentage of energy is transferred from one trophic level to the next in a food chain?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1305,6 +1367,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Biodegradability",
+    topicId: "sci_ch13_biodegradability",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following materials is biodegradable?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1323,6 +1386,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ozone Layer",
+    topicId: "sci_ch13_ozone",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which chemical compounds are mainly responsible for the depletion of the ozone layer?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1341,6 +1405,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ecosystem",
+    topicId: "sci_ch13_ecosystem",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Decomposers in an ecosystem break down dead organic matter. Which organisms are primarily decomposers?",
     questionType: "mcq", difficulty: "easy", difficultyScore: 0.2, marks: 1, isAIGenerated: true,
@@ -1361,6 +1426,7 @@ const QUESTIONS = [
   // ── Medium (6) ───────────────────────────────────────────────────────────────
   {
     topic: "Our Environment", subtopic: "Energy Flow",
+    topicId: "sci_ch13_energy_flow",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "A food chain is: Grass → Grasshopper → Frog → Snake → Eagle. Using the 10% energy rule, if grass has 10,000 J of energy, how much energy is available to the eagle?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1378,6 +1444,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Biodegradability",
+    topicId: "sci_ch13_biodegradability",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Biological magnification (biomagnification) refers to:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1400,6 +1467,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ozone Layer",
+    topicId: "sci_ch13_ozone",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Increased UV radiation reaching Earth's surface due to ozone depletion directly causes:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1422,6 +1490,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ecosystem",
+    topicId: "sci_ch13_ecosystem",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following best describes why food webs are more realistic than simple food chains?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1444,6 +1513,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Energy Flow",
+    topicId: "sci_ch13_energy_flow",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Which of the following statements about an ecological pyramid of numbers is INCORRECT?",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1466,6 +1536,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Biodegradability",
+    topicId: "sci_ch13_biodegradability",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The major environmental concern with excessive use of chemical fertilisers and pesticides is:",
     questionType: "mcq", difficulty: "medium", difficultyScore: 0.5, marks: 1, isAIGenerated: true,
@@ -1489,6 +1560,7 @@ const QUESTIONS = [
   // ── Hard (4) ──────────────────────────────────────────────────────────────────
   {
     topic: "Our Environment", subtopic: "Energy Flow",
+    topicId: "sci_ch13_energy_flow",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Why does a vegetarian diet support more people per unit of land than a meat-based diet?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1512,6 +1584,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ecosystem",
+    topicId: "sci_ch13_ecosystem",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "When a keystone species is removed from an ecosystem, the result is often:",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1534,6 +1607,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Ozone Layer",
+    topicId: "sci_ch13_ozone",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "The Montreal Protocol (1987) was a landmark international agreement to phase out CFCs. Why are its effects still being measured decades later?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,
@@ -1557,6 +1631,7 @@ const QUESTIONS = [
   },
   {
     topic: "Our Environment", subtopic: "Biodegradability",
+    topicId: "sci_ch13_biodegradability",
     subject: "Science", grade: "10", examBoard: "CBSE",
     questionText: "Mercury discharged by factories into a river accumulates most dangerously in which organism?",
     questionType: "mcq", difficulty: "hard", difficultyScore: 0.8, marks: 2, isAIGenerated: true,

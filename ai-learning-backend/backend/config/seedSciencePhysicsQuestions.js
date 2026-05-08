@@ -33,6 +33,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Reflection — Mirrors",
+    topicId: "sci_ch9_reflection_mirrors",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -60,6 +61,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Reflection — Sign Convention",
+    topicId: "sci_ch9_reflection_mirrors",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -87,6 +89,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Refraction — Basic Concepts",
+    topicId: "sci_ch9_refraction_snells_law",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -114,6 +117,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Basic Concepts",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -141,6 +145,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Reflection — Mirror Applications",
+    topicId: "sci_ch9_reflection_mirrors",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -167,6 +172,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Power",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -196,6 +202,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Mirror Formula — Numerical",
+    topicId: "sci_ch9_mirror_formula",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -225,6 +232,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Mirror Formula — Numerical",
+    topicId: "sci_ch9_mirror_formula",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -255,6 +263,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Refraction — Snell's Law Numerical",
+    topicId: "sci_ch9_refraction_snells_law",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -286,6 +295,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Refraction — Apparent Depth Numerical",
+    topicId: "sci_ch9_refraction_snells_law",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -313,6 +323,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Lens Formula Numerical",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -344,6 +355,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Combined Power",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -372,6 +384,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Mirror Formula — Convex Mirror Numerical",
+    topicId: "sci_ch9_mirror_formula",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -403,6 +416,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Refraction — Refractive Index",
+    topicId: "sci_ch9_refraction_snells_law",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -432,6 +446,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Mirror Formula — Hard Numerical",
+    topicId: "sci_ch9_mirror_formula",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -463,6 +478,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Refraction — Total Internal Reflection",
+    topicId: "sci_ch9_refraction_snells_law",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -491,6 +507,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Hard Numerical",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -524,6 +541,7 @@ const QUESTIONS = [
   {
     topic: "Light — Reflection and Refraction",
     subtopic: "Lenses — Magnification Sign Convention",
+    topicId: "sci_ch9_lenses",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -559,6 +577,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Eye Structure",
+    topicId: "sci_ch10_human_eye",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -585,6 +604,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Eye Structure",
+    topicId: "sci_ch10_human_eye",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -612,6 +632,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Dispersion",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -639,6 +660,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Scattering of Light",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -668,6 +690,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Accommodation of the Eye",
+    topicId: "sci_ch10_human_eye",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -695,6 +718,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Defects of Vision — Myopia Power Calculation",
+    topicId: "sci_ch10_eye_defects",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -724,6 +748,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Defects of Vision — Hypermetropia Power Calculation",
+    topicId: "sci_ch10_eye_defects",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -756,6 +781,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Dispersion and Scattering",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -783,6 +809,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "VIBGYOR and Prism",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -812,6 +839,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Defects of Vision — Presbyopia and Astigmatism",
+    topicId: "sci_ch10_eye_defects",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -839,6 +867,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Scattering — Rayleigh's Law Application",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -867,6 +896,7 @@ const QUESTIONS = [
   {
     topic: "The Human Eye and the Colourful World",
     subtopic: "Dispersion — Combined Concept",
+    topicId: "sci_ch10_dispersion_scattering",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -903,6 +933,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Electric Current",
+    topicId: "sci_ch11_current_potential",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -930,6 +961,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Potential Difference",
+    topicId: "sci_ch11_current_potential",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -955,6 +987,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Resistivity",
+    topicId: "sci_ch11_ohms_law_resistance",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -982,6 +1015,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Ammeter and Voltmeter",
+    topicId: "sci_ch11_current_potential",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1009,6 +1043,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Household Wiring",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1038,6 +1073,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Ohm's Law — Numerical",
+    topicId: "sci_ch11_ohms_law_resistance",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1067,6 +1103,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Resistivity — Numerical",
+    topicId: "sci_ch11_ohms_law_resistance",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1095,6 +1132,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Series-Parallel Combination — Numerical",
+    topicId: "sci_ch11_series_parallel",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1124,6 +1162,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Power Dissipation — Numerical",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1154,6 +1193,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Joule's Law — Numerical",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1181,6 +1221,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Electricity Bill Calculation",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1206,6 +1247,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Fuse Rating",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1233,6 +1275,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Series vs Parallel Power Comparison",
+    topicId: "sci_ch11_series_parallel",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1263,6 +1306,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Complex Circuit — Kirchhoff-style",
+    topicId: "sci_ch11_series_parallel",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1294,6 +1338,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Ohm's Law + Resistivity — Multi-step",
+    topicId: "sci_ch11_ohms_law_resistance",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1320,6 +1365,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "Power in Series Circuit",
+    topicId: "sci_ch11_series_parallel",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1351,6 +1397,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "MCB vs Fuse — Conceptual Hard",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1378,6 +1425,7 @@ const QUESTIONS = [
   {
     topic: "Electricity",
     subtopic: "V-I Graph Interpretation",
+    topicId: "sci_ch11_ohms_law_resistance",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1413,6 +1461,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Oersted's Experiment",
+    topicId: "sci_ch12_magnetic_field",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1440,6 +1489,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Magnetic Field — Right-Hand Thumb Rule",
+    topicId: "sci_ch12_magnetic_field",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1467,6 +1517,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Electric Motor",
+    topicId: "sci_ch12_electric_motor",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1494,6 +1545,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Domestic Wiring",
+    topicId: "sci_ch11_power_heating",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1523,6 +1575,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Fleming's Left-Hand Rule — Application",
+    topicId: "sci_ch12_force_on_conductor",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1551,6 +1604,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Solenoid and Electromagnet",
+    topicId: "sci_ch12_magnetic_field",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1579,6 +1633,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "AC Generator",
+    topicId: "sci_ch12_electromagnetic_induction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1607,6 +1662,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Electromagnetic Induction — Faraday's Law",
+    topicId: "sci_ch12_electromagnetic_induction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1635,6 +1691,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Motor vs Generator Comparison",
+    topicId: "sci_ch12_electric_motor",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1663,6 +1720,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Force on Conductor — Numerical",
+    topicId: "sci_ch12_force_on_conductor",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1692,6 +1750,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Electromagnetic Induction — Motional EMF",
+    topicId: "sci_ch12_electromagnetic_induction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1719,6 +1778,7 @@ const QUESTIONS = [
   {
     topic: "Magnetic Effects of Electric Current",
     subtopic: "Electromagnetic Induction — Conceptual Hard",
+    topicId: "sci_ch12_electromagnetic_induction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",

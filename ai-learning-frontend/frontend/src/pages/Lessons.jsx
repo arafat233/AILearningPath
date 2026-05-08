@@ -139,7 +139,7 @@ const LessonCard = memo(function LessonCard({ lesson, isDue, onLearn, onPractice
   );
 });
 
-function ScienceChapterCard({ chapterNumber, topics, onTopic }) {
+function ScienceChapterCard({ chapterNumber, topics, onTopic, onPractice }) {
   const [expanded, setExpanded] = useState(false);
   const title = SCIENCE_CHAPTER_TITLES[chapterNumber] || `Chapter ${chapterNumber}`;
   return (
@@ -158,7 +158,15 @@ function ScienceChapterCard({ chapterNumber, topics, onTopic }) {
           </p>
           <p className="text-[12px] text-apple-gray mt-0.5">{topics.length} topic{topics.length !== 1 ? "s" : ""}</p>
         </div>
-        <span className={`text-apple-gray3 text-[18px] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}>›</span>
+        <div className="shrink-0 flex items-center gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onPractice(); }}
+            className="btn-secondary text-[12px] py-1.5 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            Practice
+          </button>
+          <span className={`text-apple-gray3 text-[18px] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}>›</span>
+        </div>
       </div>
       {expanded && (
         <div className="border-t border-[var(--separator)] divide-y divide-[var(--separator)]">
@@ -310,7 +318,9 @@ export default function Lessons() {
                         chapterNumber={g.chapterNumber}
                         topics={g.topics}
                         onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
-                      />
+                        onPractice={() => navigate("/practice", {
+                          state: { mixTopics: g.topics.map((t) => t.topicId), autoStart: true },
+                        })}
                     ))}
                   </div>
                 )

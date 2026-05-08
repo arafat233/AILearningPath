@@ -605,6 +605,48 @@ const TOPICS = [
     },
   },
 
+  {
+    topicId: "sci_ch8_evolution",
+    subject: "Science",
+    chapterNumber: 8,
+    name: "Evolution — Darwin, Natural Selection and Evidence",
+    prerequisite_knowledge: [
+      "Heredity and variation (Mendel's laws)",
+      "Concept of adaptation and survival",
+      "Geological time scale (millions of years)",
+      "DNA as the carrier of genetic information",
+    ],
+    key_formulas: [
+      "Hardy-Weinberg principle (conceptual): allele frequencies in a population remain constant unless disturbed by mutation, selection, migration, or drift",
+      "Comparative anatomy: homologous organs share structural origin; analogous organs share functional role",
+    ],
+    teaching_content: {
+      intuition:
+        "Evolution is the slow, gradual change in the inherited characteristics of biological populations over successive generations. Think of it as the Earth running a 3.8-billion-year-long experiment — organisms that happened to have useful traits survived to reproduce, passing those traits on. Over millions of generations, small changes accumulate into dramatic differences. Humans and chimpanzees share 98.7% of DNA — we're not descended from chimps, but we share a common ancestor that lived about 6 million years ago.",
+      process_explanation:
+        "Step 1 — Variation exists: Within any population, individuals differ from each other due to mutations, recombination, and other genetic changes. Step 2 — Struggle for existence: Resources (food, mates, space) are limited; more individuals are born than can survive. Step 3 — Natural selection: Individuals with traits better suited to their environment are more likely to survive and reproduce (survival of the fittest). Step 4 — Inheritance: Favourable traits are passed to offspring. Step 5 — Accumulation over time: Over many generations, the proportion of individuals with favourable traits increases. Eventually, populations may diverge enough to form new species (speciation). Lamarck's discredited theory: organisms acquire new traits during their lifetime by use/disuse and pass them to offspring — e.g., giraffes stretched their necks and passed longer necks to offspring. Darwin's correct theory: giraffes with randomly longer necks survived better and reproduced more, passing the trait genetically.",
+      worked_example:
+        "Peppered moths (Biston betularia) in England: Before 1850, light-coloured moths dominated (camouflaged against pale tree bark). After industrialisation, soot turned bark dark → dark moths survived better (camouflaged) while light moths were eaten by birds. By 1900, dark moths were 98% of the population. After clean air laws, light moths recovered. This is textbook natural selection: environment changed → selective pressure changed → population allele frequency shifted over generations. Key: the moths did NOT choose to turn dark; dark mutants already existed and were now selectively favoured.",
+      common_misconceptions: [
+        "Evolution has a direction or goal (wrong — evolution is blind; traits that happen to be useful in the current environment get selected, not traits that are 'better' in some absolute sense).",
+        "Humans evolved from monkeys/apes (wrong — humans and other apes share a common ancestor; we did not descend from any living ape species).",
+        "Acquired characteristics are inherited — Lamarckism (wrong — a blacksmith's muscular arms are not genetically transmitted; only heritable genetic mutations are passed on).",
+        "Evolution always takes millions of years (not always — bacteria evolve antibiotic resistance in days; peppered moths changed in decades).",
+      ],
+      shortcuts_and_tricks: [
+        "Homologous organs: same structure, different function → evidence of common ancestry (e.g., human arm / whale flipper / bird wing — all have humerus, radius, ulna).",
+        "Analogous organs: different structure, same function → convergent evolution (e.g., wings of birds and insects).",
+        "Vestigial organs: reduced, non-functional remnants of ancestral structures (e.g., human coccyx, appendix, wisdom teeth).",
+        "Fossil record: direct evidence — older (deeper) fossils show simpler life forms; transitional fossils link major groups.",
+        "Molecular evidence: more similar DNA sequences → more closely related. Cytochrome c amino acid sequence is nearly identical in closely related species.",
+      ],
+      diagram_description:
+        "Diagram 1 — Homologous organs: Four forelimbs side by side (Human, Whale, Bat, Frog) with same colour-coded bone regions: humerus (red), radius+ulna (blue), carpals (yellow), metacarpals+phalanges (green). Caption: 'Same bones, different functions — evidence of common ancestor.' Diagram 2 — Darwin's finches: 4 beak shapes adapted for 4 food types (seeds, insects, cactus nectar, tool use) showing adaptive radiation from one common ancestor on the Galapagos Islands. Diagram 3 — Natural selection flowchart: Population with variation → Environment exerts selective pressure → Survivors reproduce → Offspring inherit favoured traits → Population shifts over generations.",
+      key_takeaway:
+        "Evolution occurs by natural selection: heritable variation exists in populations; individuals with favourable traits survive and reproduce more; those traits increase in frequency over generations. Homologous organs (same structure) show common ancestry; analogous organs (same function) show convergent evolution. Fossil, molecular, and anatomical evidence all support the theory of evolution.",
+    },
+  },
+
   // ══════════════════════════════════════════════════════════════════
   // CHAPTER 13 — Our Environment
   // ══════════════════════════════════════════════════════════════════

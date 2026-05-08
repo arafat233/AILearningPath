@@ -22,6 +22,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Signs of Chemical Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -48,6 +49,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Balancing Chemical Equations",
+    topicId: "sci_ch1_balancing_equations",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -74,6 +76,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Types of Chemical Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -100,6 +103,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "State Symbols",
+    topicId: "sci_ch1_balancing_equations",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -126,6 +130,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Types of Chemical Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -153,6 +158,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Balancing Chemical Equations",
+    topicId: "sci_ch1_balancing_equations",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -179,6 +185,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Types of Chemical Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -205,6 +212,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Exothermic and Endothermic Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -231,6 +239,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Oxidation and Reduction",
+    topicId: "sci_ch1_oxidation_reduction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -257,6 +266,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Corrosion and Rancidity",
+    topicId: "sci_ch1_oxidation_reduction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -283,6 +293,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Photolytic Decomposition",
+    topicId: "sci_ch1_thermal_decomposition",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -310,6 +321,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Balancing Chemical Equations",
+    topicId: "sci_ch1_balancing_equations",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -337,6 +349,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Oxidation and Reduction",
+    topicId: "sci_ch1_oxidation_reduction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -363,6 +376,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Types of Chemical Reactions",
+    topicId: "sci_ch1_signs_and_types",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -389,6 +403,7 @@ const QUESTIONS = [
   {
     topic: "Chemical Reactions and Equations",
     subtopic: "Corrosion",
+    topicId: "sci_ch1_oxidation_reduction",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -420,6 +435,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Indicators",
+    topicId: "sci_ch2_acids_bases_indicators",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -446,6 +462,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "pH Scale",
+    topicId: "sci_ch2_ph_scale",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -472,6 +489,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Acids and Bases",
+    topicId: "sci_ch2_acids_bases_indicators",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -498,6 +516,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Neutralisation",
+    topicId: "sci_ch2_acids_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -524,6 +543,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Important Salts",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -550,6 +570,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Chlor-alkali Process",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -577,6 +598,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "pH Scale",
+    topicId: "sci_ch2_ph_scale",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -603,6 +625,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Reactions of Acids",
+    topicId: "sci_ch2_acids_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -629,6 +652,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Hard Water",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -655,6 +679,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Important Salts",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -681,6 +706,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Reactions of Bases",
+    topicId: "sci_ch2_acids_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -707,6 +733,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "pH and Everyday Life",
+    topicId: "sci_ch2_ph_scale",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -733,6 +760,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Bleaching Powder",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -759,6 +787,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "pH Scale",
+    topicId: "sci_ch2_ph_scale",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -786,6 +815,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "pH Scale",
+    topicId: "sci_ch2_ph_scale",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -812,6 +842,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Reactions of Acids",
+    topicId: "sci_ch2_acids_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -838,6 +869,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Washing Soda and Baking Soda",
+    topicId: "sci_ch2_salts",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -864,6 +896,7 @@ const QUESTIONS = [
   {
     topic: "Acids, Bases and Salts",
     subtopic: "Olfactory Indicators",
+    topicId: "sci_ch2_acids_bases_indicators",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -895,6 +928,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Physical Properties",
+    topicId: "sci_ch3_physical_properties",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -921,6 +955,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Physical Properties",
+    topicId: "sci_ch3_physical_properties",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -947,6 +982,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Reactivity Series",
+    topicId: "sci_ch3_reactivity_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -973,6 +1009,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Ionic Compounds",
+    topicId: "sci_ch3_ionic_bonding",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -999,6 +1036,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Extraction of Metals",
+    topicId: "sci_ch3_extraction_metallurgy",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1026,6 +1064,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Reactivity Series",
+    topicId: "sci_ch3_reactivity_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1052,6 +1091,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Alloys",
+    topicId: "sci_ch3_extraction_metallurgy",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1078,6 +1118,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Extraction of Metals",
+    topicId: "sci_ch3_extraction_metallurgy",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1104,6 +1145,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Ionic Bonding",
+    topicId: "sci_ch3_ionic_bonding",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1130,6 +1172,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Corrosion Prevention",
+    topicId: "sci_ch3_extraction_metallurgy",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1156,6 +1199,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Reactivity Series",
+    topicId: "sci_ch3_reactivity_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1183,6 +1227,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Electrolytic Refining",
+    topicId: "sci_ch3_extraction_metallurgy",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1209,6 +1254,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Reactivity Series",
+    topicId: "sci_ch3_reactivity_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1235,6 +1281,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Physical Properties",
+    topicId: "sci_ch3_physical_properties",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1261,6 +1308,7 @@ const QUESTIONS = [
   {
     topic: "Metals and Non-metals",
     subtopic: "Ionic Bonding",
+    topicId: "sci_ch3_ionic_bonding",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1292,6 +1340,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Homologous Series",
+    topicId: "sci_ch4_homologous_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1318,6 +1367,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Functional Groups",
+    topicId: "sci_ch4_homologous_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1344,6 +1394,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Combustion",
+    topicId: "sci_ch4_carbon_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1370,6 +1421,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Covalent Bonding",
+    topicId: "sci_ch4_covalent_bonding",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1397,6 +1449,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Esterification",
+    topicId: "sci_ch4_ethanol_and_ethanoic_acid",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1423,6 +1476,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Bromine Water Test",
+    topicId: "sci_ch4_carbon_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1449,6 +1503,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Soaps and Detergents",
+    topicId: "sci_ch4_ethanol_and_ethanoic_acid",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1475,6 +1530,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Ethanol and Ethanoic Acid",
+    topicId: "sci_ch4_ethanol_and_ethanoic_acid",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1501,6 +1557,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "IUPAC Naming",
+    topicId: "sci_ch4_homologous_series",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1528,6 +1585,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Addition and Substitution Reactions",
+    topicId: "sci_ch4_carbon_reactions",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1554,6 +1612,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Covalent Bonding and Allotropes",
+    topicId: "sci_ch4_covalent_bonding",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",
@@ -1580,6 +1639,7 @@ const QUESTIONS = [
   {
     topic: "Carbon and its Compounds",
     subtopic: "Soaps and Detergents",
+    topicId: "sci_ch4_ethanol_and_ethanoic_acid",
     subject: "Science",
     grade: "10",
     examBoard: "CBSE",

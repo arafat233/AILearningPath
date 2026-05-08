@@ -1175,7 +1175,8 @@ function MasteryPractice({ topicId, topicName }) {
     getTopicMastery(topicId).then(r => setMastery(r.data)).catch(() => {});
   }, [topicId]);
 
-  // startTopic uses topic NAME (adaptiveService queries by Question.topic field)
+  // For Science topics (sci_*) topicId is passed — adaptiveService falls back to Question.topicId field.
+  // For Math topics topicId IS the topic name string — both paths work correctly.
   const loadQuestion = async (preloaded) => {
     if (preloaded?.questionText) {
       setQuestion(preloaded); setSelected(null); setResult(null); setErrMsg(null);
@@ -1183,7 +1184,7 @@ function MasteryPractice({ topicId, topicName }) {
     }
     setPhase("loading"); setQuestion(null); setSelected(null); setResult(null); setErrMsg(null);
     try {
-      const r = await startTopic(topicName);
+      const r = await startTopic(topicId);
       // startTopic returns question directly as r.data (no wrapper object)
       const q = r.data?.questionText ? r.data
               : r.data?.question?.questionText ? r.data.question  // foundation redirect shape

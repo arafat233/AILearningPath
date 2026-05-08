@@ -100,6 +100,12 @@ export const getNextQuestion = async (userId, topic) => {
     questions = await Question.find({ topic, ...mcqFilter, isFlagged: { $ne: true }, deletedAt: null }).lean();
   }
 
+  // Fallback: topic param may be a Science topicId (e.g. "sci_ch5_photosynthesis") —
+  // retry querying by Question.topicId field since those questions keep chapter-level topic strings.
+  if (!questions.length && topic.startsWith("sci_")) {
+    questions = await Question.find({ topicId: topic, ...mcqFilter, isFlagged: { $ne: true }, deletedAt: null }).lean();
+  }
+
   if (!questions.length) return null;
 
   const q = questions[Math.floor(Math.random() * questions.length)];

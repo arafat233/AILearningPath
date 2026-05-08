@@ -1041,6 +1041,10 @@ OfflineBanner.jsx    — shows when navigator.onLine is false
 SearchOverlay.jsx    — ⌘K global search
 Skeleton.jsx         — shimmer skeleton components: DashboardSkeleton, AnalyticsSkeleton,
                         LessonsSkeleton, ProfileSkeleton, SkeletonCard, SkeletonStat
+DiagramLibrary.jsx   — SVG diagram components mapped to topicId via DIAGRAM_MAP
+                        Science: 55/55 topics covered (Biology, Chemistry, Physics)
+                        Math:    54/54 topics covered (Ch1–Ch14, 895 questions)
+                        Export: <Diagram topicId="ch1_s1_c1_t1" /> renders SVG + label bar
 ```
 
 ### Frontend test suite (Vitest 2.x + jsdom@24)
@@ -1609,6 +1613,9 @@ To activate push (not yet wired):
 | Thumbs up/down feedback on AI explanations (AIFeedback model, 20/hour rate limit) | ✅ Complete |
 | Per-call AI metrics logging (AICallLog model, 90-day auto-purge TTL index) | ✅ Complete |
 | Admin AI metrics dashboard widget (7-day: calls, tokens, cache/RAG hit rate, latency, feedback) | ✅ Complete |
+| Analytics event tracking (AnalyticsEvent model, 90-day TTL, fire-and-forget trackEvent util) | ✅ Complete |
+| Admin Retention dashboard (D1/D7/D30 cohort retention, conversion funnel, AI retry rate, top topics) | ✅ Complete |
+| SVG diagram components — Science: 55/55 topics, Math: 54/54 topics (895 questions, 14 chapters) | ✅ Complete |
 
 ---
 

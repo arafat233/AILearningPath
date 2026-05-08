@@ -3500,6 +3500,533 @@ function PythagorasTheorem() {
   );
 }
 
+// ─── Math Ch7 — Coordinate Geometry ──────────────────────────────────────────
+
+function DistanceFormula() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <line x1="30" y1="170" x2="260" y2="170" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="30" y1="170" x2="30" y2="20" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <text x="264" y="174" fontSize="11" fill="#8E8E93">x</text>
+      <text x="24" y="16" fontSize="11" fill="#8E8E93">y</text>
+      <circle cx="80" cy="130" r="5" fill="#007AFF"/>
+      <circle cx="220" cy="60" r="5" fill="#FF3B30"/>
+      <text x="52" y="148" fontSize="12" fontWeight="700" fill="#007AFF">A(x₁,y₁)</text>
+      <text x="224" y="56" fontSize="12" fontWeight="700" fill="#FF3B30">B(x₂,y₂)</text>
+      <line x1="80" y1="130" x2="220" y2="60" stroke="#34C759" strokeWidth="2.5"/>
+      <line x1="80" y1="130" x2="220" y2="130" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <line x1="220" y1="130" x2="220" y2="60" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <rect x="210" y="120" width="10" height="10" fill="none" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="150" y="148" fontSize="11" fill="#FF9500" textAnchor="middle">x₂−x₁</text>
+      <text x="234" y="100" fontSize="11" fill="#FF9500" textAnchor="middle">y₂−y₁</text>
+      <rect x="50" y="8" width="180" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="26" fontSize="13" fontWeight="700" fill="#34C759" textAnchor="middle">d = √[(x₂−x₁)²+(y₂−y₁)²]</text>
+    </svg>
+  );
+}
+
+function SectionFormula() {
+  return (
+    <svg viewBox="0 0 280 160" width="280" height="160" fontFamily="system-ui,sans-serif">
+      <line x1="40" y1="80" x2="240" y2="80" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="40" cy="80" r="6" fill="#007AFF"/>
+      <circle cx="240" cy="80" r="6" fill="#007AFF"/>
+      <text x="20" y="100" fontSize="12" fontWeight="700" fill="#007AFF">A(x₁,y₁)</text>
+      <text x="224" y="100" fontSize="12" fontWeight="700" fill="#007AFF">B(x₂,y₂)</text>
+      <circle cx="152" cy="80" r="7" fill="#FF3B30"/>
+      <text x="144" y="66" fontSize="12" fontWeight="700" fill="#FF3B30">P</text>
+      <text x="90" y="72" fontSize="11" fill="#FF9500" textAnchor="middle">m</text>
+      <text x="196" y="72" fontSize="11" fill="#FF9500" textAnchor="middle">n</text>
+      <line x1="40" y1="80" x2="152" y2="80" stroke="#FF9500" strokeWidth="3"/>
+      <line x1="152" y1="80" x2="240" y2="80" stroke="#34C759" strokeWidth="3"/>
+      <rect x="30" y="112" width="220" height="38" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="128" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">x = (mx₂ + nx₁)/(m+n)</text>
+      <text x="140" y="144" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">y = (my₂ + ny₁)/(m+n)</text>
+    </svg>
+  );
+}
+
+function TriangleAreaCoord() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <line x1="30" y1="175" x2="260" y2="175" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="30" y1="175" x2="30" y2="20" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <polygon points="70,160 180,60 240,150" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="2"/>
+      <circle cx="70" cy="160" r="5" fill="#FF3B30"/>
+      <circle cx="180" cy="60" r="5" fill="#34C759"/>
+      <circle cx="240" cy="150" r="5" fill="#FF9500"/>
+      <text x="44" y="158" fontSize="12" fontWeight="700" fill="#FF3B30">A(x₁,y₁)</text>
+      <text x="184" y="56" fontSize="12" fontWeight="700" fill="#34C759">B(x₂,y₂)</text>
+      <text x="244" y="148" fontSize="12" fontWeight="700" fill="#FF9500">C(x₃,y₃)</text>
+      <rect x="20" y="8" width="240" height="30" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="20" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">Area = ½|x₁(y₂−y₃)+x₂(y₃−y₁)+x₃(y₁−y₂)|</text>
+      <text x="140" y="34" fontSize="10" fill="#8E8E93" textAnchor="middle">Collinear if Area = 0</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch8 — Introduction to Trigonometry ─────────────────────────────────
+
+function TrigRatios() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <polygon points="50,160 220,160 220,60" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <rect x="210" y="150" width="10" height="10" fill="none" stroke="#007AFF" strokeWidth="1.5"/>
+      <path d="M 80,160 A 30,30 0 0,1 64,143" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <text x="82" y="155" fontSize="13" fontWeight="700" fill="#FF9500">θ</text>
+      <text x="130" y="178" fontSize="12" fill="#34C759" textAnchor="middle" fontWeight="700">Adjacent</text>
+      <text x="234" y="115" fontSize="11" fill="#FF3B30" textAnchor="middle" fontWeight="700" transform="rotate(-90,234,115)">Opposite</text>
+      <text x="118" y="100" fontSize="11" fill="#007AFF" textAnchor="middle" fontWeight="700" transform="rotate(-27,118,100)">Hypotenuse</text>
+      <rect x="20" y="8" width="240" height="46" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="24" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">sin θ = Opposite / Hypotenuse</text>
+      <text x="140" y="38" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">cos θ = Adjacent / Hypotenuse</text>
+      <text x="140" y="52" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">tan θ = Opposite / Adjacent</text>
+    </svg>
+  );
+}
+
+function TrigSpecificAngles() {
+  return (
+    <svg viewBox="0 0 280 180" width="280" height="180" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="162" rx="10" fill="#F2F2F7"/>
+      <rect x="10" y="8" width="260" height="26" rx="8" fill="#007AFF"/>
+      {["θ","0°","30°","45°","60°","90°"].map((t,i) => (
+        <text key={i} x={22+i*40} y="26" fontSize="11" fontWeight="700" fill="#FFFFFF">{t}</text>
+      ))}
+      <text x="22" y="56" fontSize="12" fontWeight="700" fill="#FF3B30">sin</text>
+      {["0","½","1/√2","√3/2","1"].map((v,i) => (
+        <text key={i} x={62+i*40} y="56" fontSize="11" fill="#1C1C1E" textAnchor="middle">{v}</text>
+      ))}
+      <text x="22" y="84" fontSize="12" fontWeight="700" fill="#34C759">cos</text>
+      {["1","√3/2","1/√2","½","0"].map((v,i) => (
+        <text key={i} x={62+i*40} y="84" fontSize="11" fill="#1C1C1E" textAnchor="middle">{v}</text>
+      ))}
+      <text x="22" y="112" fontSize="12" fontWeight="700" fill="#FF9500">tan</text>
+      {["0","1/√3","1","√3","∞"].map((v,i) => (
+        <text key={i} x={62+i*40} y="112" fontSize="11" fill="#1C1C1E" textAnchor="middle">{v}</text>
+      ))}
+      {[42,70,98].map(y => (
+        <line key={y} x1="15" y1={y} x2="265" y2={y} stroke="#E5E5EA" strokeWidth="1"/>
+      ))}
+      <rect x="20" y="124" width="240" height="38" rx="8" fill="#FFFFFF"/>
+      <text x="140" y="140" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Memory: sin row = √0,√1,√2,√3,√4 ÷ 2</text>
+      <text x="140" y="154" fontSize="10" fill="#8E8E93" textAnchor="middle">cos is reverse of sin  •  tan = sin/cos</text>
+    </svg>
+  );
+}
+
+function ComplementaryAngles() {
+  return (
+    <svg viewBox="0 0 280 180" width="280" height="180" fontFamily="system-ui,sans-serif">
+      <polygon points="50,150 200,150 200,60" fill="#007AFF" fillOpacity="0.10" stroke="#007AFF" strokeWidth="2"/>
+      <text x="68" y="148" fontSize="13" fontWeight="700" fill="#FF9500">θ</text>
+      <text x="178" y="78" fontSize="12" fontWeight="700" fill="#34C759">90°−θ</text>
+      <rect x="190" y="140" width="10" height="10" fill="none" stroke="#007AFF" strokeWidth="1.5"/>
+      <rect x="10" y="8" width="260" height="42" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="24" fontSize="12" fontWeight="700" fill="#FF3B30" textAnchor="middle">sin(90°−θ) = cos θ</text>
+      <text x="140" y="40" fontSize="12" fontWeight="700" fill="#34C759" textAnchor="middle">cos(90°−θ) = sin θ</text>
+      <text x="140" y="56" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">tan(90°−θ) = cot θ</text>
+    </svg>
+  );
+}
+
+function TrigIdentities() {
+  return (
+    <svg viewBox="0 0 280 180" width="280" height="180" fontFamily="system-ui,sans-serif">
+      <circle cx="140" cy="110" r="60" fill="#007AFF" fillOpacity="0.06" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="80" y1="110" x2="200" y2="110" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="4,2"/>
+      <line x1="140" y1="50" x2="140" y2="170" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="4,2"/>
+      <circle cx="182" cy="78" r="5" fill="#FF3B30"/>
+      <line x1="140" y1="110" x2="182" y2="78" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="182" y1="78" x2="182" y2="110" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="140" y1="110" x2="182" y2="110" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <text x="186" y="96" fontSize="10" fill="#FF3B30">sin θ</text>
+      <text x="156" y="124" fontSize="10" fill="#34C759">cos θ</text>
+      <rect x="10" y="8" width="260" height="52" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="26" fontSize="12" fontWeight="700" fill="#FF3B30" textAnchor="middle">sin²θ + cos²θ = 1</text>
+      <text x="140" y="42" fontSize="12" fontWeight="700" fill="#FF9500" textAnchor="middle">1 + tan²θ = sec²θ</text>
+      <text x="140" y="58" fontSize="12" fontWeight="700" fill="#34C759" textAnchor="middle">1 + cot²θ = cosec²θ</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch9 — Some Applications of Trigonometry ────────────────────────────
+
+function AngleOfElevation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <line x1="20" y1="175" x2="260" y2="175" stroke="#8E8E93" strokeWidth="2"/>
+      <rect x="200" y="80" width="18" height="95" fill="#C7C7CC"/>
+      <polygon points="200,80 218,80 209,60" fill="#FF3B30"/>
+      <circle cx="60" cy="168" r="8" fill="#007AFF"/>
+      <text x="44" y="192" fontSize="11" fill="#007AFF">Observer</text>
+      <line x1="60" y1="168" x2="209" y2="68" stroke="#FF9500" strokeWidth="2" strokeDasharray="6,3"/>
+      <line x1="60" y1="168" x2="209" y2="168" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <path d="M 100,168 A 40,40 0 0,1 84,148" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <text x="108" y="162" fontSize="13" fontWeight="700" fill="#FF9500">α</text>
+      <text x="78" y="140" fontSize="11" fill="#FF9500">Angle of Elevation</text>
+      <text x="222" y="130" fontSize="11" fill="#FF3B30" fontWeight="700">h</text>
+      <rect x="20" y="8" width="240" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#FF9500" textAnchor="middle">tan α = h / d    →    h = d · tan α</text>
+    </svg>
+  );
+}
+
+function AngleOfDepression() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <line x1="20" y1="175" x2="260" y2="175" stroke="#8E8E93" strokeWidth="2"/>
+      <rect x="30" y="60" width="22" height="115" fill="#C7C7CC"/>
+      <circle cx="41" cy="55" r="8" fill="#007AFF"/>
+      <text x="20" y="46" fontSize="11" fill="#007AFF">Observer</text>
+      <line x1="41" y1="55" x2="220" y2="55" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="41" y1="55" x2="210" y2="175" stroke="#FF9500" strokeWidth="2" strokeDasharray="6,3"/>
+      <circle cx="210" cy="175" r="6" fill="#FF3B30"/>
+      <text x="215" y="190" fontSize="11" fill="#FF3B30">Object</text>
+      <path d="M 100,55 A 40,40 0 0,0 85,73" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <text x="106" y="76" fontSize="13" fontWeight="700" fill="#FF9500">β</text>
+      <text x="88" y="50" fontSize="11" fill="#FF9500">Angle of Depression</text>
+      <rect x="20" y="8" width="240" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#FF9500" textAnchor="middle">Angle of depression = Angle of elevation (alt. angles)</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch10 — Circles ─────────────────────────────────────────────────────
+
+function TangentToCircle() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <circle cx="130" cy="120" r="70" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <circle cx="130" cy="120" r="4" fill="#007AFF"/>
+      <text x="136" y="118" fontSize="11" fill="#007AFF" fontWeight="700">O</text>
+      <circle cx="130" cy="50" r="5" fill="#FF3B30"/>
+      <text x="136" y="50" fontSize="11" fill="#FF3B30" fontWeight="700">P</text>
+      <line x1="130" y1="120" x2="130" y2="50" stroke="#34C759" strokeWidth="2"/>
+      <text x="136" y="92" fontSize="11" fill="#34C759">r</text>
+      <line x1="60" y1="50" x2="200" y2="50" stroke="#FF3B30" strokeWidth="2.5"/>
+      <rect x="130" y="50" width="10" height="10" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="22" fontSize="12" fontWeight="700" fill="#FF3B30" textAnchor="middle">Tangent</text>
+      <rect x="20" y="168" width="240" height="28" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="182" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Tangent ⊥ Radius at point of contact</text>
+      <text x="140" y="192" fontSize="10" fill="#8E8E93" textAnchor="middle">Tangent touches circle at exactly one point</text>
+    </svg>
+  );
+}
+
+function TangentsFromExternal() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <circle cx="170" cy="100" r="65" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <circle cx="170" cy="100" r="4" fill="#007AFF"/>
+      <text x="176" y="98" fontSize="11" fill="#007AFF" fontWeight="700">O</text>
+      <circle cx="30" cy="100" r="5" fill="#FF3B30"/>
+      <text x="14" y="98" fontSize="11" fill="#FF3B30" fontWeight="700">P</text>
+      <line x1="30" y1="100" x2="128" y2="44" stroke="#FF9500" strokeWidth="2.5"/>
+      <line x1="30" y1="100" x2="128" y2="156" stroke="#FF9500" strokeWidth="2.5"/>
+      <circle cx="128" cy="44" r="5" fill="#34C759"/>
+      <circle cx="128" cy="156" r="5" fill="#34C759"/>
+      <text x="112" y="38" fontSize="11" fill="#34C759" fontWeight="700">A</text>
+      <text x="112" y="168" fontSize="11" fill="#34C759" fontWeight="700">B</text>
+      <text x="72" y="68" fontSize="10" fill="#FF9500">PA</text>
+      <text x="72" y="142" fontSize="10" fill="#FF9500">PB</text>
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#34C759" textAnchor="middle">PA = PB  (tangents from external point are equal)</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch11 — Areas Related to Circles ────────────────────────────────────
+
+function CircleAreaPerimeter() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <circle cx="140" cy="115" r="72" fill="#007AFF" fillOpacity="0.10" stroke="#007AFF" strokeWidth="2.5"/>
+      <line x1="140" y1="115" x2="212" y2="115" stroke="#FF3B30" strokeWidth="2.5"/>
+      <text x="172" y="108" fontSize="13" fontWeight="700" fill="#FF3B30">r</text>
+      <circle cx="140" cy="115" r="4" fill="#007AFF"/>
+      <text x="144" y="112" fontSize="11" fill="#007AFF" fontWeight="700">O</text>
+      <path d="M 140,43 A 72,72 0 0,1 212,115" fill="none" stroke="#34C759" strokeWidth="2.5"/>
+      <text x="200" y="72" fontSize="11" fill="#34C759" fontWeight="700">C = 2πr</text>
+      <rect x="20" y="8" width="240" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#007AFF" textAnchor="middle">Area = πr²    |    Circumference = 2πr</text>
+      <line x1="68" y1="115" x2="212" y2="115" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="4,2"/>
+      <text x="140" y="136" fontSize="11" fill="#8E8E93" textAnchor="middle">diameter d = 2r</text>
+    </svg>
+  );
+}
+
+function CombinationAreas() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <circle cx="110" cy="110" r="72" fill="#007AFF" fillOpacity="0.06" stroke="#007AFF" strokeWidth="2"/>
+      <path d="M 110,110 L 182,110 A 72,72 0 0,0 146,48 Z" fill="#FF9500" fillOpacity="0.35" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="162" y="84" fontSize="10" fontWeight="700" fill="#FF9500">Sector</text>
+      <path d="M 146,48 L 182,110 A 72,72 0 0,0 146,48" fill="#34C759" fillOpacity="0.35" stroke="#34C759" strokeWidth="1.5"/>
+      <circle cx="110" cy="110" r="4" fill="#007AFF"/>
+      <text x="114" y="108" fontSize="11" fill="#007AFF">O</text>
+      <path d="M 152,110 A 42,42 0 0,0 132,73" fill="none" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="154" y="106" fontSize="11" fontWeight="700" fill="#FF9500">θ</text>
+      <rect x="186" y="55" width="88" height="58" rx="8" fill="#F2F2F7"/>
+      <text x="230" y="72" fontSize="10" fontWeight="700" fill="#FF9500" textAnchor="middle">Sector Area</text>
+      <text x="230" y="86" fontSize="10" fill="#FF9500" textAnchor="middle">= (θ/360)·πr²</text>
+      <text x="230" y="100" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Segment</text>
+      <text x="230" y="114" fontSize="10" fill="#34C759" textAnchor="middle">= Sector − △</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch12 — Surface Areas and Volumes ────────────────────────────────────
+
+function SurfaceAreaCombination() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="90" y="110" width="100" height="68" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="2"/>
+      <ellipse cx="140" cy="110" rx="50" ry="14" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="2"/>
+      <ellipse cx="140" cy="178" rx="50" ry="14" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="2"/>
+      <polygon points="140,44 90,110 190,110" fill="#FF3B30" fillOpacity="0.25" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="140" y1="44" x2="190" y2="110" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <text x="178" y="76" fontSize="11" fill="#FF9500" fontWeight="700">l</text>
+      <line x1="140" y1="110" x2="190" y2="110" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <text x="162" y="105" fontSize="11" fill="#34C759" fontWeight="700">r</text>
+      <line x1="82" y1="110" x2="82" y2="178" stroke="#8E8E93" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <text x="70" y="148" fontSize="11" fill="#8E8E93" fontWeight="700">h</text>
+      <rect x="10" y="8" width="260" height="28" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="22" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">TSA = πrl (cone) + 2πrh + πr² (cylinder)</text>
+      <text x="140" y="34" fontSize="9" fill="#8E8E93" textAnchor="middle">Only count exposed (non-joined) surfaces</text>
+    </svg>
+  );
+}
+
+function VolumeCombination() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="100" y="108" width="80" height="60" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="2"/>
+      <ellipse cx="140" cy="108" rx="40" ry="11" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="2"/>
+      <ellipse cx="140" cy="168" rx="40" ry="11" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="2"/>
+      <path d="M 100,108 A 40,40 0 0,1 180,108" fill="#34C759" fillOpacity="0.25" stroke="#34C759" strokeWidth="2"/>
+      <text x="140" y="72" fontSize="11" fill="#34C759" fontWeight="700" textAnchor="middle">r</text>
+      <line x1="140" y1="108" x2="140" y2="68" stroke="#34C759" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <text x="185" y="142" fontSize="11" fill="#007AFF" fontWeight="700">h</text>
+      <line x1="183" y1="108" x2="183" y2="168" stroke="#007AFF" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <rect x="10" y="8" width="260" height="40" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="26" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">V (cylinder) = πr²h</text>
+      <text x="140" y="42" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">V (hemisphere) = ⅔πr³</text>
+      <text x="140" y="188" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Total V = sum of individual volumes</text>
+    </svg>
+  );
+}
+
+function ConversionSolid() {
+  return (
+    <svg viewBox="0 0 280 180" width="280" height="180" fontFamily="system-ui,sans-serif">
+      <circle cx="72" cy="104" r="55" fill="#FF3B30" fillOpacity="0.15" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="72" y="108" fontSize="12" fontWeight="700" fill="#FF3B30" textAnchor="middle">Sphere</text>
+      <text x="72" y="124" fontSize="10" fill="#FF3B30" textAnchor="middle">V = 4/3 πR³</text>
+      <text x="140" y="96" fontSize="24" fill="#FF9500" textAnchor="middle">→</text>
+      <text x="140" y="116" fontSize="10" fill="#FF9500" textAnchor="middle">melted &amp;</text>
+      <text x="140" y="130" fontSize="10" fill="#FF9500" textAnchor="middle">recast</text>
+      <rect x="172" y="78" width="24" height="44" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <ellipse cx="184" cy="78" rx="12" ry="5" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="1.5"/>
+      <ellipse cx="184" cy="122" rx="12" ry="5" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="1.5"/>
+      <rect x="204" y="88" width="24" height="44" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <ellipse cx="216" cy="88" rx="12" ry="5" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="1.5"/>
+      <ellipse cx="216" cy="132" rx="12" ry="5" fill="#007AFF" fillOpacity="0.25" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="200" y="152" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">n cylinders</text>
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#FF9500" textAnchor="middle">Volume is conserved during conversion</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch13 — Statistics ───────────────────────────────────────────────────
+
+function MeanGrouped() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="36" width="260" height="128" rx="8" fill="#F2F2F7"/>
+      <rect x="10" y="36" width="260" height="24" rx="8" fill="#007AFF"/>
+      {["Class","f","x (mid)","fx"].map((h,i) => (
+        <text key={i} x={22+i*64} y="52" fontSize="11" fontWeight="700" fill="#FFFFFF">{h}</text>
+      ))}
+      {[["10–20","4","15","60"],["20–30","6","25","150"],["30–40","5","35","175"]].map((row,ri) => (
+        row.map((cell,ci) => (
+          <text key={`${ri}-${ci}`} x={22+ci*64} y={76+ri*26} fontSize="11" fill="#1C1C1E">{cell}</text>
+        ))
+      ))}
+      <line x1="14" y1="152" x2="266" y2="152" stroke="#C7C7CC" strokeWidth="1"/>
+      <text x="22" y="168" fontSize="11" fontWeight="700" fill="#1C1C1E">Total</text>
+      <text x="86" y="168" fontSize="11" fontWeight="700" fill="#007AFF">Σf=15</text>
+      <text x="214" y="168" fontSize="11" fontWeight="700" fill="#34C759">Σfx=385</text>
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.2"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#34C759" textAnchor="middle">x̄ = Σfx / Σf = 385 / 15 ≈ 25.67</text>
+    </svg>
+  );
+}
+
+function ModeGrouped() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      {[{x:30,h:50,f:4},{x:82,h:80,f:7,modal:true},{x:134,h:60,f:6},{x:186,h:35,f:3},{x:230,h:20,f:2}].map((b,i) => (
+        <g key={i}>
+          <rect x={b.x} y={172-b.h} width="44" height={b.h}
+            fill={b.modal ? "#FF3B30" : "#007AFF"} fillOpacity={b.modal ? 0.4 : 0.2}
+            stroke={b.modal ? "#FF3B30" : "#007AFF"} strokeWidth="2"/>
+          <text x={b.x+22} y={172-b.h-6} fontSize="11" fontWeight="700"
+            fill={b.modal ? "#FF3B30" : "#007AFF"} textAnchor="middle">{b.f}</text>
+        </g>
+      ))}
+      <line x1="24" y1="172" x2="280" y2="172" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <text x="104" y="68" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Modal Class</text>
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.12"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Mode = l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h</text>
+    </svg>
+  );
+}
+
+function MedianGrouped() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <polyline points="30,175 80,155 130,125 180,85 230,52 264,34"
+        fill="none" stroke="#007AFF" strokeWidth="2.5"/>
+      <line x1="30" y1="175" x2="270" y2="175" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="30" y1="12" x2="30" y2="178" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <text x="265" y="178" fontSize="10" fill="#8E8E93">x</text>
+      <text x="18" y="16" fontSize="10" fill="#8E8E93">cf</text>
+      <line x1="30" y1="104" x2="190" y2="104" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <text x="8" y="108" fontSize="10" fontWeight="700" fill="#FF3B30">N/2</text>
+      <line x1="190" y1="104" x2="190" y2="175" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <circle cx="190" cy="104" r="5" fill="#FF3B30"/>
+      <text x="178" y="190" fontSize="11" fontWeight="700" fill="#FF9500">Median</text>
+      <rect x="10" y="8" width="260" height="20" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="22" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Median = l + [(N/2 − cf) / f] × h</text>
+    </svg>
+  );
+}
+
+function Ogive() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <polyline points="40,175 80,162 120,142 160,108 200,74 240,50 268,36"
+        fill="none" stroke="#007AFF" strokeWidth="2.5"/>
+      <polyline points="40,36 80,50 120,74 160,108 200,142 240,162 268,175"
+        fill="none" stroke="#FF3B30" strokeWidth="2.5"/>
+      <line x1="30" y1="178" x2="275" y2="178" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="30" y1="12" x2="30" y2="180" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <circle cx="160" cy="108" r="6" fill="#FF9500"/>
+      <line x1="160" y1="108" x2="160" y2="178" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <text x="152" y="192" fontSize="11" fontWeight="700" fill="#FF9500">Median</text>
+      <line x1="36" y1="20" x2="56" y2="20" stroke="#007AFF" strokeWidth="2"/>
+      <text x="60" y="24" fontSize="10" fill="#007AFF">Less-than ogive</text>
+      <line x1="36" y1="34" x2="56" y2="34" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="60" y="38" fontSize="10" fill="#FF3B30">More-than ogive</text>
+    </svg>
+  );
+}
+
+function CumulativeFreq() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="36" width="260" height="158" rx="8" fill="#F2F2F7"/>
+      <rect x="10" y="36" width="260" height="24" rx="8" fill="#34C759"/>
+      {["Class","Freq (f)","Cum. Freq (cf)"].map((h,i) => (
+        <text key={i} x={22+i*86} y="52" fontSize="11" fontWeight="700" fill="#FFFFFF">{h}</text>
+      ))}
+      {[["10–20","4","4"],["20–30","6","10"],["30–40","5","15"],["40–50","3","18"],["50–60","2","20"]].map((row,ri) => (
+        row.map((cell,ci) => (
+          <text key={`${ri}-${ci}`} x={22+ci*86} y={74+ri*24} fontSize="11"
+            fill={ci===2 ? "#007AFF" : "#1C1C1E"} fontWeight={ci===2 ? "700" : "400"}>{cell}</text>
+        ))
+      ))}
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.2"/>
+      <text x="140" y="23" fontSize="12" fontWeight="700" fill="#34C759" textAnchor="middle">Cumulative Frequency — Running Total</text>
+    </svg>
+  );
+}
+
+// ─── Math Ch14 — Probability ──────────────────────────────────────────────────
+
+function ProbabilityBasic() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="20" y="46" width="240" height="136" rx="10" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="2"/>
+      <text x="246" y="60" fontSize="11" fontWeight="700" fill="#007AFF">S</text>
+      <ellipse cx="120" cy="114" rx="62" ry="46" fill="#FF3B30" fillOpacity="0.18" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="120" y="118" fontSize="14" fontWeight="700" fill="#FF3B30" textAnchor="middle">E</text>
+      {[[100,98],[130,98],[115,118],[145,118],[100,124]].map((pt,i)=>(
+        <circle key={i} cx={pt[0]} cy={pt[1]} r="4" fill="#FF3B30"/>
+      ))}
+      {[[200,72],[220,92],[184,148],[242,136]].map((pt,i)=>(
+        <circle key={i} cx={pt[0]} cy={pt[1]} r="4" fill="#007AFF"/>
+      ))}
+      <rect x="20" y="8" width="240" height="30" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="22" fontSize="12" fontWeight="700" fill="#FF3B30" textAnchor="middle">P(E) = n(E) / n(S)</text>
+      <text x="140" y="36" fontSize="10" fill="#8E8E93" textAnchor="middle">0 ≤ P(E) ≤ 1    •    P(S) = 1    •    P(∅) = 0</text>
+    </svg>
+  );
+}
+
+function ClassicalProbability() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="20" y="60" width="80" height="80" rx="12" fill="#F2F2F7" stroke="#C7C7CC" strokeWidth="2"/>
+      {[[40,80],[60,80],[80,80],[40,100],[60,100],[80,100]].map((d,i)=>(
+        <circle key={i} cx={d[0]} cy={d[1]} r="5" fill="#1C1C1E"/>
+      ))}
+      <text x="60" y="158" fontSize="11" fill="#8E8E93" textAnchor="middle">Die: 6 outcomes</text>
+      <circle cx="200" cy="100" r="40" fill="#FF9500" fillOpacity="0.2" stroke="#FF9500" strokeWidth="2"/>
+      <text x="200" y="96" fontSize="14" fontWeight="700" fill="#FF9500" textAnchor="middle">H</text>
+      <text x="200" y="114" fontSize="11" fill="#8E8E93" textAnchor="middle">or T</text>
+      <text x="200" y="158" fontSize="11" fill="#8E8E93" textAnchor="middle">Coin: 2 outcomes</text>
+      <rect x="10" y="8" width="260" height="38" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="24" fontSize="12" fontWeight="700" fill="#007AFF" textAnchor="middle">P(event) = Favourable outcomes</text>
+      <text x="140" y="40" fontSize="12" fontWeight="700" fill="#007AFF" textAnchor="middle">                    Total outcomes</text>
+    </svg>
+  );
+}
+
+function ComplementaryEvents() {
+  return (
+    <svg viewBox="0 0 280 180" width="280" height="180" fontFamily="system-ui,sans-serif">
+      <rect x="30" y="74" width="220" height="50" rx="8" fill="#F2F2F7" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="30" y="74" width="132" height="50" rx="8" fill="#007AFF" fillOpacity="0.3" stroke="#007AFF" strokeWidth="2"/>
+      <text x="96" y="104" fontSize="14" fontWeight="700" fill="#007AFF" textAnchor="middle">P(E)</text>
+      <rect x="162" y="74" width="88" height="50" rx="8" fill="#FF3B30" fillOpacity="0.3" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="206" y="104" fontSize="14" fontWeight="700" fill="#FF3B30" textAnchor="middle">P(Ē)</text>
+      <text x="140" y="144" fontSize="11" fill="#8E8E93" textAnchor="middle">Together they cover the entire sample space</text>
+      <rect x="20" y="8" width="240" height="54" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="28" fontSize="14" fontWeight="700" fill="#34C759" textAnchor="middle">P(E) + P(Ē) = 1</text>
+      <text x="140" y="44" fontSize="12" fill="#007AFF" textAnchor="middle">P(Ē) = 1 − P(E)</text>
+      <text x="140" y="58" fontSize="10" fill="#8E8E93" textAnchor="middle">Ē = complement (NOT E)</text>
+    </svg>
+  );
+}
+
+function ProbabilityApplications() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <ellipse cx="100" cy="148" rx="52" ry="36" fill="#FF9500" fillOpacity="0.18" stroke="#FF9500" strokeWidth="2"/>
+      <path d="M 70,133 Q 100,92 130,133" fill="#FF9500" fillOpacity="0.18" stroke="#FF9500" strokeWidth="2"/>
+      <text x="100" y="158" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Bag</text>
+      <circle cx="80" cy="145" r="10" fill="#FF3B30"/>
+      <circle cx="100" cy="152" r="10" fill="#FF3B30"/>
+      <circle cx="120" cy="145" r="10" fill="#007AFF"/>
+      <text x="80" y="149" fontSize="8" fontWeight="700" fill="#FFF" textAnchor="middle">R</text>
+      <text x="100" y="156" fontSize="8" fontWeight="700" fill="#FFF" textAnchor="middle">R</text>
+      <text x="120" y="149" fontSize="8" fontWeight="700" fill="#FFF" textAnchor="middle">B</text>
+      {[0,1,2,3].map(i => (
+        <rect key={i} x={186+i*20} y="118" width="16" height="22" rx="2"
+          fill={i<2?"#FF3B30":"#1C1C1E"} fillOpacity="0.8"/>
+      ))}
+      <text x="204" y="154" fontSize="10" fill="#8E8E93" textAnchor="middle">52 cards</text>
+      <rect x="10" y="8" width="260" height="52" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="26" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Bag: 2 Red, 1 Blue → 3 total</text>
+      <text x="140" y="42" fontSize="11" fill="#FF3B30" textAnchor="middle">P(Red) = 2/3    P(Blue) = 1/3</text>
+      <text x="140" y="56" fontSize="10" fill="#8E8E93" textAnchor="middle">Cards: P(Ace) = 4/52 = 1/13</text>
+    </svg>
+  );
+}
+
 const DIAGRAM_MAP = {
   // Biology
   sci_ch5_human_digestion:            { label: "Human Digestive System",              Component: DigestiveSystem },
@@ -3597,6 +4124,39 @@ const DIAGRAM_MAP = {
   ch6_s3_c1_t1: { label: "Similarity Criteria — AA, SAS, SSS",           Component: SimilarityCriteria },
   ch6_s5_c1_t1: { label: "Areas of Similar Triangles — ratio k²",        Component: AreaSimilarTriangles },
   ch6_s6_c1_t1: { label: "Pythagoras Theorem — a² + b² = c²",           Component: PythagorasTheorem },
+  // Math Ch7 — Coordinate Geometry
+  ch7_s1_c1_t1: { label: "Distance Formula — √[(x₂−x₁)²+(y₂−y₁)²]",   Component: DistanceFormula },
+  ch7_s2_c1_t1: { label: "Section Formula — Internal Division m:n",      Component: SectionFormula },
+  ch7_s3_c1_t1: { label: "Area of Triangle by Coordinates",             Component: TriangleAreaCoord },
+  // Math Ch8 — Introduction to Trigonometry
+  ch8_s1_c1_t1: { label: "Trigonometric Ratios — sin, cos, tan",         Component: TrigRatios },
+  ch8_s2_c1_t1: { label: "Trig Ratios of Specific Angles — 0°–90°",     Component: TrigSpecificAngles },
+  ch8_s3_c1_t1: { label: "Complementary Angles — sin(90°−θ)=cosθ",      Component: ComplementaryAngles },
+  ch8_s4_c1_t1: { label: "Trigonometric Identities — 3 Pythagorean",    Component: TrigIdentities },
+  // Math Ch9 — Some Applications of Trigonometry
+  ch9_s1_c1_t1: { label: "Angle of Elevation — h = d·tan α",            Component: AngleOfElevation },
+  ch9_s1_c1_t2: { label: "Angle of Depression — observer looks down",   Component: AngleOfDepression },
+  // Math Ch10 — Circles
+  ch10_s1_c1_t1: { label: "Tangent to a Circle — radius ⊥ tangent",     Component: TangentToCircle },
+  ch10_s2_c1_t1: { label: "Tangents from External Point — PA = PB",     Component: TangentsFromExternal },
+  // Math Ch11 — Areas Related to Circles
+  ch11_s1_c1_t1: { label: "Circle Area & Perimeter — πr², 2πr",         Component: CircleAreaPerimeter },
+  ch11_s2_c1_t1: { label: "Sector & Segment Areas — (θ/360)πr²",        Component: CombinationAreas },
+  // Math Ch12 — Surface Areas and Volumes
+  ch12_s1_c1_t1: { label: "Surface Area of Combined Solids",             Component: SurfaceAreaCombination },
+  ch12_s2_c1_t1: { label: "Volume of Combined Solids",                   Component: VolumeCombination },
+  ch12_s3_c1_t1: { label: "Conversion of Solids — Volume Conserved",    Component: ConversionSolid },
+  // Math Ch13 — Statistics
+  ch13_s1_c1_t1: { label: "Mean of Grouped Data — Σfx/Σf",              Component: MeanGrouped },
+  ch13_s2_c1_t1: { label: "Mode of Grouped Data — Modal Class",          Component: ModeGrouped },
+  ch13_s3_c1_t1: { label: "Median of Grouped Data — N/2 on Ogive",      Component: MedianGrouped },
+  ch13_s4_c1_t1: { label: "Ogive — Cumulative Frequency Curve",          Component: Ogive },
+  ch13_s5_c1_t1: { label: "Cumulative Frequency Table",                  Component: CumulativeFreq },
+  // Math Ch14 — Probability
+  ch14_s1_c1_t1: { label: "Probability — P(E) = n(E)/n(S)",              Component: ProbabilityBasic },
+  ch14_s1_c1_t2: { label: "Classical Probability — equally likely",      Component: ClassicalProbability },
+  ch14_s1_c1_t3: { label: "Complementary Events — P(E)+P(Ē)=1",         Component: ComplementaryEvents },
+  ch14_s1_c1_t4: { label: "Probability Applications — bags & cards",    Component: ProbabilityApplications },
 };
 
 export function Diagram({ topicId }) {

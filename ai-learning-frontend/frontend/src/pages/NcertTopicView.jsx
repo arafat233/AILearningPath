@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Diagram } from "../components/DiagramLibrary";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
@@ -204,20 +204,29 @@ function ConfidencePing({ sectionKey, value, onRate }) {
 function FormulaBlanks({ formulas, state, onAnswer }) {
   if (!formulas?.length) return null;
 
-  // Split each formula: everything before the last token is prefix, last token is the answer
-  const items = formulas.map(f => {
-    const s = typeof f === "string" ? f : JSON.stringify(f);
-    const tokens = s.trim().split(/\s+/);
-    const answer = tokens[tokens.length - 1].replace(/[^a-zA-Z0-9≤≥<>]/g, "");
-    const prefix = tokens.slice(0, -1).join(" ");
-    // Generate 3 wrong choices by mutating the answer slightly
-    const wrongs = answer.length <= 2
-      ? [answer.replace(/[a-z]/, c => String.fromCharCode(c.charCodeAt(0)+1)),
-         answer.replace(/[a-z]/, c => String.fromCharCode(c.charCodeAt(0)+2)),
-         answer + "²"]
-      : [answer.split("").reverse().join(""), answer + "k", "0"];
-    return { s, prefix, answer, choices: shuffle([answer, ...wrongs.slice(0,3)]) };
-  });
+  // Computed once — prevents choices from re-shuffling on every state change (was causing "jumping")
+  const items = useMemo(() => {
+    const parsed = formulas.slice(0, 6).map(f => {
+      const s = typeof f === "string" ? f : JSON.stringify(f);
+      const tokens = s.trim().split(/\s+/);
+      const rawToken = tokens[tokens.length - 1];
+      // Strip only surrounding punctuation, preserve subscripts and operators inside
+      const answer = rawToken.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "") || rawToken;
+      const prefix = tokens.slice(0, -1).join(" ");
+      return { s, prefix, answer };
+    }).filter(it => it.answer && it.prefix);
+
+    const allAnswers = parsed.map(it => it.answer);
+    return parsed.map((it, i) => {
+      // Use other formulas' answers as distractors — meaningful and plausible
+      const others = shuffle(allAnswers.filter((a, j) => j !== i && a !== it.answer));
+      const wrongs = others.slice(0, 3);
+      // Pad to 3 distractors if not enough cross-pollination options
+      const fallbacks = ["none", "0", "both", "any"].filter(x => x !== it.answer && !wrongs.includes(x));
+      while (wrongs.length < 3) wrongs.push(fallbacks.shift() || "—");
+      return { ...it, choices: shuffle([it.answer, ...wrongs]) };
+    });
+  }, [formulas]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const allCorrect = items.every((it, i) => state[i]?.correct);
 
@@ -263,7 +272,7 @@ function FormulaBlanks({ formulas, state, onAnswer }) {
         })}
 
         {allCorrect && (
-          <div className="ntv-pop" style={{ borderTop:"1px solid #F2F2F7", paddingTop:"16px", marginTop:"4px" }}>
+          <div style={{ borderTop:"1px solid #F2F2F7", paddingTop:"16px", marginTop:"4px" }}>
             <p style={{ fontSize:"11px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#5856D6", marginBottom:"12px" }}>
               🎉 Formulas unlocked — your reference sheet
             </p>

@@ -503,6 +503,84 @@ function IonicBonding() {
   );
 }
 
+/* ── CHEMISTRY: Balancing equations ──────────────────────────────── */
+
+function BalanceScale() {
+  return (
+    <svg viewBox="0 0 360 260" style={{ width: "100%", maxWidth: 360, height: "auto" }}>
+      {/* Title */}
+      <T x={180} y={16} size={11} bold align="middle" color="#1D1D1F">Law of Conservation of Mass: 2H₂ + O₂ → 2H₂O</T>
+
+      {/* Stand */}
+      <rect x={177} y={30} width={6} height={110} rx={3} fill="#9CA3AF"/>
+      <rect x={140} y={138} width={80} height={8} rx={4} fill="#6B7280"/>
+      <ellipse cx={180} cy={155} rx={30} ry={6} fill="#D1D5DB"/>
+
+      {/* Beam — balanced (horizontal) */}
+      <line x1={60} y1={80} x2={300} y2={80} stroke="#374151" strokeWidth={4} strokeLinecap="round"/>
+      <circle cx={180} cy={80} r={6} fill="#6B7280"/>
+
+      {/* Left string */}
+      <line x1={80} y1={80} x2={80} y2={108} stroke="#9CA3AF" strokeWidth={2}/>
+      {/* Left pan */}
+      <ellipse cx={80} cy={112} rx={48} ry={10} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+
+      {/* Right string */}
+      <line x1={280} y1={80} x2={280} y2={108} stroke="#9CA3AF" strokeWidth={2}/>
+      {/* Right pan */}
+      <ellipse cx={280} cy={112} rx={48} ry={10} fill="#BBF7D0" stroke="#16A34A" strokeWidth={1.5}/>
+
+      {/* LEFT PAN CONTENTS — 2H₂ + O₂ (reactants) */}
+      {/* H atom = small blue circle, O atom = red circle */}
+      {/* H₂ molecule #1 */}
+      <circle cx={42} cy={97} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={56} cy={97} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      <line x1={49} y1={97} x2={49} y2={97} stroke="#2563EB" strokeWidth={1.5}/>
+      {/* H₂ molecule #2 */}
+      <circle cx={68} cy={97} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={82} cy={97} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      {/* O₂ molecule */}
+      <circle cx={100} cy={96} r={9} fill="#FCA5A5" stroke="#DC2626" strokeWidth={1.2}/>
+      <circle cx={116} cy={96} r={9} fill="#FCA5A5" stroke="#DC2626" strokeWidth={1.2}/>
+      {/* Labels */}
+      <T x={80} y={126} size={10} bold align="middle" color="#1D1D1F">Reactants</T>
+      <T x={80} y={138} size={9} align="middle" color="#6B7280">4H + 2O atoms</T>
+
+      {/* RIGHT PAN CONTENTS — 2H₂O (products) */}
+      {/* H₂O molecule #1 */}
+      <circle cx={254} cy={95} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={268} cy={88} r={9} fill="#FCA5A5" stroke="#DC2626" strokeWidth={1.2}/>
+      <circle cx={282} cy={95} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      {/* H₂O molecule #2 */}
+      <circle cx={254} cy={108} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={268} cy={101} r={9} fill="#FCA5A5" stroke="#DC2626" strokeWidth={1.2}/>
+      <circle cx={282} cy={108} r={7} fill="#93C5FD" stroke="#2563EB" strokeWidth={1.2}/>
+      {/* Labels */}
+      <T x={280} y={126} size={10} bold align="middle" color="#1D1D1F">Products</T>
+      <T x={280} y={138} size={9} align="middle" color="#6B7280">4H + 2O atoms</T>
+
+      {/* Balance indicator */}
+      <T x={180} y={175} size={11} bold align="middle" color="#16A34A">⇌ Scale is balanced ✓</T>
+
+      {/* Atom count table */}
+      <rect x={50} y={185} width={260} height={66} rx={8} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={180} y={198} size={10} bold align="middle" color="#374151">Atom Count Check</T>
+      {/* Headers */}
+      <T x={100} y={212} size={9} bold align="middle" color="#6B7280">Atom</T>
+      <T x={185} y={212} size={9} bold align="middle" color="#2563EB">Reactants</T>
+      <T x={270} y={212} size={9} bold align="middle" color="#16A34A">Products</T>
+      {/* Row H */}
+      <T x={100} y={227} size={9} bold align="middle">H</T>
+      <T x={185} y={227} size={9} align="middle" color="#2563EB">4</T>
+      <T x={270} y={227} size={9} align="middle" color="#16A34A">4 ✓</T>
+      {/* Row O */}
+      <T x={100} y={242} size={9} bold align="middle">O</T>
+      <T x={185} y={242} size={9} align="middle" color="#2563EB">2</T>
+      <T x={270} y={242} size={9} align="middle" color="#16A34A">2 ✓</T>
+    </svg>
+  );
+}
+
 /* ── MAP + EXPORT ────────────────────────────────────────────────── */
 
 const DIAGRAM_MAP = {
@@ -519,6 +597,7 @@ const DIAGRAM_MAP = {
   sci_ch12_magnetic_field:           { label: "Solenoid & Magnetic Field",        Component: Solenoid },
   sci_ch4_ethanol_and_ethanoic_acid: { label: "Soap Micelle Structure",           Component: SoapMicelle },
   sci_ch3_ionic_bonding:             { label: "Ionic Bonding — NaCl Formation",   Component: IonicBonding },
+  sci_ch1_balancing_equations:       { label: "Conservation of Mass — Balance Scale", Component: BalanceScale },
 };
 
 export function Diagram({ topicId }) {

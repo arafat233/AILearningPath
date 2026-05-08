@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Diagram } from "../components/DiagramLibrary";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
@@ -1724,6 +1725,9 @@ export default function NcertTopicView() {
       {!isSci && mode==="deep" && intuition.elevator_pitch && (
         <FeynmanBox concept={intuition.elevator_pitch?.slice(0,80)} topicName={topic.name} />
       )}
+
+      {/* ── DIAGRAM (Science only) ────────────────────────────── */}
+      {isSci && <Diagram topicId={topicId} />}
 
       {/* ── PROCESS EXPLANATION (Science only) ────────────────── */}
       {isSci && tc.process_explanation && (

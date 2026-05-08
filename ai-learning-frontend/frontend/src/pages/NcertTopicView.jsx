@@ -880,6 +880,35 @@ function MisconceptionChallenge({ m, index }) {
   );
 }
 
+function SciMisconceptionChallenge({ text, index }) {
+  const [answered, setAnswered] = useState(null);
+  return (
+    <div style={{ borderRadius:"14px", overflow:"hidden", border: answered==="correct"?"2px solid #34C759": answered==="wrong"?"2px solid #FF3B30":"2px solid #FFD5D5", transition:"border-color 0.2s" }}>
+      <div style={{ background: answered==="correct"?"#F0FFF4": answered==="wrong"?"#FFF5F5":"#FFF5F5", padding:"12px 16px", borderBottom:"1px solid #F2F2F7", display:"flex", alignItems:"center", gap:"8px" }}>
+        <span style={{ width:"22px", height:"22px", borderRadius:"50%", background:"#FF3B30", color:"#fff", fontSize:"10px", fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{index+1}</span>
+        <span style={{ fontSize:"11px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#FF3B30" }}>Misconception Check</span>
+        {answered && <span style={{ marginLeft:"auto", fontSize:"11px", fontWeight:700, color: answered==="correct"?"#34C759":"#FF3B30" }}>{answered==="correct"?"✓ Correct!":"✗ Wrong answer"}</span>}
+      </div>
+      <div style={{ padding:"16px" }}>
+        <p style={{ fontSize:"13px", color:"#86868B", marginBottom:"8px" }}>Is this statement a misconception (false belief)?</p>
+        <div style={{ background:"#FFE5E5", borderRadius:"10px", padding:"14px 16px", marginBottom:"14px" }}>
+          <p style={{ fontSize:"14px", color:"#1D1D1F", lineHeight:1.6, margin:0, fontStyle:"italic" }}>"{text}"</p>
+        </div>
+        {!answered && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px" }}>
+            <button onClick={() => setAnswered("correct")} className="ntv-btn"
+              style={{ padding:"12px", borderRadius:"10px", border:"2px solid #E5E5EA", background:"#fff", fontSize:"14px", fontWeight:700, cursor:"pointer", color:"#34C759" }}>✓ Yes, it's wrong</button>
+            <button onClick={() => setAnswered("wrong")} className="ntv-btn"
+              style={{ padding:"12px", borderRadius:"10px", border:"2px solid #E5E5EA", background:"#fff", fontSize:"14px", fontWeight:700, cursor:"pointer", color:"#FF3B30" }}>✗ No, it's correct</button>
+          </div>
+        )}
+        {answered==="correct" && <div className="ntv-pop" style={{ background:"#F0FFF4", borderRadius:"10px", padding:"10px 14px", display:"flex", gap:"8px" }}><span>🎯</span><span style={{ fontSize:"13px", fontWeight:700, color:"#34C759" }}>Right! This is a classic misconception to watch out for.</span></div>}
+        {answered==="wrong"   && <div className="ntv-pop" style={{ background:"#FFF0F0", borderRadius:"10px", padding:"10px 14px", display:"flex", gap:"8px" }}><span>🤔</span><span style={{ fontSize:"13px", fontWeight:700, color:"#FF3B30" }}>Actually, this is a misconception — don't be tricked by it!</span></div>}
+      </div>
+    </div>
+  );
+}
+
 function SectionCheckpoint({ misconception, onPass }) {
   const [answered, setAnswered] = useState(null);
   if (answered==="correct") return (
@@ -1581,17 +1610,28 @@ export default function NcertTopicView() {
   const showExamples = examples.length>0 && (mode==="quick" || cpPassed || !cpMisconception);
   const showLock     = mode==="deep" && !!cpMisconception && !cpPassed && examples.length>0;
 
-  // Build recall cards from formulas + misconceptions (Math format only)
-  const recallCards = [
-    ...(topic.key_formulas||[]).map(f => ({
-      question: `Complete the formula: ${(typeof f==="string"?f:JSON.stringify(f)).split(" ").slice(0,-1).join(" ")} ___`,
-      answer:   typeof f==="string" ? f : JSON.stringify(f),
-    })),
-    ...(miscAreObjects ? misconceptions : []).slice(0,4).map(m => ({
-      question: `True or False: "${m.wrong_idea}"`,
-      answer:   `False. ${m.correction || "This is a common misconception."}`,
-    })),
-  ];
+  // Build recall cards from formulas + misconceptions
+  const recallCards = isSci
+    ? [
+        ...(topic.key_formulas||[]).map(f => ({
+          question: `What does this mean? ${typeof f==="string" ? f : JSON.stringify(f)}`,
+          answer:   typeof f==="string" ? f : JSON.stringify(f),
+        })),
+        ...(!miscAreObjects ? misconceptions : []).slice(0,4).map(m => ({
+          question: `True or False: "${m}"`,
+          answer:   `False — this is a common misconception to avoid.`,
+        })),
+      ]
+    : [
+        ...(topic.key_formulas||[]).map(f => ({
+          question: `Complete the formula: ${(typeof f==="string"?f:JSON.stringify(f)).split(" ").slice(0,-1).join(" ")} ___`,
+          answer:   typeof f==="string" ? f : JSON.stringify(f),
+        })),
+        ...(miscAreObjects ? misconceptions : []).slice(0,4).map(m => ({
+          question: `True or False: "${m.wrong_idea}"`,
+          answer:   `False. ${m.correction || "This is a common misconception."}`,
+        })),
+      ];
 
   // Error hunt: find first example that actually has steps with computation fields
   const ehExample = examples.find(ex => ex.steps?.some(s => s.computation)) ?? null;
@@ -1842,7 +1882,7 @@ export default function NcertTopicView() {
 
       {/* ── VIDEO PLAYER — deep only ──────────────────────────── */}
       {mode==="deep" && (
-        <VideoPlayer topicName={topic.name} subject={chapterTitle || "Mathematics"} />
+        <VideoPlayer topicName={topic.name} subject={isSci ? "Science" : (chapterTitle || "Mathematics")} />
       )}
 
       {/* ── DERIVATION — deep only ────────────────────────────── */}
@@ -1862,11 +1902,13 @@ export default function NcertTopicView() {
           <div style={{ display:"flex", flexDirection:"column", gap:"10px", marginTop:"16px" }}>
             {misconceptions.map((m,i) => {
               if (typeof m === "string") {
-                return (
-                  <div key={i} style={{ background:"#FFF5F4", border:"1px solid #FFD0CC", borderRadius:"12px", padding:"14px 18px" }}>
-                    <p style={{ fontSize:"14px", color:"#3A3A3C", margin:0 }}>⚠️ {m}</p>
-                  </div>
-                );
+                return mode==="deep"
+                  ? <SciMisconceptionChallenge key={i} text={m} index={i} />
+                  : (
+                    <div key={i} style={{ background:"#FFF5F4", border:"1px solid #FFD0CC", borderRadius:"12px", padding:"14px 18px" }}>
+                      <p style={{ fontSize:"14px", color:"#3A3A3C", margin:0 }}>⚠️ {m}</p>
+                    </div>
+                  );
               }
               return mode==="deep"
                 ? <MisconceptionChallenge key={i} m={m} index={i} />
@@ -1997,8 +2039,11 @@ export default function NcertTopicView() {
       )}
 
       {/* ── CLOSING CHALLENGE ─────────────────────────────────── */}
-      {videoHooks.closing_question && (
-        <ClosingChallenge question={videoHooks.closing_question} hint={videoHooks.transition_to_practice} />
+      {(videoHooks.closing_question || (isSci && tc.key_takeaway)) && (
+        <ClosingChallenge
+          question={videoHooks.closing_question || `What is the key takeaway from ${topic.name}?`}
+          hint={videoHooks.transition_to_practice || tc.key_takeaway}
+        />
       )}
 
       {/* ── TOPIC NAV (bottom) ────────────────────────────────── */}

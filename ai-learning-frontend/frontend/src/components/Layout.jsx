@@ -35,6 +35,24 @@ function Icon({ id }) {
   );
 }
 
+function DarkToggle({ dark, onToggle }) {
+  return (
+    <button
+      onClick={onToggle}
+      role="switch"
+      aria-checked={dark}
+      aria-label="Toggle dark mode"
+      className="relative inline-flex items-center w-10 h-6 rounded-full transition-colors duration-200 focus:outline-none"
+      style={{ background: dark ? "#007AFF" : "#E5E5EA" }}
+    >
+      <span
+        className="inline-block w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
+        style={{ transform: dark ? "translateX(22px)" : "translateX(3px)" }}
+      />
+    </button>
+  );
+}
+
 const NAV = [
   { to: "/",            label: "Dashboard",    icon: "dashboard",   end: true },
   { to: "/lessons",     label: "Learn",        icon: "lessons"               },
@@ -62,26 +80,24 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { dark, toggle: toggleDark } = useThemeStore();
-  const [searchOpen,   setSearchOpen]   = useState(false);
-  const [sidebarOpen,  setSidebarOpen]  = useState(false);
-  const [bellOpen,     setBellOpen]     = useState(false);
+  const [searchOpen,  setSearchOpen]  = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [bellOpen,    setBellOpen]    = useState(false);
+  const [userOpen,    setUserOpen]    = useState(false);
   const location = useLocation();
-  const bellRef        = useRef(null);
-  const bellDesktopRef = useRef(null);
+  const bellRef    = useRef(null);
+  const userRef    = useRef(null);
 
-  // Close bell dropdown when clicking outside
   useEffect(() => {
-    if (!bellOpen) return;
+    if (!bellOpen && !userOpen) return;
     const handler = (e) => {
-      const inMobile  = bellRef.current        && bellRef.current.contains(e.target);
-      const inDesktop = bellDesktopRef.current && bellDesktopRef.current.contains(e.target);
-      if (!inMobile && !inDesktop) setBellOpen(false);
+      if (bellRef.current  && !bellRef.current.contains(e.target))  setBellOpen(false);
+      if (userRef.current  && !userRef.current.contains(e.target))  setUserOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [bellOpen]);
+  }, [bellOpen, userOpen]);
 
-  // Close mobile sidebar on route change
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   useEffect(() => {
@@ -105,6 +121,12 @@ export default function Layout() {
     .slice(0, 2)
     .toUpperCase() || "?";
 
+  const handleSignOut = async () => {
+    await logoutApi().catch(() => {});
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-apple-gray6">
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -123,7 +145,7 @@ export default function Layout() {
         className={`fixed sm:static inset-y-0 left-0 z-40 w-56 flex flex-col shrink-0 backdrop-blur-apple border-r border-apple-gray5 dark:border-apple-gray/20 transition-transform duration-200 ease-out sm:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{ background: "var(--sidebar-bg)" }}
       >
-        {/* App header */}
+        {/* App logo */}
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center gap-2.5 mb-0.5">
             <div className="w-7 h-7 rounded-lg bg-apple-blue flex items-center justify-center shadow-sm">
@@ -194,165 +216,155 @@ export default function Layout() {
             </>
           )}
         </nav>
-
-        {/* Notification bell — desktop sidebar */}
-        <div className="px-3 mb-1 relative hidden sm:block" ref={bellDesktopRef}>
-          <button
-            onClick={() => setBellOpen((o) => !o)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray hover:bg-apple-gray5 transition-colors"
-            style={{ background: "var(--fill)" }}
-          >
-            <span className="relative">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5 shrink-0">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
-              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-apple-red" />
-            </span>
-            <span className="flex-1 text-left">Notifications</span>
-          </button>
-          {bellOpen && (
-            <div className="absolute left-3 right-3 bottom-full mb-1 bg-white dark:bg-[var(--sidebar-bg)] rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-apple-gray5">
-                <p className="text-[13px] font-semibold text-[var(--label)]">Notifications</p>
-              </div>
-              <div className="px-4 py-5 text-center">
-                <p className="text-[13px] font-medium text-[var(--label)] mb-1">No new notifications</p>
-                <p className="text-[12px] text-apple-gray leading-relaxed">
-                  Check back later for practice reminders and achievement alerts.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Search + dark mode toggle */}
-        <div className="px-3 mb-2 flex flex-col gap-1.5">
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray bg-apple-gray6 hover:bg-apple-gray5 transition-colors"
-            style={{ background: "var(--fill)" }}
-          >
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                 strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
-              <circle cx="6.5" cy="6.5" r="4.5"/>
-              <path d="M10 10l3 3"/>
-            </svg>
-            <span className="flex-1 text-left">Search topics…</span>
-            <kbd className="text-[10px] border border-apple-gray5 rounded px-1 py-0.5">⌘K</kbd>
-          </button>
-          <button
-            onClick={toggleDark}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray hover:bg-apple-gray5 transition-colors"
-            style={{ background: "var(--fill)" }}
-          >
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                 strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
-              {dark
-                ? <><circle cx="8" cy="8" r="4"/><path d="M8 1v1M8 14v1M1 8h1M14 8h1M3.2 3.2l.7.7M12.1 12.1l.7.7M3.2 12.8l.7-.7M12.1 3.9l.7-.7"/></>
-                : <path d="M14 9.5A6 6 0 019.5 2a6 6 0 100 12 6 6 0 004.5-4.5z"/>
-              }
-            </svg>
-            <span className="flex-1 text-left">{dark ? "Light mode" : "Dark mode"}</span>
-          </button>
-        </div>
-
-        <div className="divider mx-4 mb-3" />
-
-        {/* Bottom links */}
-        <div className="px-3 mb-2 flex flex-col gap-0.5">
-          <NavLink
-            to="/pricing"
-            className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
-          >
-            <Icon id="upgrade" />
-            Upgrade
-          </NavLink>
-          <NavLink
-            to="/settings"
-            className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
-          >
-            <Icon id="settings" />
-            Settings
-          </NavLink>
-        </div>
-
-        {/* Legal links */}
-        <div className="px-4 pb-2 flex items-center gap-3">
-          <a href="/terms"   className="text-[10px] text-apple-gray hover:text-apple-blue transition-colors">Terms</a>
-          <span className="text-apple-gray5 text-[10px]">·</span>
-          <a href="/privacy" className="text-[10px] text-apple-gray hover:text-apple-blue transition-colors">Privacy</a>
-        </div>
-
-        {/* User footer */}
-        <div className="px-4 py-4 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-apple-blue flex items-center justify-center shrink-0">
-            <span className="text-white text-[11px] font-semibold">{initials}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-semibold text-[var(--label)] truncate">
-              {activeChild ? activeChild.name : user?.name}
-            </p>
-            {activeChild && (
-              <button onClick={() => navigate("/child-picker")}
-                className="text-[10px] text-apple-blue hover:opacity-70 transition-opacity">
-                Switch child
-              </button>
-            )}
-            <button
-              onClick={async () => { await logoutApi().catch(() => {}); logout(); navigate("/login"); }}
-              className="btn-destructive text-[11px]"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
-        {/* Mobile header with hamburger */}
-        <div className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-apple-gray5 sticky top-0 z-20" style={{ background: "var(--sidebar-bg)" }}>
+
+        {/* Top bar */}
+        <div
+          className="sticky top-0 z-20 flex items-center gap-2 px-4 sm:px-6 py-2.5 border-b border-apple-gray5"
+          style={{ background: "var(--sidebar-bg)", backdropFilter: "blur(12px)" }}
+        >
+          {/* Mobile hamburger */}
           <button
+            className="sm:hidden w-8 h-8 flex flex-col items-center justify-center gap-1.5 shrink-0"
             onClick={() => setSidebarOpen(true)}
-            className="w-8 h-8 flex flex-col items-center justify-center gap-1.5"
             aria-label="Open menu"
           >
             <span className="w-5 h-0.5 bg-[var(--label)] rounded-full" />
             <span className="w-5 h-0.5 bg-[var(--label)] rounded-full" />
             <span className="w-3.5 h-0.5 bg-[var(--label)] rounded-full" />
           </button>
-          <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">S</span>
+
+          {/* Mobile logo */}
+          <div className="sm:hidden flex items-center gap-1.5 flex-1">
+            <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">S</span>
+            </div>
+            <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
           </div>
-          <span className="text-[13px] font-semibold text-[var(--label)] flex-1">Stellar</span>
-          {/* Bell — mobile */}
-          <div className="relative" ref={bellRef}>
+
+          {/* Spacer on desktop */}
+          <div className="hidden sm:block flex-1" />
+
+          {/* Right-side controls */}
+          <div className="flex items-center gap-1.5">
+
+            {/* Search */}
             <button
-              onClick={() => setBellOpen((o) => !o)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-apple-gray5 transition-colors relative"
-              aria-label="Notifications"
+              onClick={() => setSearchOpen(true)}
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-apple text-[12px] text-apple-gray hover:bg-apple-gray5 transition-colors border border-apple-gray5"
+              style={{ background: "var(--fill)" }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 text-[var(--label)]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" className="w-3.5 h-3.5 shrink-0">
+                <circle cx="6.5" cy="6.5" r="4.5"/>
+                <path d="M10 10l3 3"/>
               </svg>
-              {/* Red dot badge */}
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-apple-red border-2 border-white" />
+              <span>Search…</span>
+              <kbd className="text-[10px] border border-apple-gray5 rounded px-1 py-0.5 ml-1">⌘K</kbd>
             </button>
-            {bellOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[var(--sidebar-bg)] rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden">
-                <div className="px-4 py-3 border-b border-apple-gray5">
-                  <p className="text-[13px] font-semibold text-[var(--label)]">Notifications</p>
+
+            {/* Dark mode toggle */}
+            <div className="flex items-center gap-2 px-2">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                   strokeLinecap="round" className="w-3.5 h-3.5 text-apple-gray shrink-0">
+                {dark
+                  ? <><circle cx="8" cy="8" r="3.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.2 3.2l1 1M11.8 11.8l1 1M3.2 12.8l1-1M11.8 4.2l1-1"/></>
+                  : <path d="M14 9.5A6 6 0 019.5 2a6 6 0 100 12 6 6 0 004.5-4.5z"/>
+                }
+              </svg>
+              <DarkToggle dark={dark} onToggle={toggleDark} />
+            </div>
+
+            {/* Bell */}
+            <div className="relative" ref={bellRef}>
+              <button
+                onClick={() => setBellOpen((o) => !o)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-apple-gray5 transition-colors relative"
+                aria-label="Notifications"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4.5 h-4.5 text-[var(--label)]" style={{ width: 18, height: 18 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-apple-red border-2 border-white" />
+              </button>
+              {bellOpen && (
+                <div className="absolute right-0 mt-2 w-72 rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden" style={{ background: "var(--card-bg)" }}>
+                  <div className="px-4 py-3 border-b border-apple-gray5">
+                    <p className="text-[13px] font-semibold text-[var(--label)]">Notifications</p>
+                  </div>
+                  <div className="px-4 py-5 text-center">
+                    <p className="text-[13px] font-medium text-[var(--label)] mb-1">No new notifications</p>
+                    <p className="text-[12px] text-apple-gray leading-relaxed">
+                      Check back later for practice reminders and achievement alerts.
+                    </p>
+                  </div>
                 </div>
-                <div className="px-4 py-5 text-center">
-                  <p className="text-[13px] font-medium text-[var(--label)] mb-1">No new notifications</p>
-                  <p className="text-[12px] text-apple-gray leading-relaxed">
-                    Check back later for practice reminders and achievement alerts.
-                  </p>
+              )}
+            </div>
+
+            {/* User avatar + dropdown */}
+            <div className="relative" ref={userRef}>
+              <button
+                onClick={() => setUserOpen((o) => !o)}
+                className="w-8 h-8 rounded-full bg-apple-blue flex items-center justify-center hover:opacity-80 transition-opacity"
+                aria-label="Account menu"
+              >
+                <span className="text-white text-[11px] font-semibold">{initials}</span>
+              </button>
+              {userOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden" style={{ background: "var(--card-bg)" }}>
+                  {/* User info */}
+                  <div className="px-4 py-3 border-b border-apple-gray5">
+                    <p className="text-[13px] font-semibold text-[var(--label)] truncate">
+                      {activeChild ? activeChild.name : user?.name}
+                    </p>
+                    <p className="text-[11px] text-apple-gray truncate">{user?.email}</p>
+                    {activeChild && (
+                      <button onClick={() => { setUserOpen(false); navigate("/child-picker"); }}
+                        className="text-[11px] text-apple-blue hover:opacity-70 transition-opacity mt-0.5">
+                        Switch child
+                      </button>
+                    )}
+                  </div>
+                  {/* Menu items */}
+                  <div className="py-1">
+                    <button onClick={() => { setUserOpen(false); navigate("/pricing"); }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[var(--label)] hover:bg-apple-gray6 transition-colors">
+                      <Icon id="upgrade" />
+                      Upgrade
+                    </button>
+                    <button onClick={() => { setUserOpen(false); navigate("/settings"); }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[var(--label)] hover:bg-apple-gray6 transition-colors">
+                      <Icon id="settings" />
+                      Settings
+                    </button>
+                  </div>
+                  <div className="border-t border-apple-gray5 py-1">
+                    <div className="px-4 py-2 flex items-center gap-3">
+                      <a href="/terms"   className="text-[11px] text-apple-gray hover:text-apple-blue transition-colors">Terms</a>
+                      <span className="text-apple-gray5 text-[10px]">·</span>
+                      <a href="/privacy" className="text-[11px] text-apple-gray hover:text-apple-blue transition-colors">Privacy</a>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-apple-red hover:bg-apple-gray6 transition-colors"
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+                           strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0">
+                        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"/>
+                      </svg>
+                      Sign out
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
+
         <OfflineBanner />
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
           <Outlet />

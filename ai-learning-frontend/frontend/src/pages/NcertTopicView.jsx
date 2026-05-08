@@ -1465,24 +1465,42 @@ export default function NcertTopicView() {
     return () => clearInterval(iv);
   }, [mode]);
 
+  // Science chapter titles — NcertChapter collection only has Math; derive from static map
+  const SCIENCE_CHAPTER_TITLES = {
+    1: "Chemical Reactions and Equations", 2: "Acids, Bases and Salts",
+    3: "Metals and Non-metals",            4: "Carbon and its Compounds",
+    5: "Life Processes",                   6: "Control and Coordination",
+    7: "How do Organisms Reproduce?",      8: "Heredity",
+    9: "Light — Reflection and Refraction",10: "The Human Eye and the Colourful World",
+    11: "Electricity",                     12: "Magnetic Effects of Electric Current",
+    13: "Our Environment",
+  };
+  const isSciTopicId = id => (id || "").startsWith("sci_");
+
   // Fetch all NCERT topics + chapter list once to derive siblings, prereqMap, and chapter title
   useEffect(() => {
     if (!topic) return;
-    listNcertTopics()
+    const isSci = isSciTopicId(topicId);
+    const subject = isSci ? "Science" : "Mathematics";
+    listNcertTopics(undefined, subject)
       .then(r => {
         const all = r.data?.data || [];
         setAllTopics(all);
         setSiblings(all.filter(t => t.chapterNumber === topic.chapterNumber));
       })
       .catch(() => {});
-    // Chapter title (e.g. "Real Numbers") is what Question.topic uses for practice questions
-    listNcertChapters()
-      .then(r => {
-        const chapters = r.data?.data || [];
-        const ch = chapters.find(c => c.number === topic.chapterNumber);
-        if (ch?.title) setChapterTitle(ch.title);
-      })
-      .catch(() => {});
+    if (isSci) {
+      setChapterTitle(SCIENCE_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else {
+      // Chapter title (e.g. "Real Numbers") is what Question.topic uses for practice questions
+      listNcertChapters()
+        .then(r => {
+          const chapters = r.data?.data || [];
+          const ch = chapters.find(c => c.number === topic.chapterNumber);
+          if (ch?.title) setChapterTitle(ch.title);
+        })
+        .catch(() => {});
+    }
   }, [topic]);
 
   // Load studied status from backend; fall back to localStorage if not authenticated
@@ -1542,25 +1560,32 @@ export default function NcertTopicView() {
   );
 
   const tc             = topic.teaching_content ?? {};
-  const intuition      = tc.intuition ?? {};
+  // Science seeds use flat strings; Math uses nested objects — detect format
+  const isSci          = isSciTopicId(topicId);
+  const intuition      = (!isSci && tc.intuition && typeof tc.intuition === "object") ? tc.intuition : {};
   const derivation     = tc.derivation ?? {};
   const whenToUse      = tc.when_to_use_this_method ?? {};
   const videoHooks     = tc.video_script_hooks ?? {};
   const visualDescs    = Object.values(tc.visual_description ?? {});
-  const examples       = Object.values(tc.worked_example ?? {});
-  const misconceptions = tc.common_misconceptions ?? [];
-  const cpMisconception = misconceptions[0];
+  // worked_example: keyed object (Math) or plain string (Science)
+  const examples       = (tc.worked_example && typeof tc.worked_example === "object")
+    ? Object.values(tc.worked_example)
+    : [];
+  const misconceptions  = tc.common_misconceptions ?? [];
+  // misconceptions: [{wrong_idea,...}] (Math) or [string] (Science)
+  const miscAreObjects  = misconceptions.length > 0 && typeof misconceptions[0] === "object";
+  const cpMisconception = miscAreObjects ? misconceptions[0] : null;
 
   const showExamples = examples.length>0 && (mode==="quick" || cpPassed || !cpMisconception);
   const showLock     = mode==="deep" && !!cpMisconception && !cpPassed && examples.length>0;
 
-  // Build recall cards from formulas + misconceptions
+  // Build recall cards from formulas + misconceptions (Math format only)
   const recallCards = [
     ...(topic.key_formulas||[]).map(f => ({
       question: `Complete the formula: ${(typeof f==="string"?f:JSON.stringify(f)).split(" ").slice(0,-1).join(" ")} ___`,
       answer:   typeof f==="string" ? f : JSON.stringify(f),
     })),
-    ...misconceptions.slice(0,4).map(m => ({
+    ...(miscAreObjects ? misconceptions : []).slice(0,4).map(m => ({
       question: `True or False: "${m.wrong_idea}"`,
       answer:   `False. ${m.correction || "This is a common misconception."}`,
     })),
@@ -1675,41 +1700,65 @@ export default function NcertTopicView() {
 
       {examples.length>0 && <ProgressBar done={exDone.size} total={examples.length} />}
 
-      {/* ── HOOK ──────────────────────────────────────────────── */}
-      {intuition.hook && <HookCard text={intuition.hook} />}
+      {/* ── HOOK (Math rich format) ───────────────────────────── */}
+      {!isSci && intuition.hook && <HookCard text={intuition.hook} />}
 
-      {/* ── IN PLAIN ENGLISH ──────────────────────────────────── */}
-      {intuition.elevator_pitch && (
+      {/* ── INTUITION (Science flat string) ───────────────────── */}
+      {isSci && tc.intuition && (
+        <>
+          <PlainEnglishCard text={tc.intuition} />
+          {mode==="deep" && <ConfidencePing sectionKey="plain" value={confidence.plain} onRate={rateSection} />}
+        </>
+      )}
+
+      {/* ── IN PLAIN ENGLISH (Math only) ──────────────────────── */}
+      {!isSci && intuition.elevator_pitch && (
         <>
           <PlainEnglishCard text={intuition.elevator_pitch} />
           {mode==="deep" && <ConfidencePing sectionKey="plain" value={confidence.plain} onRate={rateSection} />}
         </>
       )}
 
-      {/* ── FEYNMAN CHALLENGE — deep only ─────────────────────── */}
-      {mode==="deep" && intuition.elevator_pitch && (
+      {/* ── FEYNMAN CHALLENGE — Math deep only ────────────────── */}
+      {!isSci && mode==="deep" && intuition.elevator_pitch && (
         <FeynmanBox concept={intuition.elevator_pitch?.slice(0,80)} topicName={topic.name} />
       )}
 
-      {/* ── REAL-WORLD ────────────────────────────────────────── */}
-      {intuition.real_world_anchors?.length>0 && (
+      {/* ── PROCESS EXPLANATION (Science only) ────────────────── */}
+      {isSci && tc.process_explanation && (
+        <div style={{ background:"#FFFFFF", borderRadius:"18px", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", padding:"24px 28px" }}>
+          <h2 style={{ fontSize:"15px", fontWeight:700, color:"#34C759", margin:"0 0 12px" }}>⚙️ How It Works</h2>
+          <p style={{ fontSize:"14px", lineHeight:1.75, color:"#3A3A3C", margin:0, whiteSpace:"pre-line" }}>{tc.process_explanation}</p>
+        </div>
+      )}
+
+      {/* ── REAL-WORLD (Math only) ────────────────────────────── */}
+      {!isSci && intuition.real_world_anchors?.length>0 && (
         <>
           <RealWorldCards anchors={intuition.real_world_anchors} />
           {mode==="deep" && <ConfidencePing sectionKey="real" value={confidence.real} onRate={rateSection} />}
         </>
       )}
 
-      {/* ── CENTRAL IDEA ──────────────────────────────────────── */}
-      {intuition.the_pivot_idea && (
+      {/* ── CENTRAL IDEA (Math only) ──────────────────────────── */}
+      {!isSci && intuition.the_pivot_idea && (
         <>
           <CentralIdeaCard text={intuition.the_pivot_idea} />
           {mode==="deep" && <ConfidencePing sectionKey="central" value={confidence.central} onRate={rateSection} />}
         </>
       )}
 
-      {/* ── AHA MOMENT — deep only ────────────────────────────── */}
-      {mode==="deep" && videoHooks.aha_reveal_moment && (
+      {/* ── AHA MOMENT — Math deep only ───────────────────────── */}
+      {!isSci && mode==="deep" && videoHooks.aha_reveal_moment && (
         <AhaRevealCard text={videoHooks.aha_reveal_moment} />
+      )}
+
+      {/* ── DIAGRAM DESCRIPTION (Science deep only) ───────────── */}
+      {isSci && mode==="deep" && tc.diagram_description && (
+        <div style={{ background:"#F5F0FF", border:"1px solid #D8C7FF", borderRadius:"18px", padding:"24px 28px" }}>
+          <h2 style={{ fontSize:"15px", fontWeight:700, color:"#5856D6", margin:"0 0 10px" }}>🖼 Diagram</h2>
+          <p style={{ fontSize:"14px", lineHeight:1.75, color:"#3A3A3C", margin:0 }}>{tc.diagram_description}</p>
+        </div>
       )}
 
       {/* ── DIAGRAMS — deep only ──────────────────────────────── */}
@@ -1745,7 +1794,20 @@ export default function NcertTopicView() {
         />
       )}
 
-      {/* ── WORKED EXAMPLES ───────────────────────────────────── */}
+      {/* ── WORKED EXAMPLE (Science flat string) ─────────────── */}
+      {isSci && tc.worked_example && typeof tc.worked_example === "string" && (
+        <div style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", overflow:"hidden" }}>
+          <div style={{ background:"linear-gradient(90deg,#FF9500,#FF6B00)", padding:"12px 28px", display:"flex", alignItems:"center", gap:"8px" }}>
+            <span>📝</span>
+            <span style={{ fontSize:"12px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:"#FFFFFF" }}>Worked Example</span>
+          </div>
+          <div style={{ padding:"20px 28px" }}>
+            <p style={{ fontSize:"14px", lineHeight:1.75, color:"#3A3A3C", margin:0, whiteSpace:"pre-line" }}>{tc.worked_example}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── WORKED EXAMPLES (Math interactive) ───────────────── */}
       {showExamples && (
         <div style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", overflow:"hidden" }}>
           <div style={{ background:"linear-gradient(90deg,#FF9500,#FF6B00)", padding:"12px 28px", display:"flex", alignItems:"center", gap:"8px" }}>
@@ -1793,10 +1855,18 @@ export default function NcertTopicView() {
       {misconceptions.length>0 && (
         <Section title="⚠️ Common Mistakes" accent="#FF3B30" badge={`${misconceptions.length}`} defaultOpen={true}>
           <div style={{ display:"flex", flexDirection:"column", gap:"10px", marginTop:"16px" }}>
-            {misconceptions.map((m,i) => mode==="deep"
-              ? <MisconceptionChallenge key={i} m={m} index={i} />
-              : <MisconceptionCard key={i} m={m} />
-            )}
+            {misconceptions.map((m,i) => {
+              if (typeof m === "string") {
+                return (
+                  <div key={i} style={{ background:"#FFF5F4", border:"1px solid #FFD0CC", borderRadius:"12px", padding:"14px 18px" }}>
+                    <p style={{ fontSize:"14px", color:"#3A3A3C", margin:0 }}>⚠️ {m}</p>
+                  </div>
+                );
+              }
+              return mode==="deep"
+                ? <MisconceptionChallenge key={i} m={m} index={i} />
+                : <MisconceptionCard key={i} m={m} />;
+            })}
           </div>
         </Section>
       )}
@@ -1807,14 +1877,23 @@ export default function NcertTopicView() {
           {tc.shortcuts_and_tricks?.length>0 && (
             <Section title="⚡ Shortcuts & Tricks" accent="#34C759" badge={`${tc.shortcuts_and_tricks.length}`}>
               <div style={{ display:"flex", flexDirection:"column", gap:"10px", marginTop:"16px" }}>
-                {tc.shortcuts_and_tricks.map((s,i) => (
-                  <div key={i} style={{ background:"#F0FFF4", border:"1px solid #C6F0D1", borderRadius:"12px", padding:"14px 18px" }}>
-                    <p style={{ fontSize:"13px", fontWeight:700, color:"#34C759", marginBottom:"4px" }}>{s.shortcut}</p>
-                    {s.rule && <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, marginBottom:"4px" }}>{s.rule}</p>}
-                    {s.example && <p style={{ fontSize:"13px", ...S.mono, color:"#3A3A3C", marginBottom:"4px" }}>{s.example}</p>}
-                    {s.when_to_use && <div style={{ display:"flex", gap:"6px", marginTop:"4px" }}><span>💡</span><p style={{ fontSize:"12px", color:"#007AFF", fontStyle:"italic", margin:0 }}>{s.when_to_use}</p></div>}
-                  </div>
-                ))}
+                {tc.shortcuts_and_tricks.map((s,i) => {
+                  if (typeof s === "string") {
+                    return (
+                      <div key={i} style={{ background:"#F0FFF4", border:"1px solid #C6F0D1", borderRadius:"12px", padding:"14px 18px" }}>
+                        <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, margin:0 }}>⚡ {s}</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={i} style={{ background:"#F0FFF4", border:"1px solid #C6F0D1", borderRadius:"12px", padding:"14px 18px" }}>
+                      <p style={{ fontSize:"13px", fontWeight:700, color:"#34C759", marginBottom:"4px" }}>{s.shortcut}</p>
+                      {s.rule && <p style={{ fontSize:"13px", color:"#1D1D1F", lineHeight:1.6, marginBottom:"4px" }}>{s.rule}</p>}
+                      {s.example && <p style={{ fontSize:"13px", ...S.mono, color:"#3A3A3C", marginBottom:"4px" }}>{s.example}</p>}
+                      {s.when_to_use && <div style={{ display:"flex", gap:"6px", marginTop:"4px" }}><span>💡</span><p style={{ fontSize:"12px", color:"#007AFF", fontStyle:"italic", margin:0 }}>{s.when_to_use}</p></div>}
+                    </div>
+                  );
+                })}
               </div>
             </Section>
           )}

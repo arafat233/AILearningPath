@@ -360,8 +360,12 @@ teaching_content:       Mixed — { intuition, derivation, worked_example, commo
                                   shortcuts_and_tricks, edge_cases, key_takeaway, ... }
 timestamps: createdAt, updatedAt
 
-Seeded via seedDesktopContent.js (42 topics across ch2-4,6,8,11-13)
-and importNcert.js (ch1 topics from earlier import)
+Seeded via:
+- seedDesktopContent.js — 42 Math topics (ch2-4,6,8,11-13), importNcert.js (ch1)
+- seedScienceChemistryContent.js — 16 Science Chemistry topics (sci_ch1–4, Ch1–4)
+- seedScienceBiologyContent.js — 19 Science Biology topics (sci_ch5–8,13, Ch5–8,13)
+- seedSciencePhysicsContent.js — 15 Science Physics topics (sci_ch9–12, Ch9–12)
+Science topicId format: "sci_ch{N}_{descriptor}" e.g. "sci_ch9_mirror_formula"
 ```
 
 ### 3.23 NcertNote
@@ -1354,12 +1358,19 @@ npm run seed:hindi-curriculum            ← NEW: CBSE Class 10 Hindi textbook c
 npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science textbook chapters
 npm run seed:ncert-content              ← NCERT chapter content (self-contained, no external files)
 npm run seed:pyq                        ← 30+ real CBSE board exam PYQ MCQs (2020-2024)
-npm run seed:science-questions          ← NEW: 30 CBSE MCQ practice questions for Science
-npm run seed:english-questions          ← NEW: 30 CBSE MCQ practice questions for English
-npm run seed:hindi-questions            ← NEW: 30 CBSE MCQ practice questions for Hindi
-npm run seed:social-questions           ← NEW: 30 CBSE MCQ practice questions for Social Science
-npm run rag:build-curriculum            ← NEW: build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
-npm run rag:build-science               ← NEW: RAG chunks for Science only
+npm run seed:science-questions          ← 30 CBSE MCQ practice questions for Science (seed 1)
+npm run seed:science-chemistry-questions ← 60 Chemistry MCQs Ch1-4 (seed 2)
+npm run seed:science-biology-questions   ← 75 Biology MCQs Ch5-8,13 (seed 3)
+npm run seed:science-physics-questions   ← 60 Physics MCQs Ch9-12 (seed 4)
+npm run seed:english-questions          ← 30 CBSE MCQ practice questions for English
+npm run seed:hindi-questions            ← 30 CBSE MCQ practice questions for Hindi
+npm run seed:social-questions           ← 30 CBSE MCQ practice questions for Social Science
+npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent (16 topics, Ch1-4)
+npm run seed:science-biology-content    ← Science Biology NcertTopicContent (19 topics, Ch5-8,13)
+npm run seed:science-physics-content    ← Science Physics NcertTopicContent (15 topics, Ch9-12)
+npm run seed:science-topic-dag          ← Science Topic prerequisite DAG (50 nodes)
+npm run rag:build-curriculum            ← build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
+npm run rag:build-science               ← RAG chunks for Science only
 npm run migrate                         ← run pending DB migrations (migrate-mongo)
 ```
 

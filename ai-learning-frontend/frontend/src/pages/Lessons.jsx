@@ -1,6 +1,6 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listLessons, getRevisionDue, listNcertChapters } from "../services/api";
+import { listLessons, getRevisionDue, listNcertChapters, listNcertTopics } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { LessonsSkeleton } from "../components/Skeleton";
 
@@ -21,6 +21,24 @@ const SCIENCE_SUBS = {
 
 // NCERT content was imported with "Mathematics", user model uses "Math"
 const ncertSubject = (s) => (s === "Math" ? "Mathematics" : s);
+
+const SCIENCE_CHAPTER_TITLES = {
+  1: "Chemical Reactions and Equations",
+  2: "Acids, Bases and Salts",
+  3: "Metals and Non-metals",
+  4: "Carbon and its Compounds",
+  5: "Life Processes",
+  6: "Control and Coordination",
+  7: "How do Organisms Reproduce?",
+  8: "Heredity",
+  9: "Light — Reflection and Refraction",
+  10: "The Human Eye and the Colourful World",
+  11: "Electricity",
+  12: "Magnetic Effects of Electric Current",
+  13: "Our Environment",
+};
+
+const SCI_SUB_CHAPTERS = { Physics: [9,10,11,12], Chemistry: [1,2,3,4], Biology: [5,6,7,8,13] };
 
 // ── sub-components ─────────────────────────────────────────────────
 function SubjectBar({ active, onSelect }) {
@@ -121,6 +139,46 @@ const LessonCard = memo(function LessonCard({ lesson, isDue, onLearn, onPractice
   );
 });
 
+function ScienceChapterCard({ chapterNumber, topics, onTopic }) {
+  const [expanded, setExpanded] = useState(false);
+  const title = SCIENCE_CHAPTER_TITLES[chapterNumber] || `Chapter ${chapterNumber}`;
+  return (
+    <div className="card overflow-hidden">
+      <div
+        onClick={() => setExpanded((v) => !v)}
+        className="p-4 flex items-center gap-4 cursor-pointer hover:bg-apple-gray6/50 transition-colors group"
+      >
+        <div className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0"
+          style={{ background: "#34C75918", color: "#34C759" }}>
+          {chapterNumber}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-[var(--label)] group-hover:text-apple-blue transition-colors">
+            {title}
+          </p>
+          <p className="text-[12px] text-apple-gray mt-0.5">{topics.length} topic{topics.length !== 1 ? "s" : ""}</p>
+        </div>
+        <span className={`text-apple-gray3 text-[18px] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}>›</span>
+      </div>
+      {expanded && (
+        <div className="border-t border-[var(--separator)] divide-y divide-[var(--separator)]">
+          {topics.map((t) => (
+            <button
+              key={t.topicId}
+              onClick={() => onTopic(t.topicId)}
+              className="w-full text-left px-5 py-3 flex items-center gap-3 hover:bg-apple-gray6/40 transition-colors group"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0" />
+              <span className="text-[13px] text-[var(--label)] group-hover:text-apple-blue flex-1">{t.name}</span>
+              <span className="text-[12px] text-apple-gray3 shrink-0 group-hover:text-apple-blue">Study →</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── main page ──────────────────────────────────────────────────────
 export default function Lessons() {
   const { user }  = useAuthStore();
@@ -138,6 +196,7 @@ export default function Lessons() {
   const [chapters,    setChapters]    = useState([]);
   const [lessons,     setLessons]     = useState([]);
   const [revisionDue, setRevisionDue] = useState([]);
+  const [sciTopics,   setSciTopics]   = useState([]);
   const [loading,     setLoading]     = useState(true);
 
   // reload when subject changes
@@ -148,12 +207,28 @@ export default function Lessons() {
       listLessons(activeSubject, grade).catch(() => ({ data: [] })),
       getRevisionDue().catch(() => ({ data: [] })),
       listNcertChapters(ncertSubject(activeSubject), grade).catch(() => ({ data: [] })),
-    ]).then(([l, r, c]) => {
+      activeSubject === "Science"
+        ? listNcertTopics(undefined, "Science").catch(() => ({ data: { data: [] } }))
+        : Promise.resolve({ data: { data: [] } }),
+    ]).then(([l, r, c, st]) => {
       setLessons(l.data);
       setRevisionDue(r.data);
       setChapters(c.data?.data ?? []);
+      setSciTopics(st.data?.data ?? []);
     }).finally(() => setLoading(false));
   }, [activeSubject, grade]);
+
+  // group Science NcertTopicContent by chapter number (must be before early return — hooks rule)
+  const sciChapterGroups = useMemo(() => {
+    const groups = {};
+    sciTopics.forEach((t) => {
+      if (!groups[t.chapterNumber]) groups[t.chapterNumber] = [];
+      groups[t.chapterNumber].push(t);
+    });
+    return Object.keys(groups)
+      .map((n) => ({ chapterNumber: Number(n), topics: groups[n] }))
+      .sort((a, b) => a.chapterNumber - b.chapterNumber);
+  }, [sciTopics]);
 
   if (loading) return <LessonsSkeleton />;
 
@@ -163,6 +238,10 @@ export default function Lessons() {
   const visibleChapters = (activeSubject === "Science" && scienceSub)
     ? chapters.filter((ch) => SCIENCE_SUBS[scienceSub]?.some((t) => ch.title?.includes(t) || t.includes(ch.title)))
     : chapters;
+
+  const visibleSciGroups = scienceSub
+    ? sciChapterGroups.filter((g) => SCI_SUB_CHAPTERS[scienceSub]?.includes(g.chapterNumber))
+    : sciChapterGroups;
 
   const visibleLessons = (activeSubject === "Science" && scienceSub)
     ? lessons.filter((l) => SCIENCE_SUBS[scienceSub]?.includes(l.topic))
@@ -214,7 +293,28 @@ export default function Lessons() {
           {/* ── Textbook Chapters ── */}
           {contentTab === "curriculum" && (
             <div className="space-y-3">
-              {visibleChapters.length === 0 ? (
+              {activeSubject === "Science" ? (
+                visibleSciGroups.length === 0 ? (
+                  <div className="card p-10 text-center space-y-2">
+                    <p className="text-[28px]">📚</p>
+                    <p className="text-[15px] font-semibold text-[var(--label)]">Loading Science chapters…</p>
+                    <p className="text-[13px] text-apple-gray">
+                      Switch to <strong>AI Lessons</strong> to study now.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5">
+                    {visibleSciGroups.map((g) => (
+                      <ScienceChapterCard
+                        key={g.chapterNumber}
+                        chapterNumber={g.chapterNumber}
+                        topics={g.topics}
+                        onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : visibleChapters.length === 0 ? (
                 <div className="card p-10 text-center space-y-2">
                   <p className="text-[28px]">📚</p>
                   <p className="text-[15px] font-semibold text-[var(--label)]">

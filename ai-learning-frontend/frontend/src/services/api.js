@@ -198,7 +198,7 @@ export const getCurriculumChapter   = (chapterNumber, subject = "Mathematics", g
 
 export const listNcertChapters    = (subject, grade)    => api.get("/v1/ncert/chapters", { params: { subject, grade } });
 export const getNcertChapter      = (chapterId)         => api.get(`/v1/ncert/chapters/${chapterId}`);
-export const listNcertTopics      = (chapterNumber)     => api.get("/v1/ncert/topics", { params: { chapterNumber } });
+export const listNcertTopics      = (chapterNumber, subject) => api.get("/v1/ncert/topics", { params: { chapterNumber, subject } });
 export const getNcertTopicContent = (topicId)           => api.get(`/v1/ncert/topics/${topicId}`);
 export const getPaperQuestions    = (topicId)           => api.get(`/v1/ncert/topics/${topicId}/paper-questions`);
 export const getStudiedTopics     = ()                  => api.get("/v1/ncert/studied");

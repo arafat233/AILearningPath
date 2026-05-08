@@ -29,13 +29,15 @@ export async function getNcertChapter(req, res, next) {
   }
 }
 
-// GET /api/v1/ncert/topics?chapterNumber=1
+// GET /api/v1/ncert/topics?chapterNumber=1&subject=Science
 export async function listNcertTopics(req, res, next) {
   try {
-    const { chapterNumber } = req.query;
-    const filter = chapterNumber ? { chapterNumber: Number(chapterNumber) } : {};
+    const { chapterNumber, subject } = req.query;
+    const filter = {};
+    if (chapterNumber) filter.chapterNumber = Number(chapterNumber);
+    if (subject)       filter.subject       = subject;
     const topics = await NcertTopicContent.find(filter)
-      .select("topicId name chapterNumber")
+      .select("topicId name chapterNumber subject")
       .sort({ topicId: 1 })
       .lean();
     res.json({ data: topics });

@@ -1630,6 +1630,177 @@ function OzoneLayer() {
   );
 }
 
+/* ── CHEMISTRY: Carbon Allotropes ───────────────────────────────── */
+function CarbonAllotropes() {
+  return (
+    <svg viewBox="0 0 340 240" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Allotropes of Carbon</T>
+
+      {/* ── Diamond (left) ── */}
+      <T x={55} y={30} size={10} bold align="middle" color="#2563EB">Diamond</T>
+      {/* 3D tetrahedral lattice */}
+      {[{cx:55,cy:60},{cx:30,cy:85},{cx:80,cy:85},{cx:55,cy:110}].map((p,i)=>(
+        <circle key={i} cx={p.cx} cy={p.cy} r={10} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1.5}/>
+      ))}
+      {/* bonds */}
+      {[[55,60,30,85],[55,60,80,85],[30,85,55,110],[80,85,55,110]].map(([x1,y1,x2,y2],i)=>(
+        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1E40AF" strokeWidth={1.5}/>
+      ))}
+      <T x={55} y={60} size={9} bold align="middle" color="#1E40AF">C</T>
+      <T x={30} y={85} size={9} bold align="middle" color="#1E40AF">C</T>
+      <T x={80} y={85} size={9} bold align="middle" color="#1E40AF">C</T>
+      <T x={55} y={110} size={9} bold align="middle" color="#1E40AF">C</T>
+      <T x={55} y={128} size={8} align="middle" color="#374151">4 bonds per C</T>
+      <T x={55} y={139} size={8} align="middle" color="#374151">3D tetrahedral lattice</T>
+      <T x={55} y={150} size={8} bold align="middle" color="#EF4444">Hardest • No conductor</T>
+
+      {/* ── Graphite (centre) ── */}
+      <T x={170} y={30} size={10} bold align="middle" color="#16A34A">Graphite</T>
+      {/* Hexagonal layers */}
+      {[0,1,2].map(layer=>{
+        const yOff = 55 + layer*20;
+        const pts = [[145,yOff],[158,yOff-10],[171,yOff-10],[184,yOff],[171,yOff+10],[158,yOff+10]];
+        const path = pts.map((p,i)=>(i===0?"M":"L")+p[0]+","+p[1]).join(" ")+" Z";
+        return (
+          <g key={layer} opacity={1-layer*0.2}>
+            <path d={path} fill="none" stroke="#16A34A" strokeWidth={1.2}/>
+            {pts.map((p,j)=><circle key={j} cx={p[0]} cy={p[1]} r={4} fill="#86EFAC" stroke="#16A34A" strokeWidth={1}/>)}
+          </g>
+        );
+      })}
+      <line x1={145} y1={56} x2={145} y2={96} stroke="#6B7280" strokeWidth={0.8} strokeDasharray="2,2"/>
+      <line x1={184} y1={56} x2={184} y2={96} stroke="#6B7280" strokeWidth={0.8} strokeDasharray="2,2"/>
+      <T x={170} y={125} size={8} align="middle" color="#374151">3 bonds per C</T>
+      <T x={170} y={136} size={8} align="middle" color="#374151">flat hexagonal layers</T>
+      <T x={170} y={147} size={8} bold align="middle" color="#16A34A">1 free e⁻ → conducts</T>
+      <T x={170} y={158} size={8} bold align="middle" color="#16A34A">Soft • Lubricant</T>
+
+      {/* ── Fullerene (right) ── */}
+      <T x={290} y={30} size={10} bold align="middle" color="#D97706">Fullerene C₆₀</T>
+      {/* Simplified soccer-ball */}
+      <circle cx={290} cy={82} r={40} fill="none" stroke="#D97706" strokeWidth={1.8}/>
+      {/* Pentagons */}
+      {[0,72,144,216,288].map((deg,i)=>{
+        const a=deg*Math.PI/180, r=26, cx=290+r*Math.cos(a-Math.PI/2), cy=82+r*Math.sin(a-Math.PI/2);
+        return <polygon key={i} points={[0,1,2,3,4].map(j=>{const b=(j*72-90)*Math.PI/180;return `${cx+8*Math.cos(b)},${cy+8*Math.sin(b)}`;}).join(" ")} fill="#FEF9C3" stroke="#D97706" strokeWidth={1}/>;
+      })}
+      <T x={290} y={85} size={9} bold align="middle" color="#92400E">C₆₀</T>
+      <T x={290} y={128} size={8} align="middle" color="#374151">60 C atoms</T>
+      <T x={290} y={139} size={8} align="middle" color="#374151">Hollow cage</T>
+      <T x={290} y={150} size={8} bold align="middle" color="#D97706">Drug delivery • Nano</T>
+
+      {/* Comparison table */}
+      <rect x={5} y={168} width={330} height={65} rx={6} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      {/* Headers */}
+      {["Property","Diamond","Graphite","Fullerene"].map((h,i)=>(
+        <T key={i} x={18+i*82} y={182} size={8} bold color="#374151">{h}</T>
+      ))}
+      {[
+        ["Hardness","Hardest","Soft","Moderate"],
+        ["Conductivity","Insulator","Good","Semi"],
+        ["Uses","Cutting/gems","Pencil/electrode","Nano/drugs"],
+      ].map((row,r)=>(
+        row.map((cell,c)=>(
+          <T key={c} x={18+c*82} y={194+r*13} size={8} color={c===0?"#6B7280":"#1D1D1F"}>{cell}</T>
+        ))
+      ))}
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Endocrine System ───────────────────────────────────── */
+function EndocrineSystem() {
+  return (
+    <svg viewBox="0 0 300 280" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <T x={150} y={14} size={11} bold align="middle">Endocrine Glands — Locations in Body</T>
+
+      {/* Body outline */}
+      {/* Head */}
+      <circle cx={150} cy={45} r={26} fill="#FEF3C7" stroke="#D97706" strokeWidth={1.5}/>
+      {/* Neck */}
+      <rect x={140} y={70} width={20} height={18} fill="#FEF3C7" stroke="#D97706" strokeWidth={1}/>
+      {/* Torso */}
+      <rect x={110} y={88} width={80} height={100} rx={10} fill="#FEF3C7" stroke="#D97706" strokeWidth={1.5}/>
+      {/* Lower body */}
+      <rect x={118} y={186} width={28} height={50} rx={6} fill="#FEF3C7" stroke="#D97706" strokeWidth={1}/>
+      <rect x={154} y={186} width={28} height={50} rx={6} fill="#FEF3C7" stroke="#D97706" strokeWidth={1}/>
+
+      {/* Gland indicators */}
+      {/* Pituitary — base of brain */}
+      <circle cx={150} cy={50} r={6} fill="#7C3AED" stroke="#4C1D95" strokeWidth={1.5}/>
+      <line x1={156} y1={50} x2={210} y2={38} stroke="#7C3AED" strokeWidth={1}/>
+      <T x={212} y={42} size={8} bold color="#4C1D95">Pituitary</T>
+      <T x={212} y={52} size={7} color="#6B7280">(master gland)</T>
+
+      {/* Thyroid — neck */}
+      <ellipse cx={150} cy={82} rx={12} ry={6} fill="#3B82F6" stroke="#1E40AF" strokeWidth={1.5}/>
+      <line x1={163} y1={82} x2={210} y2={78} stroke="#3B82F6" strokeWidth={1}/>
+      <T x={212} y={82} size={8} bold color="#1E40AF">Thyroid</T>
+      <T x={212} y={92} size={7} color="#6B7280">Thyroxine</T>
+
+      {/* Adrenal — above kidney */}
+      <ellipse cx={118} cy={162} rx={9} ry={5} fill="#EF4444" stroke="#991B1B" strokeWidth={1.5}/>
+      <ellipse cx={182} cy={162} rx={9} ry={5} fill="#EF4444" stroke="#991B1B" strokeWidth={1.5}/>
+      <line x1={109} y1={162} x2={65} y2={158} stroke="#EF4444" strokeWidth={1}/>
+      <T x={16} y={162} size={8} bold color="#991B1B">Adrenal</T>
+      <T x={16} y={172} size={7} color="#6B7280">Adrenaline</T>
+
+      {/* Pancreas */}
+      <rect x={130} y={135} width={40} height={14} rx={5} fill="#F59E0B" stroke="#D97706" strokeWidth={1.5}/>
+      <line x1={170} y1={142} x2={212} y2={142} stroke="#F59E0B" strokeWidth={1}/>
+      <T x={214} y={138} size={8} bold color="#D97706">Pancreas</T>
+      <T x={214} y={148} size={7} color="#6B7280">Insulin/Glucagon</T>
+
+      {/* Ovaries / Testes */}
+      <circle cx={130} cy={192} r={6} fill="#EC4899" stroke="#9D174D" strokeWidth={1}/>
+      <circle cx={170} cy={192} r={6} fill="#EC4899" stroke="#9D174D" strokeWidth={1}/>
+      <line x1={124} y1={192} x2={65} y2={200} stroke="#EC4899" strokeWidth={1}/>
+      <T x={18} y={204} size={8} bold color="#9D174D">Gonads</T>
+      <T x={18} y={214} size={7} color="#6B7280">Oestrogen/</T>
+      <T x={18} y={224} size={7} color="#6B7280">Testosterone</T>
+
+      {/* Feedback note */}
+      <rect x={5} y={248} width={290} height={28} rx={6} fill="#F0FFF4" stroke="#86EFAC" strokeWidth={1}/>
+      <T x={150} y={260} size={8} bold align="middle" color="#15803D">Negative Feedback: hormone level rises →</T>
+      <T x={150} y={271} size={8} align="middle" color="#15803D">gland secretion suppressed → level falls → gland reactivated</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Contraception Methods ─────────────────────────────── */
+function ContraceptionMethods() {
+  return (
+    <svg viewBox="0 0 340 230" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Contraception — Methods &amp; STD Protection</T>
+
+      {/* Category blocks */}
+      {[
+        {x:5,   label:"Barrier", col:"#2563EB", bg:"#DBEAFE", methods:["Male condom","Female condom","Diaphragm"], stds:"YES ✓"},
+        {x:90,  label:"Hormonal", col:"#D97706", bg:"#FEF9C3", methods:["Combined pill","Injection","Implant"], stds:"NO ✗"},
+        {x:175, label:"IUD", col:"#7C3AED", bg:"#EDE9FE", methods:["Copper-T","Hormonal IUD"], stds:"NO ✗"},
+        {x:255, label:"Surgical", col:"#EF4444", bg:"#FEE2E2", methods:["Vasectomy (M)","Tubectomy (F)"], stds:"NO ✗"},
+      ].map((cat,i)=>(
+        <g key={i}>
+          <rect x={cat.x} y={24} width={82} height={140} rx={8} fill={cat.bg} stroke={cat.col} strokeWidth={1.5}/>
+          <T x={cat.x+41} y={38} size={9} bold align="middle" color={cat.col}>{cat.label}</T>
+          {cat.methods.map((m,j)=>(
+            <T key={j} x={cat.x+41} y={56+j*18} size={8} align="middle" color="#1D1D1F">• {m}</T>
+          ))}
+          <rect x={cat.x+4} y={148} width={74} height={13} rx={4} fill={cat.stds.includes("YES") ? "#DCFCE7":"#FEE2E2"} stroke={cat.stds.includes("YES")?"#16A34A":"#EF4444"} strokeWidth={1}/>
+          <T x={cat.x+41} y={158} size={8} bold align="middle" color={cat.stds.includes("YES")?"#15803D":"#EF4444"}>STD: {cat.stds}</T>
+        </g>
+      ))}
+
+      {/* HIV note */}
+      <rect x={5} y={175} width={330} height={50} rx={8} fill="#FFF0F0" stroke="#FCA5A5" strokeWidth={1.5}/>
+      <T x={170} y={189} size={9} bold align="middle" color="#EF4444">HIV/AIDS — KEY FACTS</T>
+      <T x={170} y={202} size={8} align="middle" color="#374151">HIV destroys CD4⁺ T-cells → AIDS. No cure; managed with ART.</T>
+      <T x={170} y={214} size={8} align="middle" color="#374151">Transmitted: unprotected sex, contaminated needles, blood, mother→child.</T>
+      <T x={170} y={226} size={8} bold align="middle" color="#16A34A">NOT transmitted: hugging, food, mosquitoes, toilet seats.</T>
+    </svg>
+  );
+}
+
 /* ── MAP + EXPORT ────────────────────────────────────────────────── */
 
 const DIAGRAM_MAP = {
@@ -1673,6 +1844,10 @@ const DIAGRAM_MAP = {
   sci_ch12_electric_motor:            { label: "Electric Motor — Construction",        Component: ElectricMotor },
   sci_ch12_electromagnetic_induction: { label: "AC Generator — Faraday's Law",         Component: ACGenerator },
   sci_ch12_force_on_conductor:        { label: "Fleming's Left-Hand Rule",             Component: FlemingRule },
+  // New topics
+  sci_ch4_carbon_allotropes:          { label: "Allotropes of Carbon",                 Component: CarbonAllotropes },
+  sci_ch6_endocrine_system:           { label: "Endocrine Glands — Body Map",          Component: EndocrineSystem },
+  sci_ch7_reproductive_health:        { label: "Contraception & STD Protection",       Component: ContraceptionMethods },
 };
 
 export function Diagram({ topicId }) {

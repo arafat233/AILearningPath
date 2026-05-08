@@ -801,6 +801,94 @@ const TOPICS = [
         "The stratospheric ozone layer (O₃) absorbs harmful UV radiation; CFCs released from refrigerants and aerosols drift to the stratosphere and catalytically destroy ozone via free chlorine radicals; one CFC molecule can destroy 100,000 ozone molecules; the Montreal Protocol (1987) successfully began phasing out CFCs and the ozone layer is slowly recovering.",
     },
   },
+
+  // ══════════════════════════════════════════════════════════════════
+  // CHAPTER 6 — Control and Coordination (ADDITION)
+  // ══════════════════════════════════════════════════════════════════
+  {
+    topicId: "sci_ch6_endocrine_system",
+    subject: "Science",
+    chapterNumber: 6,
+    name: "Endocrine System — Chemical Coordination in Animals",
+    prerequisite_knowledge: [
+      "Nervous system and reflex arc",
+      "Concept of hormones as chemical messengers",
+      "Blood as a transport medium",
+    ],
+    key_formulas: [
+      "Feedback mechanism: high blood glucose → insulin released → glucose absorbed → blood glucose falls → insulin stops",
+      "Adrenaline → ↑ heart rate + ↑ blood glucose + ↑ breathing rate (fight-or-flight)",
+      "Thyroxine synthesis requires iodine; deficiency → goitre (enlarged thyroid)",
+    ],
+    teaching_content: {
+      intuition:
+        "Think of the endocrine system as a slow-acting but long-lasting messaging service — WhatsApp messages (hormones) that travel through the bloodstream and reach the right 'group chat' (target organ). Unlike the nervous system which is like a direct phone call (fast, short-lived), hormones are broadcast messages that take seconds to minutes to arrive but their effects can last hours or days. Ductless glands release hormones directly into blood — there are no pipes or tubes.",
+      process_explanation:
+        "Key endocrine glands and their hormones:\n\n1. PITUITARY GLAND (base of brain) — called the 'master gland' because its hormones control other glands. Secretes: growth hormone (GH) — stimulates bone and muscle growth; TSH (controls thyroid); FSH/LH (control gonads); ADH (controls water reabsorption in kidneys).\n\n2. THYROID GLAND (neck, butterfly shape) — secretes THYROXINE. Thyroxine regulates the body's metabolic rate (how fast cells burn energy). It needs iodine to be made. Deficiency: goitre (swelling of thyroid); cretinism in children (stunted mental and physical growth). Excess: hyperthyroidism (weight loss, rapid heartbeat, anxiety).\n\n3. ADRENAL GLAND (one on top of each kidney, hence 'ad' = near, 'renal' = kidney) — secretes ADRENALINE (epinephrine) in emergencies. Adrenaline causes the 'fight-or-flight' response: increases heart rate and breathing rate, raises blood pressure, diverts blood from digestive system to muscles, raises blood glucose (from liver glycogen), dilates pupils.\n\n4. PANCREAS (below stomach, dual function) — exocrine part secretes digestive enzymes; endocrine part (islets of Langerhans) secretes: INSULIN (β cells — lowers blood glucose: promotes glucose uptake by cells, converts glucose to glycogen in liver) and GLUCAGON (α cells — raises blood glucose: promotes glycogen breakdown). Diabetes mellitus: insufficient insulin → high blood glucose (hyperglycaemia).\n\n5. GONADS — Testes secrete TESTOSTERONE (sperm production, male secondary sexual characters: voice deepening, facial hair, muscle development). Ovaries secrete OESTROGEN (female secondary sexual characters: breast development, wider hips) and PROGESTERONE (maintains uterine lining during pregnancy).\n\nFEEDBACK MECHANISM: The body self-regulates hormone levels. Example: when blood glucose rises after a meal → pancreas detects this → secretes insulin → cells absorb glucose → blood glucose falls → pancreas stops secreting insulin. This is called negative feedback.",
+      worked_example:
+        "Exam question: 'A person hears a loud bang behind him. List FOUR changes that occur in his body immediately.' Answer using adrenaline: (1) Heart rate increases — to pump more blood to muscles. (2) Breathing rate increases — to supply more oxygen. (3) Blood glucose rises — liver breaks down glycogen to release glucose for energy. (4) Pupils dilate — to improve vision. (5) Blood flow diverted from digestive organs to skeletal muscles. All these are caused by adrenaline released by the adrenal gland in the fight-or-flight response.\n\nSecond question: 'Why does iodine deficiency cause goitre?' Answer: Thyroid gland needs iodine to make thyroxine. If iodine is deficient, thyroxine cannot be made. The pituitary keeps sending TSH (thyroid-stimulating hormone) to tell the thyroid to produce more, but it cannot. The thyroid keeps getting the signal to grow → it enlarges → visible swelling in neck called goitre.",
+      common_misconceptions: [
+        "Adrenaline is produced in the brain — FALSE. Adrenaline is produced by the adrenal glands located above the kidneys, not the brain.",
+        "Insulin increases blood glucose — FALSE. Insulin LOWERS blood glucose by helping cells absorb it; glucagon RAISES blood glucose.",
+        "Hormones only work in specific gender — FALSE. Testosterone and oestrogen are present in both sexes, just in different concentrations.",
+        "The pancreas only makes digestive juices — FALSE. The pancreatic islets of Langerhans make insulin and glucagon (hormones), while other cells make digestive enzymes.",
+      ],
+      shortcuts_and_tricks: [
+        "Mnemonic for adrenal gland location: 'AD-RENAL — ADd to the top of the RENAL (kidney)' — adrenal gland sits on top of the kidney.",
+        "Insulin vs glucagon memory trick: IN-sulin = takes glucose IN to cells (lowers blood glucose); gluCAGon = takes glucose OUT of cages (raises blood glucose).",
+        "Goitre = thyROID + ioDIne connection — the word 'thyroid' contains no 'iodine' hint, so remember: goitre = iodine deficiency → thyroid enlarges.",
+        "Master gland = PITUITARY = PIT-itary (it sits in a small PIT at the base of the brain called the sella turcica).",
+      ],
+      diagram_description:
+        "Diagram 1 (endocrine gland locations): Outline of human body with labelled arrows pointing to: brain (pituitary gland, pineal gland), neck (thyroid gland with parathyroids behind it), chest area (thymus), just above each kidney (adrenal/suprarenal gland), abdomen (pancreas — dual exocrine + endocrine), lower abdomen (testes in male OR ovaries in female). Diagram 2 (feedback loop): Circular flow diagram showing: High blood glucose → Pancreas (beta cells) → Insulin secreted → Body cells absorb glucose → Blood glucose falls → Pancreas stops secreting → blood glucose maintained around 90 mg/dL. Arrow loop labelled 'Negative Feedback'. Diagram 3 (fight-or-flight): Stick figure experiencing stress → adrenal gland activated → 5 labelled arrows showing: heart rate ↑, breathing ↑, blood glucose ↑, blood flow to muscles ↑, pupils dilate.",
+      key_takeaway:
+        "The endocrine system coordinates the body via hormones (chemical messengers) carried in blood from ductless glands to target organs; key hormones: adrenaline (fight-or-flight, from adrenal glands), thyroxine (metabolism, needs iodine; deficiency → goitre), insulin (lowers blood glucose, from pancreas β-cells), glucagon (raises blood glucose); hormone levels are self-regulated via negative feedback mechanisms.",
+    },
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // CHAPTER 7 — Reproduction (ADDITION)
+  // ══════════════════════════════════════════════════════════════════
+  {
+    topicId: "sci_ch7_reproductive_health",
+    subject: "Science",
+    chapterNumber: 7,
+    name: "Reproductive Health — Contraception, STDs and Population",
+    prerequisite_knowledge: [
+      "Human male and female reproductive systems",
+      "Fertilisation, implantation and pregnancy",
+      "Menstrual cycle basics",
+    ],
+    key_formulas: [
+      "HIV targets CD4⁺ helper T-cells → destroys immune system → AIDS (acquired immune deficiency)",
+      "MTP (Medical Termination of Pregnancy): legal in India under MTP Act; used for family planning",
+      "Barrier contraceptives provide dual protection: prevent pregnancy AND STDs",
+    ],
+    teaching_content: {
+      intuition:
+        "Reproductive health is about taking conscious, informed control of reproduction — knowing when and whether to have children, and protecting yourself and your partner from infections. Just as you use a seatbelt to make driving safe (it doesn't stop you from driving, just makes it safer), contraceptives make reproduction a choice. This is a scientifically important topic because overpopulation, maternal mortality, and STD epidemics are major public health challenges that knowledge can prevent.",
+      process_explanation:
+        "CONTRACEPTION METHODS:\n\n1. BARRIER METHODS — physically prevent sperm from reaching egg:\n   • Male condom: thin latex sheath worn over penis; also prevents STD transmission\n   • Female condom: polyurethane sheath inserted into vagina\n   • Diaphragm: dome-shaped cap inserted over cervix\n   Advantage: no hormones, condoms also protect against STDs\n\n2. HORMONAL METHODS — use synthetic oestrogen/progesterone to prevent ovulation:\n   • Combined oral pill (daily): most common; prevents ovulation\n   • Emergency contraceptive pill ('morning after'): taken within 72 hours\n   • Injectable contraceptives (3-monthly)\n   • Hormonal implant (under skin, slow-release)\n   Advantage: very effective; disadvantage: no STD protection, side effects\n\n3. INTRA-UTERINE DEVICE (IUD):\n   • Copper-T: small copper device inserted into uterus by doctor; prevents implantation\n   • Hormonal IUDs also available\n   • Long-term (5–10 years), reversible\n\n4. SURGICAL METHODS (permanent, usually):\n   • Vasectomy (male): vas deferens cut and tied; sperm cannot reach urethra\n   • Tubectomy / tubal ligation (female): fallopian tubes cut and tied; egg cannot reach uterus\n   These are the most reliable methods but difficult to reverse.\n\nSTDs (SEXUALLY TRANSMITTED DISEASES / INFECTIONS):\n\n1. BACTERIAL STDs — curable with antibiotics:\n   • Gonorrhoea: caused by Neisseria gonorrhoeae; burning sensation during urination, discharge\n   • Syphilis: caused by Treponema pallidum; painless sore, then rash, then organ damage if untreated\n\n2. VIRAL STDs — no complete cure:\n   • HIV/AIDS: Human Immunodeficiency Virus attacks CD4⁺ helper T-lymphocytes → destroys immune system → AIDS (body cannot fight infections). Transmission: unprotected sex, sharing needles, blood transfusion, mother to child. NO CURE — managed with antiretroviral therapy (ART). NOT transmitted by: sharing food, hugging, mosquito bites.\n   • Herpes (HSV-2): painful blisters; remains dormant in nerve cells\n   • Hepatitis B: liver infection via sexual contact or blood\n\nPOPULATION & REPRODUCTIVE HEALTH:\n   India's National Health Mission (NHM) promotes contraception, safe motherhood, and sex education. MTP (Medical Termination of Pregnancy) is legal under specific conditions in India. Adolescent reproductive health education reduces teen pregnancy and STD rates.",
+      worked_example:
+        "CBSE exam question: 'Why are condoms considered a better contraceptive than the pill?' Answer: Condoms are barrier methods that (1) prevent sperm from reaching egg AND (2) also protect against sexually transmitted diseases (STDs) including HIV/AIDS. The pill only prevents pregnancy by stopping ovulation — it provides no protection against STDs. Additionally, the pill requires daily hormonal intervention and can have side effects, while a condom has minimal side effects. For complete protection, condoms are the only method offering both contraception and STD prevention.\n\nSecond question: 'A person is HIV positive but does not have AIDS. Explain.' Answer: HIV is the virus; AIDS is the disease that results when HIV has destroyed enough CD4⁺ helper T-cells that the immune system can no longer fight infections. HIV-positive means the virus is present in the body. AIDS is diagnosed when CD4⁺ T-cell count falls below 200 cells/μL (normal: 500–1500). With antiretroviral therapy (ART), HIV-positive people can live many years without developing AIDS.",
+      common_misconceptions: [
+        "HIV is transmitted by mosquito bites or sharing food — FALSE. HIV is not transmitted by casual contact, mosquitoes, hugging, or sharing utensils. It requires direct blood-to-blood, sexual, or mother-to-child transmission.",
+        "Vasectomy reduces sexual drive or performance — FALSE. Vasectomy only cuts the vas deferens (sperm duct). Testosterone production continues normally; sexual drive and performance are unaffected.",
+        "Condoms are only for men — FALSE. Female condoms also exist and can be used independently by women.",
+        "AIDS is always immediately fatal — FALSE. With modern antiretroviral therapy (ART), HIV-positive people can live decades with near-normal life expectancy.",
+      ],
+      shortcuts_and_tricks: [
+        "ABCD of contraception: A = Abstinence (100% effective), B = Barrier (condom, also protects STDs), C = Chemical (hormonal pill, IUD), D = Definitive (vasectomy, tubectomy).",
+        "HIV vs AIDS: HIV is the virus; AIDS is the disease. You can be HIV+ without AIDS (early/treated stage). AIDS = advanced HIV infection with destroyed immunity.",
+        "VAS-ectomy = VAS deferens cut (male). TUBE-ctomy = FALLopian TUBE cut (female). Both end in -ectomy (cutting).",
+        "STD bacteria are curable (syphilis, gonorrhoea = bacterial → antibiotics); STD viruses are not curable (HIV, herpes, hepatitis B = viral → no cure, only management).",
+      ],
+      diagram_description:
+        "Diagram 1 (contraception methods table): 4-column table — Method | How it works | Effectiveness | Also prevents STDs? Rows: Male condom (barrier, 98%, YES), Female condom (barrier, 95%, YES), Oral pill (hormonal, 99%, NO), Copper-T IUD (physical barrier to implantation, 99%, NO), Vasectomy (permanent, 99.9%, NO), Tubectomy (permanent, 99.9%, NO). Diagram 2 (HIV lifecycle): Simplified diagram showing HIV virus → enters CD4⁺ T-cell → uses reverse transcriptase to integrate DNA → replicates inside T-cell → T-cell destroyed → new viruses infect more T-cells → immune system weakened → AIDS. Diagram 3 (STD transmission flowchart): Three transmission routes shown: Unprotected sex → HIV/herpes/gonorrhoea/syphilis; Contaminated blood/needles → HIV/Hepatitis B; Mother to child (during birth/breastfeeding) → HIV.",
+      key_takeaway:
+        "Contraceptives are broadly barrier (condom — also prevents STDs), hormonal (pill), IUD (Copper-T), and surgical (vasectomy/tubectomy); HIV is the virus, AIDS is the terminal disease caused when HIV destroys CD4⁺ helper T-cells — there is no cure but ART extends life; bacterial STDs (gonorrhoea, syphilis) are curable with antibiotics; condoms are the only method providing dual protection against both pregnancy and STDs.",
+    },
+  },
 ];
 
 async function seed() {

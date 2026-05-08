@@ -669,6 +669,48 @@ const TOPICS = [
         "Ethanol (C₂H₅OH): fermented from glucose, forms esters, oxidises to ethanoic acid. Ethanoic acid (CH₃COOH): weak acid, vinegar. Esterification: acid + alcohol → ester + water (H₂SO₄ catalyst). Soap micelle: hydrophobic tails trap oil inward, hydrophilic heads face water. Soaps fail in hard water; detergents do not.",
     },
   },
+
+  // ── Chapter 4 (ADDITION) — Carbon Allotropes ────────────────────────────────
+  {
+    topicId: "sci_ch4_carbon_allotropes",
+    subject: "Science",
+    chapterNumber: 4,
+    name: "Allotropes of Carbon — Diamond, Graphite and Fullerene",
+    prerequisite_knowledge: [
+      "Covalent bonding in carbon (tetravalency)",
+      "Concept of allotropes (same element, different structural forms)",
+      "Conductors vs insulators",
+    ],
+    key_formulas: [
+      "Diamond: each C bonded to 4 others → 3D tetrahedral rigid lattice (sp³ hybridisation)",
+      "Graphite: each C bonded to 3 others → flat hexagonal layers (sp² hybridisation) + 1 free electron per C",
+      "Fullerene (C₆₀ / Buckminsterfullerene): 60 carbon atoms in hollow soccer-ball cage (20 hexagons + 12 pentagons)",
+    ],
+    teaching_content: {
+      intuition:
+        "Carbon is the ultimate shape-shifter. The same carbon atoms that make a diamond (the hardest natural substance, worth lakhs of rupees per carat) also make graphite (the grey stuff inside your pencil, soft enough to leave marks on paper) and Buckyballs (hollow cages used in nanotechnology). The difference? Entirely how the atoms are connected. It's like using the same LEGO bricks to build a solid cube (diamond), a stack of flat sheets (graphite), or a hollow ball (fullerene). The bonding arrangement changes everything — hardness, conductivity, appearance, uses.",
+      process_explanation:
+        "DIAMOND:\n• Structure: Each carbon atom forms 4 covalent bonds with 4 neighbouring carbon atoms arranged in a tetrahedron. This creates a giant 3D network — every atom is locked in place. There are NO free electrons (all 4 valence electrons are used in bonding).\n• Properties: Hardest natural substance (all covalent bonds in 3D, hard to break). Transparent (no free electrons, does not absorb visible light). Bad conductor of electricity (no free electrons available). Very high melting point (need to break thousands of C–C bonds). Brilliant refractive index → used in jewellery.\n• Uses: Cutting and drilling tools (glass cutters, drill bits, grinding wheels), jewellery, windows for high-pressure equipment.\n\nGRAPHITE:\n• Structure: Each carbon atom forms 3 covalent bonds with 3 neighbouring atoms in the same plane → flat hexagonal rings → forms layers (sheets). The 4th valence electron of each carbon is NOT bonded — it is delocalised (free to move) between layers. Layers are held together by weak van der Waals forces.\n• Properties: Soft and slippery — layers can slide over each other easily (that is why it leaves marks on paper). Good conductor of electricity — delocalised electrons carry current. Opaque grey-black. High melting point (strong covalent bonds within layers).\n• Uses: Lubricant (dry lubrication in machines, locks), electrodes in electrolytic cells and batteries (graphite conducts but doesn't react), pencil 'lead' (not actually lead!), moderator in nuclear reactors (to slow neutrons).\n\nFULLERENE (C₆₀ — Buckminsterfullerene):\n• Structure: 60 carbon atoms arranged in a closed hollow sphere — like a football (soccer ball). The pattern contains 20 hexagons and 12 pentagons. Named after Buckminster Fuller (the architect who designed geodesic domes with the same pattern). Each C forms 3 bonds (like graphite), leaving delocalised electrons.\n• Properties: Hollow cage — can trap atoms or molecules inside. Semiconductor. Conducts electricity. Soluble in organic solvents (unlike diamond and graphite).\n• Uses: Drug delivery (trap drug molecules inside the cage, deliver to specific cells), superconductors (when K atoms are doped in), nanotechnology (building nanotubes, nanowires), lubricants.\n\nWHY ALLOTROPES ARE DIFFERENT:\nAll three are pure carbon (same element, same atoms), but different bonding arrangements (structures) → completely different physical properties. This is the key concept: structure determines properties.",
+      worked_example:
+        "CBSE exam question: 'Give two reasons why diamond is hard but graphite is soft and slippery, even though both are made of only carbon atoms.'\nAnswer:\nDiamond: Each carbon atom is covalently bonded to 4 other carbon atoms in a 3D tetrahedral network. All bonds are strong covalent bonds in all three dimensions. There are no weak bonds to break — every movement requires breaking many C–C bonds simultaneously → diamond is extremely hard.\nGraphite: Each carbon atom is bonded to only 3 others in flat hexagonal layers. The layers are held together by WEAK van der Waals forces. These weak inter-layer forces break easily, allowing layers to slide over each other → graphite is soft and slippery.\nConclusion: Same atoms, different connectivity → opposite physical properties.\n\nSecond question: 'Why is diamond a bad conductor but graphite a good conductor of electricity?'\nDiamond: All 4 valence electrons of each carbon are used in covalent bonding. There are no free electrons to carry charge → bad conductor (insulator).\nGraphite: Each carbon uses only 3 valence electrons in bonding. The 4th electron is delocalised (not tied to any particular atom) and can move freely between layers → free electrons carry electric current → good conductor.",
+      common_misconceptions: [
+        "Pencil 'lead' contains lead metal — FALSE. Pencil 'lead' is actually graphite (carbon), not the metal lead (Pb). The name is historical.",
+        "Diamond and graphite are different elements because they look and behave so differently — FALSE. Both are pure carbon (same element). The difference is entirely due to structure (bonding arrangement).",
+        "Fullerene is the same as graphite because both have 3-bonded carbon — FALSE. Graphite forms flat 2D infinite sheets; fullerene forms a closed 3D hollow sphere (cage structure).",
+        "Harder means higher melting point — PARTIALLY false. Diamond IS both the hardest AND has one of the highest melting points. But graphite also has a very high melting point despite being soft, because the covalent bonds WITHIN the layers are very strong.",
+      ],
+      shortcuts_and_tricks: [
+        "Diamond = 4 bonds × 3D → Hard + No conductor. Graphite = 3 bonds + 1 free electron → Soft + Conductor. Remember: '4D' (diamond = 4 bonds) and '3G' (graphite = 3 bonds).",
+        "DGF for allotropes: Diamond (jewellery, cutting), Graphite (pencils, electrodes, lubricant), Fullerene (drug delivery, nano). D-G-F in alphabetical order: D-G-F.",
+        "Graphite conducts because of the '4th electron' rule — 3 bonds used, 1 electron free per carbon atom.",
+        "Fullerene = football structure: 12 pentagons + 20 hexagons = 32 faces (just like a football). Easy to remember if you play football!",
+      ],
+      diagram_description:
+        "Diagram 1 (diamond lattice): 3D tetrahedral network — each carbon (grey sphere) shown with 4 bonds going to neighbouring carbons in all directions. Label: '4 covalent bonds, 3D rigid lattice, no free electrons'. Diagram 2 (graphite layers): Multiple flat hexagonal layers stacked on top of each other. Within each layer: carbon atoms at hexagon corners with bonds shown. Between layers: dashed lines labelled 'weak van der Waals forces'. Arrow shows 'layers sliding'. Label: 'delocalised electrons (•) between layers → conducts electricity'. Diagram 3 (fullerene C₆₀): A hollow ball made of pentagons (5-sided) and hexagons (6-sided). Labelled: 'Buckminsterfullerene C₆₀, 20 hexagons + 12 pentagons, hollow cage'. Comparison table below: Three columns (Diamond, Graphite, Fullerene) × 5 rows (Bonding, Structure, Hardness, Electrical conductivity, Main uses) for quick comparison.",
+      key_takeaway:
+        "Diamond, graphite and fullerene are all allotropes of carbon (same element, different structures): diamond (4 C–C bonds, 3D lattice) → hardest, insulator; graphite (3 bonds + 1 free electron, layered) → soft, conductor, used in pencils and electrodes; fullerene C₆₀ (hollow cage, 12 pentagons + 20 hexagons) → used in drug delivery and nanotechnology.",
+    },
+  },
 ];
 
 async function seed() {

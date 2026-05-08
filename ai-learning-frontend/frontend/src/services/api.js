@@ -168,6 +168,7 @@ export const adminCreateTopic    = (data)      => api.post("/admin/topics", data
 export const adminUpdateTopic    = (id, data)  => api.put(`/admin/topics/${id}`, data);
 export const adminDeleteTopic    = (id)        => api.delete(`/admin/topics/${id}`);
 export const adminGetRagHealth   = ()          => api.get("/admin/rag-health");
+export const adminGetRetention   = ()          => api.get("/admin/retention");
 export const adminSendTestEmail  = (to)        => api.post("/admin/send-test-email", { to });
 export const adminRunTrialEmails = ()          => api.post("/admin/run-trial-expiry-soon-emails");
 export const adminGetCertificates = (params)  => api.get("/admin/certificates", { params });

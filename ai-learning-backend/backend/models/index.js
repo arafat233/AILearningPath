@@ -609,3 +609,20 @@ const aiFeedbackSchema = new mongoose.Schema({
 aiFeedbackSchema.index({ userId: 1, cacheKey: 1 }, { unique: true }); // one rating per user per response
 aiFeedbackSchema.index({ cacheKey: 1 });                               // aggregate ratings per cached response
 export const AIFeedback = mongoose.model("AIFeedback", aiFeedbackSchema);
+
+// ==================== AnalyticsEvent (core-loop event stream) ====================
+// Lightweight fire-and-forget event log. Auto-purged after 90 days via TTL index.
+// Tracks events not covered by existing collections (Attempt, AICallLog, etc.).
+// Add new event types here: 'practice_start' | 'explanation_shown' | ...
+const analyticsEventSchema = new mongoose.Schema({
+  userId:   { type: String, required: true },
+  event:    { type: String, required: true },
+  subject:  { type: String, default: null },
+  topicId:  { type: String, default: null },
+  metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
+  createdAt: { type: Date, default: Date.now },
+});
+analyticsEventSchema.index({ userId: 1, event: 1, createdAt: -1 });
+analyticsEventSchema.index({ event: 1, createdAt: -1 });
+analyticsEventSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+export const AnalyticsEvent = mongoose.model("AnalyticsEvent", analyticsEventSchema);

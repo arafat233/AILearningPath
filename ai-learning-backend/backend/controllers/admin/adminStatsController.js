@@ -1,5 +1,6 @@
 import { User, Question, Attempt, PaymentRecord, AIUsageStats, NcertChunk } from "../../models/index.js";
 import { getCacheStats } from "../../services/aiRouter.js";
+import { getRetentionMetrics } from "../../services/retentionService.js";
 
 // Claude Haiku 4.5 pricing (USD)
 const HAIKU_INPUT_PER_M  = 0.80;
@@ -178,6 +179,13 @@ export const getAnalytics = async (req, res, next) => {
         attempts:  fillSlots(attemptsTrend,  "count"),
       },
     });
+  } catch (err) { next(err); }
+};
+
+export const getRetention = async (req, res, next) => {
+  try {
+    const data = await getRetentionMetrics();
+    res.json({ data });
   } catch (err) { next(err); }
 };
 

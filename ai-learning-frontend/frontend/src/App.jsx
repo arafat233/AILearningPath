@@ -66,6 +66,7 @@ const MockPaper           = lazy(() => import("./pages/MockPaper"));
 const AdminPayments    = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminNPS         = lazy(() => import("./pages/admin/AdminNPS"));
 const AdminRagHealth   = lazy(() => import("./pages/admin/AdminRagHealth"));
+const AdminRetention   = lazy(() => import("./pages/admin/AdminRetention"));
 const CompanyLogin     = lazy(() => import("./pages/CompanyLogin"));
 const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
 const PYQBank          = lazy(() => import("./pages/PYQBank"));
@@ -174,6 +175,7 @@ export default function App() {
             <Route path="nps"          element={<AdminNPS />} />
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="rag-health"   element={<AdminRagHealth />} />
+            <Route path="retention"    element={<AdminRetention />} />
           </Route>
 
           <Route path="/" element={<RootElement />}>

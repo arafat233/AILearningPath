@@ -13,6 +13,7 @@ import { checkAndAwardBadges } from "../services/badgeService.js";
 import { UserProfile, Streak } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionGet, sessionSet } from "../utils/redisClient.js";
+import { trackEvent } from "../utils/eventTracker.js";
 
 const SESSION_TTL = 7200; // 2 hours — max length of a practice session
 const sessionKey  = (userId) => `practice:${userId}`;
@@ -59,6 +60,9 @@ export const startTopic = async (req, res, next) => {
     const teacherMsg = profile
       ? generateTeacherMessage(profile, { questionsAnswered: 0, sessionCorrect: 0 })
       : null;
+
+    const userDoc = await User.findById(userId).select("subject").catch(() => null);
+    trackEvent(userId, "practice_start", { topicId, subject: userDoc?.subject || "Math" });
 
     res.json({ ...safeQuestion(question), teacherMessage: teacherMsg });
   } catch (err) {
@@ -171,6 +175,10 @@ export const submitAnswer = async (req, res, next) => {
       topicAccuracy: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.accuracy,
       topicAttempts: profileBefore?.topicProgress?.find((t) => t.topic === session.topic)?.attempts,
     }).catch(() => []);
+
+    if (aiExplanation) {
+      trackEvent(userId, "explanation_shown", { topicId: session.topic });
+    }
 
     const nextQuestionRaw = await getNextQuestion(userId, session.topic).catch(() => null);
     const nextQuestionSafe = nextQuestionRaw ? safeQuestion(nextQuestionRaw) : null;

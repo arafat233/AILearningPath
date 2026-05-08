@@ -8,7 +8,8 @@ import { listUsers, updateUserRole, updateUserPlan,
 import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
-import { getAdminStats, getAnalytics, getRagHealth }                       from "../controllers/admin/adminStatsController.js";
+import { getAdminStats, getAnalytics, getRagHealth,
+         getRetention }                                                      from "../controllers/admin/adminStatsController.js";
 import { runOnboardingEmails, runTrialExpirySoonEmails }                   from "../services/onboardingEmailService.js";
 import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
 import { Coupon, PaymentRecord, UserProfile, User }                        from "../models/index.js";
@@ -51,6 +52,7 @@ const topicSchema = Joi.object({
 // Stats & Analytics
 r.get("/stats",                      getAdminStats);
 r.get("/analytics",                  getAnalytics);
+r.get("/retention",                  getRetention);
 r.get("/rag-health",                 getRagHealth);
 
 // Onboarding email sequence — call daily via external cron or manually

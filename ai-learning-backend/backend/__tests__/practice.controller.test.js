@@ -25,6 +25,10 @@ jest.unstable_mockModule("../utils/redisClient.js", () => ({
   sessionDel: jest.fn(),
 }));
 
+jest.unstable_mockModule("../utils/eventTracker.js", () => ({
+  trackEvent: jest.fn(),
+}));
+
 jest.unstable_mockModule("../utils/logger.js", () => ({
   default: { warn: jest.fn(), info: jest.fn(), error: jest.fn() },
 }));

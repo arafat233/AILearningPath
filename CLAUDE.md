@@ -60,9 +60,9 @@ role-protected API routes, not a separate service. This is correct.
    next(new AppError("message", 404))
    ```
 
-4. **Sessions must not use in-memory object** — practiceController
-   `sessions = {}` must be replaced with DB or Redis before any
-   multi-instance deployment. Flag this risk when touching practiceController.
+4. **Sessions are Redis-backed** — practiceController uses `sessionGet`/`sessionSet`
+   from `utils/redisClient.js` (ioredis, 2h TTL). The old `sessions = {}` concern
+   is resolved. Safe for multi-instance deployment as long as Redis is shared.
 
 5. **Never hardcode origins** — use `process.env.FRONTEND_URL`.
 

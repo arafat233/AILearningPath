@@ -13,6 +13,7 @@ const links = [
   { to: "/admin/nps",           label: "NPS"          },
   { to: "/admin/certificates",  label: "Certificates" },
   { to: "/admin/rag-health",    label: "RAG Health"   },
+  { to: "/admin/retention",     label: "Retention"    },
 ];
 
 export default function AdminLayout() {

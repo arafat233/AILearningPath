@@ -26,7 +26,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.4,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Clay teaches the potter about the cycle of creation and the transience of existence", type: "correct", logicTag: "" },
       { text: "The potter is superior to clay because he shapes it into useful objects", type: "concept_error", logicTag: "misread_hierarchy" },
@@ -51,7 +51,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "A bird that migrates in winter", type: "concept_error", logicTag: "literal_bird_only" },
       { text: "The pure soul or Atman that must leave the body (lake)", type: "correct", logicTag: "" },
@@ -76,7 +76,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Saguna Bhakti (worship of God with form)", type: "concept_error", logicTag: "opposite_tradition" },
       { text: "Nirguna Bhakti (worship of formless God)", type: "correct", logicTag: "" },
@@ -101,7 +101,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Shringar ras (the emotion of love/beauty)", type: "concept_error", logicTag: "romantic_rasa_wrong" },
       { text: "Upma (simile) and Rupak (metaphor) with everyday imagery", type: "correct", logicTag: "" },
@@ -126,7 +126,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Speak loudly and clearly so everyone can hear you", type: "concept_error", logicTag: "physical_voice_misread" },
       { text: "Speak in such a way that gives peace to the self and others — lose the ego in speech", type: "correct", logicTag: "" },
@@ -153,7 +153,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The glory of the Mughal emperors", type: "concept_error", logicTag: "historical_topic_wrong" },
       { text: "Intense devotion (viraha bhakti) to Lord Krishna and longing for union with him", type: "correct", logicTag: "" },
@@ -178,7 +178,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Mughal royal family of Delhi", type: "concept_error", logicTag: "wrong_dynasty" },
       { text: "Rathore clan of Merta (Jodhpur region), Rajasthan", type: "correct", logicTag: "" },
@@ -203,7 +203,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Meera's father's home (maika)", type: "concept_error", logicTag: "literal_house_reading" },
       { text: "Lord Krishna who lifted the Govardhan mountain (Giridhara)", type: "correct", logicTag: "" },
@@ -228,7 +228,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.75,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Meera's medical knowledge of antidotes", type: "concept_error", logicTag: "literal_misreading" },
       { text: "That divine devotion (bhakti) transforms all suffering and obstacles into blessings", type: "correct", logicTag: "" },
@@ -253,7 +253,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Khariboli Hindi", type: "concept_error", logicTag: "standard_hindi_not_used" },
       { text: "Braj Bhasha mixed with Rajasthani", type: "correct", logicTag: "" },
@@ -280,7 +280,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Lakshman", type: "concept_error", logicTag: "wrong_character" },
       { text: "Shri Ram", type: "correct", logicTag: "" },
@@ -305,7 +305,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Fearful and submissive", type: "concept_error", logicTag: "opposite_of_actual" },
       { text: "Bold, witty, and fearless — even provocative with sarcasm", type: "correct", logicTag: "" },
@@ -330,7 +330,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Valmiki Ramayana (Sanskrit)", type: "concept_error", logicTag: "original_sanskrit_not_cbse_text" },
       { text: "Ramcharitmanas by Tulsidas (Balkand)", type: "correct", logicTag: "" },
@@ -355,7 +355,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Karunaras (the emotion of compassion)", type: "concept_error", logicTag: "wrong_rasa" },
       { text: "Veer ras (heroism) combined with Vyang (sarcasm/irony)", type: "correct", logicTag: "" },
@@ -380,7 +380,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "He is an avatar of Brahma and creator of the universe", type: "concept_error", logicTag: "wrong_deity_attribute" },
       { text: "He is an avatar of Vishnu who annihilated Kshatriyas 21 times to avenge his father's death", type: "correct", logicTag: "" },
@@ -407,7 +407,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Delhi (the city)", type: "concept_error", logicTag: "vyaktiwachak_proper_noun" },
       { text: "Ladka (boy — a common noun for all boys)", type: "correct", logicTag: "" },
@@ -432,7 +432,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ganga (name of a river)", type: "concept_error", logicTag: "vyaktiwachak_proper_noun" },
       { text: "Imandaari (honesty)", type: "correct", logicTag: "" },
@@ -457,7 +457,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Larka (boy)", type: "concept_error", logicTag: "jatiwachak_common" },
       { text: "Sabhaa (assembly/gathering)", type: "correct", logicTag: "" },
@@ -482,7 +482,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Pulling (masculine)", type: "concept_error", logicTag: "wrong_gender" },
       { text: "Striling (feminine)", type: "correct", logicTag: "" },
@@ -508,7 +508,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ladkiya", type: "concept_error", logicTag: "incomplete_plural" },
       { text: "Ladkiyaan", type: "correct", logicTag: "" },
@@ -535,7 +535,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Nishchay Vachak Sarvnam (Demonstrative Pronoun)", type: "concept_error", logicTag: "yeh_woh_demonstrative_confusion" },
       { text: "Purush Vachak Sarvnam (Personal Pronoun)", type: "correct", logicTag: "" },
@@ -560,7 +560,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Koi (someone)", type: "concept_error", logicTag: "anishchay_indefinite" },
       { text: "Apne aap / Khud (oneself/myself)", type: "correct", logicTag: "" },
@@ -585,7 +585,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "aa (come)", type: "concept_error", logicTag: "verb_not_pronoun" },
       { text: "Kaun (who)", type: "correct", logicTag: "" },
@@ -610,7 +610,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Purush Vachak Sarvnam (Personal Pronoun)", type: "concept_error", logicTag: "personal_pronoun_confused" },
       { text: "Sambandh Vachak Sarvnam (Relative Pronoun)", type: "correct", logicTag: "" },
@@ -635,7 +635,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Tu (thou/you — very informal)", type: "concept_error", logicTag: "least_formal" },
       { text: "Aap (you — most respectful form)", type: "correct", logicTag: "" },
@@ -662,7 +662,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Vyanjan Sandhi (Consonant Junction)", type: "concept_error", logicTag: "wrong_sandhi_type" },
       { text: "Swar Sandhi (Vowel Junction)", type: "correct", logicTag: "" },
@@ -687,7 +687,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Him + Aalay", type: "concept_error", logicTag: "wrong_split_double_a" },
       { text: "Hima + Aalay", type: "correct", logicTag: "" },
@@ -712,7 +712,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Vidyalay", type: "concept_error", logicTag: "missing_aa_in_result" },
       { text: "Vidyaalaya", type: "correct", logicTag: "" },
@@ -737,7 +737,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.75,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "It remains as Visarga (ः)", type: "concept_error", logicTag: "no_change_assumed" },
       { text: "It becomes 'o' (o-kaar): aah + aas → aho/o-sound", type: "concept_error", logicTag: "specific_rule_confused" },
@@ -762,7 +762,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.78,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ram + Aayan = Ramaayan (a+aa=aa)", type: "concept_error", logicTag: "dirgha_sandhi_not_ayaadi" },
       { text: "Nau + Ik = Navik (au + i → av + i)", type: "correct", logicTag: "" },

@@ -20,6 +20,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _reportError;
   String? _adviceError;
 
+  // Streak
+  StreakStatus? _streakStatus;
+  bool _loadingStreak = false;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadData() async {
     _loadReport();
     _loadAdvice();
+    _loadStreak();
   }
 
   Future<void> _loadReport() async {
@@ -61,6 +66,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadStreak() async {
+    setState(() => _loadingStreak = true);
+    try {
+      final streak = await StudyService.instance.getStreakStatus();
+      if (mounted) setState(() => _streakStatus = streak);
+    } catch (_) {
+      // Streak is non-critical — silently ignore
+    } finally {
+      if (mounted) setState(() => _loadingStreak = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +94,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   _buildGreeting(),
+                  const SizedBox(height: 20),
+                  _buildStreakCard(),
                   const SizedBox(height: 20),
                   _buildStatsRow(),
                   const SizedBox(height: 20),
@@ -152,8 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     if (user?.grade != null)
                       _buildWhiteChip('Grade ${user!.grade}'),
-                    if (user?.subject != null)
-                      _buildWhiteChip(user!.subject!),
+                    if (user?.subject != null) _buildWhiteChip(user!.subject!),
                     if (user?.examBoard != null)
                       _buildWhiteChip(user!.examBoard!),
                   ],
@@ -183,6 +201,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  // ── Streak card ─────────────────────────────────────────────────────────────
+
+  Widget _buildStreakCard() {
+    if (_loadingStreak && _streakStatus == null) {
+      return Container(
+        height: 68,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF9500), Color(0xFFFF3B30)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: const Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final streak = _streakStatus?.streak ?? 0;
+    final longest = _streakStatus?.longestStreak ?? 0;
+    final grace = _streakStatus?.graceAvailable ?? false;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF9500), Color(0xFFFF3B30)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Text('🔥', style: TextStyle(fontSize: 28)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '$streak day${streak == 1 ? '' : 's'} streak',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (grace) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF34C759),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Best: $longest days',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (grace)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Grace',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Stats row ────────────────────────────────────────────────────────────────
 
   Widget _buildStatsRow() {
     if (_loadingReport) {
@@ -289,6 +414,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── AI Advice card ───────────────────────────────────────────────────────────
+
   Widget _buildAIAdviceCard() {
     return Container(
       decoration: BoxDecoration(
@@ -299,12 +426,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           InkWell(
             onTap: () => setState(() => _adviceExpanded = !_adviceExpanded),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-              bottomRight: Radius.circular(12),
-            ),
+            borderRadius: BorderRadius.circular(12),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -409,12 +531,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── Quick actions ────────────────────────────────────────────────────────────
+
   Widget _buildQuickActions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Quick Actions',
-            style: Theme.of(context).textTheme.titleLarge),
+        Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -424,7 +547,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 label: 'Start Practice',
                 color: kPrimary,
                 onTap: () {
-                  // Navigate to Practice tab (index 1)
                   final shell =
                       context.findAncestorStateOfType<State>() as dynamic;
                   try {

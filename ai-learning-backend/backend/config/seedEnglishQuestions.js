@@ -25,7 +25,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Wheat and corn", type: "correct", logicTag: "" },
       { text: "Rice and sugarcane", type: "concept_error", logicTag: "wrong_crop_details" },
@@ -50,7 +50,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "They refused to deliver his letter to God", type: "concept_error", logicTag: "incorrect_reason" },
       { text: "He received only 70 pesos instead of the 100 pesos he had asked for", type: "correct", logicTag: "" },
@@ -75,7 +75,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The destructive power of natural disasters", type: "concept_error", logicTag: "minor_theme_not_central" },
       { text: "Unshakeable faith in God and the irony of human ingratitude", type: "correct", logicTag: "" },
@@ -100,7 +100,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "He was ordered to do so by the government", type: "concept_error", logicTag: "authority_not_involved" },
       { text: "He did not want to shatter Lencho's faith in God", type: "correct", logicTag: "" },
@@ -125,7 +125,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "English", type: "concept_error", logicTag: "assumed_original_language" },
       { text: "Spanish", type: "correct", logicTag: "" },
@@ -152,7 +152,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Only the ANC anthem was sung as a mark of victory", type: "concept_error", logicTag: "partial_ceremony_misread" },
       { text: "Both the old anthem (Nkosi Sikelel' iAfrika) and the new national anthem were sung", type: "correct", logicTag: "" },
@@ -177,7 +177,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Its gold and diamond mines", type: "concept_error", logicTag: "material_wealth_confused_with_human" },
       { text: "Its people", type: "correct", logicTag: "" },
@@ -202,7 +202,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.75,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The oppressor should be punished so that both sides can be free", type: "concept_error", logicTag: "revenge_logic_applied" },
       { text: "Prejudice and hatred cage the oppressor too — true freedom requires liberating both from hate", type: "correct", logicTag: "" },
@@ -227,7 +227,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "10 years", type: "concept_error", logicTag: "underestimated" },
       { text: "27 years", type: "correct", logicTag: "" },
@@ -252,7 +252,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Obligation to work hard and obligation to pay taxes", type: "concept_error", logicTag: "civic_duty_confused" },
       { text: "Obligation to family/community and obligation to one's people/nation", type: "correct", logicTag: "" },
@@ -279,7 +279,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "He had a broken wing", type: "concept_error", logicTag: "physical_injury_invented" },
       { text: "He was afraid that his wings would not support him over the vast expanse of sea", type: "correct", logicTag: "" },
@@ -304,7 +304,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Young birds should obey their parents at all times", type: "concept_error", logicTag: "obedience_theme_misread" },
       { text: "Fear and self-doubt hold us back; courage and trust in oneself lead to success", type: "correct", logicTag: "" },
@@ -329,7 +329,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "London to Paris", type: "concept_error", logicTag: "direction_reversed" },
       { text: "Paris to England (London)", type: "correct", logicTag: "" },
@@ -354,7 +354,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The pilot's radio and compass stopped working", type: "partial_logic", logicTag: "problem_not_mystery" },
       { text: "The black aeroplane that guided him had no record — neither control nor the pilot saw it", type: "correct", logicTag: "" },
@@ -379,7 +379,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "They ignored him and flew away", type: "concept_error", logicTag: "indifferent_family_invented" },
       { text: "They screamed with joy, praising and swimming around him", type: "correct", logicTag: "" },
@@ -406,7 +406,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "goes", type: "correct", logicTag: "" },
       { text: "go", type: "concept_error", logicTag: "subject_verb_agreement_missed" },
@@ -431,7 +431,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "She has went to the market.", type: "concept_error", logicTag: "wrong_past_participle" },
       { text: "She has gone to the market.", type: "correct", logicTag: "" },
@@ -456,7 +456,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "had dinner", type: "concept_error", logicTag: "simple_past_not_continuous" },
       { text: "were having", type: "correct", logicTag: "" },
@@ -481,7 +481,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "I will going to visit Delhi next week.", type: "concept_error", logicTag: "double_future_marker" },
       { text: "I am going to visit Delhi next week.", type: "correct", logicTag: "" },
@@ -506,7 +506,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.72,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Simple Past in both clauses", type: "concept_error", logicTag: "tense_shift_ignored" },
       { text: "Simple Past (arrived) and Past Perfect (had left)", type: "correct", logicTag: "" },
@@ -533,7 +533,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The student is praised by the teacher.", type: "concept_error", logicTag: "present_tense_used" },
       { text: "The student was praised by the teacher.", type: "correct", logicTag: "" },
@@ -558,7 +558,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Priya writes the letter.", type: "concept_error", logicTag: "present_tense_wrong" },
       { text: "Priya wrote the letter.", type: "correct", logicTag: "" },
@@ -583,7 +583,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "This task was completed by you.", type: "concept_error", logicTag: "modal_dropped" },
       { text: "This task must be completed by you.", type: "correct", logicTag: "" },
@@ -608,7 +608,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ram eats mangoes.", type: "concept_error", logicTag: "active_voice" },
       { text: "Mangoes are eaten by Ram.", type: "correct", logicTag: "" },
@@ -633,7 +633,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "A new bridge is built by the workers.", type: "concept_error", logicTag: "continuous_aspect_dropped" },
       { text: "A new bridge is being built by the workers.", type: "correct", logicTag: "" },
@@ -660,7 +660,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "My dear friend,", type: "concept_error", logicTag: "informal_salutation" },
       { text: "Sir / Madam,", type: "correct", logicTag: "" },
@@ -685,7 +685,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Subject → Salutation → Body → Sender's address → Date", type: "concept_error", logicTag: "completely_scrambled" },
       { text: "Sender's address → Date → Receiver's address → Subject → Salutation → Body → Complimentary close → Signature", type: "correct", logicTag: "" },
@@ -710,7 +710,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Yours faithfully,", type: "concept_error", logicTag: "formal_close_used" },
       { text: "Yours sincerely,", type: "concept_error", logicTag: "semi_formal_close_used" },
@@ -735,7 +735,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "A personal diary entry shared with the public", type: "concept_error", logicTag: "diary_confused_with_letter" },
       { text: "A formal letter expressing views on a public issue, requesting publication", type: "correct", logicTag: "" },
@@ -760,7 +760,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Aggressive and threatening", type: "concept_error", logicTag: "rude_tone_not_appropriate" },
       { text: "Formal, polite, and assertive — clearly stating the problem and requesting remedy", type: "correct", logicTag: "" },

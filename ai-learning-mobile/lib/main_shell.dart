@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'config/theme.dart';
+import 'screens/analytics_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/lessons_screen.dart';
 import 'screens/practice_screen.dart';
@@ -32,6 +33,11 @@ class _MainShellState extends State<MainShell> {
       activeIcon: Icons.menu_book_rounded,
     ),
     _TabItem(
+      label: 'Analytics',
+      icon: Icons.bar_chart_outlined,
+      activeIcon: Icons.bar_chart_rounded,
+    ),
+    _TabItem(
       label: 'Profile',
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
@@ -42,6 +48,7 @@ class _MainShellState extends State<MainShell> {
     DashboardScreen(),
     PracticeScreen(),
     LessonsScreen(),
+    AnalyticsScreen(),
     ProfileScreen(),
   ];
 

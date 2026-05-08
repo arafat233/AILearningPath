@@ -26,7 +26,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Actual Resources", type: "concept_error", logicTag: "used_resources_confused" },
       { text: "Potential Resources", type: "correct", logicTag: "" },
@@ -52,7 +52,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ministry of Environment, Forest and Climate Change", type: "concept_error", logicTag: "environment_ministry_confused" },
       { text: "Survey of India under the Union Ministry of Science and Technology", type: "correct", logicTag: "" },
@@ -77,7 +77,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Alluvial soil", type: "concept_error", logicTag: "river_plains_soil_confused" },
       { text: "Black soil (Regur)", type: "correct", logicTag: "" },
@@ -102,7 +102,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Stopping all development to preserve nature for future generations", type: "concept_error", logicTag: "no_development_extreme" },
       { text: "Development that meets present needs without compromising future generations' ability to meet their needs", type: "correct", logicTag: "" },
@@ -127,7 +127,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Renewable resources", type: "concept_error", logicTag: "renewable_confused" },
       { text: "Non-renewable resources", type: "correct", logicTag: "" },
@@ -154,7 +154,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Kerala", type: "concept_error", logicTag: "wrong_state" },
       { text: "Uttarakhand (then Uttar Pradesh hills)", type: "correct", logicTag: "" },
@@ -179,7 +179,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Biosphere Reserves are smaller in area than National Parks", type: "concept_error", logicTag: "size_comparison_wrong" },
       { text: "Biosphere Reserves allow some human habitation and sustainable use in buffer zones, integrating biodiversity with people", type: "correct", logicTag: "" },
@@ -204,7 +204,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Vulnerable", type: "concept_error", logicTag: "lower_risk_category" },
       { text: "Critically Endangered", type: "correct", logicTag: "" },
@@ -229,7 +229,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Reserved Forests", type: "concept_error", logicTag: "most_protected_not_least" },
       { text: "Village Forests or Unclassed Forests", type: "correct", logicTag: "" },
@@ -254,7 +254,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Building check dams for rainwater harvesting", type: "concept_error", logicTag: "water_conservation_confused" },
       { text: "Protecting the blackbuck and khejri trees by sacrificing their lives", type: "correct", logicTag: "" },
@@ -281,7 +281,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Declare war on Austria", type: "concept_error", logicTag: "confused_with_austro-prussian_war" },
       { text: "Draft a constitution for a unified Germany", type: "correct", logicTag: "" },
@@ -306,7 +306,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Napoleon Bonaparte of France", type: "concept_error", logicTag: "napoleon_defeated_at_congress" },
       { text: "Duke Metternich of Austria", type: "correct", logicTag: "" },
@@ -331,7 +331,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Giuseppe Garibaldi", type: "concept_error", logicTag: "italian_unifier_confused" },
       { text: "Otto von Bismarck", type: "correct", logicTag: "" },
@@ -356,7 +356,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Promoting rational scientific thought over tradition", type: "concept_error", logicTag: "opposite_of_romanticism" },
       { text: "Evoking collective national identity through folk songs, stories, poetry, and vernacular languages", type: "correct", logicTag: "" },
@@ -381,7 +381,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Liberty, equality, and fraternity", type: "concept_error", logicTag: "core_ideals_wrongly_chosen" },
       { text: "Restoration of monarchy and aristocratic privileges", type: "correct", logicTag: "" },
@@ -408,7 +408,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The Jallianwala Bagh Massacre", type: "concept_error", logicTag: "event_that_started_movement" },
       { text: "The Chauri Chaura incident, where a mob burned a police station killing policemen", type: "correct", logicTag: "" },
@@ -433,7 +433,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "It was the first movement in which only upper-caste Hindus participated", type: "concept_error", logicTag: "narrow_participation_wrong" },
       { text: "It challenged a symbol of British economic exploitation and involved all sections of society", type: "correct", logicTag: "" },
@@ -458,7 +458,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Grant self-government to Indian provinces", type: "concept_error", logicTag: "opposite_intent" },
       { text: "Detain any person without trial for up to two years on suspicion of sedition", type: "correct", logicTag: "" },
@@ -483,7 +483,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.75,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "They wanted higher wages from British tea companies", type: "partial_logic", logicTag: "only_one_reason" },
       { text: "They linked swaraj (self-rule) with the freedom to return to their home villages — the Inland Emigration Act prevented them from leaving plantations", type: "correct", logicTag: "" },
@@ -508,7 +508,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "1920", type: "concept_error", logicTag: "non_cooperation_year" },
       { text: "1942", type: "correct", logicTag: "" },
@@ -535,7 +535,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "It is difficult to calculate accurately", type: "concept_error", logicTag: "computational_issue_not_conceptual" },
       { text: "It does not reflect the distribution of income, or access to education, health, and equality", type: "correct", logicTag: "" },
@@ -560,7 +560,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "World Bank", type: "concept_error", logicTag: "economic_institution_confused" },
       { text: "United Nations Development Programme (UNDP)", type: "correct", logicTag: "" },
@@ -585,7 +585,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "People in developing countries only care about income", type: "concept_error", logicTag: "oversimplification" },
       { text: "People have different aspirations, needs, and situations — development goals depend on their life context", type: "correct", logicTag: "" },
@@ -610,7 +610,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Sustainable development only occurs in rich countries", type: "concept_error", logicTag: "wealth_condition_wrong" },
       { text: "Sustainable development considers the consequences for future generations and does not deplete resources", type: "correct", logicTag: "" },
@@ -635,7 +635,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.74,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Income is the only factor that matters for quality of life", type: "concept_error", logicTag: "income_only_view" },
       { text: "High income does not automatically translate to better health, education, or social equality", type: "correct", logicTag: "" },
@@ -662,7 +662,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Acting as a standard for deferred payments", type: "concept_error", logicTag: "secondary_function" },
       { text: "Medium of exchange that eliminates the need for double coincidence of wants", type: "correct", logicTag: "" },
@@ -687,7 +687,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "A moneylender charging 5% per month", type: "concept_error", logicTag: "informal_sector" },
       { text: "A bank loan from the State Bank of India", type: "correct", logicTag: "" },
@@ -712,7 +712,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "It is used to buy agricultural inputs and the harvest is good", type: "concept_error", logicTag: "beneficial_credit_confused" },
       { text: "The borrower cannot repay, leading to debt trap — loss of assets and greater poverty", type: "correct", logicTag: "" },
@@ -737,7 +737,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Providing direct government grants to members", type: "concept_error", logicTag: "government_subsidy_confused" },
       { text: "Organising members to save collectively and access credit without collateral at reasonable interest", type: "correct", logicTag: "" },
@@ -762,7 +762,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Banks are trying to exploit depositors", type: "concept_error", logicTag: "exploitation_narrative_wrong" },
       { text: "The difference (spread) covers operating costs and generates profit for the bank", type: "correct", logicTag: "" },

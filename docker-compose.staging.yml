@@ -1,0 +1,86 @@
+version: "3.9"
+
+# Staging environment — fully self-contained, runs alongside production.
+# Start:  docker compose -f docker-compose.staging.yml up -d
+# Stop:   docker compose -f docker-compose.staging.yml down
+# Reset:  bash scripts/staging-reset.sh
+#
+# Port mapping (host → container):
+#   Backend  5002 → 5000   (prod uses 5001)
+#   MongoDB  27018          (prod uses 27017 — internal only)
+#   Redis    6380           (prod uses 6379 — internal only)
+
+services:
+  # ── MongoDB ───────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: stellar-mongo-staging
+    restart: unless-stopped
+    volumes:
+      - staging_mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: stellar_staging
+    ports:
+      - "27018:27017"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.adminCommand(\"ping\").ok' | mongosh --quiet 2>/dev/null | grep -q 1"]
+      interval: 30s
+      timeout: 25s
+      retries: 5
+      start_period: 40s
+
+  # ── Redis ─────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: stellar-redis-staging
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - staging_redis_data:/data
+    ports:
+      - "6380:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Backend API ───────────────────────────────────────────────────
+  api:
+    image: stellar-api-staging
+    container_name: stellar-api-staging
+    build:
+      context: ./ai-learning-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5002:5000"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    env_file:
+      - .env.staging
+    environment:
+      NODE_ENV: staging
+      STAGING: "true"
+      PORT: 5000
+      MONGO_URI: mongodb://stellar-mongo-staging:27017/stellar_staging
+      REDIS_URL: redis://stellar-redis-staging:6379
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+
+volumes:
+  staging_mongo_data:
+  staging_redis_data:

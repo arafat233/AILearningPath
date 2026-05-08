@@ -1,0 +1,113 @@
+name: Staging Deploy
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+# Cancel any in-progress staging deploy when a new one is triggered
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: Tests ─────────────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            ai-learning-backend/backend/package-lock.json
+            ai-learning-frontend/frontend/package-lock.json
+
+      # ── Backend ──────────────────────────────────────────────────────
+      - name: Install backend dependencies
+        working-directory: ai-learning-backend/backend
+        run: npm ci
+
+      - name: Run backend unit tests
+        working-directory: ai-learning-backend/backend
+        env:
+          MONGO_URI: mongodb://localhost:27017/ai_learning_test
+          JWT_SECRET: test_secret_for_ci_only
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          NODE_ENV: test
+        run: npm test
+
+      - name: Run backend integration tests
+        working-directory: ai-learning-backend/backend
+        env:
+          MONGO_URI: mongodb://localhost:27017/ai_learning_test
+          JWT_SECRET: test_secret_for_ci_only
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          NODE_ENV: test
+        run: npm run test:integration
+
+      # ── Frontend ─────────────────────────────────────────────────────
+      - name: Install frontend dependencies
+        working-directory: ai-learning-frontend/frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: ai-learning-frontend/frontend
+        run: npm run test -- --run
+        env:
+          VITE_API_URL: http://localhost:5001/api
+
+      - name: Build frontend (smoke check)
+        working-directory: ai-learning-frontend/frontend
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:5001/api
+
+  # ── Job 2: Deploy ─────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to Staging
+    needs: test
+    runs-on: ubuntu-latest
+    # Only deploy on push to staging branch, not on manual workflow_dispatch
+    # from other branches (dispatch without branch context skips deploy)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Deploy staging via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key:      ${{ secrets.DEPLOY_KEY }}
+          port:     22
+          script: |
+            set -e
+            cd /home/deploy/AILearningPath
+            git fetch origin
+            git checkout staging
+            git pull origin staging
+            docker compose -f docker-compose.staging.yml pull
+            docker compose -f docker-compose.staging.yml up -d --build
+
+      - name: Print staging URL
+        run: |
+          echo "==========================================="
+          echo " Staging deploy complete"
+          echo " API:     http://${{ secrets.DEPLOY_HOST }}:5002"
+          echo " Web:     http://staging.stellaredu.in"
+          echo "==========================================="

@@ -27,7 +27,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   Question? _currentQuestion;
   bool _loadingQuestion = false;
   String? _questionError;
-  String? _selectedOption;
+  int? _selectedOption; // index 0-3, not letter
   SubmitResult? _lastResult;
   bool _submitting = false;
   int _streak = 0;
@@ -81,11 +81,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _questionStartTime = DateTime.now();
     });
     try {
-      final question = await StudyService.instance.getQuestion(
-        subject: _user?.subject ?? 'Mathematics',
-        topic: _selectedTopic?.name,
-        grade: _user?.grade,
-      );
+      final question = await StudyService.instance.startTopic(_selectedTopic!.id);
       if (mounted) {
         setState(() {
           _currentQuestion = question;
@@ -99,23 +95,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
-  Future<void> _selectOption(String option) async {
+  Future<void> _selectOption(int index) async {
     if (_selectedOption != null || _submitting) return;
 
     setState(() {
-      _selectedOption = option;
+      _selectedOption = index;
       _submitting = true;
     });
 
-    final timeSpent = _questionStartTime != null
+    final timeTaken = _questionStartTime != null
         ? DateTime.now().difference(_questionStartTime!).inSeconds
         : null;
 
     try {
       final result = await StudyService.instance.submitAnswer(
-        questionId: _currentQuestion!.id,
-        selected: option,
-        timeSpent: timeSpent,
+        selectedOptionIndex: index,
+        timeTaken: timeTaken,
       );
       if (mounted) {
         setState(() {
@@ -207,8 +202,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadTopics,
-                style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(160, 44)),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
                 child: const Text('Try Again'),
               ),
             ],
@@ -346,8 +340,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           children: [
             CircularProgressIndicator(color: kPrimary),
             SizedBox(height: 16),
-            Text('Loading question…',
-                style: TextStyle(color: kTextSecondary)),
+            Text('Loading question…', style: TextStyle(color: kTextSecondary)),
           ],
         ),
       );
@@ -370,8 +363,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _fetchNextQuestion,
-                style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(160, 44)),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
                 child: const Text('Try Again'),
               ),
             ],
@@ -397,7 +389,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             final letter = String.fromCharCode(65 + idx); // A, B, C, D
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: _buildOptionTile(letter: letter, text: opt),
+              child: _buildOptionTile(index: idx, letter: letter, text: opt),
             );
           }),
           if (_lastResult != null) ...[
@@ -435,10 +427,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
-  Widget _buildOptionTile({required String letter, required String text}) {
-    final isSelected = _selectedOption == letter;
+  Widget _buildOptionTile({
+    required int index,
+    required String letter,
+    required String text,
+  }) {
+    final isSelected = _selectedOption == index;
     final hasResult = _lastResult != null;
-    final isCorrect = hasResult && _lastResult!.correctAnswer == letter;
+    final isCorrect = hasResult && _lastResult!.correctOptionIndex == index;
     final isWrong = isSelected && hasResult && !_lastResult!.correct;
 
     Color bgColor = kCard;
@@ -467,7 +463,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
 
     return GestureDetector(
-      onTap: hasResult ? null : () => _selectOption(letter),
+      onTap: hasResult ? null : () => _selectOption(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
@@ -510,8 +506,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               ),
             ),
             if (isCorrect)
-              const Icon(Icons.check_circle_rounded,
-                  color: kSuccess, size: 20)
+              const Icon(Icons.check_circle_rounded, color: kSuccess, size: 20)
             else if (isWrong)
               const Icon(Icons.cancel_rounded, color: kError, size: 20),
           ],
@@ -557,13 +552,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
               ),
               if (_streak > 1) ...[
                 const SizedBox(width: 8),
-                Text('🔥 $_streak streak!',
-                    style: const TextStyle(fontSize: 13)),
+                Text('🔥 $_streak streak!', style: const TextStyle(fontSize: 13)),
               ],
             ],
           ),
-          if (result.explanation != null &&
-              result.explanation!.isNotEmpty) ...[
+          if (result.explanation != null && result.explanation!.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(height: 0.5, color: kSeparator),
             const SizedBox(height: 10),

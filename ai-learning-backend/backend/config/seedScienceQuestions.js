@@ -25,7 +25,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "2H₂ + O₂ → 2H₂O", type: "concept_error", logicTag: "combination_confused_with_decomposition" },
       { text: "2FeSO₄ → Fe₂O₃ + SO₂ + SO₃", type: "correct", logicTag: "" },
@@ -50,7 +50,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "CuO", type: "concept_error", logicTag: "oxidising_agent_confused_with_oxidised_substance" },
       { text: "H₂", type: "correct", logicTag: "" },
@@ -75,7 +75,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Oxidation of fats and oils", type: "correct", logicTag: "" },
       { text: "Reduction of carbohydrates", type: "concept_error", logicTag: "wrong_process_type" },
@@ -100,7 +100,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Law of Conservation of Mass", type: "correct", logicTag: "" },
       { text: "Law of Multiple Proportions", type: "concept_error", logicTag: "different_law_confused" },
@@ -125,7 +125,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.75,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Iron is more reactive than copper", type: "correct", logicTag: "" },
       { text: "Copper is more reactive than iron", type: "concept_error", logicTag: "reactivity_series_reversed" },
@@ -152,7 +152,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Salivary amylase", type: "correct", logicTag: "" },
       { text: "Pepsin", type: "concept_error", logicTag: "gastric_enzyme_not_salivary" },
@@ -177,7 +177,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Ethanol and CO₂", type: "correct", logicTag: "" },
       { text: "Lactic acid and CO₂", type: "concept_error", logicTag: "animal_anaerobic_confused" },
@@ -202,7 +202,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Pulmonary artery", type: "concept_error", logicTag: "direction_reversed" },
       { text: "Pulmonary vein", type: "correct", logicTag: "" },
@@ -227,7 +227,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Nephron", type: "correct", logicTag: "" },
       { text: "Neuron", type: "concept_error", logicTag: "nervous_system_confused" },
@@ -252,7 +252,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.78,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Carbon dioxide", type: "concept_error", logicTag: "CO2_split_misconception" },
       { text: "Water molecules", type: "correct", logicTag: "" },
@@ -279,7 +279,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.55,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Beyond the centre of curvature", type: "concept_error", logicTag: "real_inverted_image_region" },
       { text: "Between the focus and the pole", type: "correct", logicTag: "" },
@@ -304,7 +304,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "0.67", type: "concept_error", logicTag: "formula_inverted" },
       { text: "1.5", type: "correct", logicTag: "" },
@@ -329,7 +329,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Convex lens with focal length 40 cm", type: "concept_error", logicTag: "sign_ignored" },
       { text: "Concave lens with focal length 40 cm", type: "correct", logicTag: "" },
@@ -354,7 +354,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Hypermetropia", type: "concept_error", logicTag: "far_sight_confused" },
       { text: "Myopia", type: "correct", logicTag: "" },
@@ -379,7 +379,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.72,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Reflection of starlight", type: "concept_error", logicTag: "wrong_phenomenon" },
       { text: "Atmospheric refraction", type: "correct", logicTag: "" },
@@ -407,7 +407,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "2 A", type: "concept_error", logicTag: "multiplied_instead_of_divided" },
       { text: "0.5 A", type: "correct", logicTag: "" },
@@ -431,7 +431,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "9 Ω", type: "concept_error", logicTag: "used_series_formula" },
       { text: "1 Ω", type: "correct", logicTag: "" },
@@ -456,7 +456,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "300 units", type: "concept_error", logicTag: "watts_times_hours_not_converted" },
       { text: "0.3 units", type: "correct", logicTag: "" },
@@ -481,7 +481,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Electric motor", type: "concept_error", logicTag: "magnetic_effect_confused" },
       { text: "Electric iron and electric bulb", type: "correct", logicTag: "" },
@@ -506,7 +506,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.76,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Same", type: "concept_error", logicTag: "changes_not_considered" },
       { text: "4 times the original", type: "correct", logicTag: "" },
@@ -534,7 +534,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "All dwarf", type: "concept_error", logicTag: "dominant_effect_ignored" },
       { text: "All tall", type: "correct", logicTag: "" },
@@ -559,7 +559,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "The X chromosome from the mother", type: "concept_error", logicTag: "mother_always_gives_X" },
       { text: "The chromosome contributed by the father", type: "correct", logicTag: "" },
@@ -585,7 +585,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Same function but different structure and origin", type: "concept_error", logicTag: "analogous_definition" },
       { text: "Same basic structure and origin but different functions", type: "correct", logicTag: "" },
@@ -610,7 +610,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.78,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "1:1:1:1", type: "concept_error", logicTag: "test_cross_ratio" },
       { text: "9:3:3:1", type: "correct", logicTag: "" },
@@ -635,7 +635,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.74,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Reptiles → Fishes → Amphibians → Mammals", type: "concept_error", logicTag: "order_scrambled" },
       { text: "Fishes → Amphibians → Reptiles → Mammals", type: "correct", logicTag: "" },
@@ -662,7 +662,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.2,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Nephron", type: "concept_error", logicTag: "kidney_unit_confused" },
       { text: "Neuron", type: "correct", logicTag: "" },
@@ -687,7 +687,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.5,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Effector → Motor neuron → Spinal cord → Sensory neuron → Receptor", type: "concept_error", logicTag: "order_completely_reversed" },
       { text: "Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector", type: "correct", logicTag: "" },
@@ -712,7 +712,7 @@ const QUESTIONS = [
     difficulty: "medium",
     difficultyScore: 0.45,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Gibberellin", type: "concept_error", logicTag: "stem_elongation_hormone_confused" },
       { text: "Auxin", type: "correct", logicTag: "" },
@@ -737,7 +737,7 @@ const QUESTIONS = [
     difficulty: "easy",
     difficultyScore: 0.25,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Pituitary gland — controls growth", type: "concept_error", logicTag: "wrong_gland_and_function" },
       { text: "Pancreas — lowers blood glucose levels", type: "correct", logicTag: "" },
@@ -762,7 +762,7 @@ const QUESTIONS = [
     difficulty: "hard",
     difficultyScore: 0.72,
     marks: 1,
-    isAIGenerated: false,
+    isAIGenerated: true,
     options: [
       { text: "Slows heart rate to conserve energy during stress", type: "concept_error", logicTag: "opposite_effect" },
       { text: "Increases heart rate, dilates airways, redirects blood to muscles for fight-or-flight", type: "correct", logicTag: "" },

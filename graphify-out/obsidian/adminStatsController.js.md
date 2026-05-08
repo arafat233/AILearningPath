@@ -15,5 +15,6 @@ tags:
 - [[costUSD()]] - `contains` [EXTRACTED]
 - [[getAdminStats()]] - `contains` [EXTRACTED]
 - [[getAnalytics()]] - `contains` [EXTRACTED]
+- [[getRagHealth()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_2

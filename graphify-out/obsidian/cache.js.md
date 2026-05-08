@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\cache.js"
 type: "code"
-community: "Community 12"
+community: "Community 11"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_12
+  - community/Community_11
 ---
 
 # cache.js
@@ -15,4 +15,4 @@ tags:
 - [[getCached()]] - `contains` [EXTRACTED]
 - [[setCache()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_12
+#graphify/code #graphify/EXTRACTED #community/Community_11

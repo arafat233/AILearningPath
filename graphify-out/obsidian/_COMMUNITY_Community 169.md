@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
+- [[Save-Checkpoint.ps1]] - code - E:\AILearningPath\ClaudeTools\Save-Checkpoint.ps1
 
 ## Live Query (requires Dataview plugin)
 

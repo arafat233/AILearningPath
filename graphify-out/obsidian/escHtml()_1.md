@@ -15,5 +15,6 @@ tags:
 - [[onboardingEmailService.js]] - `contains` [EXTRACTED]
 - [[sendDay2Emails()]] - `calls` [EXTRACTED]
 - [[sendDay7Emails()]] - `calls` [EXTRACTED]
+- [[sendTrialExpiringSoonEmails()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_7

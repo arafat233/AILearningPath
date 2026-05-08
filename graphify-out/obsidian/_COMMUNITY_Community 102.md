@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[AdminLayout()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
-- [[AdminLayout.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminLayout.jsx
+- [[AdminCoupons()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCoupons.jsx
+- [[AdminCoupons.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminCoupons.jsx
 
 ## Live Query (requires Dataview plugin)
 

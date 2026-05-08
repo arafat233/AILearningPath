@@ -65,5 +65,5 @@ SORT file.name ASC
 - 2 edges to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[VideoPlayer()]] - degree 4, connects to 1 community
 - [[Competition()]] - degree 3, connects to 1 community
+- [[VideoPlayer()]] - degree 3, connects to 1 community

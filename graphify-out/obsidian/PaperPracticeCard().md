@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\NcertTopicView.jsx"
 type: "code"
 community: "Community 9"
-location: "L1490"
+location: "L1318"
 tags:
   - graphify/code
   - graphify/EXTRACTED

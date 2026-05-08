@@ -1,11 +1,11 @@
 ---
 type: community
-members: 160
+members: 167
 ---
 
 # Community 0
 
-**Members:** 160 nodes
+**Members:** 167 nodes
 
 ## Members
 - [[activatePlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -24,12 +24,15 @@ members: 160
 - [[adminGetFlagged()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetPayments()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminGetRagHealth()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetUserDetail()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminGetUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminRunOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminRunTrialEmails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminRunWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[adminSendTestEmail()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUnflagQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateCoupon()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[adminUpdateQuestion()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -56,6 +59,7 @@ members: 160
 - [[generateShareToken()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIAdvice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAICacheStats()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getAIMetrics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getAIUsage()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getBadges()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getBookmarks()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -104,6 +108,7 @@ members: 160
 - [[getRoomQuestions()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getSchoolDetail()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getSharedPlan()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[getStreakStatus()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudentAnalytics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudentAttempts()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[getStudiedTopics()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -134,6 +139,7 @@ members: 160
 - [[post()]] - code - E:\AILearningPath\load-tests\practice-session.js
 - [[practice-session.js]] - code - E:\AILearningPath\load-tests\practice-session.js
 - [[pyqController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
+- [[rateAIResponse()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[recordAdaptiveAttempt()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[register()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[removeLinkedStudent()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -153,6 +159,7 @@ members: 160
 - [[startBookmarkPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startExam()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startMixedPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
+- [[startRetryPractice()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[startTopic()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[submitAnswer()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[submitExam()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
@@ -183,8 +190,8 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Community 10]]
 
 ## Top bridge nodes
-- [[api.js]] - degree 150, connects to 3 communities
+- [[api.js]] - degree 157, connects to 3 communities
 - [[getHomeworkSetForStudent()]] - degree 4, connects to 2 communities
-- [[post()]] - degree 47, connects to 1 community
+- [[post()]] - degree 51, connects to 1 community
 - [[listTopics()]] - degree 3, connects to 1 community
 - [[listYears()]] - degree 3, connects to 1 community

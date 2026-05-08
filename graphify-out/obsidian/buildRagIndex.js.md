@@ -12,7 +12,7 @@ tags:
 # buildRagIndex.js
 
 ## Connections
-- [[build()]] - `contains` [EXTRACTED]
+- [[build()_1]] - `contains` [EXTRACTED]
 - [[makeChunks()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_4

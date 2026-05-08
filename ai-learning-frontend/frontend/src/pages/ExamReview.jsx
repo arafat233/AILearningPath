@@ -133,14 +133,28 @@ export default function ExamReview() {
         </button>
       )}
 
-      <div className="flex gap-3">
-        <button onClick={() => navigate("/competition")} className="btn-secondary flex-1">
-          ← Back to Exams
-        </button>
-        <button onClick={() => navigate("/practice")} className="btn-primary flex-1">
-          Practice weak areas →
-        </button>
-      </div>
+      {(() => {
+        const wrongQuestions = review.filter((r) => !r.isCorrect && r.questionId);
+        return (
+          <div className="flex gap-3 flex-wrap">
+            <button onClick={() => navigate("/competition")} className="btn-secondary flex-1">
+              ← Back to Exams
+            </button>
+            {wrongQuestions.length > 0 && (
+              <button
+                onClick={() => navigate("/practice", { state: { retryWrongIds: wrongQuestions.map((q) => q.questionId) } })}
+                className="btn-warning flex-1"
+                style={{ background: "#FF9500", color: "#fff" }}
+              >
+                Retry {wrongQuestions.length} wrong question{wrongQuestions.length !== 1 ? "s" : ""} →
+              </button>
+            )}
+            <button onClick={() => navigate("/practice")} className="btn-primary flex-1">
+              Practice weak areas →
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }

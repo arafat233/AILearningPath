@@ -12,6 +12,7 @@ const links = [
   { to: "/admin/payments",      label: "Payments"     },
   { to: "/admin/nps",           label: "NPS"          },
   { to: "/admin/certificates",  label: "Certificates" },
+  { to: "/admin/rag-health",    label: "RAG Health"   },
 ];
 
 export default function AdminLayout() {

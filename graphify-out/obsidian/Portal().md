@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\Portal.jsx"
 type: "code"
-community: "Community 98"
+community: "Community 99"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_98
+  - community/Community_99
 ---
 
 # Portal()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Portal.jsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_98
+#graphify/code #graphify/EXTRACTED #community/Community_99

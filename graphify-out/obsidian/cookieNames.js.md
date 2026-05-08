@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\cookieNames.js"
 type: "code"
-community: "Community 144"
+community: "Community 145"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_144
+  - community/Community_145
 ---
 
 # cookieNames.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_144
+#graphify/code #graphify/EXTRACTED #community/Community_145

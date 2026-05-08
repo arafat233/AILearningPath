@@ -1,11 +1,11 @@
 ---
 type: community
-members: 68
+members: 69
 ---
 
 # Community 5
 
-**Members:** 68 nodes
+**Members:** 69 nodes
 
 ## Members
 - [[Practice.test.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
@@ -20,7 +20,6 @@ members: 68
 - [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 - [[checkCooldown()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
 - [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
 - [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[cooldownKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
 - [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
@@ -46,9 +45,11 @@ members: 68
 - [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 - [[inputGuard()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
 - [[inputGuard.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
+- [[isProd()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 - [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
+- [[logout()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 - [[normalizeInput()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
 - [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
 - [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
@@ -62,7 +63,7 @@ members: 68
 - [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 - [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
 - [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[sessionSet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
@@ -71,7 +72,7 @@ members: 68
 - [[startSession()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\__tests__\Practice.test.jsx
 - [[strikeKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\inputGuard.js
 - [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
 - [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
 - [[validateCoupon()_1]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\services\api.js
 - [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
@@ -85,16 +86,16 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 13 edges to [[_COMMUNITY_Community 2]]
+- 12 edges to [[_COMMUNITY_Community 2]]
 - 11 edges to [[_COMMUNITY_Community 7]]
 - 4 edges to [[_COMMUNITY_Community 10]]
-- 2 edges to [[_COMMUNITY_Community 12]]
+- 4 edges to [[_COMMUNITY_Community 11]]
 - 2 edges to [[_COMMUNITY_Community 0]]
 - 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
-- [[sessionSet()]] - degree 12, connects to 3 communities
-- [[sessionGet()]] - degree 11, connects to 3 communities
-- [[verifyPayment()_1]] - degree 9, connects to 2 communities
-- [[updateQuestionStats()]] - degree 4, connects to 2 communities
+- [[sessionSet()]] - degree 13, connects to 3 communities
+- [[sessionGet()]] - degree 12, connects to 3 communities
+- [[logout()]] - degree 6, connects to 2 communities
 - [[createOrder()_1]] - degree 10, connects to 1 community
+- [[submitExam()]] - degree 9, connects to 1 community

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, getBookmarks, rateAIResponse } from "../services/api";
+import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, startRetryPractice, getBookmarks, rateAIResponse } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import FeedbackWidget from "../components/FeedbackWidget";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
@@ -44,7 +44,8 @@ export default function Practice() {
   const location   = useLocation();
   const navigate   = useNavigate();
   const user       = useAuthStore((s) => s.user);
-  const mixTopics  = location.state?.mixTopics || null; // from Planner "Start today"
+  const mixTopics      = location.state?.mixTopics || null; // from Planner "Start today"
+  const retryWrongIds  = location.state?.retryWrongIds || null; // from ExamReview "Retry wrong questions"
   const [topics, setTopics]           = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(location.state?.topic || "");
   const [activeSubject, setActiveSubject] = useState(location.state?.topic ? "" : (user?.subject || "Math"));
@@ -121,6 +122,18 @@ export default function Practice() {
     setFeedback(null);
     setFoundationMsg(null);
     setFlagged(false);
+
+    if (retryWrongIds?.length) {
+      try {
+        const { data } = await startRetryPractice(retryWrongIds);
+        setQuestion(data);
+      } catch (err) {
+        setError(err.response?.data?.error || "Could not load retry questions");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     if (bookmarkMode) {
       try {
@@ -298,9 +311,9 @@ export default function Practice() {
       .catch(() => {});
   }, [activeSubject, user?.grade]);
 
-  // ── Auto-start when arriving with a pre-selected topic (from ChapterView) ─
+  // ── Auto-start when arriving with a pre-selected topic (from ChapterView) or retry mode ─
   useEffect(() => {
-    if ((mixTopics?.length || location.state?.autoStart) && !question) handleStart();
+    if ((mixTopics?.length || location.state?.autoStart || retryWrongIds?.length) && !question) handleStart();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Topic selector ──────────────────────────────────────────────
@@ -319,6 +332,12 @@ export default function Practice() {
             {mixTopics ? `Mixed session: ${mixTopics.join(", ")}` : "Select a subject and topic to begin"}
           </p>
         </div>
+
+        {retryWrongIds?.length > 0 && (
+          <div className="bg-apple-orange/10 border border-apple-orange/25 text-apple-orange text-[13px] px-4 py-3 rounded-apple-lg font-medium">
+            Retrying {retryWrongIds.length} wrong question{retryWrongIds.length !== 1 ? "s" : ""} from your last exam — loading…
+          </div>
+        )}
 
         {/* Subject tabs + Bookmarks tab */}
         {!mixTopics && (

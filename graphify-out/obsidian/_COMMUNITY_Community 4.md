@@ -1,11 +1,11 @@
 ---
 type: community
-members: 75
+members: 84
 ---
 
 # Community 4
 
-**Members:** 75 nodes
+**Members:** 84 nodes
 
 ## Members
 - [[._componentReport()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
@@ -17,10 +17,12 @@ members: 75
 - [[.onTestEnd()]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
 - [[IssueReporter]] - code - E:\AILearningPath\e2e-bot\reporter\issue-reporter.js
 - [[backup.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\backup.js
-- [[build()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagIndex.js
+- [[build()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagFromCurriculum.js
+- [[build()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagIndex.js
 - [[buildOptions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 - [[buildOptions()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[buildOptions()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
+- [[buildRagFromCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagFromCurriculum.js
 - [[buildRagIndex.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagIndex.js
 - [[bulkUpsertQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[chapterFromStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
@@ -48,21 +50,27 @@ members: 75
 - [[main()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
 - [[main()_6]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedTopicDAG.js
 - [[makeChunks()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagIndex.js
+- [[makeChunksFromChapter()]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagFromCurriculum.js
 - [[mapQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 - [[mapQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[mapQuestion()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
 - [[mapQuestionType()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[restore.js]] - code - E:\AILearningPath\ai-learning-backend\backend\scripts\restore.js
 - [[seed()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
-- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
-- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
-- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
-- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
+- [[seed()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishQuestions.js
+- [[seed()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seed()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiQuestions.js
+- [[seed()_4]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seed()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceQuestions.js
+- [[seed()_6]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
+- [[seed()_7]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
 - [[seedBoardStyleQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedBoardStyleQuestions.js
 - [[seedCurriculum()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
 - [[seedDesktopContent.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedEnglishCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishCurriculum.js
+- [[seedEnglishQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedEnglishQuestions.js
 - [[seedHindiCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiCurriculum.js
+- [[seedHindiQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedHindiQuestions.js
 - [[seedMathCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMathCurriculum.js
 - [[seedMockPaperAnswerKeys.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedMockPaperAnswerKeys.js
 - [[seedMockPapers()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
@@ -73,6 +81,7 @@ members: 75
 - [[seedPlacementQuiz.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedPlacementQuiz.js
 - [[seedQuestionBanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
 - [[seedScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceCurriculum.js
+- [[seedScienceQuestions.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedScienceQuestions.js
 - [[seedSocialScienceCurriculum.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSocialScienceCurriculum.js
 - [[seedSubjects.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedSubjects.js
 - [[seedTeachingContent()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedDesktopContent.js
@@ -96,4 +105,4 @@ SORT file.name ASC
 - 1 edge to [[_COMMUNITY_Community 7]]
 
 ## Top bridge nodes
-- [[log()_1]] - degree 31, connects to 2 communities
+- [[log()_1]] - degree 35, connects to 2 communities

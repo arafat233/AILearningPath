@@ -117,9 +117,65 @@ async function sendDay7Emails() {
   return sent;
 }
 
+// Trial expiry warning — sent ~24h before trial ends (query window: 20h–26h from now)
+async function sendTrialExpiringSoonEmails() {
+  const windowFrom = new Date(Date.now() + 20 * 3600_000); // now + 20h
+  const windowTo   = new Date(Date.now() + 26 * 3600_000); // now + 26h
+
+  const candidates = await User.find({
+    role:                  "student",
+    isPaid:                false,
+    trialExpirySoonSentAt: null,
+    trialExpiry:           { $gte: windowFrom, $lte: windowTo },
+  }).select("_id name email").lean();
+
+  let sent = 0;
+  for (const user of candidates) {
+    await sendEmail({
+      to: user.email,
+      subject: "Your free trial expires in 24 hours — upgrade to keep your progress",
+      html: `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#1c1c1e">
+          <h2 style="margin:0 0 12px;font-size:22px;font-weight:700">Hi ${escHtml(user.name)}, your trial ends tomorrow</h2>
+          <p style="margin:0 0 20px;color:#636366;font-size:15px;line-height:1.6">
+            Your 7-day free trial on Stellar expires in less than 24 hours. After that, your AI tutor,
+            practice questions, and personalised study plan will be paused.
+          </p>
+          <p style="margin:0 0 24px;color:#636366;font-size:15px;line-height:1.6">
+            Upgrade now to keep your streak, your progress, and full access to everything you've been working on.
+          </p>
+          <a href="${frontendUrl()}/pricing"
+             style="display:inline-block;background:#007AFF;color:#fff;padding:14px 28px;
+                    border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;margin-bottom:24px">
+            Upgrade and keep studying →
+          </a>
+          <p style="color:#8e8e93;font-size:13px;margin:0">
+            Questions? Reply to this email and we'll help you pick the right plan.
+          </p>
+        </div>
+      `,
+    }).catch((err) => logger.warn("Trial-expiry-soon email failed", { to: user.email, error: err.message }));
+
+    await User.findByIdAndUpdate(user._id, { $set: { trialExpirySoonSentAt: new Date() } });
+    sent++;
+  }
+  return sent;
+}
+
+export async function runTrialExpirySoonEmails() {
+  logger.info("Running trial-expiry-soon email check...");
+  const count = await sendTrialExpiringSoonEmails();
+  logger.info("Trial-expiry-soon emails sent", { count });
+  return count;
+}
+
 export async function runOnboardingEmails() {
   logger.info("Running onboarding email sequence...");
-  const [day2, day7] = await Promise.all([sendDay2Emails(), sendDay7Emails()]);
-  logger.info("Onboarding emails sent", { day2, day7 });
-  return { day2, day7 };
+  const [day2, day7, trialExpirySoon] = await Promise.all([
+    sendDay2Emails(),
+    sendDay7Emails(),
+    sendTrialExpiringSoonEmails(),
+  ]);
+  logger.info("Onboarding emails sent", { day2, day7, trialExpirySoon });
+  return { day2, day7, trialExpirySoon };
 }

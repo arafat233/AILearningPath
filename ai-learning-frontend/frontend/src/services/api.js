@@ -82,7 +82,8 @@ export const resetPassword  = (token, password) => api.post(`/auth/reset-passwor
 export const getMe          = ()     => api.get("/user/me");
 export const updateMe       = (data) => api.put("/user/me", data);
 export const deleteMe       = ()     => api.delete("/user/me");
-export const getDailyBrief  = ()     => api.get("/user/daily-brief");
+export const getDailyBrief   = ()     => api.get("/user/daily-brief");
+export const getStreakStatus = ()     => api.get("/user/streak-status");
 
 export const getTopics       = (params) => api.get("/topics", { params });
 export const getTopicsMeta   = ()       => api.get("/topics/meta");
@@ -100,6 +101,7 @@ export const submitAnswer       = (data)       => api.post("/practice/submit", d
 export const startMixedPractice = (topics)     => api.post("/practice/mixed", { topics });
 export const flagQuestion           = (questionId) => api.post("/practice/flag", { questionId });
 export const startBookmarkPractice = ()           => api.post("/practice/start-bookmarks");
+export const startRetryPractice    = (questionIds) => api.post("/practice/start-bookmarks", { questionIds });
 
 export const getReport            = () => api.get("/analysis/report");
 export const getErrorMemory       = () => api.get("/analysis/errors");
@@ -165,6 +167,13 @@ export const adminGetTopics      = ()          => api.get("/admin/topics");
 export const adminCreateTopic    = (data)      => api.post("/admin/topics", data);
 export const adminUpdateTopic    = (id, data)  => api.put(`/admin/topics/${id}`, data);
 export const adminDeleteTopic    = (id)        => api.delete(`/admin/topics/${id}`);
+export const adminGetRagHealth   = ()          => api.get("/admin/rag-health");
+export const adminSendTestEmail  = (to)        => api.post("/admin/send-test-email", { to });
+export const adminRunTrialEmails = ()          => api.post("/admin/run-trial-expiry-soon-emails");
+export const adminGetCertificates = (params)  => api.get("/admin/certificates", { params });
+export const adminUpdateUserPlan  = (id, data) => api.put(`/admin/users/${id}/plan`, data);
+export const adminDeleteUser      = (id)       => api.delete(`/admin/users/${id}`);
+export const adminGetUserDetail   = (id)       => api.get(`/admin/users/${id}/detail`);
 
 export const searchStudents        = (q)          => api.get("/portal/search", { params: { q } });
 export const linkStudentDirect     = (studentId)  => api.post("/portal/link-direct", { studentId });
@@ -227,6 +236,8 @@ export const adminDeleteUser             = (id)        => api.delete(`/admin/use
 export const adminGetUserDetail          = (id)        => api.get(`/admin/users/${id}/detail`);
 export const adminGetCouponRedemptions   = (id)        => api.get(`/admin/coupons/${id}/redemptions`);
 export const adminGetCertificates        = (params)    => api.get("/admin/certificates", { params });
+export const adminGetRagHealth           = ()          => api.get("/admin/rag-health");
+export const adminSendTestEmail          = (to)        => api.post("/admin/send-test-email", { to });
 
 export const generateMock = (opts) => api.post("/exam/generate-mock", opts);
 

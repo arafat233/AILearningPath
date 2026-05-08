@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\prediction.service.test.js"
 type: "code"
-community: "Community 82"
+community: "Community 83"
 location: "L46"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_82
+  - community/Community_83
 ---
 
 # makeProfile()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[prediction.service.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_82
+#graphify/code #graphify/EXTRACTED #community/Community_83

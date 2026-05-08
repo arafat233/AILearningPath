@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js"
 type: "code"
-community: "Community 12"
+community: "Community 11"
 location: "L204"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_12
+  - community/Community_11
 ---
 
 # smartStudyAdvice()
@@ -21,4 +21,4 @@ tags:
 - [[storeCacheResult()]] - `calls` [EXTRACTED]
 - [[studyAdvice()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_12
+#graphify/code #graphify/INFERRED #community/Community_11

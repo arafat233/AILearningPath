@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — RAG knowledge store, AI failover + guardrails, per-user token limits, student model injection, conversation context, lesson cache to MongoDB, answer verification, thumbs up/down feedback, admin AI metrics dashboard, token budget alerts.
+> Last updated: May 2026 — streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell.
 
 ---
 
@@ -90,6 +90,7 @@ studyReminders: [{                 ← parent-set push reminders
 }]
 passwordResetToken:   String (SHA-256 hashed, null when not active)
 passwordResetExpires: Date   (1h from request, null when not active)
+trialExpirySoonSentAt: Date  ← NEW: dedup guard — trial-expiry-soon email sent once per trial
 createdAt
 ```
 
@@ -196,6 +197,7 @@ Unique index: { userId, questionId }
 ```
 userId (unique), currentStreak, longestStreak
 lastActiveDate (YYYY-MM-DD), updatedAt
+graceUsedWeek: String (ISO week string e.g. "2026-W19")  ← NEW: one grace skip per week
 ```
 
 ### 3.7 UserProfile  (core analytics brain)
@@ -409,7 +411,12 @@ text:          String (knowledge chunk for injection into Claude context)
 createdAt:     Date
 
 Full-text index on text field — $text search used by RAG retrieval
-437 Math chunks seeded via ragStore.js indexChapters()
+437 Math chunks seeded via ragStore.js indexChapters() (reads NcertChapter model)
+Science/English/Hindi/Social Science chunks: built via scripts/buildRagFromCurriculum.js ← NEW
+  Reads Chapter model (from curriculum seeds) → creates NcertChunk documents
+  npm run rag:build-curriculum (all 4 subjects) or --subject=Science for one subject
+  Chunk types: overview | concept (sections+microConcepts) | formula | qa (exam tips)
+  Admin RAG Health page shows per-subject chunk counts + coverage %
 ```
 
 ---
@@ -634,6 +641,14 @@ Returns: { predictedMin, predictedMax, predictedGrade (A1-E),
 ```
 Updates Streak on any practice/exam attempt
 Tracks currentStreak, longestStreak, lastActiveDate
+
+Grace period (NEW): one missed day per ISO week gets a free pass
+  - Missed exactly 1 day AND graceUsedWeek !== currentWeek → extend streak + set graceUsedWeek
+  - Missed 1 day AND grace already used this week → break streak (currentStreak = 1)
+  - Missed 2+ days → break streak normally
+
+getStreakStatus(userId) → { streak, longestStreak, graceAvailable: bool, graceUsedWeek }
+Route: GET /api/user/streak-status
 ```
 
 ### 4.12 aiTeacherService.js — Contextual Guidance
@@ -680,6 +695,10 @@ Env required: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 ### 4.16 onboardingEmailService.js / weeklyParentEmailService.js / pushService.js  ← NEW
 ```
 onboardingEmailService: drip sequence (day 0/3/7) via nodemailer
+  sendTrialExpiringSoonEmails() ← NEW: finds users where trialExpiry is 20–26h away,
+    isPaid: false, trialExpirySoonSentAt: null → sends "upgrade to keep your progress" email
+    linking to /pricing; sets trialExpirySoonSentAt to prevent re-send
+  runTrialExpirySoonEmails() — exported, called via POST /admin/run-trial-expiry-soon-emails
 weeklyParentEmailService: Monday 8am digest email to parents (portal users)
 pushService:
   sendRevisionReminders() — daily: push to users with topics due today
@@ -774,6 +793,14 @@ POST   /api/competition/room-questions
 
 POST   /api/practice/mixed          ← mixed-topic practice session
 POST   /api/practice/flag           ← student flags a question for review
+POST   /api/practice/start-bookmarks ← start practice from bookmarks; optional body { questionIds }
+                                       if questionIds provided: uses those IDs as pool (retry-wrong flow)
+                                       if not provided: falls back to user's savedQuestions
+                                       returns fromBookmarks / fromRetry flags; stores retryPool in session
+GET    /api/user/streak-status       ← { streak, longestStreak, graceAvailable, graceUsedWeek } ← NEW
+GET    /api/admin/rag-health         ← chunk counts per subject, chapters covered, lastIndexed ← NEW
+POST   /api/admin/send-test-email    ← body: { to } → sends timestamped SMTP test email ← NEW
+POST   /api/admin/run-trial-expiry-soon-emails ← triggers trial-expiry-soon email batch ← NEW
 ```
 
 ### New routes
@@ -932,6 +959,8 @@ Server → Client:
                                   confidence, AI explain, DoubtChat; End Session button after
                                   first answer; session summary screen (score, accuracy bar,
                                   missed-question review with correct option + AI explanation)
+                                  Retry-wrong mode: if location.state.retryWrongIds is set,
+                                  auto-starts using those questionIds via startRetryPractice() ← NEW
 /analytics     → Analytics      — thinking profile, behavior stats, topic progress, prediction
 /competition   → Competition    — weekly leaderboard, create/join room
 /live          → LiveRoom       — real-time Socket.IO quiz
@@ -940,10 +969,15 @@ Server → Client:
                                   goal, hours/day slider, off-days date picker, topic filter checklist
                                   Phase markers (Foundation→Practice→Revision→Mock), mock test days
                                   every 14 days; topic accuracy % chips; per-day notes (DayNote);
-                                  catch-up banner + reschedule; share link; topic order editor;
-                                  Daily/Weekly/Monthly views; NCERT chapter progress; Revision Due
+                                  catch-up banner (shows for 1–2 missed days) + manual reschedule;
+                                  Auto-reschedule: if missed ≥ 3 days on load → reschedulePlan() fires
+                                  silently + green "Your plan was auto-rescheduled" toast shows ← NEW
+                                  share link; topic order editor; Daily/Weekly/Monthly views;
+                                  NCERT chapter progress; Revision Due
 /shared-plan/:token → SharedPlan — public read-only view of a shared plan (no auth required)
 /exam-review   → ExamReview     — past exams, per-question AI review
+                                  "Retry N wrong questions" button navigates to /practice
+                                  with state.retryWrongIds (wrong questionIds from that attempt) ← NEW
 /voice-tutor   → VoiceTutor     — mic + text chat, subject-aware, TTS playback ← NOW FUNCTIONAL
 /profile       → Profile        — user info, badges grid, invite code generator
 /settings      → Settings       — update name/grade/subjects (multi-select pills)/weak topics;
@@ -974,6 +1008,8 @@ Server → Client:
 /admin/nps             → AdminNPS           — NPS score (promoters - detractors), raw responses, CSV export
 /admin/certificates    → AdminCertificates  — students who have earned certificates; filter by
                                                min accuracy % and min attempts; shows grade, topics mastered
+/admin/rag-health      → AdminRagHealth    ← NEW: chunk counts per subject (table + cards),
+                                               coverage %, lastIndexed timestamp, "Send Test Email" form
 ```
 
 ### Key page updates
@@ -991,6 +1027,9 @@ Practice.jsx    — FeedbackWidget shown after session (rate question quality)
 ```
 Layout.jsx           — sidebar nav + outlet; fixed drawer on mobile (hamburger opens,
                         backdrop closes, auto-closes on route change); static on sm+
+                        Certificate link in sidebar nav (after Analytics) ← NEW
+                        Notification bell icon (header mobile + sidebar desktop) with red dot
+                        badge; dropdown shows "No new notifications" placeholder ← NEW
 BadgeToast.jsx       — floating toast when newBadges[] returned from practice submit
 DoubtChat.jsx        — expandable multi-turn chat below wrong answers in Practice
 FeedbackWidget.jsx   — inline 1-5 star + comment widget (used after practice sessions)
@@ -1137,6 +1176,11 @@ Backup (.github/workflows/backup.yml):
   Installs mongodb-database-tools, runs node scripts/backup.js
   Annotates the workflow run on failure
   S3 upload optional: set AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY + BACKUP_S3_BUCKET
+
+Flutter CI (.github/workflows/flutter-ci.yml) ← NEW:
+  Triggers: push/PR to main — only when ai-learning-mobile/** files change
+  Jobs: Flutter 3.19.0 setup, pub get, dart format check, flutter analyze,
+        flutter test, flutter build apk --debug
 ```
 
 ---
@@ -1159,7 +1203,10 @@ Complete api.js exports:
   User:     getMe, updateMe, deleteMe, toggleBookmark, getBookmarks
   Topics:   getTopics, getTopicsMeta, searchTopics
   Lessons:  listLessons, getLesson, saveProgress
-  Practice: startTopic, submitAnswer, startMixedPractice, flagQuestion
+  Practice: startTopic, submitAnswer, startMixedPractice, flagQuestion,
+            startBookmarkPractice, startRetryPractice(questionIds) ← NEW
+  User:     getMe, updateMe, deleteMe, toggleBookmark, getBookmarks,
+            getDailyBrief, getStreakStatus ← NEW
   Analysis: getReport, getErrorMemory, getWeeklyLeaderboard, getPrediction
   Revision: getRevisionDue, markRevised, getLastDayRevision
   Exams:    listExams, startExam, submitExam, getLeaderboard(examId)
@@ -1192,7 +1239,11 @@ Complete api.js exports:
             adminUpdateQuestion, adminDeleteQuestion, adminUnflagQuestion,
             adminGetTopics, adminCreateTopic, adminUpdateTopic, adminDeleteTopic,
             adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon,
-            adminGetCertificates
+            adminGetCertificates,
+            adminGetRagHealth, adminSendTestEmail(to), adminRunTrialEmails ← NEW
+            adminGetPayments, adminUpdateUserPlan, adminDeleteUser, adminGetUserDetail
+            adminGetCouponRedemptions(id), adminRunOnboardingEmails, adminRunWeeklyParentEmails
+            adminGetFeedback
 ```
 
 ---
@@ -1303,6 +1354,12 @@ npm run seed:hindi-curriculum            ← NEW: CBSE Class 10 Hindi textbook c
 npm run seed:social-science-curriculum   ← NEW: CBSE Class 10 Social Science textbook chapters
 npm run seed:ncert-content              ← NCERT chapter content (self-contained, no external files)
 npm run seed:pyq                        ← 30+ real CBSE board exam PYQ MCQs (2020-2024)
+npm run seed:science-questions          ← NEW: 30 CBSE MCQ practice questions for Science
+npm run seed:english-questions          ← NEW: 30 CBSE MCQ practice questions for English
+npm run seed:hindi-questions            ← NEW: 30 CBSE MCQ practice questions for Hindi
+npm run seed:social-questions           ← NEW: 30 CBSE MCQ practice questions for Social Science
+npm run rag:build-curriculum            ← NEW: build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
+npm run rag:build-science               ← NEW: RAG chunks for Science only
 npm run migrate                         ← run pending DB migrations (migrate-mongo)
 ```
 

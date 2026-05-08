@@ -12,6 +12,7 @@ function Icon({ id }) {
     lessons:     <><path d="M3 2h9a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 2v12M5 6h3M5 9h3"/></>,
     practice:    <><path d="M11 3l2 2L5 13H3v-2L11 3z"/><path d="M9 5l2 2"/></>,
     analytics:   <><path d="M3 13V9M7 13V5M11 13V2M13 13V7"/><path d="M1 13h14"/></>,
+    certificate: <><rect x="1.5" y="3" width="13" height="9" rx="1.5"/><path d="M5 7h6M5 9.5h3"/><circle cx="11.5" cy="10" r="2"/><path d="M10 12l-.5 2M13 12l.5 2"/></>,
     competition: <><path d="M5 2h6l-1 5H6L5 2z"/><path d="M3 2v2.5c0 1.5 1 2.5 2.5 2.5M13 2v2.5c0 1.5-1 2.5-2.5 2.5"/><path d="M8 7v4M5.5 11h5"/></>,
     live:        <><rect x="5.5" y="1.5" width="5" height="7" rx="2.5"/><path d="M3.5 8a4.5 4.5 0 009 0M8 12.5v2M5.5 14.5h5"/></>,
     bookmarks:   <><path d="M4 2h8a1 1 0 011 1v11l-5-3-5 3V3a1 1 0 011-1z"/></>,
@@ -40,6 +41,7 @@ const NAV = [
   { to: "/practice",    label: "Practice",     icon: "practice"              },
   { to: "/bookmarks",   label: "Bookmarks",    icon: "bookmarks"             },
   { to: "/analytics",   label: "Analytics",    icon: "analytics"             },
+  { to: "/certificate", label: "Certificate",  icon: "certificate"           },
   { to: "/competition", label: "Competition",  icon: "competition"           },
   { to: "/live",        label: "Live Room",    icon: "live"                  },
   { to: "/planner",     label: "Study Planner",icon: "planner"               },
@@ -60,9 +62,24 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { dark, toggle: toggleDark } = useThemeStore();
-  const [searchOpen, setSearchOpen]   = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen,   setSearchOpen]   = useState(false);
+  const [sidebarOpen,  setSidebarOpen]  = useState(false);
+  const [bellOpen,     setBellOpen]     = useState(false);
   const location = useLocation();
+  const bellRef        = useRef(null);
+  const bellDesktopRef = useRef(null);
+
+  // Close bell dropdown when clicking outside
+  useEffect(() => {
+    if (!bellOpen) return;
+    const handler = (e) => {
+      const inMobile  = bellRef.current        && bellRef.current.contains(e.target);
+      const inDesktop = bellDesktopRef.current && bellDesktopRef.current.contains(e.target);
+      if (!inMobile && !inDesktop) setBellOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [bellOpen]);
 
   // Close mobile sidebar on route change
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
@@ -178,6 +195,36 @@ export default function Layout() {
           )}
         </nav>
 
+        {/* Notification bell — desktop sidebar */}
+        <div className="px-3 mb-1 relative hidden sm:block" ref={bellDesktopRef}>
+          <button
+            onClick={() => setBellOpen((o) => !o)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-apple text-[13px] text-apple-gray hover:bg-apple-gray5 transition-colors"
+            style={{ background: "var(--fill)" }}
+          >
+            <span className="relative">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5 shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-apple-red" />
+            </span>
+            <span className="flex-1 text-left">Notifications</span>
+          </button>
+          {bellOpen && (
+            <div className="absolute left-3 right-3 bottom-full mb-1 bg-white dark:bg-[var(--sidebar-bg)] rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden">
+              <div className="px-4 py-3 border-b border-apple-gray5">
+                <p className="text-[13px] font-semibold text-[var(--label)]">Notifications</p>
+              </div>
+              <div className="px-4 py-5 text-center">
+                <p className="text-[13px] font-medium text-[var(--label)] mb-1">No new notifications</p>
+                <p className="text-[12px] text-apple-gray leading-relaxed">
+                  Check back later for practice reminders and achievement alerts.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Search + dark mode toggle */}
         <div className="px-3 mb-2 flex flex-col gap-1.5">
           <button
@@ -277,7 +324,34 @@ export default function Layout() {
           <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
             <span className="text-white text-[10px] font-bold">S</span>
           </div>
-          <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
+          <span className="text-[13px] font-semibold text-[var(--label)] flex-1">Stellar</span>
+          {/* Bell — mobile */}
+          <div className="relative" ref={bellRef}>
+            <button
+              onClick={() => setBellOpen((o) => !o)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-apple-gray5 transition-colors relative"
+              aria-label="Notifications"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 text-[var(--label)]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+              {/* Red dot badge */}
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-apple-red border-2 border-white" />
+            </button>
+            {bellOpen && (
+              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[var(--sidebar-bg)] rounded-apple shadow-lg border border-apple-gray5 z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b border-apple-gray5">
+                  <p className="text-[13px] font-semibold text-[var(--label)]">Notifications</p>
+                </div>
+                <div className="px-4 py-5 text-center">
+                  <p className="text-[13px] font-medium text-[var(--label)] mb-1">No new notifications</p>
+                  <p className="text-[12px] text-apple-gray leading-relaxed">
+                    Check back later for practice reminders and achievement alerts.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <OfflineBanner />
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">

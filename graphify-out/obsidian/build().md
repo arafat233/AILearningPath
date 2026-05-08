@@ -1,8 +1,8 @@
 ---
-source_file: "E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagIndex.js"
+source_file: "E:\AILearningPath\ai-learning-backend\backend\scripts\buildRagFromCurriculum.js"
 type: "code"
 community: "Community 4"
-location: "L114"
+location: "L111"
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -12,7 +12,7 @@ tags:
 # build()
 
 ## Connections
-- [[buildRagIndex.js]] - `contains` [EXTRACTED]
+- [[buildRagFromCurriculum.js]] - `contains` [EXTRACTED]
 - [[log()_1]] - `calls` [INFERRED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_4

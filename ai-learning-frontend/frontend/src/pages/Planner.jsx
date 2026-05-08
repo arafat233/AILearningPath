@@ -1205,6 +1205,7 @@ export default function Planner() {
   const [allPlans,         setAllPlans]         = useState([]);
   const [ncertChapters,    setNcertChapters]    = useState([]);
   const [studiedSet,       setStudiedSet]       = useState(new Set());
+  const [autoRescheduled,  setAutoRescheduled]  = useState(false);
 
   const applyPlan = (data) => {
     setPlan(data);
@@ -1217,6 +1218,16 @@ export default function Planner() {
       .then(([planRes, listRes]) => {
         applyPlan(planRes.data);
         setAllPlans(listRes.data?.data || []);
+
+        // Auto-reschedule if 3+ days have been missed
+        const dp = planRes.data?.dailyPlan || [];
+        const todayLocal = new Date(); todayLocal.setHours(0, 0, 0, 0);
+        const missed = dp.filter(d => !d.completed && new Date(d.date) < todayLocal).length;
+        if (missed >= 3) {
+          reschedulePlan()
+            .then(({ data }) => { applyPlan(data); setAutoRescheduled(true); })
+            .catch(() => {});
+        }
       })
       .catch(() => { setPlan({ empty: true }); setAllPlans([]); })
       .finally(() => setLoading(false));
@@ -1431,8 +1442,16 @@ export default function Planner() {
         />
       )}
 
-      {/* ── Catch-up banner ── */}
-      {missedDays > 0 && !showEditor && (
+      {/* ── Auto-reschedule toast ── */}
+      {autoRescheduled && (
+        <div className="flex items-center justify-between gap-3 bg-apple-green/10 border border-apple-green/25 text-apple-green text-[13px] px-4 py-3 rounded-apple-lg font-medium">
+          <span>Your plan was auto-rescheduled (you were behind by 3+ days).</span>
+          <button onClick={() => setAutoRescheduled(false)} className="text-apple-green/60 hover:text-apple-green font-bold text-[16px] leading-none">×</button>
+        </div>
+      )}
+
+      {/* ── Catch-up banner (1–2 missed days only; 3+ handled by auto-reschedule) ── */}
+      {missedDays > 0 && missedDays < 3 && !showEditor && !autoRescheduled && (
         <CatchUpBanner missedCount={missedDays} rescheduling={rescheduling} onReschedule={handleReschedule} />
       )}
 

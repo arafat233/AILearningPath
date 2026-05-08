@@ -1,4 +1,4 @@
-import { User, Question, Attempt, PaymentRecord, AIUsageStats } from "../../models/index.js";
+import { User, Question, Attempt, PaymentRecord, AIUsageStats, NcertChunk } from "../../models/index.js";
 import { getCacheStats } from "../../services/aiRouter.js";
 
 // Claude Haiku 4.5 pricing (USD)
@@ -178,5 +178,25 @@ export const getAnalytics = async (req, res, next) => {
         attempts:  fillSlots(attemptsTrend,  "count"),
       },
     });
+  } catch (err) { next(err); }
+};
+
+export const getRagHealth = async (req, res, next) => {
+  try {
+    const subjects = ["Mathematics", "Science", "English", "Social Science", "Hindi"];
+    const counts = await Promise.all(
+      subjects.map(async (s) => {
+        const total = await NcertChunk.countDocuments({ subject: s });
+        const byChapter = await NcertChunk.aggregate([
+          { $match: { subject: s } },
+          { $group: { _id: "$chapterNumber", count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ]);
+        return { subject: s, total, chapters: byChapter.map(c => ({ chapter: c._id, count: c.count })) };
+      })
+    );
+    const lastDoc = await NcertChunk.findOne().sort({ _id: -1 }).select("_id").lean();
+    const lastIndexed = lastDoc?._id?.getTimestamp?.() ?? null;
+    res.json({ data: { subjects: counts, lastIndexed } });
   } catch (err) { next(err); }
 };

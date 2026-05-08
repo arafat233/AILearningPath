@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js"
 type: "code"
 community: "Community 7"
-location: "L120"
+location: "L172"
 tags:
   - graphify/code
   - graphify/EXTRACTED
@@ -15,5 +15,6 @@ tags:
 - [[onboardingEmailService.js]] - `contains` [EXTRACTED]
 - [[sendDay2Emails()]] - `calls` [EXTRACTED]
 - [[sendDay7Emails()]] - `calls` [EXTRACTED]
+- [[sendTrialExpiringSoonEmails()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_7

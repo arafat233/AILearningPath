@@ -13,6 +13,5 @@ tags:
 
 ## Connections
 - [[NcertTopicView.jsx]] - `contains` [EXTRACTED]
-- [[VideoPlayer()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_9

@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[AdminUsers()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
-- [[AdminUsers.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
-- [[UserDrawer()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminUsers.jsx
+- [[AdminRagHealth()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminRagHealth.jsx
+- [[AdminRagHealth.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminRagHealth.jsx
+- [[StatusBadge()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminRagHealth.jsx
 
 ## Live Query (requires Dataview plugin)
 

@@ -8,8 +8,8 @@ import { listUsers, updateUserRole, updateUserPlan,
 import { listQuestions, getFlaggedQuestions, createQuestion,
          updateQuestion, deleteQuestion, unflagQuestion }                  from "../controllers/admin/adminQuestionController.js";
 import { listTopics, createTopic, updateTopic, deleteTopic }              from "../controllers/admin/adminTopicController.js";
-import { getAdminStats, getAnalytics }                                     from "../controllers/admin/adminStatsController.js";
-import { runOnboardingEmails }                                             from "../services/onboardingEmailService.js";
+import { getAdminStats, getAnalytics, getRagHealth }                       from "../controllers/admin/adminStatsController.js";
+import { runOnboardingEmails, runTrialExpirySoonEmails }                   from "../services/onboardingEmailService.js";
 import { runWeeklyParentEmails }                                           from "../services/weeklyParentEmailService.js";
 import { Coupon, PaymentRecord, UserProfile, User }                        from "../models/index.js";
 
@@ -51,12 +51,36 @@ const topicSchema = Joi.object({
 // Stats & Analytics
 r.get("/stats",                      getAdminStats);
 r.get("/analytics",                  getAnalytics);
+r.get("/rag-health",                 getRagHealth);
 
 // Onboarding email sequence — call daily via external cron or manually
 r.post("/run-onboarding-emails", async (req, res, next) => {
   try {
     const result = await runOnboardingEmails();
     res.json({ data: result });
+  } catch (err) { next(err); }
+});
+
+// Trial-expiry-soon email — can be called independently or runs inside runOnboardingEmails
+r.post("/run-trial-expiry-soon-emails", async (req, res, next) => {
+  try {
+    const count = await runTrialExpirySoonEmails();
+    res.json({ data: { trialExpirySoon: count } });
+  } catch (err) { next(err); }
+});
+
+// Test email — confirm SMTP is working
+r.post("/send-test-email", async (req, res, next) => {
+  try {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ error: "to email required" });
+    const { sendEmail } = await import("../utils/email.js");
+    await sendEmail({
+      to,
+      subject: "Stellar — test email ✓",
+      html: `<div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#1c1c1e"><h2 style="margin:0 0 12px;font-size:20px;font-weight:700">Email delivery confirmed ✓</h2><p style="color:#636366;font-size:15px">This is a test email sent from the Stellar admin panel at ${new Date().toISOString()}. SMTP is working correctly.</p></div>`,
+    });
+    res.json({ data: { sent: true, to } });
   } catch (err) { next(err); }
 });
 

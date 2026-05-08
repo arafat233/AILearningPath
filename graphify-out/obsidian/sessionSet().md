@@ -23,6 +23,7 @@ tags:
 - [[setCache()]] - `calls` [INFERRED]
 - [[startExam()]] - `calls` [INFERRED]
 - [[startTopic()]] - `calls` [INFERRED]
+- [[storeLastExplanation()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
 #graphify/code #graphify/INFERRED #community/Community_5

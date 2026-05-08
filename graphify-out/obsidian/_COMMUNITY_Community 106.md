@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[exportCsv()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\exportCsv.js
-- [[exportCsv.js]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\utils\exportCsv.js
+- [[AdminTopics()]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
+- [[AdminTopics.jsx]] - code - E:\AILearningPath\ai-learning-frontend\frontend\src\pages\admin\AdminTopics.jsx
 
 ## Live Query (requires Dataview plugin)
 

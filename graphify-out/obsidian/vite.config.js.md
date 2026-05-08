@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\vite.config.js"
 type: "code"
-community: "Community 160"
+community: "Community 161"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_160
+  - community/Community_161
 ---
 
 # vite.config.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_160
+#graphify/code #graphify/EXTRACTED #community/Community_161

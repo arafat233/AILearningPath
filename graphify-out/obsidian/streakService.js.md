@@ -13,6 +13,8 @@ tags:
 
 ## Connections
 - [[getStreak()]] - `contains` [EXTRACTED]
+- [[getStreakStatus()]] - `contains` [EXTRACTED]
+- [[isoWeek()]] - `contains` [EXTRACTED]
 - [[updateStreak()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_10

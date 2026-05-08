@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[Switch-And-Resume.ps1]] - code - E:\AILearningPath\ClaudeTools\Switch-And-Resume.ps1
+- [[Setup-Accounts.ps1]] - code - E:\AILearningPath\ClaudeTools\Setup-Accounts.ps1
 
 ## Live Query (requires Dataview plugin)
 

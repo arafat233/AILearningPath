@@ -15,7 +15,9 @@ tags:
 - [[escHtml()_1]] - `contains` [EXTRACTED]
 - [[frontendUrl()]] - `contains` [EXTRACTED]
 - [[runOnboardingEmails()]] - `contains` [EXTRACTED]
+- [[runTrialExpirySoonEmails()]] - `contains` [EXTRACTED]
 - [[sendDay2Emails()]] - `contains` [EXTRACTED]
 - [[sendDay7Emails()]] - `contains` [EXTRACTED]
+- [[sendTrialExpiringSoonEmails()]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_7

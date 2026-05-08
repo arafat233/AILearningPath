@@ -20,5 +20,6 @@ tags:
 - [[sendDay2Emails()]] - `calls` [INFERRED]
 - [[sendDay7Emails()]] - `calls` [INFERRED]
 - [[sendReceiptEmail()]] - `calls` [EXTRACTED]
+- [[sendTrialExpiringSoonEmails()]] - `calls` [INFERRED]
 
 #graphify/code #graphify/INFERRED #community/Community_7

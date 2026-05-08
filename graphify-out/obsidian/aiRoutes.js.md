@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\routes\aiRoutes.js"
 type: "code"
-community: "Community 72"
+community: "Community 73"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_72
+  - community/Community_73
 ---
 
 # aiRoutes.js
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[voiceHistoryKey()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_72
+#graphify/code #graphify/EXTRACTED #community/Community_73

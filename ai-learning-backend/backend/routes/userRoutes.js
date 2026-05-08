@@ -8,6 +8,7 @@ import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
 import { getDailyBrief } from "../services/dailyBriefService.js";
+import { getStreakStatus } from "../services/streakService.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -160,6 +161,13 @@ r.delete("/me", auth, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+r.get("/streak-status", auth, async (req, res, next) => {
+  try {
+    const status = await getStreakStatus(req.user.id);
+    res.json({ data: status });
+  } catch (err) { next(err); }
 });
 
 r.get("/daily-brief", auth, async (req, res, next) => {

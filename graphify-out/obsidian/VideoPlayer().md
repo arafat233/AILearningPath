@@ -15,6 +15,5 @@ tags:
 - [[NcertTopicView.jsx]] - `contains` [EXTRACTED]
 - [[fmt()]] - `calls` [INFERRED]
 - [[fmt()_1]] - `calls` [INFERRED]
-- [[sanitizeSvg()]] - `calls` [EXTRACTED]
 
 #graphify/code #graphify/INFERRED #community/Community_9

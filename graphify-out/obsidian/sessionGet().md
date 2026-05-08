@@ -16,6 +16,7 @@ tags:
 - [[auth()]] - `calls` [INFERRED]
 - [[checkCooldown()]] - `calls` [INFERRED]
 - [[getCached()]] - `calls` [INFERRED]
+- [[getLastExplanation()]] - `calls` [INFERRED]
 - [[getRoom()]] - `calls` [INFERRED]
 - [[logout()]] - `calls` [INFERRED]
 - [[redisClient.js]] - `contains` [EXTRACTED]

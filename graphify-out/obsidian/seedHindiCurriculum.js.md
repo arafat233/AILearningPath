@@ -12,6 +12,6 @@ tags:
 # seedHindiCurriculum.js
 
 ## Connections
-- [[seed()_1]] - `contains` [EXTRACTED]
+- [[seed()_2]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_4

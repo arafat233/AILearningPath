@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js"
 type: "code"
-community: "Community 12"
-location: "L78"
+community: "Community 11"
+location: "L80"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_12
+  - community/Community_11
 ---
 
 # cacheStats()
@@ -16,4 +16,4 @@ tags:
 - [[aiController.js]] - `contains` [EXTRACTED]
 - [[getCacheStats()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_12
+#graphify/code #graphify/INFERRED #community/Community_11

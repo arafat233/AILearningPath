@@ -8,7 +8,7 @@ members: 1
 **Members:** 1 nodes
 
 ## Members
-- [[plannerRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\plannerRoutes.js
+- [[placementRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\placementRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

@@ -70,21 +70,29 @@ r.post("/mixed", auth, validate(mixedSchema), async (req, res, next) => {
   }
 });
 
-// Start a practice session from the user's bookmarked questions
+// Start a practice session from bookmarked questions OR a passed list of questionIds
+// Body: { questionIds?: string[] } — if provided, uses those IDs; otherwise falls back to user bookmarks
 r.post("/start-bookmarks", auth, async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    const user   = await User.findById(userId).select("savedQuestions").lean();
-    if (!user?.savedQuestions?.length) return next(new AppError("No bookmarked questions", 404));
+    const userId        = req.user.id;
+    const passedIds     = Array.isArray(req.body?.questionIds) ? req.body.questionIds : null;
 
-    const savedIds = user.savedQuestions.map((id) => id.toString());
+    let pool;
+    if (passedIds?.length) {
+      // Retry-wrong or any explicit ID list — use them directly
+      pool = passedIds;
+    } else {
+      const user = await User.findById(userId).select("savedQuestions").lean();
+      if (!user?.savedQuestions?.length) return next(new AppError("No bookmarked questions", 404));
+      const savedIds = user.savedQuestions.map((id) => id.toString());
 
-    // Prefer unseen bookmarks; fall back to any if all have been seen
-    const seen = await SeenQuestion.find({ userId, questionId: { $in: savedIds } })
-      .select("questionId").lean();
-    const seenSet    = new Set(seen.map((s) => s.questionId));
-    const candidateIds = savedIds.filter((id) => !seenSet.has(id));
-    const pool = candidateIds.length ? candidateIds : savedIds;
+      // Prefer unseen bookmarks; fall back to any if all have been seen
+      const seen = await SeenQuestion.find({ userId, questionId: { $in: savedIds } })
+        .select("questionId").lean();
+      const seenSet = new Set(seen.map((s) => s.questionId));
+      const unseen  = savedIds.filter((id) => !seenSet.has(id));
+      pool = unseen.length ? unseen : savedIds;
+    }
 
     const pickedId = pool[Math.floor(Math.random() * pool.length)];
     const question = await Question.findOne({
@@ -94,19 +102,21 @@ r.post("/start-bookmarks", auth, async (req, res, next) => {
       "options.0": { $exists: true },
     }).lean();
 
-    if (!question) return next(new AppError("No playable bookmarked questions found", 404));
+    if (!question) return next(new AppError("No playable questions found", 404));
 
+    // Store remaining IDs in session so next question can be drawn from the same set
     await sessionSet(`practice:${userId}`, {
       topic: question.topic,
       sessionCorrect: 0,
       sessionTotal: 0,
       currentQuestion: question,
+      retryPool: passedIds ? pool.filter((id) => id !== String(pickedId)) : null,
     }, 7200);
 
     SeenQuestion.create({ userId, questionId: String(question._id), topic: question.topic }).catch(() => {});
 
     const safeOpts = (question.options || []).map(({ text, logicTag }) => ({ text, logicTag }));
-    res.json({ ...question, options: safeOpts, fromBookmarks: true });
+    res.json({ ...question, options: safeOpts, fromBookmarks: !passedIds, fromRetry: !!passedIds });
   } catch (err) {
     next(err);
   }

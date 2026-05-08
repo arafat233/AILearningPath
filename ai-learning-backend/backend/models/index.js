@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   // Onboarding email sequence tracking
   onboardingDay2SentAt: { type: Date, default: null },
   onboardingDay7SentAt: { type: Date, default: null },
+  trialExpirySoonSentAt: { type: Date, default: null },
   // Weekly parent digest
   weeklyParentEmailSentAt: { type: Date, default: null },
   // NPS survey throttle — don't resurface for 30 days after submission
@@ -228,6 +229,7 @@ const streakSchema = new mongoose.Schema({
   currentStreak: { type: Number, default: 0 },
   longestStreak: { type: Number, default: 0 },
   lastActiveDate: { type: String, default: "" }, // YYYY-MM-DD
+  graceUsedWeek: { type: String, default: "" },  // ISO week string e.g. "2026-W19"
   updatedAt:     { type: Date, default: Date.now },
 });
 export const Streak = mongoose.model("Streak", streakSchema);

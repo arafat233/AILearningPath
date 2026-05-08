@@ -1,11 +1,11 @@
 ---
 type: community
-members: 114
+members: 113
 ---
 
 # Community 2
 
-**Members:** 114 nodes
+**Members:** 113 nodes
 
 ## Members
 - [[.choice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
@@ -63,6 +63,7 @@ members: 114
 - [[getPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[getPlanById()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[getPlans()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
+- [[getRagHealth()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getRevisionTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
 - [[getSharedPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[getStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
@@ -107,7 +108,6 @@ members: 114
 - [[saveTopicOrder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[scorePlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
 - [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
 - [[setStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[startOf()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\companyService.js
 - [[timingSafe()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js
@@ -118,7 +118,6 @@ members: 114
 - [[updateQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
 - [[updateTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminTopicController.js
 - [[updateUserPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
 - [[user.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
 - [[verifyOwnership()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[verifyPayment()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
@@ -131,16 +130,16 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 19 edges to [[_COMMUNITY_Community 7]]
-- 13 edges to [[_COMMUNITY_Community 5]]
+- 16 edges to [[_COMMUNITY_Community 7]]
 - 13 edges to [[_COMMUNITY_Community 6]]
-- 6 edges to [[_COMMUNITY_Community 12]]
+- 12 edges to [[_COMMUNITY_Community 5]]
+- 6 edges to [[_COMMUNITY_Community 11]]
 - 6 edges to [[_COMMUNITY_Community 0]]
 - 4 edges to [[_COMMUNITY_Community 10]]
 
 ## Top bridge nodes
-- [[.next()]] - degree 114, connects to 6 communities
-- [[sessionDel()]] - degree 7, connects to 2 communities
+- [[.next()]] - degree 115, connects to 6 communities
 - [[portalController.js]] - degree 15, connects to 1 community
 - [[plannerController.js]] - degree 14, connects to 1 community
 - [[buildPlanResponse()]] - degree 13, connects to 1 community
+- [[Rng]] - degree 6, connects to 1 community

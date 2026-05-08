@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-frontend\frontend\src\pages\LandingPage.jsx"
 type: "code"
-community: "Community 11"
+community: "Community 12"
 location: "L574"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_11
+  - community/Community_12
 ---
 
 # Subjects()
@@ -16,4 +16,4 @@ tags:
 - [[sampleTopicsFor()]] - `calls` [EXTRACTED]
 - [[statsFor()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_11
+#graphify/code #graphify/EXTRACTED #community/Community_12

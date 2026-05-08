@@ -21,6 +21,40 @@
 - **Science** topic IDs: `sci_ch{N}_{descriptor}` — e.g. `sci_ch9_reflection_mirrors`
 - **Future subjects**: use `{subj_code}_ch{N}_{descriptor}` — e.g. `sst_ch1_french_revolution`, `eng_ch1_letter_to_god`
 
+**WARNING:** Never change a topicId after seeding — Questions link to them and renaming breaks all practice data.
+
+---
+
+## Phase 0 — NCERT Textbook Mapping (Specification)
+
+**What:** Before writing a single line of seed code, map the full NCERT syllabus for the subject. This is your specification. Everything downstream is built from this map.
+
+**Steps:**
+
+1. Open the NCERT PDF for the subject (CBSE 2023-24 rationalized syllabus)
+2. List every chapter → subchapter → topic
+3. Cross-check against the CBSE 2023-24 rationalized syllabus — some chapters are deleted or reduced
+4. Assign a `topicId` for every topic using the naming convention above
+5. **Add all expected topicIds to the `EXPECTED` array in `backend/config/auditCoverage.mjs`** — this becomes your ground truth
+
+**Why this step first:** The `EXPECTED` array in `auditCoverage.mjs` is the single source of truth for coverage. If you add it early, every subsequent phase can be verified against it with `npm run audit:coverage`.
+
+**Example entry to add to `EXPECTED`:**
+```js
+{
+  chapterId: "sst_ch1", chapterName: "The Rise of Nationalism in Europe",
+  subject: "Social Science", grade: "10",
+  expectedTopicIds: [
+    "sst_ch1_french_revolution",
+    "sst_ch1_nationalism_europe",
+    "sst_ch1_making_of_germany",
+    "sst_ch1_ireland_italy",
+  ],
+},
+```
+
+**Verify:** `npm run audit:coverage Social Science` — should show all topics as MISSING (not yet seeded). That's the correct starting state.
+
 ---
 
 ## Phase 1 — Curriculum Skeleton
@@ -30,10 +64,9 @@
 **File:** `backend/config/seed{Subject}Curriculum.js`
 
 **How to write it:**
-1. Open the NCERT PDF for the subject
-2. Map out every chapter → subchapter → concept → topic (bullet points)
-3. Write the seed as a `CHAPTERS` array upserted on `chapterId`
-4. `chapterId` format: `{subj_code}_ch{N}` (e.g. `sst_ch1`)
+1. Use the topic map from Phase 0
+2. Write the seed as a `CHAPTERS` array upserted on `chapterId`
+3. `chapterId` format: `{subj_code}_ch{N}` (e.g. `sst_ch1`)
 
 **Reference file:** `backend/config/seedScienceCurriculum.js`
 
@@ -83,7 +116,7 @@ Example breakdown used for Science:
 
 **Run:** `node config/seed{Subject}{Unit}Content.js`
 
-**Verify:** `db.ncerttopiccontents.countDocuments({subject:"Science"})`
+**Verify:** `npm run audit:coverage {Subject}` — "In DB" column should increment
 
 ---
 
@@ -129,7 +162,7 @@ Example: `seedScienceBiologyQuestions.js`, `seedScienceChemistryQuestions.js`, `
 
 **Run:** `node config/seed{Subject}{Unit}Questions.js`
 
-**Verify:** Admin → Questions → filter by subject
+**Verify:** `npm run audit:coverage {Subject}` — "Qs" column should show ≥20 per chapter (green)
 
 ---
 
@@ -163,11 +196,11 @@ sci_ch5_photosynthesis: { label: "Photosynthesis — Inputs & Outputs", Componen
 - No external imports — pure SVG primitives only
 - Keep it educational, not decorative — labels > art
 
-**Science DIAGRAM_MAP coverage (as of 2026-05-08): 56/56 topics covered.**
+**Verify:** `npm run audit:coverage {Subject}` — "Diagrams" column should go green
 
 **Naming convention:**
 - Science: `sci_{descriptor}` key → `{Descriptor}` component name
-- Future: `sst_{descriptor}` → `{Descriptor}Sst` (add suffix if name clashes)
+- Future: `sst_{descriptor}` → `{Descriptor}Sst` (add suffix if name clashes with existing component)
 
 ---
 
@@ -200,39 +233,118 @@ npm run rag:build-curriculum  # All subjects
 
 Or directly: `node config/buildRagChunks.js --subject=Science`
 
+**Re-run this phase every time teaching content changes.** Adding or editing topics without rebuilding RAG means the AI tutor won't know about the new content.
+
 **Verify:** `db.ncertchunks.countDocuments({subject:"Science"})`
 
 ---
 
-## Phase 7 — Admin Panel Verification
+## Phase 7 — Convenience Runner
 
-After running all seeds, verify in the admin panel:
+**What:** Create a single script that runs all phases for the subject in order.
 
-| Admin Page | What to check |
-|-----------|---------------|
-| `/admin/questions` | Filter by subject → should see all topics with ≥5 questions each |
-| `/admin/topics` | Should show basic topic entries |
-| Student NCERT page | `/ncert/chapters/sci_ch1` → teaching content loads |
-| Diagram check | Topic page → Diagram tab → SVG renders, not placeholder text |
-| Practice | `/practice?subject=Science` → questions appear |
+**File:** `backend/config/seed{Subject}All.js`
+
+**Reference:** `backend/config/seedScienceAll.js`
+
+**Pattern:**
+```js
+import { execSync } from "child_process";
+
+const scripts = [
+  "config/seedSstCurriculum.js",
+  "config/seedSstHistory Content.js",
+  "config/seedSstGeographyContent.js",
+  "config/seedSstHistoryQuestions.js",
+  "config/seedSstGeographyQuestions.js",
+  "config/seedSstTopicDAG.js",
+];
+
+for (const s of scripts) {
+  console.log(`\n▶ ${s}`);
+  execSync(`node ${s}`, { stdio: "inherit" });
+}
+```
+
+**Also add npm script aliases to `package.json`:**
+```json
+"seed:sst-all": "node config/seedSstAll.js",
+"seed:sst-curriculum": "node config/seedSstCurriculum.js",
+"seed:sst-history-content": "node config/seedSstHistoryContent.js"
+```
 
 ---
 
-## Cross-Verification Checklist (run before committing)
+## Phase 8 — Coverage Audit
 
-Run this audit script to catch gaps:
-```js
-// backend/config/_auditTopics.mjs (re-create as needed)
-const all = await NcertTopicContent.find({}, {topicId:1,name:1,subject:1}).lean();
-// Check: every topicId has ≥1 question, has a diagram in DIAGRAM_MAP
+**What:** Run the automated audit to verify everything is in place before committing.
+
+**Run:**
+```bash
+npm run audit:coverage {Subject}           # overview table
+npm run audit:coverage:detail {Subject}    # per-topic breakdown with question counts
+node config/auditCoverage.mjs {Subject} --missing-only   # gaps only
 ```
 
-**Minimum standards per topic:**
+**What the audit checks:**
+| Column | Pass condition |
+|--------|---------------|
+| In DB | Equals NCERT expected count |
+| Missing | 0 |
+| Qs | ≥ 4 per topic (green) |
+| Diagrams | count/expected ratio = 1 |
+
+**When you add a new subject:** Append to the `EXPECTED` array in `backend/config/auditCoverage.mjs` during Phase 0.
+
+**Minimum standards per topic before committing:**
 - [ ] Teaching content (NcertTopicContent document) ✅
 - [ ] At least 5 MCQ questions ✅
 - [ ] SVG diagram in DIAGRAM_MAP ✅
 - [ ] Entry in topic DAG ✅
-- [ ] Covers CBSE textbook chapter structure ✅
+- [ ] `npm run audit:coverage {Subject}` shows ✅ FULLY COVERED
+
+---
+
+## Phase 9 — Frontend Navigation
+
+**What:** Make the new subject accessible to students from the navigation.
+
+**Check these places:**
+
+1. **Subject selector** on the NCERT chapters page — does the new subject appear in the dropdown?
+2. **Practice page** subject filter — does the new subject appear?
+3. **Dashboard** subject tiles — add the subject if it should appear on the student dashboard
+4. **Admin → Topics** — verify the topic list shows entries for the new subject
+
+**Where to look:**
+- Subject list: check any `SUBJECTS` or `subjects` constant in `frontend/src/`
+- Nav: check `frontend/src/components/` for subject dropdowns
+- Practice filter: `frontend/src/pages/Practice.jsx` or similar
+
+---
+
+## Phase 10 — Update BLUEPRINT.md
+
+Update `BLUEPRINT.md` in the same commit as the seed files. Every new seed file, route change, or schema addition must be reflected there. This is how future Claude sessions know what exists.
+
+**What to update in BLUEPRINT.md:**
+- Add seed file descriptions with topic counts
+- Add npm script aliases
+- Update "Content" section with new subject stats
+
+---
+
+## Phase 11 — Admin Panel Verification
+
+After running all seeds, verify in the admin panel:
+
+| Admin Page | What to check |
+|-----------|--------------|
+| `/admin/questions` | Filter by subject → should see all topics with ≥5 questions each |
+| `/admin/topics` | Should show basic topic entries |
+| Student NCERT page | `/ncert/chapters/{subj}_ch1` → teaching content loads |
+| Diagram check | Topic page → Diagram tab → SVG renders, not placeholder text |
+| Practice | `/practice?subject={Subject}` → questions appear |
 
 ---
 
@@ -245,45 +357,47 @@ const all = await NcertTopicContent.find({}, {topicId:1,name:1,subject:1}).lean(
 ### Chapters covered
 | Chapter | Unit | Topics | Questions | Diagram |
 |---------|------|--------|-----------|---------|
-| Ch1 Chemical Reactions | Chemistry | 4 | ~15 | ✅ |
+| Ch1 Chemical Reactions | Chemistry | 4 | ~19 | ✅ |
 | Ch2 Acids Bases Salts | Chemistry | 4 | ~18 | ✅ |
 | Ch3 Metals Non-metals | Chemistry | 4 | ~15 | ✅ |
-| Ch4 Carbon Compounds | Chemistry | 5 | ~16 | ✅ |
-| Ch5 Life Processes | Biology | 6 | ~14 | ✅ |
-| Ch6 Control Coordination | Biology | 5 | ~18 | ✅ |
+| Ch4 Carbon Compounds | Chemistry | 5 | ~17 | ✅ |
+| Ch5 Life Processes | Biology | 6 | ~18 | ✅ |
+| Ch6 Control Coordination | Biology | 5 | ~20 | ✅ |
 | Ch7 Reproduction | Biology | 4 | ~20 | ✅ |
-| Ch8 Heredity | Biology | 4 | ~18 | ✅ |
+| Ch8 Heredity | Biology | 3 | ~15 | ✅ |
 | Ch9 Light | Physics | 4 | ~18 | ✅ |
 | Ch10 Human Eye | Physics | 3 | ~12 | ✅ |
 | Ch11 Electricity | Physics | 4 | ~19 | ✅ |
-| Ch12 Magnetic Effects | Physics | 5 | ~14 | ✅ |
+| Ch12 Magnetic Effects | Physics | 5 | ~16 | ✅ |
 | Ch13 Our Environment | Biology | 4 | ~15 | ✅ |
-| **Total** | | **56 topics** | **~212 questions** | **56/56** |
+| **Total** | | **55 topics** | **222 questions** | **55/55** |
+
+*Note: Ch8 has 3 topics in CBSE 2023-24 syllabus. sci_ch8_evolution is kept in DB but excluded from the EXPECTED audit array as it was removed from the 2023-24 rationalized syllabus.*
 
 ### Seed files created
 ```
 backend/config/
   seedScienceCurriculum.js          ← Phase 1
-  seedScienceChemistryContent.js    ← Phase 2
-  seedScienceBiologyContent.js      ← Phase 2
-  seedSciencePhysicsContent.js      ← Phase 2
+  seedScienceChemistryContent.js    ← Phase 2 (17 topics)
+  seedScienceBiologyContent.js      ← Phase 2 (23 topics incl. endocrine, reproductive health, variation)
+  seedSciencePhysicsContent.js      ← Phase 2 (16 topics incl. domestic circuits)
   seedScienceChemistryQuestions.js  ← Phase 3
   seedScienceBiologyQuestions.js    ← Phase 3
   seedSciencePhysicsQuestions.js    ← Phase 3
-  seedScienceMissingQuestions.js    ← Phase 3 (gap fill)
+  seedScienceMissingQuestions.js    ← Phase 3 (gap fill for 7 under-covered topics)
   seedScienceTopicDAG.js            ← Phase 5
-  seedScienceAll.js                 ← convenience runner (runs all above)
+  seedScienceAll.js                 ← Phase 7 convenience runner
 ```
 
 ### DiagramLibrary.jsx additions
-- 56 SVG components for all Science topics
-- DIAGRAM_MAP: 56 Science entries
+- 55 SVG components for all Science topics
+- DIAGRAM_MAP: 55 Science entries
 
 ### Key decisions made
 1. Topic IDs: `sci_ch{N}_{descriptor}` (never change after seeding — breaks question links)
 2. Content format: flat strings for Science (different from Math's nested objects)
 3. Chapters excluded: Ch14 Sources of Energy (deleted from CBSE 2023-24 syllabus)
-4. Evolution (sci_ch8_evolution): kept in DB though 2023-24 reduced it — kept for completeness
+4. Evolution (sci_ch8_evolution): kept in DB though 2023-24 reduced it — kept for completeness but excluded from EXPECTED audit array
 
 ---
 
@@ -323,20 +437,49 @@ backend/config/
 ## Quick Start Checklist for a New Subject
 
 ```
-[ ] 1. Get NCERT PDF for the subject
-[ ] 2. Map chapters → subchapters in seed{Subject}Curriculum.js
-[ ] 3. Run Phase 1 seed — verify chapter count in DB
-[ ] 4. For each unit (split into 2-3 files):
-        - Write teaching content → Phase 2 seed
-        - Write 5 questions per topic → Phase 3 seed
+[ ] 0. Get NCERT PDF + map all chapters → topic IDs
+[ ] 0b. Add expected topicIds to EXPECTED array in auditCoverage.mjs
+[ ] 0c. Run: npm run audit:coverage {Subject} → confirm all show as MISSING (starting state)
+[ ] 1. Write seed{Subject}Curriculum.js → run it → verify chapter count in DB
+[ ] 2. For each unit (split into 2-3 files):
+        - Write teaching content → Phase 2 seed → run it
+        - Write 5 questions per topic → Phase 3 seed → run it
         - Add SVG diagram to DiagramLibrary.jsx → Phase 4
-[ ] 5. Run Phase 5 DAG seed
-[ ] 6. Run Phase 6 RAG build
-[ ] 7. Run full audit (_auditTopics.mjs)
-[ ] 8. Verify admin panel + student pages
-[ ] 9. Update BLUEPRINT.md with new seed file counts
-[10] Commit + push
+[ ] 3. Run Phase 5 DAG seed
+[ ] 4. Run Phase 6 RAG build
+[ ] 5. Create seed{Subject}All.js convenience runner + add npm scripts to package.json
+[ ] 6. Run: npm run audit:coverage {Subject} → must show ✅ FULLY COVERED
+[ ] 7. Check frontend navigation — subject appears in selectors
+[ ] 8. Verify admin panel + student topic pages
+[ ] 9. Update BLUEPRINT.md with new seed file counts and npm scripts
+[10] Commit: "Feat: add {Subject} Class {N} — {N} topics, {N} diagrams, {N} questions"
+[11] Push + smoke test on production
 ```
+
+---
+
+## Audit Script Reference
+
+```bash
+# Full audit of all subjects
+npm run audit:coverage
+
+# Single subject
+npm run audit:coverage Science
+npm run audit:coverage Mathematics
+
+# Per-topic breakdown (shows individual topicId question counts)
+npm run audit:coverage:detail Science
+
+# Gaps only (suppress fully-covered chapters)
+node config/auditCoverage.mjs Science --missing-only
+
+# What the audit checks:
+#   ✅ FULLY COVERED — all topics present, all diagrams, ≥4 questions per topic
+#   ⚠  GAPS FOUND   — lists missing topicIds, diagram count, question shortfall
+```
+
+**To add a new subject to the audit**, append to the `EXPECTED` array in `backend/config/auditCoverage.mjs`. The template is at the bottom of that file.
 
 ---
 
@@ -355,4 +498,4 @@ backend/config/
 
 ---
 
-*Last updated: 2026-05-08 — Class 10 Science complete (56 topics, 56 diagrams, ~212 questions)*
+*Last updated: 2026-05-08 — Class 10 Science complete (55 topics, 55 diagrams, 222 questions). auditCoverage.mjs added.*

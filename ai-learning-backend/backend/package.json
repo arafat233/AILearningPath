@@ -46,7 +46,10 @@
     "migrate:down": "migrate-mongo down",
     "migrate:status": "migrate-mongo status",
     "backup": "node scripts/backup.js",
-    "restore": "node scripts/restore.js"
+    "restore": "node scripts/restore.js",
+    "audit:coverage": "node config/auditCoverage.mjs",
+    "audit:coverage:detail": "node config/auditCoverage.mjs --detail",
+    "seed:missing-questions": "node config/seedScienceMissingQuestions.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

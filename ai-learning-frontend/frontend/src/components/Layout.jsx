@@ -141,7 +141,7 @@ export default function Layout() {
               </svg>
             </button>
           ) : (
-            <p className="text-[11px] text-apple-gray ml-9">Stellar</p>
+            <p className="text-[11px] text-apple-gray ml-9">CBSE Class {user?.grade || "10"}</p>
           )}
         </div>
 

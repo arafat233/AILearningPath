@@ -581,23 +581,1098 @@ function BalanceScale() {
   );
 }
 
+/* ── BIOLOGY: Photosynthesis ─────────────────────────────────────── */
+function Photosynthesis() {
+  return (
+    <svg viewBox="0 0 340 220" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      {/* Leaf shape */}
+      <path d="M170 20 C220 20 280 60 280 110 C280 160 220 200 170 200 C120 200 60 160 60 110 C60 60 120 20 170 20Z"
+            fill="#86EFAC" stroke="#16A34A" strokeWidth={2}/>
+      {/* Midrib */}
+      <line x1={170} y1={20} x2={170} y2={200} stroke="#15803D" strokeWidth={2.5}/>
+      {/* Veins */}
+      {[50,80,110,140].map((y,i)=>(
+        <line key={i} x1={170} y1={y+30} x2={170+(i%2===0?-1:1)*55} y2={y+55}
+              stroke="#15803D" strokeWidth={1.2} opacity={0.6}/>
+      ))}
+      {/* Chloroplast */}
+      <ellipse cx={170} cy={110} rx={38} ry={22} fill="#4ADE80" stroke="#15803D" strokeWidth={1.5}/>
+      <T x={170} y={106} size={9} bold align="middle" color="#14532D">Chloroplast</T>
+      <T x={170} y={118} size={8} align="middle" color="#14532D">6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</T>
+
+      {/* Inputs */}
+      <T x={30} y={70} size={10} bold color="#2563EB">Sunlight ☀</T>
+      <path d="M88 75 L135 100" stroke="#F59E0B" strokeWidth={1.5} markerEnd="url(#arr)"/>
+      <T x={16} y={120} size={10} bold color="#2563EB">CO₂ →</T>
+      <T x={16} y={150} size={10} bold color="#2563EB">H₂O →</T>
+
+      {/* Outputs */}
+      <T x={220} y={80} size={10} bold color="#16A34A">← O₂</T>
+      <T x={220} y={150} size={10} bold color="#D97706">← Glucose</T>
+
+      {/* Arrow marker */}
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#F59E0B"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Aerobic Respiration ────────────────────────────────── */
+function Respiration() {
+  return (
+    <svg viewBox="0 0 360 200" style={{ width:"100%", maxWidth:360, height:"auto" }}>
+      <T x={180} y={14} size={11} bold align="middle">Aerobic Respiration</T>
+
+      {/* Stage boxes */}
+      {[
+        {x:20, y:30, w:80, h:40, fill:"#FEF9C3", stroke:"#CA8A04", label:"Glucose", sub:"C₆H₁₂O₆"},
+        {x:140, y:30, w:80, h:40, fill:"#DBEAFE", stroke:"#2563EB", label:"Pyruvate", sub:"2 × C₃H₄O₃"},
+        {x:260, y:30, w:80, h:40, fill:"#DCFCE7", stroke:"#16A34A", label:"CO₂ + H₂O", sub:"+ ATP"},
+      ].map((b,i)=>(
+        <g key={i}>
+          <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={8} fill={b.fill} stroke={b.stroke} strokeWidth={1.5}/>
+          <T x={b.x+b.w/2} y={b.y+17} size={10} bold align="middle" color="#1D1D1F">{b.label}</T>
+          <T x={b.x+b.w/2} y={b.y+32} size={9} align="middle" color="#6B7280">{b.sub}</T>
+        </g>
+      ))}
+
+      {/* Arrows */}
+      <line x1={100} y1={50} x2={138} y2={50} stroke="#374151" strokeWidth={2} markerEnd="url(#a2)"/>
+      <line x1={220} y1={50} x2={258} y2={50} stroke="#374151" strokeWidth={2} markerEnd="url(#a2)"/>
+
+      {/* Stage labels */}
+      <T x={119} y={42} size={8} align="middle" color="#6B7280">Glycolysis</T>
+      <T x={119} y={65} size={8} align="middle" color="#6B7280">(cytoplasm)</T>
+      <T x={239} y={42} size={8} align="middle" color="#6B7280">Krebs +</T>
+      <T x={239} y={65} size={8} align="middle" color="#6B7280">ETC (mito.)</T>
+
+      {/* ATP yield */}
+      <rect x={20} y={100} width={320} height={85} rx={10} fill="#F0FFF4" stroke="#86EFAC" strokeWidth={1.5}/>
+      <T x={180} y={116} size={10} bold align="middle" color="#15803D">Overall Equation</T>
+      <T x={180} y={134} size={10} align="middle" color="#1D1D1F">C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP)</T>
+      <T x={180} y={152} size={10} bold align="middle" color="#16A34A">Net ATP yield: ~36–38 ATP molecules</T>
+      <T x={180} y={170} size={9} align="middle" color="#6B7280">Anaerobic (no O₂): glucose → lactic acid / ethanol + CO₂ (2 ATP only)</T>
+
+      <defs>
+        <marker id="a2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#374151"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Xylem & Phloem ─────────────────────────────────────── */
+function XylemPhloem() {
+  return (
+    <svg viewBox="0 0 320 240" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Transport in Plants — Stem Cross-Section</T>
+
+      {/* Stem circle */}
+      <circle cx={160} cy={130} r={90} fill="#F0FDF4" stroke="#16A34A" strokeWidth={2}/>
+      {/* Cortex label */}
+      <T x={225} y={118} size={9} color="#6B7280">Cortex</T>
+
+      {/* Vascular bundle — Xylem (top) */}
+      <ellipse cx={160} cy={90} rx={28} ry={18} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={160} y={86} size={9} bold align="middle" color="#1E40AF">Xylem</T>
+      <T x={160} y={99} size={8} align="middle" color="#1E40AF">↑ Water + minerals</T>
+
+      {/* Phloem (bottom) */}
+      <ellipse cx={160} cy={168} rx={28} ry={18} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={160} y={164} size={9} bold align="middle" color="#92400E">Phloem</T>
+      <T x={160} y={177} size={8} align="middle" color="#92400E">↓ Food (sucrose)</T>
+
+      {/* Cambium line */}
+      <line x1={133} y1={130} x2={187} y2={130} stroke="#15803D" strokeWidth={1} strokeDasharray="3,2"/>
+      <T x={194} y={134} size={8} color="#15803D">Cambium</T>
+
+      {/* Side labels */}
+      <T x={18} y={90} size={9} bold color="#2563EB">Roots →</T>
+      <T x={18} y={103} size={9} color="#2563EB">Leaves</T>
+      <T x={18} y={168} size={9} bold color="#CA8A04">Leaves →</T>
+      <T x={18} y={181} size={9} color="#CA8A04">All parts</T>
+
+      {/* Cell detail inset */}
+      <rect x={10} y={195} width={300} height={38} rx={6} fill="#F8FAFC" stroke="#E2E8F0" strokeWidth={1}/>
+      <T x={160} y={209} size={9} bold align="middle">Xylem: dead, thick-walled vessels (no nucleus) — passive flow</T>
+      <T x={160} y={225} size={9} align="middle" color="#6B7280">Phloem: living sieve tubes + companion cells — active (ATP) loading</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Human Brain ────────────────────────────────────────── */
+function HumanBrain() {
+  return (
+    <svg viewBox="0 0 320 230" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Human Brain — Longitudinal Section</T>
+
+      {/* Cerebrum (forebrain) — large */}
+      <path d="M60 50 C60 22 130 18 160 18 C190 18 260 22 260 50 C270 80 265 120 250 138 C230 155 190 160 160 160 C130 160 90 155 70 138 C55 120 50 80 60 50Z"
+            fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={160} y={65} size={10} bold align="middle" color="#7F1D1D">Cerebrum</T>
+      <T x={160} y={79} size={8} align="middle" color="#7F1D1D">(Forebrain)</T>
+      <T x={160} y={93} size={8} align="middle" color="#991B1B">Thinking, memory, voluntary actions</T>
+      <T x={160} y={105} size={8} align="middle" color="#991B1B">sight, hearing, speech</T>
+      {/* Corpus callosum line */}
+      <line x1={88} y1={120} x2={232} y2={120} stroke="#7F1D1D" strokeWidth={1.5} strokeDasharray="4,3"/>
+
+      {/* Cerebellum */}
+      <ellipse cx={230} cy={158} rx={36} ry={24} fill="#FDE68A" stroke="#D97706" strokeWidth={1.5}/>
+      <T x={230} y={154} size={9} bold align="middle" color="#78350F">Cerebellum</T>
+      <T x={230} y={167} size={8} align="middle" color="#92400E">Balance &amp; coordination</T>
+
+      {/* Medulla oblongata */}
+      <rect x={138} y={158} width={44} height={32} rx={8} fill="#C4B5FD" stroke="#7C3AED" strokeWidth={1.5}/>
+      <T x={160} y={172} size={9} bold align="middle" color="#4C1D95">Medulla</T>
+      <T x={160} y={184} size={8} align="middle" color="#5B21B6">Oblongata</T>
+
+      {/* Spinal cord */}
+      <rect x={151} y={188} width={18} height={30} rx={5} fill="#E9D5FF" stroke="#7C3AED" strokeWidth={1.2}/>
+      <T x={160} y={207} size={8} align="middle" color="#6D28D9">Spinal</T>
+      <T x={160} y={218} size={8} align="middle" color="#6D28D9">cord</T>
+
+      {/* Pons / midbrain */}
+      <rect x={122} y={155} width={30} height={20} rx={5} fill="#A7F3D0" stroke="#059669" strokeWidth={1.2}/>
+      <T x={137} y={169} size={8} bold align="middle" color="#064E3B">Pons</T>
+
+      {/* Labels arrows */}
+      <T x={18} y={162} size={8} color="#059669">Midbrain:</T>
+      <T x={18} y={173} size={8} color="#059669">relay centre</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Plant Hormones / Tropisms ──────────────────────────── */
+function PlantHormones() {
+  return (
+    <svg viewBox="0 0 340 220" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Plant Tropisms — Directional Growth Responses</T>
+
+      {/* Phototropism — stem bending toward light */}
+      <T x={85} y={32} size={10} bold align="middle" color="#1D1D1F">Phototropism</T>
+      {/* Sun */}
+      <circle cx={22} cy={55} r={14} fill="#FEF08A" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={22} y={59} size={8} bold align="middle" color="#92400E">☀</T>
+      {/* Stem bending left */}
+      <path d="M85 210 C85 170 72 130 58 80" fill="none" stroke="#16A34A" strokeWidth={4} strokeLinecap="round"/>
+      {/* Auxin distribution — more on shaded side */}
+      <T x={55} y={140} size={8} color="#D97706">← Auxin</T>
+      <T x={90} y={140} size={8} color="#6B7280">(less)</T>
+      <T x={18} y={200} size={8} color="#6B7280">Stem bends toward light</T>
+
+      {/* Divider */}
+      <line x1={170} y1={25} x2={170} y2={215} stroke="#E5E7EB" strokeWidth={1.5} strokeDasharray="5,3"/>
+
+      {/* Geotropism — root bending down */}
+      <T x={255} y={32} size={10} bold align="middle" color="#1D1D1F">Geotropism</T>
+      {/* Ground line */}
+      <line x1={185} y1={120} x2={335} y2={120} stroke="#92400E" strokeWidth={2}/>
+      <T x={260} y={115} size={8} color="#92400E">Soil surface</T>
+      {/* Root bending down */}
+      <path d="M255 70 C255 90 255 110 255 120 C255 135 268 155 275 175"
+            fill="none" stroke="#D97706" strokeWidth={3.5} strokeLinecap="round"/>
+      <T x={278} y={172} size={8} color="#D97706">↓</T>
+      {/* Stem upward */}
+      <path d="M255 70 C255 50 248 35 244 22"
+            fill="none" stroke="#16A34A" strokeWidth={3.5} strokeLinecap="round"/>
+      <T x={238} y={20} size={8} color="#16A34A">↑</T>
+      <T x={195} y={200} size={8} color="#6B7280">Root: positively geotropic</T>
+      <T x={195} y={213} size={8} color="#6B7280">Stem: negatively geotropic</T>
+
+      {/* Hormone summary */}
+      <rect x={0} y={220} width={340} height={0} rx={0}/>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Asexual Reproduction ──────────────────────────────── */
+function AsexualReproduction() {
+  return (
+    <svg viewBox="0 0 340 220" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Methods of Asexual Reproduction</T>
+
+      {/* Binary Fission — Amoeba */}
+      <T x={60} y={32} size={9} bold align="middle" color="#2563EB">Binary Fission</T>
+      <ellipse cx={36} cy={60} rx={22} ry={16} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <circle cx={36} cy={60} r={5} fill="#2563EB"/>
+      <T x={36} y={85} size={8} align="middle" color="#1E40AF">Parent</T>
+      <T x={58} y={62} size={10} bold color="#374151">→</T>
+      <ellipse cx={80} cy={55} rx={16} ry={12} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={80} cy={55} r={4} fill="#2563EB"/>
+      <ellipse cx={80} cy={68} rx={16} ry={12} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+      <circle cx={80} cy={68} r={4} fill="#2563EB"/>
+      <T x={80} y={88} size={8} align="middle" color="#1E40AF">2 daughters</T>
+      <T x={60} y={100} size={8} align="middle" color="#6B7280">e.g. Amoeba, Bacteria</T>
+
+      {/* Budding — Yeast/Hydra */}
+      <T x={170} y={32} size={9} bold align="middle" color="#16A34A">Budding</T>
+      <ellipse cx={158} cy={65} rx={22} ry={16} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1.5}/>
+      <circle cx={158} cy={65} r={5} fill="#16A34A"/>
+      <circle cx={173} cy={52} r={9} fill="#86EFAC" stroke="#16A34A" strokeWidth={1.2}/>
+      <circle cx={173} cy={52} r={3} fill="#15803D"/>
+      <T x={165} y={90} size={8} align="middle" color="#15803D">Bud grows off parent</T>
+      <T x={165} y={100} size={8} align="middle" color="#6B7280">e.g. Yeast, Hydra</T>
+
+      {/* Fragmentation — Spirogyra */}
+      <T x={280} y={32} size={9} bold align="middle" color="#D97706">Fragmentation</T>
+      <path d="M238 50 L280 50 L280 80 L238 80 Z" fill="none" stroke="#D97706" strokeWidth={1.5} strokeDasharray="4,2"/>
+      {[50,56,62,68,74].map((y,i)=>(
+        <ellipse key={i} cx={248+i*8} cy={y} rx={5} ry={4} fill="#FEF9C3" stroke="#D97706" strokeWidth={1}/>
+      ))}
+      <T x={258} y={45} size={8} align="middle" color="#D97706">→ breaks</T>
+      <T x={280} y={95} size={8} align="middle" color="#6B7280">e.g. Spirogyra</T>
+
+      {/* Spore formation */}
+      <rect x={10} y={115} width={320} height={95} rx={10} fill="#FAF5FF" stroke="#C4B5FD" strokeWidth={1.5}/>
+      <T x={170} y={130} size={9} bold align="middle" color="#6D28D9">Spore Formation (e.g. Rhizopus / bread mould)</T>
+      {/* Sporangium */}
+      <circle cx={170} cy={160} r={20} fill="#E9D5FF" stroke="#7C3AED" strokeWidth={1.5}/>
+      <T x={170} y={164} size={8} bold align="middle" color="#4C1D95">Sporangium</T>
+      {[0,60,120,180,240,300].map((deg,i)=>{
+        const r=32, a=deg*Math.PI/180;
+        return <circle key={i} cx={170+r*Math.cos(a)} cy={160+r*Math.sin(a)} r={5} fill="#C4B5FD" stroke="#7C3AED" strokeWidth={1}/>;
+      })}
+      <T x={170} y={200} size={8} align="middle" color="#6B7280">Spores released → germinate → new organism</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Human Reproduction ────────────────────────────────── */
+function HumanReproduction() {
+  return (
+    <svg viewBox="0 0 340 230" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Human Reproductive Systems</T>
+
+      {/* Male — left */}
+      <T x={80} y={30} size={10} bold align="middle" color="#2563EB">Male</T>
+      {/* Testis */}
+      <ellipse cx={60} cy={110} rx={18} ry={22} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={60} y={114} size={8} align="middle" color="#1E40AF">Testis</T>
+      <ellipse cx={100} cy={110} rx={18} ry={22} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      {/* Vas deferens */}
+      <path d="M78 95 C90 75 100 65 110 60" fill="none" stroke="#2563EB" strokeWidth={2}/>
+      <path d="M100 92 C108 74 114 64 118 60" fill="none" stroke="#2563EB" strokeWidth={2}/>
+      {/* Urethra */}
+      <rect x={112} y={60} width={12} height={50} rx={4} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={118} y={120} size={8} align="middle" color="#1E40AF">Urethra</T>
+      {/* Seminal vesicle */}
+      <ellipse cx={100} cy={55} rx={14} ry={9} fill="#E0F2FE" stroke="#0284C7" strokeWidth={1}/>
+      <T x={100} y={58} size={7} align="middle" color="#0369A1">Seminal</T>
+      <T x={100} y={46} size={7} align="middle" color="#0369A1">vesicle</T>
+      <T x={80} y={150} size={8} align="middle" color="#6B7280">Sperm produced</T>
+      <T x={80} y={162} size={8} align="middle" color="#6B7280">in testis (33°C)</T>
+
+      {/* Divider */}
+      <line x1={170} y1={25} x2={170} y2={220} stroke="#E5E7EB" strokeWidth={1.5}/>
+
+      {/* Female — right */}
+      <T x={255} y={30} size={10} bold align="middle" color="#EC4899">Female</T>
+      {/* Ovaries */}
+      <ellipse cx={216} cy={90} rx={16} ry={12} fill="#FCE7F3" stroke="#EC4899" strokeWidth={1.5}/>
+      <T x={216} y={93} size={7} align="middle" color="#9D174D">Ovary</T>
+      <ellipse cx={294} cy={90} rx={16} ry={12} fill="#FCE7F3" stroke="#EC4899" strokeWidth={1.5}/>
+      <T x={294} y={93} size={7} align="middle" color="#9D174D">Ovary</T>
+      {/* Fallopian tubes */}
+      <path d="M230 88 C238 80 246 78 255 80" fill="none" stroke="#F472B6" strokeWidth={1.8}/>
+      <path d="M278 80 C284 78 290 80 296 88" fill="none" stroke="#F472B6" strokeWidth={1.8}/>
+      {/* Uterus */}
+      <path d="M245 80 C248 100 250 130 255 145 C258 155 265 160 255 162 C245 164 235 155 238 145 C242 130 243 100 245 80Z"
+            fill="#FBCFE8" stroke="#EC4899" strokeWidth={1.5}/>
+      <T x={252} y={125} size={8} align="middle" color="#9D174D">Uterus</T>
+      {/* Cervix + vagina */}
+      <rect x={246} y={162} width={18} height={22} rx={4} fill="#FBCFE8" stroke="#DB2777" strokeWidth={1.2}/>
+      <T x={255} y={176} size={8} align="middle" color="#9D174D">Cervix</T>
+      <rect x={246} y={184} width={18} height={20} rx={4} fill="#FCE7F3" stroke="#DB2777" strokeWidth={1.2}/>
+      <T x={255} y={198} size={8} align="middle" color="#9D174D">Vagina</T>
+
+      {/* Egg release note */}
+      <T x={255} y={215} size={8} align="middle" color="#6B7280">Ovum released monthly</T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Mendel Punnett Square ─────────────────────────────── */
+function PunnettSquare() {
+  return (
+    <svg viewBox="0 0 320 220" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Mendel's Monohybrid Cross — Tall (T) × Short (t)</T>
+
+      {/* Parent row */}
+      <T x={30} y={38} size={10} bold color="#1D1D1F">P₁:</T>
+      <rect x={60} y={24} width={50} height={24} rx={6} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={85} y={40} size={11} bold align="middle" color="#78350F">TT</T>
+      <T x={118} y={40} size={10} bold align="middle">×</T>
+      <rect x={130} y={24} width={50} height={24} rx={6} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={155} y={40} size={11} bold align="middle" color="#1E40AF">tt</T>
+      <T x={195} y={40} size={9} color="#6B7280">Tall   ×   Short</T>
+
+      {/* F1 row */}
+      <T x={30} y={72} size={10} bold color="#1D1D1F">F₁:</T>
+      {["Tt","Tt","Tt","Tt"].map((g,i)=>(
+        <g key={i}>
+          <rect x={60+i*55} y={58} width={46} height={24} rx={5} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1.2}/>
+          <T x={83+i*55} y={74} size={10} bold align="middle" color="#15803D">{g}</T>
+        </g>
+      ))}
+      <T x={290} y={72} size={9} color="#16A34A">All Tall</T>
+
+      {/* F2 Punnett grid */}
+      <T x={30} y={108} size={10} bold color="#1D1D1F">F₂:</T>
+      {/* Header row */}
+      <T x={130} y={104} size={10} bold align="middle" color="#9D174D">T</T>
+      <T x={180} y={104} size={10} bold align="middle" color="#9D174D">t</T>
+      <T x={82} y={125} size={10} bold align="middle" color="#1E40AF">T</T>
+      <T x={82} y={167} size={10} bold align="middle" color="#1E40AF">t</T>
+
+      {/* Grid cells */}
+      {[{x:105,y:108,g:"TT",tall:true},{x:155,y:108,g:"Tt",tall:true},
+        {x:105,y:148,g:"Tt",tall:true},{x:155,y:148,g:"tt",tall:false}].map((c,i)=>(
+        <g key={i}>
+          <rect x={c.x} y={c.y} width={46} height={36} rx={4}
+            fill={c.tall?"#FEF9C3":"#DBEAFE"} stroke={c.tall?"#CA8A04":"#2563EB"} strokeWidth={1.2}/>
+          <T x={c.x+23} y={c.y+22} size={11} bold align="middle" color={c.tall?"#78350F":"#1E40AF"}>{c.g}</T>
+        </g>
+      ))}
+
+      {/* Ratio summary */}
+      <rect x={10} y={194} width={300} height={22} rx={6} fill="#F0FFF4" stroke="#86EFAC" strokeWidth={1}/>
+      <T x={160} y={209} size={9} bold align="middle" color="#15803D">
+        Ratio — Phenotype: 3 Tall : 1 Short  |  Genotype: 1 TT : 2 Tt : 1 tt
+      </T>
+    </svg>
+  );
+}
+
+/* ── BIOLOGY: Sex Determination ──────────────────────────────────── */
+function SexDetermination() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <T x={150} y={14} size={11} bold align="middle">Sex Determination in Humans</T>
+
+      {/* Mother */}
+      <T x={75} y={35} size={10} bold align="middle" color="#EC4899">Mother (XX)</T>
+      <rect x={42} y={40} width={66} height={30} rx={8} fill="#FCE7F3" stroke="#EC4899" strokeWidth={1.5}/>
+      <T x={75} y={60} size={12} bold align="middle" color="#9D174D">XX</T>
+
+      {/* Father */}
+      <T x={225} y={35} size={10} bold align="middle" color="#2563EB">Father (XY)</T>
+      <rect x={192} y={40} width={66} height={30} rx={8} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.5}/>
+      <T x={225} y={60} size={12} bold align="middle" color="#1E40AF">XY</T>
+
+      {/* Gametes */}
+      <T x={150} y={90} size={9} bold align="middle" color="#6B7280">Gametes (after meiosis)</T>
+      {/* Mother gametes */}
+      <circle cx={65} cy={108} r={14} fill="#FCE7F3" stroke="#EC4899" strokeWidth={1.2}/>
+      <T x={65} y={112} size={10} bold align="middle" color="#9D174D">X</T>
+      <circle cx={95} cy={108} r={14} fill="#FCE7F3" stroke="#EC4899" strokeWidth={1.2}/>
+      <T x={95} y={112} size={10} bold align="middle" color="#9D174D">X</T>
+      {/* Father gametes */}
+      <circle cx={205} cy={108} r={14} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+      <T x={205} y={112} size={10} bold align="middle" color="#1E40AF">X</T>
+      <circle cx={235} cy={108} r={14} fill="#EDE9FE" stroke="#7C3AED" strokeWidth={1.2}/>
+      <T x={235} y={112} size={10} bold align="middle" color="#4C1D95">Y</T>
+
+      {/* Offspring */}
+      <T x={150} y={138} size={9} bold align="middle" color="#6B7280">Possible offspring</T>
+      {[{x:55,g:"XX",col:"#EC4899",bg:"#FCE7F3",lbl:"Girl"},
+        {x:110,g:"XY",col:"#2563EB",bg:"#DBEAFE",lbl:"Boy"},
+        {x:165,g:"XX",col:"#EC4899",bg:"#FCE7F3",lbl:"Girl"},
+        {x:220,g:"XY",col:"#2563EB",bg:"#DBEAFE",lbl:"Boy"}].map((c,i)=>(
+        <g key={i}>
+          <rect x={c.x} y={145} width={40} height={30} rx={6} fill={c.bg} stroke={c.col} strokeWidth={1.2}/>
+          <T x={c.x+20} y={164} size={10} bold align="middle" color={c.col}>{c.g}</T>
+          <T x={c.x+20} y={182} size={8} align="middle" color="#6B7280">{c.lbl}</T>
+        </g>
+      ))}
+      <T x={150} y={198} size={9} bold align="middle" color="#374151">Ratio 1:1 ♀:♂  — Father determines sex</T>
+    </svg>
+  );
+}
+
+/* ── ECOLOGY: Food Chain & Web ───────────────────────────────────── */
+function FoodChain() {
+  return (
+    <svg viewBox="0 0 340 200" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Food Chain & Trophic Levels</T>
+
+      {/* Trophic level boxes */}
+      {[
+        {x:10, label:"Producer", eg:"Grass / Plant", fill:"#DCFCE7", stroke:"#16A34A", tl:"T₁"},
+        {x:85, label:"Primary Consumer", eg:"Grasshopper", fill:"#FEF9C3", stroke:"#CA8A04", tl:"T₂"},
+        {x:175, label:"Secondary Consumer", eg:"Frog", fill:"#FED7AA", stroke:"#EA580C", tl:"T₃"},
+        {x:255, label:"Tertiary Consumer", eg:"Hawk", fill:"#FCA5A5", stroke:"#EF4444", tl:"T₄"},
+      ].map((b,i)=>(
+        <g key={i}>
+          <rect x={b.x} y={25} width={76} height={60} rx={8} fill={b.fill} stroke={b.stroke} strokeWidth={1.5}/>
+          <T x={b.x+38} y={43} size={9} bold align="middle" color="#1D1D1F">{b.tl}</T>
+          <T x={b.x+38} y={56} size={8} bold align="middle" color="#374151">{b.label}</T>
+          <T x={b.x+38} y={71} size={8} align="middle" color="#6B7280">{b.eg}</T>
+          {i<3 && <line x1={b.x+76} y1={55} x2={b.x+83} y2={55} stroke="#374151" strokeWidth={1.5} markerEnd="url(#fa)"/>}
+        </g>
+      ))}
+
+      {/* Decomposer */}
+      <rect x={130} y={105} width={80} height={36} rx={8} fill="#E9D5FF" stroke="#7C3AED" strokeWidth={1.5}/>
+      <T x={170} y={119} size={9} bold align="middle" color="#4C1D95">Decomposers</T>
+      <T x={170} y={133} size={8} align="middle" color="#6D28D9">Bacteria, Fungi</T>
+      {/* Arrows to decomposer */}
+      <line x1={170} y1={85} x2={170} y2={103} stroke="#7C3AED" strokeWidth={1.2} strokeDasharray="3,2"/>
+
+      {/* Energy loss */}
+      <rect x={10} y={155} width={320} height={38} rx={8} fill="#FFF7ED" stroke="#FED7AA" strokeWidth={1}/>
+      <T x={170} y={169} size={9} bold align="middle" color="#92400E">10% Energy Law: Only 10% energy passes to next trophic level</T>
+      <T x={170} y={184} size={9} align="middle" color="#6B7280">90% lost as heat — so food chains rarely exceed 4–5 levels</T>
+
+      <defs>
+        <marker id="fa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#374151"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── ECOLOGY: Energy Pyramid (10% law) ───────────────────────────── */
+function EnergyPyramid() {
+  return (
+    <svg viewBox="0 0 320 220" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Energy Pyramid — 10% Law</T>
+
+      {/* Pyramid tiers — bottom to top */}
+      {[
+        {y:175, w:260, h:32, fill:"#DCFCE7", stroke:"#16A34A", label:"Producers (T₁)", kj:"10,000 kJ"},
+        {y:138, w:190, h:32, fill:"#FEF9C3", stroke:"#CA8A04", label:"Primary Consumers (T₂)", kj:"1,000 kJ"},
+        {y:101, w:120, h:32, fill:"#FED7AA", stroke:"#EA580C", label:"Secondary Consumers (T₃)", kj:"100 kJ"},
+        {y:64,  w:60,  h:32, fill:"#FCA5A5", stroke:"#EF4444", label:"Tertiary Consumers (T₄)", kj:"10 kJ"},
+      ].map((tier,i)=>{
+        const cx=160, x=cx-tier.w/2;
+        return (
+          <g key={i}>
+            <rect x={x} y={tier.y} width={tier.w} height={tier.h} rx={4}
+                  fill={tier.fill} stroke={tier.stroke} strokeWidth={1.5}/>
+            <T x={cx} y={tier.y+14} size={9} bold align="middle" color="#1D1D1F">{tier.label}</T>
+            <T x={cx} y={tier.y+26} size={9} align="middle" color="#6B7280">{tier.kj}</T>
+          </g>
+        );
+      })}
+
+      {/* 10% arrows on right */}
+      <T x={295} y={155} size={8} color="#EA580C">10%↑</T>
+      <T x={295} y={120} size={8} color="#EA580C">10%↑</T>
+      <T x={295} y={83} size={8} color="#EA580C">10%↑</T>
+
+      {/* Heat loss arrows on left */}
+      <T x={18} y={195} size={8} color="#9CA3AF">90%</T>
+      <T x={18} y={205} size={8} color="#9CA3AF">heat ↗</T>
+
+      {/* Magnification note */}
+      <rect x={10} y={205} width={300} height={12} rx={0}/>
+      <T x={160} y={214} size={9} bold align="middle" color="#EF4444">
+        Biological Magnification: pesticides concentrate upward!
+      </T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: pH Scale ─────────────────────────────────────────── */
+function PHScale() {
+  return (
+    <svg viewBox="0 0 340 180" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">pH Scale — 0 to 14</T>
+
+      {/* Gradient bar */}
+      {[
+        "#EF4444","#F97316","#F59E0B","#EAB308","#84CC16",
+        "#22C55E","#10B981","#14B8A6","#06B6D4","#3B82F6",
+        "#6366F1","#8B5CF6","#A855F7","#EC4899","#DB2777"
+      ].map((col,i)=>(
+        <rect key={i} x={18+i*20} y={22} width={20} height={30} fill={col}/>
+      ))}
+      {/* Border */}
+      <rect x={18} y={22} width={300} height={30} fill="none" stroke="#374151" strokeWidth={1}/>
+
+      {/* pH numbers */}
+      {Array.from({length:15},(_,i)=>(
+        <T key={i} x={28+i*20} y={67} size={9} bold align="middle" color="#1D1D1F">{i}</T>
+      ))}
+
+      {/* Acid / Neutral / Base labels */}
+      <T x={78} y={82} size={9} bold align="middle" color="#EF4444">◄ Acidic (H⁺ ions)</T>
+      <T x={168} y={82} size={9} bold align="middle" color="#374151">Neutral</T>
+      <T x={258} y={82} size={9} bold align="middle" color="#6366F1">Alkaline (OH⁻) ►</T>
+
+      {/* Dotted pH7 line */}
+      <line x1={168} y1={22} x2={168} y2={95} stroke="#374151" strokeWidth={1} strokeDasharray="3,2"/>
+
+      {/* Examples */}
+      {[
+        {x:28,  y:105, label:"HCl",     ph:"0-1"},
+        {x:68,  y:105, label:"Vinegar", ph:"2-3"},
+        {x:108, y:105, label:"Orange", ph:"3-4"},
+        {x:168, y:105, label:"Water",   ph:"7"},
+        {x:218, y:105, label:"Blood",   ph:"7.4"},
+        {x:258, y:105, label:"Baking soda", ph:"8-9"},
+        {x:305, y:105, label:"NaOH",    ph:"13-14"},
+      ].map((e,i)=>(
+        <g key={i}>
+          <T x={e.x} y={e.y} size={8} align="middle" color="#374151">{e.label}</T>
+          <T x={e.x} y={e.y+11} size={8} align="middle" color="#6B7280">pH {e.ph}</T>
+        </g>
+      ))}
+
+      {/* Indicator colour note */}
+      <rect x={18} y={140} width={300} height={32} rx={6} fill="#FFF7ED" stroke="#FED7AA" strokeWidth={1}/>
+      <T x={168} y={154} size={9} bold align="middle" color="#92400E">Indicators — Litmus: red in acid, blue in base</T>
+      <T x={168} y={167} size={9} align="middle" color="#6B7280">Phenolphthalein: colourless → pink in base  |  Universal: full spectrum</T>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Types of Reactions ──────────────────────────────── */
+function TypesOfReactions() {
+  return (
+    <svg viewBox="0 0 340 230" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Types of Chemical Reactions</T>
+
+      {[
+        {y:28,  fill:"#DCFCE7", stroke:"#16A34A", type:"Combination (Synthesis)",    eq:"A + B → AB",       eg:"2H₂ + O₂ → 2H₂O"},
+        {y:66,  fill:"#FEF9C3", stroke:"#CA8A04", type:"Decomposition",              eq:"AB → A + B",       eg:"2H₂O → 2H₂ + O₂"},
+        {y:104, fill:"#DBEAFE", stroke:"#2563EB", type:"Displacement (Single)",      eq:"A + BC → AC + B",  eg:"Zn + CuSO₄ → ZnSO₄ + Cu"},
+        {y:142, fill:"#FED7AA", stroke:"#EA580C", type:"Double Displacement",        eq:"AB + CD → AD + CB", eg:"AgNO₃ + NaCl → AgCl↓ + NaNO₃"},
+        {y:180, fill:"#FCA5A5", stroke:"#EF4444", type:"Oxidation / Reduction",      eq:"Electron transfer", eg:"Mg + O₂ → MgO  (Mg oxidised)"},
+      ].map((r,i)=>(
+        <g key={i}>
+          <rect x={10} y={r.y} width={320} height={33} rx={7} fill={r.fill} stroke={r.stroke} strokeWidth={1.2}/>
+          <T x={18} y={r.y+13} size={9} bold color="#1D1D1F">{r.type}</T>
+          <T x={18} y={r.y+25} size={8} color="#374151">{r.eq}</T>
+          <T x={180} y={r.y+20} size={8} color="#6B7280" align="middle">{r.eg}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Reactivity Series ───────────────────────────────── */
+function ReactivitSeries() {
+  return (
+    <svg viewBox="0 0 240 290" style={{ width:"100%", maxWidth:240, height:"auto" }}>
+      <T x={120} y={14} size={11} bold align="middle">Reactivity Series of Metals</T>
+
+      {/* Ladder rungs */}
+      {[
+        {m:"K  (Potassium)",   fill:"#FCA5A5", stroke:"#EF4444"},
+        {m:"Na (Sodium)",      fill:"#FCA5A5", stroke:"#EF4444"},
+        {m:"Ca (Calcium)",     fill:"#FCA5A5", stroke:"#EF4444"},
+        {m:"Mg (Magnesium)",   fill:"#FED7AA", stroke:"#F97316"},
+        {m:"Al (Aluminium)",   fill:"#FED7AA", stroke:"#F97316"},
+        {m:"Zn (Zinc)",        fill:"#FEF9C3", stroke:"#CA8A04"},
+        {m:"Fe (Iron)",        fill:"#FEF9C3", stroke:"#CA8A04"},
+        {m:"Sn (Tin)",         fill:"#DCFCE7", stroke:"#16A34A"},
+        {m:"Pb (Lead)",        fill:"#DCFCE7", stroke:"#16A34A"},
+        {m:"H₂ (Hydrogen)",   fill:"#DBEAFE", stroke:"#3B82F6"},
+        {m:"Cu (Copper)",      fill:"#E9D5FF", stroke:"#7C3AED"},
+        {m:"Ag (Silver)",      fill:"#F3F4F6", stroke:"#9CA3AF"},
+        {m:"Au (Gold)",        fill:"#F3F4F6", stroke:"#9CA3AF"},
+      ].map((row,i)=>(
+        <g key={i}>
+          <rect x={30} y={22+i*19} width={165} height={16} rx={4} fill={row.fill} stroke={row.stroke} strokeWidth={1}/>
+          <T x={35} y={34+i*19} size={9} color="#1D1D1F">{row.m}</T>
+        </g>
+      ))}
+
+      {/* Arrow labels */}
+      <line x1={10} y1={22} x2={10} y2={267} stroke="#EF4444" strokeWidth={2} markerEnd="url(#down)"/>
+      <line x1={205} y1={267} x2={205} y2={22} stroke="#16A34A" strokeWidth={2} markerEnd="url(#up)"/>
+      <T x={5} y={150} size={8} bold color="#EF4444" align="middle">↑ More reactive</T>
+      <T x={215} y={150} size={8} bold color="#16A34A" align="middle">↑ Less reactive</T>
+
+      <defs>
+        <marker id="down" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+          <path d="M0,0 L3,6 L6,0Z" fill="#EF4444"/>
+        </marker>
+        <marker id="up" markerWidth="6" markerHeight="6" refX="3" refY="0" orient="auto">
+          <path d="M0,6 L3,0 L6,6Z" fill="#16A34A"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── CHEMISTRY: Covalent Bonding ─────────────────────────────────── */
+function CovalentBonding() {
+  return (
+    <svg viewBox="0 0 340 220" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Covalent Bonding in Carbon Compounds</T>
+
+      {/* CH4 — methane */}
+      <T x={60} y={32} size={10} bold align="middle" color="#1D1D1F">CH₄ (Methane)</T>
+      <circle cx={60} cy={70} r={18} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={60} y={74} size={10} bold align="middle" color="#92400E">C</T>
+      {[{dx:0,dy:-32},{dx:32,dy:0},{dx:0,dy:32},{dx:-32,dy:0}].map((d,i)=>(
+        <g key={i}>
+          <line x1={60+d.dx*0.55} y1={70+d.dy*0.55} x2={60+d.dx*0.85} y2={70+d.dy*0.85}
+                stroke="#374151" strokeWidth={2}/>
+          <circle cx={60+d.dx} cy={70+d.dy} r={10} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={60+d.dx} y={70+d.dy+4} size={9} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      <T x={60} y={128} size={8} align="middle" color="#6B7280">4 single bonds (tetrahedral)</T>
+
+      {/* CO2 */}
+      <T x={190} y={32} size={10} bold align="middle" color="#1D1D1F">CO₂ (Carbon dioxide)</T>
+      <circle cx={190} cy={70} r={18} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={190} y={74} size={10} bold align="middle" color="#92400E">C</T>
+      {[{dx:-40},{dx:40}].map((d,i)=>(
+        <g key={i}>
+          <line x1={190+d.dx*0.45} y1={67} x2={190+d.dx*0.72} y2={67} stroke="#374151" strokeWidth={2}/>
+          <line x1={190+d.dx*0.45} y1={73} x2={190+d.dx*0.72} y2={73} stroke="#374151" strokeWidth={2}/>
+          <circle cx={190+d.dx} cy={70} r={15} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.2}/>
+          <T x={190+d.dx} y={74} size={10} bold align="middle" color="#991B1B">O</T>
+        </g>
+      ))}
+      <T x={190} y={128} size={8} align="middle" color="#6B7280">2 double bonds (linear)</T>
+
+      {/* H2O */}
+      <T x={295} y={32} size={10} bold align="middle" color="#1D1D1F">H₂O (Water)</T>
+      <circle cx={295} cy={75} r={15} fill="#FCA5A5" stroke="#EF4444" strokeWidth={1.5}/>
+      <T x={295} y={79} size={10} bold align="middle" color="#991B1B">O</T>
+      {[{dx:-30,dy:-18},{dx:30,dy:-18}].map((d,i)=>(
+        <g key={i}>
+          <line x1={295+d.dx*0.5} y1={75+d.dy*0.5} x2={295+d.dx*0.8} y2={75+d.dy*0.8} stroke="#374151" strokeWidth={2}/>
+          <circle cx={295+d.dx} cy={75+d.dy} r={10} fill="#DBEAFE" stroke="#2563EB" strokeWidth={1.2}/>
+          <T x={295+d.dx} y={75+d.dy+4} size={9} bold align="middle" color="#1E40AF">H</T>
+        </g>
+      ))}
+      <T x={295} y={128} size={8} align="middle" color="#6B7280">2 single bonds (bent)</T>
+
+      {/* Key property box */}
+      <rect x={10} y={145} width={320} height={65} rx={8} fill="#FFF7ED" stroke="#FED7AA" strokeWidth={1.5}/>
+      <T x={170} y={161} size={10} bold align="middle" color="#92400E">Key Properties of Carbon</T>
+      <T x={170} y={176} size={9} align="middle" color="#1D1D1F">Tetravalency: 4 valence electrons → forms 4 bonds</T>
+      <T x={170} y={190} size={9} align="middle" color="#1D1D1F">Catenation: bonds with other C atoms → chains, rings, branches</T>
+      <T x={170} y={204} size={9} align="middle" color="#6B7280">Compounds: saturated (single bonds) / unsaturated (double/triple)</T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Snell's Law / Refraction ───────────────────────────── */
+function SnellsLaw() {
+  return (
+    <svg viewBox="0 0 320 220" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Refraction of Light — Snell's Law</T>
+
+      {/* Interface */}
+      <rect x={10} y={110} width={300} height={100} rx={0} fill="#DBEAFE" opacity={0.4}/>
+      <line x1={10} y1={110} x2={310} y2={110} stroke="#6B7280" strokeWidth={2} strokeDasharray="6,3"/>
+      <T x={240} y={105} size={9} color="#6B7280">Air (n₁ = 1.0)</T>
+      <T x={240} y={125} size={9} color="#2563EB">Water / Glass (n₂ &gt; 1)</T>
+
+      {/* Normal line */}
+      <line x1={160} y1={30} x2={160} y2={200} stroke="#9CA3AF" strokeWidth={1} strokeDasharray="5,3"/>
+      <T x={165} y={35} size={8} color="#9CA3AF">Normal</T>
+
+      {/* Incident ray */}
+      <line x1={60} y1={40} x2={160} y2={110} stroke="#F59E0B" strokeWidth={2.5} markerEnd="url(#yar)"/>
+      <T x={78} y={68} size={9} bold color="#D97706">Incident ray</T>
+
+      {/* Angle i */}
+      <path d="M160 110 A35 35 0 0 0 125 80" fill="none" stroke="#F59E0B" strokeWidth={1.2}/>
+      <T x={136} y={95} size={9} bold color="#D97706">θ₁</T>
+
+      {/* Refracted ray */}
+      <line x1={160} y1={110} x2={220} y2={200} stroke="#2563EB" strokeWidth={2.5} markerEnd="url(#bar)"/>
+      <T x={205} y={165} size={9} bold color="#2563EB">Refracted ray</T>
+
+      {/* Angle r */}
+      <path d="M160 110 A30 30 0 0 1 183 135" fill="none" stroke="#2563EB" strokeWidth={1.2}/>
+      <T x={172} y={132} size={9} bold color="#2563EB">θ₂</T>
+
+      {/* Formula box */}
+      <rect x={10} y={155} width={130} height={42} rx={8} fill="#F0F9FF" stroke="#BAE6FD" strokeWidth={1.5}/>
+      <T x={75} y={170} size={10} bold align="middle" color="#0369A1">Snell's Law:</T>
+      <T x={75} y={188} size={10} bold align="middle" color="#0C4A6E">n₁ sin θ₁ = n₂ sin θ₂</T>
+
+      {/* Note */}
+      <T x={200} y={215} size={8} align="middle" color="#6B7280">Bends toward normal as light slows</T>
+
+      <defs>
+        <marker id="yar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#F59E0B"/>
+        </marker>
+        <marker id="bar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#2563EB"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Eye Defects ────────────────────────────────────────── */
+function EyeDefects() {
+  return (
+    <svg viewBox="0 0 340 230" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Defects of Vision and Correction</T>
+
+      {/* Myopia */}
+      <T x={85} y={32} size={10} bold align="middle" color="#EF4444">Myopia (Short-sight)</T>
+      {/* Eye outline */}
+      <ellipse cx={85} cy={75} rx={38} ry={28} fill="#FEF3C7" stroke="#D97706" strokeWidth={1.5}/>
+      <circle cx={100} cy={75} r={9} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1}/>
+      {/* Rays converge before retina */}
+      <line x1={28} y1={60} x2={80} y2={75} stroke="#F59E0B" strokeWidth={1.5}/>
+      <line x1={28} y1={90} x2={80} y2={75} stroke="#F59E0B" strokeWidth={1.5}/>
+      <circle cx={80} cy={75} r={3} fill="#EF4444"/>
+      <T x={60} y={95} size={8} align="middle" color="#EF4444">Image in front</T>
+      <T x={85} y={110} size={8} align="middle" color="#6B7280">of retina</T>
+      {/* Correction — concave */}
+      <T x={85} y={128} size={9} bold align="middle" color="#16A34A">Fix: Concave lens</T>
+      <rect x={47} y={135} width={76} height={32} rx={4} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1}/>
+      <path d="M68 135 C62 151 62 151 68 167" fill="none" stroke="#15803D" strokeWidth={2}/>
+      <path d="M108 135 C114 151 114 151 108 167" fill="none" stroke="#15803D" strokeWidth={2}/>
+      <T x={85} y={156} size={9} bold align="middle" color="#15803D">( ) diverging</T>
+
+      {/* Divider */}
+      <line x1={170} y1={25} x2={170} y2={220} stroke="#E5E7EB" strokeWidth={1.5}/>
+
+      {/* Hypermetropia */}
+      <T x={255} y={32} size={10} bold align="middle" color="#2563EB">Hypermetropia (Long-sight)</T>
+      <ellipse cx={255} cy={75} rx={38} ry={28} fill="#FEF3C7" stroke="#D97706" strokeWidth={1.5}/>
+      <circle cx={270} cy={75} r={9} fill="#BFDBFE" stroke="#2563EB" strokeWidth={1}/>
+      {/* Rays converge behind retina */}
+      <line x1={198} y1={60} x2={286} y2={75} stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <line x1={198} y1={90} x2={286} y2={75} stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="3,2"/>
+      <circle cx={286} cy={75} r={3} fill="#2563EB"/>
+      <T x={255} y={95} size={8} align="middle" color="#2563EB">Image behind</T>
+      <T x={255} y={108} size={8} align="middle" color="#6B7280">retina</T>
+      {/* Correction — convex */}
+      <T x={255} y={128} size={9} bold align="middle" color="#16A34A">Fix: Convex lens</T>
+      <rect x={217} y={135} width={76} height={32} rx={4} fill="#DCFCE7" stroke="#16A34A" strokeWidth={1}/>
+      <path d="M238 135 C232 151 232 151 238 167" fill="none" stroke="#15803D" strokeWidth={2}/>
+      <path d="M272 135 C278 151 278 151 272 167" fill="none" stroke="#15803D" strokeWidth={2}/>
+      <T x={255} y={156} size={9} bold align="middle" color="#15803D">( ) converging</T>
+
+      {/* Summary */}
+      <rect x={10} y={195} width={320} height={26} rx={6} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={170} y={208} size={9} bold align="middle" color="#374151">
+        Myopia → power &lt; 0 (−ve)  |  Hypermetropia → power &gt; 0 (+ve)
+      </T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Prism Dispersion ───────────────────────────────────── */
+function PrismDispersion() {
+  return (
+    <svg viewBox="0 0 340 200" style={{ width:"100%", maxWidth:340, height:"auto" }}>
+      <T x={170} y={14} size={11} bold align="middle">Dispersion of White Light by a Prism</T>
+
+      {/* White ray in */}
+      <line x1={10} y1={90} x2={88} y2={90} stroke="#E5E7EB" strokeWidth={4}/>
+      <T x={45} y={84} size={9} bold color="#1D1D1F">White</T>
+      <T x={45} y={96} size={9} color="#6B7280">light</T>
+
+      {/* Prism */}
+      <polygon points="90,40 170,160 10,160" transform="translate(90,0)"
+               fill="rgba(147,197,253,0.3)" stroke="#2563EB" strokeWidth={2}/>
+      {/* = points="180,40 260,160 100,160" */}
+      <polygon points="180,40 260,160 100,160"
+               fill="rgba(147,197,253,0.25)" stroke="#2563EB" strokeWidth={2}/>
+
+      {/* Spectrum rays out */}
+      {[
+        {col:"#EF4444", label:"Red (least bent)",    y2:90},
+        {col:"#F97316", label:"Orange",               y2:100},
+        {col:"#EAB308", label:"Yellow",               y2:110},
+        {col:"#22C55E", label:"Green",                y2:120},
+        {col:"#3B82F6", label:"Blue",                 y2:130},
+        {col:"#6366F1", label:"Indigo",               y2:140},
+        {col:"#8B5CF6", label:"Violet (most bent)",   y2:150},
+      ].map((r,i)=>(
+        <g key={i}>
+          <line x1={260} y1={100+i*3} x2={330} y2={r.y2} stroke={r.col} strokeWidth={2}/>
+          <T x={332} y={r.y2+4} size={8} color={r.col}>{r.label}</T>
+        </g>
+      ))}
+
+      {/* VIBGYOR label */}
+      <T x={180} y={180} size={9} bold align="middle" color="#374151">
+        VIBGYOR — violet bends most (shorter λ), red bends least (longer λ)
+      </T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Ohm's Law V-I graph ────────────────────────────────── */
+function OhmsLaw() {
+  return (
+    <svg viewBox="0 0 320 220" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Ohm's Law — V-I Graph</T>
+
+      {/* Axes */}
+      <line x1={50} y1={190} x2={290} y2={190} stroke="#374151" strokeWidth={2} markerEnd="url(#ax)"/>
+      <line x1={50} y1={190} x2={50} y2={30} stroke="#374151" strokeWidth={2} markerEnd="url(#ax)"/>
+      <T x={296} y={194} size={10} bold color="#374151">I (A)</T>
+      <T x={40} y={26} size={10} bold color="#374151">V</T>
+      <T x={40} y={38} size={9} color="#374151">(V)</T>
+
+      {/* V-I line for good conductor (steep slope = low R) */}
+      <line x1={50} y1={190} x2={240} y2={50} stroke="#16A34A" strokeWidth={2.5}/>
+      <T x={250} y={55} size={9} bold color="#16A34A">R₁ (low R)</T>
+
+      {/* V-I line for poor conductor (gentle slope = high R) */}
+      <line x1={50} y1={190} x2={240} y2={110} stroke="#EF4444" strokeWidth={2.5}/>
+      <T x={250} y={115} size={9} bold color="#EF4444">R₂ (high R)</T>
+
+      {/* Slope annotation */}
+      <T x={155} y={155} size={9} align="middle" color="#374151">Slope = V/I = R</T>
+      <T x={155} y={168} size={9} align="middle" color="#6B7280">Steeper → lower resistance</T>
+
+      {/* Formula box */}
+      <rect x={60} y={30} width={100} height={42} rx={8} fill="#F0FFF4" stroke="#86EFAC" strokeWidth={1.5}/>
+      <T x={110} y={46} size={10} bold align="middle" color="#15803D">V = IR</T>
+      <T x={110} y={62} size={9} align="middle" color="#374151">V = Voltage (V)</T>
+
+      <T x={60} y={85} size={8} color="#374151">I = Current (A)</T>
+      <T x={60} y={97} size={8} color="#374151">R = Resistance (Ω)</T>
+
+      {/* Resistivity note */}
+      <rect x={10} y={196} width={300} height={20} rx={5} fill="#F9FAFB" stroke="#E5E7EB" strokeWidth={1}/>
+      <T x={160} y={210} size={8} bold align="middle" color="#374151">R = ρL/A  — depends on material, length, area</T>
+
+      <defs>
+        <marker id="ax" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#374151"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Electric Motor ─────────────────────────────────────── */
+function ElectricMotor() {
+  return (
+    <svg viewBox="0 0 320 230" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Electric Motor — Construction &amp; Working</T>
+
+      {/* Magnet poles */}
+      <rect x={20} y={50} width={40} height={130} rx={6} fill="#FCA5A5" stroke="#EF4444" strokeWidth={2}/>
+      <T x={40} y={118} size={14} bold align="middle" color="#991B1B">N</T>
+      <rect x={260} y={50} width={40} height={130} rx={6} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={280} y={118} size={14} bold align="middle" color="#1E40AF">S</T>
+
+      {/* Field lines (horizontal dashes) */}
+      {[75,100,115,130,145,160].map((y,i)=>(
+        <line key={i} x1={62} y1={y} x2={258} y2={y} stroke="#E5E7EB" strokeWidth={1} strokeDasharray="4,3"/>
+      ))}
+
+      {/* Coil rectangle */}
+      <rect x={110} y={65} width={100} height={100} rx={4} fill="none" stroke="#D97706" strokeWidth={3}/>
+      {/* Coil label */}
+      <T x={160} y={119} size={9} bold align="middle" color="#92400E">Coil (ABCD)</T>
+
+      {/* Axle */}
+      <circle cx={160} cy={115} r={8} fill="#F59E0B" stroke="#CA8A04" strokeWidth={1.5}/>
+
+      {/* Commutator (split ring) */}
+      <rect x={148} y={170} width={10} height={18} rx={3} fill="#9CA3AF" stroke="#374151" strokeWidth={1}/>
+      <rect x={162} y={170} width={10} height={18} rx={3} fill="#6B7280" stroke="#374151" strokeWidth={1}/>
+      <T x={160} y={204} size={8} bold align="middle" color="#374151">Split ring</T>
+      <T x={160} y={214} size={8} align="middle" color="#374151">commutator</T>
+
+      {/* Brushes */}
+      <rect x={136} y={188} width={10} height={6} fill="#FDE68A" stroke="#CA8A04" strokeWidth={1}/>
+      <rect x={174} y={188} width={10} height={6} fill="#FDE68A" stroke="#CA8A04" strokeWidth={1}/>
+
+      {/* Rotation arrow */}
+      <path d="M152 60 A30 12 0 0 1 168 60" fill="none" stroke="#16A34A" strokeWidth={2} markerEnd="url(#rot)"/>
+      <T x={160} y={50} size={9} bold align="middle" color="#16A34A">↺ Rotation</T>
+
+      {/* Fleming's rule note */}
+      <rect x={10} y={218} width={300} height={10} rx={0}/>
+      <T x={160} y={226} size={8} bold align="middle" color="#374151">Fleming's Left-Hand Rule: force F = BIL</T>
+
+      <defs>
+        <marker id="rot" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6Z" fill="#16A34A"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Electromagnetic Induction / AC Generator ───────────── */
+function ACGenerator() {
+  return (
+    <svg viewBox="0 0 320 230" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">AC Generator — Electromagnetic Induction</T>
+
+      {/* Magnet poles */}
+      <rect x={20} y={50} width={35} height={120} rx={6} fill="#FCA5A5" stroke="#EF4444" strokeWidth={2}/>
+      <T x={37} y={115} size={13} bold align="middle" color="#991B1B">N</T>
+      <rect x={265} y={50} width={35} height={120} rx={6} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={282} y={115} size={13} bold align="middle" color="#1E40AF">S</T>
+
+      {/* Rotating coil */}
+      <ellipse cx={160} cy={110} rx={50} ry={30} fill="none" stroke="#D97706" strokeWidth={3}/>
+      <line x1={110} y1={110} x2={210} y2={110} stroke="#D97706" strokeWidth={3}/>
+      <T x={160} y={108} size={9} bold align="middle" color="#92400E">Rotating Coil</T>
+
+      {/* Slip rings */}
+      <ellipse cx={160} cy={148} rx={12} ry={6} fill="#9CA3AF" stroke="#6B7280" strokeWidth={1.5}/>
+      <ellipse cx={160} cy={158} rx={12} ry={6} fill="#6B7280" stroke="#374151" strokeWidth={1.5}/>
+      <T x={180} y={154} size={8} color="#374151">Slip rings</T>
+
+      {/* Brushes + external */}
+      <line x1={148} y1={156} x2={100} y2={175} stroke="#374151" strokeWidth={1.5}/>
+      <line x1={172} y1={156} x2={220} y2={175} stroke="#374151" strokeWidth={1.5}/>
+      <T x={88} y={182} size={8} color="#374151">Brush</T>
+      <T x={215} y={182} size={8} color="#374151">Brush</T>
+      {/* Galvanometer */}
+      <circle cx={160} cy={198} r={14} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={160} y={202} size={9} bold align="middle" color="#78350F">G</T>
+      <line x1={100} y1={175} x2={146} y2={195} stroke="#374151" strokeWidth={1.2}/>
+      <line x1={220} y1={175} x2={174} y2={195} stroke="#374151" strokeWidth={1.2}/>
+
+      {/* Faraday's law */}
+      <rect x={10} y={215} width={300} height={13} rx={0}/>
+      <T x={160} y={224} size={8} bold align="middle" color="#374151">Faraday: EMF = −dΦ/dt  |  Slip rings → AC output</T>
+    </svg>
+  );
+}
+
+/* ── PHYSICS: Fleming's Left-Hand Rule ───────────────────────────── */
+function FlemingRule() {
+  return (
+    <svg viewBox="0 0 280 230" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <T x={140} y={14} size={11} bold align="middle">Fleming's Left-Hand Rule</T>
+
+      {/* Hand outline — simplified */}
+      {/* Palm */}
+      <rect x={80} y={80} width={80} height={90} rx={12} fill="#FBBF24" stroke="#D97706" strokeWidth={2}/>
+      {/* Thumb (Force / Motion — up) */}
+      <rect x={64} y={60} width={18} height={60} rx={8} fill="#F59E0B" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={56} y={56} size={8} bold color="#92400E">F</T>
+      <T x={48} y={68} size={8} color="#6B7280">(Motion)</T>
+      {/* Index finger (Field B — right) */}
+      <rect x={158} y={76} width={60} height={16} rx={7} fill="#F59E0B" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={222} y={88} size={8} bold color="#2563EB">B</T>
+      <T x={218} y={100} size={8} color="#6B7280">(Field)</T>
+      {/* Middle finger (Current — downward) */}
+      <rect x={102} y={168} width={16} height={52} rx={7} fill="#F59E0B" stroke="#CA8A04" strokeWidth={1.5}/>
+      <T x={100} y={228} size={8} bold color="#EF4444">I</T>
+      <T x={90} y={218} size={8} color="#6B7280">(Current)</T>
+
+      {/* Labels */}
+      <T x={140} y={40} size={10} bold align="middle" color="#374151">Thumb = Force (F)</T>
+      <T x={140} y={53} size={9} align="middle" color="#2563EB">Index = Magnetic Field (B)</T>
+      <T x={140} y={65} size={9} align="middle" color="#EF4444">Middle = Current (I)</T>
+
+      <rect x={10} y={218} width={260} height={10} rx={0}/>
+      <T x={140} y={226} size={8} align="middle" color="#374151">Used for motors. Right-hand rule → generators.</T>
+    </svg>
+  );
+}
+
+/* ── ECOLOGY: Ozone Depletion ────────────────────────────────────── */
+function OzoneLayer() {
+  return (
+    <svg viewBox="0 0 320 220" style={{ width:"100%", maxWidth:320, height:"auto" }}>
+      <T x={160} y={14} size={11} bold align="middle">Ozone Layer and Depletion</T>
+
+      {/* Earth */}
+      <circle cx={160} cy={185} r={50} fill="#DBEAFE" stroke="#2563EB" strokeWidth={2}/>
+      <T x={160} y={189} size={10} bold align="middle" color="#1E40AF">Earth</T>
+
+      {/* Ozone layer */}
+      <path d="M100 150 A80 80 0 0 1 220 150" fill="none" stroke="#22C55E" strokeWidth={6}/>
+      <T x={160} y={138} size={9} bold align="middle" color="#15803D">Ozone Layer (O₃)</T>
+      <T x={160} y={150} size={8} align="middle" color="#15803D">Stratosphere ~15–35 km</T>
+
+      {/* CFC molecules raining down */}
+      {[50,130,230].map((x,i)=>(
+        <g key={i}>
+          <circle cx={x} cy={55} r={10} fill="#FEF9C3" stroke="#CA8A04" strokeWidth={1}/>
+          <T x={x} y={59} size={7} bold align="middle" color="#78350F">CFC</T>
+          <line x1={x} y1={65} x2={x+[-5,0,5][i]} y2={100} stroke="#CA8A04" strokeWidth={1} strokeDasharray="3,2" markerEnd="url(#da)"/>
+        </g>
+      ))}
+
+      {/* Hole in ozone */}
+      <path d="M148 145 A4 4 0 0 1 172 145" fill="none" stroke="#EF4444" strokeWidth={3}/>
+      <T x={160} y={133} size={8} bold align="middle" color="#EF4444">Hole !</T>
+
+      {/* UV rays through hole */}
+      <line x1={155} y1={50} x2={155} y2={155} stroke="#A855F7" strokeWidth={1.5} strokeDasharray="4,2"/>
+      <T x={138} y={42} size={8} bold color="#7C3AED">UV-B ↓</T>
+
+      {/* Effects box */}
+      <rect x={10} y={170} width={130} height={42} rx={6} fill="#FFF0F0" stroke="#FCA5A5" strokeWidth={1}/>
+      <T x={75} y={183} size={8} bold align="middle" color="#EF4444">Effects of UV-B:</T>
+      <T x={75} y={195} size={8} align="middle" color="#374151">Skin cancer, cataracts</T>
+      <T x={75} y={207} size={8} align="middle" color="#374151">Crop damage</T>
+
+      {/* Sources box */}
+      <rect x={180} y={170} width={130} height={42} rx={6} fill="#FFF7ED" stroke="#FED7AA" strokeWidth={1}/>
+      <T x={245} y={183} size={8} bold align="middle" color="#D97706">CFC Sources:</T>
+      <T x={245} y={195} size={8} align="middle" color="#374151">ACs, fridges,</T>
+      <T x={245} y={207} size={8} align="middle" color="#374151">fire extinguishers</T>
+
+      <defs>
+        <marker id="da" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+          <path d="M0,0 L3,6 L6,0Z" fill="#CA8A04"/>
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
 /* ── MAP + EXPORT ────────────────────────────────────────────────── */
 
 const DIAGRAM_MAP = {
-  sci_ch5_human_digestion:           { label: "Human Digestive System",          Component: DigestiveSystem },
-  sci_ch5_transport_blood:           { label: "Human Heart — 4 Chambers",        Component: Heart },
-  sci_ch5_excretion:                 { label: "Structure of a Nephron",           Component: Nephron },
-  sci_ch6_nervous_system:            { label: "Structure of a Neuron",            Component: Neuron },
-  sci_ch6_reflex_arc:                { label: "Reflex Arc",                        Component: ReflexArc },
-  sci_ch7_sexual_reproduction_plants:{ label: "Parts of a Flower",               Component: Flower },
-  sci_ch9_reflection_mirrors:        { label: "Concave & Convex Mirror Diagrams", Component: MirrorDiagrams },
-  sci_ch9_lenses:                    { label: "Convex Lens — Ray Diagram",        Component: LensRayDiagram },
-  sci_ch10_human_eye:                { label: "Structure of the Human Eye",       Component: HumanEye },
-  sci_ch11_series_parallel:          { label: "Series & Parallel Circuits",       Component: SeriesParallelCircuit },
-  sci_ch12_magnetic_field:           { label: "Solenoid & Magnetic Field",        Component: Solenoid },
-  sci_ch4_ethanol_and_ethanoic_acid: { label: "Soap Micelle Structure",           Component: SoapMicelle },
-  sci_ch3_ionic_bonding:             { label: "Ionic Bonding — NaCl Formation",   Component: IonicBonding },
-  sci_ch1_balancing_equations:       { label: "Conservation of Mass — Balance Scale", Component: BalanceScale },
+  // Biology
+  sci_ch5_human_digestion:            { label: "Human Digestive System",              Component: DigestiveSystem },
+  sci_ch5_transport_blood:            { label: "Human Heart — 4 Chambers",            Component: Heart },
+  sci_ch5_excretion:                  { label: "Structure of a Nephron",               Component: Nephron },
+  sci_ch5_photosynthesis:             { label: "Photosynthesis — Inputs & Outputs",    Component: Photosynthesis },
+  sci_ch5_respiration:                { label: "Aerobic Respiration — Stages",         Component: Respiration },
+  sci_ch5_transport_plants:           { label: "Xylem & Phloem — Stem Cross-Section",  Component: XylemPhloem },
+  sci_ch6_nervous_system:             { label: "Structure of a Neuron",                Component: Neuron },
+  sci_ch6_reflex_arc:                 { label: "Reflex Arc",                            Component: ReflexArc },
+  sci_ch6_brain:                      { label: "Human Brain — Structure",              Component: HumanBrain },
+  sci_ch6_plant_hormones:             { label: "Plant Tropisms",                        Component: PlantHormones },
+  sci_ch7_sexual_reproduction_plants: { label: "Parts of a Flower",                   Component: Flower },
+  sci_ch7_asexual_reproduction:       { label: "Methods of Asexual Reproduction",     Component: AsexualReproduction },
+  sci_ch7_human_reproduction:         { label: "Human Reproductive Systems",          Component: HumanReproduction },
+  sci_ch8_mendels_laws:               { label: "Mendel's Monohybrid Cross",            Component: PunnettSquare },
+  sci_ch8_sex_determination:          { label: "Sex Determination — XX/XY",           Component: SexDetermination },
+  sci_ch13_ecosystem:                 { label: "Food Chain & Trophic Levels",          Component: FoodChain },
+  sci_ch13_energy_flow:               { label: "Energy Pyramid — 10% Law",            Component: EnergyPyramid },
+  sci_ch13_ozone:                     { label: "Ozone Layer Depletion",                Component: OzoneLayer },
+  // Chemistry
+  sci_ch1_balancing_equations:        { label: "Conservation of Mass — Balance Scale", Component: BalanceScale },
+  sci_ch1_signs_and_types:            { label: "Types of Chemical Reactions",          Component: TypesOfReactions },
+  sci_ch2_ph_scale:                   { label: "pH Scale 0–14",                        Component: PHScale },
+  sci_ch3_ionic_bonding:              { label: "Ionic Bonding — NaCl Formation",       Component: IonicBonding },
+  sci_ch3_reactivity_series:          { label: "Reactivity Series of Metals",          Component: ReactivitSeries },
+  sci_ch4_ethanol_and_ethanoic_acid:  { label: "Soap Micelle Structure",               Component: SoapMicelle },
+  sci_ch4_covalent_bonding:           { label: "Covalent Bonding — CH₄, CO₂, H₂O",   Component: CovalentBonding },
+  // Physics
+  sci_ch9_reflection_mirrors:         { label: "Concave & Convex Mirror Diagrams",     Component: MirrorDiagrams },
+  sci_ch9_lenses:                     { label: "Convex Lens — Ray Diagram",            Component: LensRayDiagram },
+  sci_ch9_refraction_snells_law:      { label: "Refraction of Light — Snell's Law",    Component: SnellsLaw },
+  sci_ch10_human_eye:                 { label: "Structure of the Human Eye",           Component: HumanEye },
+  sci_ch10_eye_defects:               { label: "Myopia & Hypermetropia Correction",    Component: EyeDefects },
+  sci_ch10_dispersion_scattering:     { label: "Prism Dispersion — VIBGYOR",           Component: PrismDispersion },
+  sci_ch11_series_parallel:           { label: "Series & Parallel Circuits",           Component: SeriesParallelCircuit },
+  sci_ch11_ohms_law_resistance:       { label: "Ohm's Law — V-I Graph",               Component: OhmsLaw },
+  sci_ch12_magnetic_field:            { label: "Solenoid & Magnetic Field",            Component: Solenoid },
+  sci_ch12_electric_motor:            { label: "Electric Motor — Construction",        Component: ElectricMotor },
+  sci_ch12_electromagnetic_induction: { label: "AC Generator — Faraday's Law",         Component: ACGenerator },
+  sci_ch12_force_on_conductor:        { label: "Fleming's Left-Hand Rule",             Component: FlemingRule },
 };
 
 export function Diagram({ topicId }) {

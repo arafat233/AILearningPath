@@ -847,6 +847,51 @@ const TOPICS = [
   },
 
   // ══════════════════════════════════════════════════════════════════
+  // CHAPTER 8 — Heredity (Section 8.1 — Variation)
+  // ══════════════════════════════════════════════════════════════════
+  {
+    topicId: "sci_ch8_variation",
+    subject: "Science",
+    chapterNumber: 8,
+    name: "Accumulation of Variation During Reproduction",
+    prerequisite_knowledge: [
+      "DNA as the carrier of genetic information",
+      "Difference between asexual and sexual reproduction",
+      "Cell division — mitosis and meiosis (basic concept)",
+      "Concept of inheritance from parents",
+    ],
+    key_formulas: [
+      "Asexual reproduction → DNA copying → minor errors only → minimal variation between offspring",
+      "Sexual reproduction → meiosis + fertilisation → genetic reshuffling → significant variation",
+      "Variation accumulates over generations → raw material for natural selection and evolution",
+    ],
+    teaching_content: {
+      intuition:
+        "When you photocopy a document 100 times, each copy is nearly identical to the original — a few smudges might appear, but the text is the same. That's asexual reproduction: DNA is copied and very slight errors (mutations) occur, producing offspring almost identical to the parent. Now imagine combining two different books — cutting chapters from Book A and Book B and binding them together in random orders. Every new book will be different. That's sexual reproduction: genes from two parents are shuffled and combined, guaranteeing variation. This variation is not a mistake — it is the engine of evolution.",
+      process_explanation:
+        "WHY REPRODUCTION ALWAYS PRODUCES VARIATION:\n\nDNA COPYING IS NOT PERFECT:\nWhen a cell divides, it must copy its entire DNA (about 3 billion base pairs in humans). Despite remarkable accuracy, occasional copying errors (mutations) occur. These errors are usually minor and random. The resulting offspring carries slightly different DNA from the parent. In asexual reproduction (binary fission, budding, vegetative propagation), most offspring are nearly identical clones — only these rare copying errors create variation.\n\nSEXUAL REPRODUCTION AMPLIFIES VARIATION:\n1. MEIOSIS (reduction division): During gamete formation, chromosomes from the father and mother are mixed and exchanged. In crossing over (part of meiosis I), segments of maternal and paternal chromosomes are swapped, creating entirely new chromosome combinations not present in either parent.\n2. RANDOM FERTILISATION: Which sperm fertilises which egg is entirely random. With millions of different sperm (each carrying a different combination of alleles) and many different eggs, each fertilisation event produces a genetically unique offspring.\n3. Result: every sexually reproducing organism (except identical twins) is genetically unique.\n\nACCUMULATION OVER GENERATIONS:\nVariation introduced in one generation passes to the next. Over many generations, populations accumulate a wide range of variations. Some variations help survival in the current environment (e.g., a slightly better-camouflaged insect avoids predators more easily). These individuals survive and reproduce more → their variation is inherited by more offspring → gradually the advantageous trait becomes more common in the population. This is natural selection.\n\nVARIATION AND SPECIES SURVIVAL:\n• A population with NO variation is vulnerable — if a new disease appears or the environment changes, all individuals are equally susceptible; the whole population could be wiped out.\n• A population WITH variation has some individuals that might survive the new challenge.\n• Example: antibiotic resistance — random variation in bacteria means a few individuals naturally have slightly higher resistance. When antibiotics are used, those individuals survive and reproduce, passing on the resistance gene. Over time, the entire population becomes resistant. This is variation + selection in action.\n\nDIFFERENCE TABLE — ASEXUAL vs SEXUAL REPRODUCTION (VARIATION ASPECT):\n• Asexual: one parent; offspring = genetic clone; variation = only from DNA copying errors (rare); fast; fewer resources needed\n• Sexual: two parents; offspring = genetically unique; variation = from meiosis + fertilisation (significant); slower; more resources needed but greater adaptability",
+      worked_example:
+        "CBSE exam question: 'A population of bacteria is treated with an antibiotic. After a few generations, most bacteria in the population are resistant to the antibiotic. Explain this observation using the concept of variation.' Answer: Even before antibiotic treatment, random DNA copying errors during reproduction created slight variations within the bacterial population. A very small number of bacteria happened to have a variation that made them slightly resistant to the antibiotic. When the antibiotic was applied: (1) Most bacteria (non-resistant) were killed. (2) The few resistant bacteria survived. (3) These survivors reproduced, passing the resistance variation to offspring. (4) Over generations, resistant bacteria became the majority. This demonstrates how variation provides raw material for natural selection — the environment (antibiotic) selected the variant that survived best.\n\nSecond question: 'Why is variation important for the survival of a species over time? Give one example.' Answer: Variation is important because it ensures that not all individuals in a species respond identically to environmental changes (new disease, climate change, new predator). If all individuals were identical, a single challenge could wipe out the entire species. With variation, at least some individuals are likely to survive any new challenge, allowing the species to continue. Example: During a disease outbreak, individuals with a naturally stronger immune system (a variation) survive and pass this trait to offspring, so the species continues even if many individuals die.",
+      common_misconceptions: [
+        "Offspring in asexual reproduction are completely identical — PARTIALLY FALSE. They are nearly identical (clones), but rare DNA copying errors (mutations) create very slight differences between parent and offspring over time.",
+        "Variation is always harmful to organisms — FALSE. Most variations are neutral; some are harmful; but a few are beneficial and improve survival. Natural selection preserves beneficial variations.",
+        "Sexual reproduction always produces better offspring than asexual reproduction — FALSE. Sexual reproduction produces more varied offspring, which is an advantage in changing environments. But in stable environments, asexual reproduction (faster, no need for a mate) can be more efficient.",
+        "Variation and mutation are the same thing — FALSE. Mutation is one source of variation (a change in DNA sequence). Variation can also arise from the genetic reshuffling during meiosis and fertilisation, without any mutations.",
+      ],
+      shortcuts_and_tricks: [
+        "Asexual = COPY machine (mostly identical, tiny errors). Sexual = REMIX (two sources, shuffled = unique output). Both produce variation, but sexual reproduction produces much more.",
+        "3-step memory for why variation matters: (1) Variation exists in population → (2) Environment changes/challenge occurs → (3) Best-suited variant survives and reproduces = Natural selection. Variation is Step 1 — without it, Steps 2 and 3 cannot happen.",
+        "Meiosis = MIXING machine. Mitosis = COPYING machine. Gametes are produced by meiosis (mixing) → fertilisation (combining two mixed sets) → unique offspring.",
+        "Exam shortcut: when asked 'why is sexual reproduction important?', the key answer is always VARIATION → leads to evolution and adaptability.",
+      ],
+      diagram_description:
+        "Diagram 1 (asexual vs sexual variation): Two parallel flowcharts. Left side (Asexual): One parent cell → DNA copying (99.99% accurate) → two daughter cells nearly identical to parent; tiny variation arrows showing rare mutation. Right side (Sexual): Two parent cells (one from each parent) → meiosis in each (chromosomes shuffle) → gametes (eggs/sperm) → fertilisation (random combination) → offspring with unique combination; large variation arrows. Diagram 2 (variation accumulation over generations): A population of 10 stick figures at generation 1, all similar. Arrows show reproduction to generation 2 (12 figures with slight differences — some slightly taller, some different colour). Generation 3 (15 figures — more diversity visible). An environmental change symbol (thunderbolt/virus) eliminates some in generation 3, leaving only the best-adapted 5. These 5 reproduce to give generation 4, now mostly similar to the survivors. Label: 'Natural Selection'. Diagram 3 (antibiotic resistance example): Petri dish showing bacteria before treatment — mostly sensitive (blue), a few resistant (red). After antibiotic: most blue bacteria gone, red bacteria survive. After several generations: dish now mostly red resistant bacteria. Caption: 'Variation → Selection → Resistant population'.",
+      key_takeaway:
+        "Reproduction always introduces variation because DNA copying is not perfectly accurate (asexual) and because meiosis + fertilisation reshuffles genetic material (sexual); asexual reproduction produces near-identical offspring (only copying errors vary them); sexual reproduction produces unique offspring through crossing over + random fertilisation; variation is the raw material for natural selection — advantageous variants survive and reproduce more, gradually changing the population's characteristics over generations; without variation, a species cannot adapt to environmental changes and risks extinction.",
+    },
+  },
+
+  // ══════════════════════════════════════════════════════════════════
   // CHAPTER 7 — Reproduction (ADDITION)
   // ══════════════════════════════════════════════════════════════════
   {

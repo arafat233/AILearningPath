@@ -1365,9 +1365,9 @@ npm run seed:science-physics-questions   ← 60 Physics MCQs Ch9-12 (seed 4)
 npm run seed:english-questions          ← 30 CBSE MCQ practice questions for English
 npm run seed:hindi-questions            ← 30 CBSE MCQ practice questions for Hindi
 npm run seed:social-questions           ← 30 CBSE MCQ practice questions for Social Science
-npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent (16 topics, Ch1-4)
-npm run seed:science-biology-content    ← Science Biology NcertTopicContent (19 topics, Ch5-8,13)
-npm run seed:science-physics-content    ← Science Physics NcertTopicContent (15 topics, Ch9-12)
+npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent (17 topics, Ch1-4 incl. carbon allotropes)
+npm run seed:science-biology-content    ← Science Biology NcertTopicContent (23 topics, Ch5-8,13 incl. endocrine, reproductive health, variation)
+npm run seed:science-physics-content    ← Science Physics NcertTopicContent (16 topics, Ch9-12 incl. domestic circuits)
 npm run seed:science-topic-dag          ← Science Topic prerequisite DAG (50 nodes)
 npm run rag:build-curriculum            ← build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
 npm run rag:build-science               ← RAG chunks for Science only

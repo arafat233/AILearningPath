@@ -179,6 +179,7 @@ export const adminUpdateUserPlan  = (id, data) => api.put(`/admin/users/${id}/pl
 export const adminDeleteUser      = (id)       => api.delete(`/admin/users/${id}`);
 export const adminGetUserDetail   = (id)       => api.get(`/admin/users/${id}/detail`);
 
+export const getMyGuardians        = ()           => api.get("/portal/my-guardians");
 export const searchStudents        = (q)          => api.get("/portal/search", { params: { q } });
 export const linkStudentDirect     = (studentId)  => api.post("/portal/link-direct", { studentId });
 export const removeLinkedStudent   = (studentId)  => api.delete(`/portal/students/${studentId}`);

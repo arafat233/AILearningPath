@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMe, updateMe, getBadges, getReport, getStreakStatus, getPrediction } from "../services/api";
+import { getMe, updateMe, getBadges, getReport, getStreakStatus, getPrediction, getMyGuardians } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
@@ -114,6 +114,7 @@ export default function Profile() {
   const [editMode,   setEditMode]   = useState(false);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [copied,     setCopied]     = useState(false);
+  const [guardians,  setGuardians]  = useState([]);
 
   const [form, setForm] = useState({
     name: "", examDate: "", grade: "10", subject: "Math", goal: "pass",
@@ -141,10 +142,11 @@ export default function Profile() {
       getBadges().catch(() => ({ data: [] })),
       getStreakStatus().catch(() => ({ data: { data: { streak: 0, longestStreak: 0 } } })),
       getPrediction().catch(() => null),
+      getMyGuardians().catch(() => ({ data: [] })),
     ];
 
     Promise.all(promises)
-      .then(([meRes, badgesRes, streakRes, predRes]) => {
+      .then(([meRes, badgesRes, streakRes, predRes, guardianRes]) => {
         const u = meRes.data.data.user;
         setProfile(meRes.data.data.profile);
         setForm({
@@ -155,10 +157,10 @@ export default function Profile() {
           goal:     u.goal     || "pass",
         });
         setBadges(badgesRes.data || []);
-        /* streakStatus: res.json({ data: status }) → axios wraps in data → data.data */
         const sd = streakRes.data?.data || streakRes.data || {};
         setStreakData(sd);
         if (predRes) setPrediction(predRes);
+        setGuardians(guardianRes.data || []);
       })
       .catch(() => setError("Could not load profile."))
       .finally(() => setLoading(false));
@@ -597,6 +599,44 @@ export default function Profile() {
               </div>
             </div>
           )}
+
+          {/* Linked parents / teachers */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#f0f0f5]">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-4">Linked Parents</p>
+
+            {guardians.length === 0 ? (
+              <p className="text-[13px] text-[#8e8e93] text-center py-3">
+                No parents linked yet — share your invite code with a parent or teacher.
+              </p>
+            ) : (
+              <div className="space-y-0">
+                {guardians.map((g) => {
+                  const initials = g.name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+                  return (
+                    <div key={g._id || g.email} className="flex items-center gap-3 py-3 border-b border-[#f0f0f5] last:border-0">
+                      <div className="w-9 h-9 rounded-full bg-[#007AFF]/10 flex items-center justify-center shrink-0">
+                        <span className="text-[12px] font-bold text-[#007AFF]">{initials}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-[#1c1c1e] truncate">{g.name}</p>
+                        <p className="text-[11px] text-[#8e8e93] capitalize">{g.role} · weekly digest on</p>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/10 text-[#34C759] shrink-0">
+                        active
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <button
+              onClick={handleCopy}
+              className="w-full mt-4 py-2.5 rounded-xl border border-dashed border-[#c7c7cc] text-[13px] font-medium text-[#8e8e93] hover:border-[#007AFF] hover:text-[#007AFF] transition-colors"
+            >
+              {copied ? "Link copied!" : "+ Invite a teacher"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

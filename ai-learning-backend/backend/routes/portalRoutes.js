@@ -2,6 +2,7 @@ import { Router } from "express";
 import Joi from "joi";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+import { User } from "../models/index.js";
 import {
   searchStudents, linkStudentDirect, removeLinkedStudent,
   getLinkedStudents, getStudentAnalytics, getStudentDashboardCtrl,
@@ -25,6 +26,16 @@ const reminderSchema = Joi.object({
   studentId: Joi.string().length(24).hex().required(),
   time:      Joi.string().pattern(/^\d{2}:\d{2}$/).required(),
   days:      Joi.array().items(Joi.string().valid("Mon","Tue","Wed","Thu","Fri","Sat","Sun")).optional(),
+});
+
+// Student → see which parents/teachers have linked them
+r.get("/my-guardians", async (req, res, next) => {
+  try {
+    const guardians = await User.find({ linkedStudents: req.user.id })
+      .select("name email role")
+      .lean();
+    res.json({ data: guardians });
+  } catch (err) { next(err); }
 });
 
 r.get("/search",                              searchStudents);

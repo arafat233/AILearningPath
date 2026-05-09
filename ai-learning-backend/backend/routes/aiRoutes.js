@@ -5,6 +5,7 @@ import Joi from "joi";
 import { studyAdvice, usageInfo, cacheStats, tutorChat, saveNote, getSavedNotes, deleteSavedNote } from "../controllers/aiController.js";
 import { getChatResponse, getChatResponseFull, generateHint } from "../services/aiService.js";
 import { getCached, setCache } from "../utils/cache.js";
+import { checkAndIncrementUsage } from "../services/aiRouter.js";
 import { AIResponseCache, AIFeedback, AICallLog } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
 import { adminAuth } from "../middleware/adminAuth.js";
@@ -108,6 +109,12 @@ r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), inputGuard,
     const { transcript, topic, subject } = req.body;
     const userId = req.user.id;
     logger.info("AI voice call", { userId, topic, subject });
+
+    // Enforce daily AI quota (free=10, pro=100, premium=500)
+    const allowed = await checkAndIncrementUsage(userId);
+    if (!allowed) {
+      return res.status(429).json({ error: "daily_limit_reached", message: "You've used your daily AI limit. Upgrade for more." });
+    }
 
     // Load existing history to maintain context across sessions
     const existing = (await sessionGet(voiceHistoryKey(userId))) || [];

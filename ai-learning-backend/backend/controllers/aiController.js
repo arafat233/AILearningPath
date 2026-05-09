@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { getChatResponse, getChatResponseFull } from "../services/aiService.js";
-import { smartStudyAdvice, getUsageCount, getCacheStats } from "../services/aiRouter.js";
+import { smartStudyAdvice, getUsageCount, getCacheStats, checkAndIncrementUsage } from "../services/aiRouter.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { UserProfile, AIResponseCache, SavedNote } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
@@ -37,6 +37,12 @@ export const tutorChat = async (req, res, next) => {
     const userId       = req.user.id;
     const cleanHistory = history.map((m) => ({ role: m.role, content: m.content }));
     const isFirstTurn  = cleanHistory.length === 0;
+
+    // Enforce daily AI quota
+    const allowed = await checkAndIncrementUsage(userId);
+    if (!allowed) {
+      return res.status(429).json({ error: "daily_limit_reached", message: "You've used your daily AI limit. Upgrade for more." });
+    }
 
     if (isFirstTurn) {
       const cacheKey = `chat::${crypto.createHash("md5")

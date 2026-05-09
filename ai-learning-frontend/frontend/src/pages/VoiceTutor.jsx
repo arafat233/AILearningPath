@@ -78,6 +78,8 @@ export default function VoiceTutor() {
   const [followUps,      setFollowUps]     = useState([]);
   const [savedIdx,       setSavedIdx]      = useState(new Set());
   const [weakTopics,     setWeakTopics]    = useState([]);
+  const [summaryOpen,    setSummaryOpen]   = useState(true);
+  const [limitReached,   setLimitReached]  = useState(false);
 
   const recognitionRef = useRef(null);
   const bottomRef      = useRef(null);
@@ -86,6 +88,14 @@ export default function VoiceTutor() {
   const isSupported  = "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
   const quickPrompts = QUICK_PROMPTS[subject] || QUICK_PROMPTS.Math;
   const activeTopic  = topic || subject;
+
+  // Session summary — derived from user messages, shown after 3+ exchanges
+  const exchanges      = chat.filter((m) => m.role === "user");
+  const sessionCovered = [...new Set(exchanges.map((m) => {
+    const words = m.content.trim().split(/\s+/);
+    return words.slice(0, 4).join(" ") + (words.length > 4 ? "…" : "");
+  }))].slice(0, 6);
+  const showSummary = exchanges.length >= 3;
 
   /* Load history + weak topics on mount */
   useEffect(() => {
@@ -149,7 +159,7 @@ export default function VoiceTutor() {
   };
 
   const sendMessage = async (msg, fromMic = false) => {
-    if (!msg.trim() || loading) return;
+    if (!msg.trim() || loading || limitReached) return;
     const msgIndex = chat.length + 1; // index of the upcoming assistant reply
     setChat((c) => [...c, { role: "user", content: msg }]);
     setText(""); setFollowUps([]); setLoading(true); setError("");
@@ -168,8 +178,12 @@ export default function VoiceTutor() {
       setChat((c) => [...c, { role: "assistant", content: finalReply }]);
       setFollowUps(suggestions);
       speak(finalReply, msgIndex);
-    } catch {
-      setError("Could not reach Stellar. Check the backend is running.");
+    } catch (err) {
+      if (err?.response?.status === 429 && err?.response?.data?.error === "daily_limit_reached") {
+        setLimitReached(true);
+      } else {
+        setError("Could not reach Stellar. Check the backend is running.");
+      }
     } finally {
       setLoading(false);
     }
@@ -259,6 +273,48 @@ export default function VoiceTutor() {
       {error && (
         <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple-lg">
           {error}
+        </div>
+      )}
+
+      {/* Daily limit reached */}
+      {limitReached && (
+        <div className="bg-apple-orange/8 border border-apple-orange/25 px-5 py-4 rounded-2xl flex items-start gap-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9500" strokeWidth="2" strokeLinecap="round" className="shrink-0 mt-0.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div>
+            <p className="text-[13px] font-semibold text-apple-orange">Daily AI limit reached</p>
+            <p className="text-[12px] text-[#8e8e93] mt-0.5">
+              You've used your free daily quota. Upgrade to Pro (100/day) or Premium (500/day) for more.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Session summary — appears after 3+ exchanges, collapsible */}
+      {showSummary && (
+        <div className="rounded-xl border border-[#f0f0f5] bg-[#fafafa] px-4 py-3">
+          <button
+            onClick={() => setSummaryOpen((o) => !o)}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <span className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#8e8e93]">
+              What we covered · {exchanges.length} {exchanges.length === 1 ? "exchange" : "exchanges"}
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" strokeWidth="2" strokeLinecap="round"
+              className={`transition-transform duration-200 ${summaryOpen ? "rotate-180" : ""}`}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          {summaryOpen && (
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {sessionCovered.map((phrase, i) => (
+                <span key={i} className="text-[11px] px-2.5 py-1 rounded-full bg-white border border-[#e5e5ea] text-[#3a3a3c]">
+                  {phrase}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

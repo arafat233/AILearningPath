@@ -160,7 +160,7 @@ export default function Profile() {
         const sd = streakRes.data?.data || streakRes.data || {};
         setStreakData(sd);
         if (predRes) setPrediction(predRes);
-        setGuardians(guardianRes.data || []);
+        setGuardians(guardianRes.data?.data || guardianRes.data || []);
       })
       .catch(() => setError("Could not load profile."))
       .finally(() => setLoading(false));

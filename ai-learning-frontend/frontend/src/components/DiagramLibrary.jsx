@@ -4027,6 +4027,1730 @@ function ProbabilityApplications() {
   );
 }
 
+// ─── SST History Ch 1–5 ───────────────────────────────────────────────────────
+
+function FrenchRevolution() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Liberty · Equality · Fraternity (1789)</text>
+      <line x1="24" y1="88" x2="256" y2="88" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="44" cy="88" r="7" fill="#FF3B30"/>
+      <text x="44" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1789</text>
+      <text x="44" y="104" fontSize="8" fill="#8E8E93" textAnchor="middle">French</text>
+      <text x="44" y="115" fontSize="8" fill="#8E8E93" textAnchor="middle">Revolution</text>
+      <circle cx="114" cy="88" r="7" fill="#007AFF"/>
+      <text x="114" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1804</text>
+      <text x="114" y="104" fontSize="8" fill="#8E8E93" textAnchor="middle">Napoleon</text>
+      <text x="114" y="115" fontSize="8" fill="#8E8E93" textAnchor="middle">Code</text>
+      <circle cx="184" cy="88" r="7" fill="#FF9500"/>
+      <text x="184" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1830</text>
+      <text x="184" y="104" fontSize="8" fill="#8E8E93" textAnchor="middle">Liberal</text>
+      <text x="184" y="115" fontSize="8" fill="#8E8E93" textAnchor="middle">Revolts</text>
+      <circle cx="246" cy="88" r="7" fill="#34C759"/>
+      <text x="246" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1848</text>
+      <text x="246" y="104" fontSize="8" fill="#8E8E93" textAnchor="middle">Frankfurt</text>
+      <text x="246" y="115" fontSize="8" fill="#8E8E93" textAnchor="middle">Parliament</text>
+      <rect x="10" y="132" width="260" height="58" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="150" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Napoleonic Code abolished feudalism</text>
+      <text x="140" y="164" fontSize="9" fill="#8E8E93" textAnchor="middle">Uniform laws · Equal rights · No privilege by birth</text>
+      <text x="140" y="178" fontSize="9" fill="#8E8E93" textAnchor="middle">Nationalism = loyalty to nation-state, not king/religion</text>
+    </svg>
+  );
+}
+
+function NationalismEurope() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Romantic Nationalism — Culture unites nations</text>
+      <circle cx="50" cy="72" r="28" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="50" y="68" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Language</text>
+      <text x="50" y="80" fontSize="8" fill="#8E8E93" textAnchor="middle">German unifier</text>
+      <circle cx="140" cy="72" r="28" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="68" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Folklore</text>
+      <text x="140" y="80" fontSize="8" fill="#8E8E93" textAnchor="middle">Grimm Brothers</text>
+      <circle cx="230" cy="72" r="28" fill="#34C759" fillOpacity="0.15" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="230" y="68" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Music</text>
+      <text x="230" y="80" fontSize="8" fill="#8E8E93" textAnchor="middle">Composers, Art</text>
+      <line x1="78" y1="72" x2="112" y2="72" stroke="#C7C7CC" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <line x1="168" y1="72" x2="202" y2="72" stroke="#C7C7CC" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <rect x="10" y="114" width="260" height="74" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="132" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Cultural Nationalism → Political Nationalism</text>
+      <text x="140" y="148" fontSize="9" fill="#8E8E93" textAnchor="middle">1830: Greek independence (first nationalist movement)</text>
+      <text x="140" y="162" fontSize="9" fill="#8E8E93" textAnchor="middle">1848: Liberal revolutions across Europe</text>
+      <text x="140" y="176" fontSize="9" fill="#FF3B30" textAnchor="middle">Frankfurt Parliament 1848 — attempted German unification</text>
+    </svg>
+  );
+}
+
+function GermanyItalyUnification() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Unification — Germany (1871) · Italy (1861)</text>
+      <rect x="14" y="38" width="120" height="152" rx="8" fill="#007AFF" fillOpacity="0.07" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="74" y="56" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">GERMANY</text>
+      <text x="74" y="72" fontSize="9" fill="#1C1C1E" textAnchor="middle">Bismarck</text>
+      <text x="74" y="84" fontSize="8" fill="#8E8E93" textAnchor="middle">"Blood &amp; Iron"</text>
+      <text x="74" y="100" fontSize="9" fill="#1C1C1E" textAnchor="middle">Kaiser Wilhelm I</text>
+      <text x="74" y="118" fontSize="8" fill="#8E8E93" textAnchor="middle">Prussia unified</text>
+      <text x="74" y="130" fontSize="8" fill="#8E8E93" textAnchor="middle">German states</text>
+      <text x="74" y="150" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Unified 1871</text>
+      <text x="74" y="164" fontSize="8" fill="#8E8E93" textAnchor="middle">Military force</text>
+      <text x="74" y="178" fontSize="8" fill="#8E8E93" textAnchor="middle">+ diplomacy</text>
+      <rect x="146" y="38" width="120" height="152" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="206" y="56" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">ITALY</text>
+      <text x="206" y="72" fontSize="9" fill="#1C1C1E" textAnchor="middle">Mazzini (ideology)</text>
+      <text x="206" y="86" fontSize="8" fill="#8E8E93" textAnchor="middle">Young Italy movement</text>
+      <text x="206" y="102" fontSize="9" fill="#1C1C1E" textAnchor="middle">Cavour (diplomacy)</text>
+      <text x="206" y="116" fontSize="9" fill="#1C1C1E" textAnchor="middle">Garibaldi (military)</text>
+      <text x="206" y="132" fontSize="8" fill="#8E8E93" textAnchor="middle">Red Shirts army</text>
+      <text x="206" y="150" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Unified 1861</text>
+      <text x="206" y="164" fontSize="8" fill="#8E8E93" textAnchor="middle">Ideology +</text>
+      <text x="206" y="178" fontSize="8" fill="#8E8E93" textAnchor="middle">diplomacy + army</text>
+    </svg>
+  );
+}
+
+function VisualisingNation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Marianne &amp; Germania — Nationalist Allegories</text>
+      <rect x="14" y="38" width="118" height="120" rx="8" fill="#007AFF" fillOpacity="0.07" stroke="#007AFF" strokeWidth="1.5"/>
+      <ellipse cx="73" cy="74" rx="22" ry="26" fill="#FFD7BE" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="73" y="70" fontSize="22" textAnchor="middle">🗽</text>
+      <text x="73" y="112" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">MARIANNE</text>
+      <text x="73" y="126" fontSize="8" fill="#8E8E93" textAnchor="middle">France</text>
+      <text x="73" y="138" fontSize="8" fill="#8E8E93" textAnchor="middle">Red Phrygian cap</text>
+      <text x="73" y="150" fontSize="8" fill="#8E8E93" textAnchor="middle">torch of liberty</text>
+      <rect x="148" y="38" width="118" height="120" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <ellipse cx="207" cy="74" rx="22" ry="26" fill="#FFD7BE" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="207" y="70" fontSize="22" textAnchor="middle">⚔️</text>
+      <text x="207" y="112" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">GERMANIA</text>
+      <text x="207" y="126" fontSize="8" fill="#8E8E93" textAnchor="middle">Germany</text>
+      <text x="207" y="138" fontSize="8" fill="#8E8E93" textAnchor="middle">Crown of oak leaves</text>
+      <text x="207" y="150" fontSize="8" fill="#8E8E93" textAnchor="middle">sword, olive branch</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="9" fill="#8E8E93" textAnchor="middle">Nations as female figures → spread nationalist feeling · art, coins, stamps</text>
+    </svg>
+  );
+}
+
+function NonCooperation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Non-Cooperation Movement 1920–22</text>
+      <rect x="10" y="36" width="260" height="84" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="52" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Boycott Programme</text>
+      <circle cx="26" cy="68" r="4" fill="#FF9500"/>
+      <text x="40" y="72" fontSize="9" fill="#1C1C1E">Legislative councils + courts</text>
+      <circle cx="26" cy="84" r="4" fill="#FF9500"/>
+      <text x="40" y="88" fontSize="9" fill="#1C1C1E">Schools + government colleges</text>
+      <circle cx="26" cy="100" r="4" fill="#FF9500"/>
+      <text x="40" y="104" fontSize="9" fill="#1C1C1E">Foreign cloth · Surrender of titles</text>
+      <circle cx="26" cy="112" r="4" fill="#FF9500"/>
+      <text x="40" y="116" fontSize="9" fill="#1C1C1E">Non-payment of taxes in some areas</text>
+      <rect x="10" y="128" width="260" height="64" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="146" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">Trigger → Withdrawal</text>
+      <text x="140" y="162" fontSize="9" fill="#8E8E93" textAnchor="middle">Rowlatt Act 1919 + Jallianwala Bagh → NCM launched</text>
+      <text x="140" y="176" fontSize="9" fill="#8E8E93" textAnchor="middle">Chauri Chaura 1922: police station burned</text>
+      <text x="140" y="188" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Gandhi withdrew — committed to non-violence</text>
+    </svg>
+  );
+}
+
+function CivilDisobedience() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Dandi Salt March — Civil Disobedience 1930</text>
+      <path d="M 30,120 Q 90,90 150,105 Q 200,115 250,75" fill="none" stroke="#007AFF" strokeWidth="2.5" strokeDasharray="6,3"/>
+      <circle cx="30" cy="120" r="9" fill="#34C759"/>
+      <text x="30" y="116" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">S</text>
+      <text x="30" y="138" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Sabarmati</text>
+      <text x="30" y="150" fontSize="7" fill="#8E8E93" textAnchor="middle">Mar 12, 1930</text>
+      <circle cx="250" cy="75" r="9" fill="#FF3B30"/>
+      <text x="250" y="71" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">D</text>
+      <text x="250" y="93" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">Dandi</text>
+      <text x="250" y="105" fontSize="7" fill="#8E8E93" textAnchor="middle">Apr 6, 1930</text>
+      <text x="140" y="66" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">240 miles · 24 days · 78 marchers</text>
+      <rect x="10" y="158" width="260" height="34" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="172" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Why salt? Universal commodity used by all Indians</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">Lahore Congress 1929 → Purna Swaraj → CDM → Gandhi-Irwin Pact 1931</text>
+    </svg>
+  );
+}
+
+function CollectiveBelonging() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Symbols of Indian Nationalism</text>
+      <rect x="14" y="38" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="51" y="60" fontSize="18" textAnchor="middle">🎵</text>
+      <text x="51" y="76" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Vande Mataram</text>
+      <text x="51" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">Bankim Chandra</text>
+      <rect x="103" y="38" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="140" y="60" fontSize="18" textAnchor="middle">🏳️</text>
+      <text x="140" y="76" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Tricolour Flag</text>
+      <text x="140" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">Gandhi 1921</text>
+      <rect x="192" y="38" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="229" y="60" fontSize="18" textAnchor="middle">🎨</text>
+      <text x="229" y="76" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Bharat Mata</text>
+      <text x="229" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">Abanindranath</text>
+      <rect x="14" y="106" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="51" y="128" fontSize="18" textAnchor="middle">📖</text>
+      <text x="51" y="144" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Folk Revival</text>
+      <text x="51" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Rabindranath</text>
+      <rect x="103" y="106" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="140" y="128" fontSize="18" textAnchor="middle">🗓️</text>
+      <text x="140" y="144" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">26 Jan 1930</text>
+      <text x="140" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Independence Day</text>
+      <rect x="192" y="106" width="74" height="58" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="229" y="128" fontSize="18" textAnchor="middle">🧵</text>
+      <text x="229" y="144" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Khadi</text>
+      <text x="229" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Swadeshi symbol</text>
+      <rect x="10" y="172" width="260" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="186" fontSize="8" fill="#8E8E93" textAnchor="middle">Shared symbols created a sense of collective national identity</text>
+    </svg>
+  );
+}
+
+function PremodernWorld() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Pre-modern Globalisation — Silk Routes</text>
+      <ellipse cx="50" cy="108" rx="36" ry="22" fill="#FF9500" fillOpacity="0.2" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="50" y="105" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">CHINA</text>
+      <text x="50" y="118" fontSize="7" fill="#8E8E93" textAnchor="middle">Silk origin</text>
+      <ellipse cx="140" cy="90" rx="30" ry="18" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="87" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Central Asia</text>
+      <text x="140" y="100" fontSize="7" fill="#8E8E93" textAnchor="middle">Trade hub</text>
+      <ellipse cx="230" cy="108" rx="36" ry="22" fill="#FF3B30" fillOpacity="0.15" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="230" y="105" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">EUROPE</text>
+      <text x="230" y="118" fontSize="7" fill="#8E8E93" textAnchor="middle">Market end</text>
+      <path d="M 86,104 Q 110,80 112,88" fill="none" stroke="#34C759" strokeWidth="2"/>
+      <path d="M 170,92 Q 194,88 196,104" fill="none" stroke="#34C759" strokeWidth="2"/>
+      <text x="140" y="148" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Traded: silk, spices, ideas, diseases</text>
+      <rect x="10" y="160" width="260" height="34" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="175" fontSize="8" fill="#8E8E93" textAnchor="middle">Columbus 1492 → Americas: potato, tomato, chilli to Europe</text>
+      <text x="140" y="188" fontSize="8" fill="#FF3B30" textAnchor="middle">Trade routes also spread Black Death (plague) across continents</text>
+    </svg>
+  );
+}
+
+function InterwarEconomy() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Great Depression 1929 → Global Crisis</text>
+      <line x1="24" y1="88" x2="256" y2="88" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="50" cy="88" r="7" fill="#FF3B30"/>
+      <text x="50" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1929</text>
+      <text x="50" y="104" fontSize="7" fill="#8E8E93" textAnchor="middle">Wall Street</text>
+      <text x="50" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">Crash</text>
+      <circle cx="120" cy="88" r="7" fill="#FF9500"/>
+      <text x="120" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1930s</text>
+      <text x="120" y="104" fontSize="7" fill="#8E8E93" textAnchor="middle">25% US</text>
+      <text x="120" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">unemployed</text>
+      <circle cx="190" cy="88" r="7" fill="#FF9500"/>
+      <text x="190" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1933</text>
+      <text x="190" y="104" fontSize="7" fill="#8E8E93" textAnchor="middle">Roosevelt</text>
+      <text x="190" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">New Deal</text>
+      <circle cx="248" cy="88" r="7" fill="#34C759"/>
+      <text x="248" y="76" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1944</text>
+      <text x="248" y="104" fontSize="7" fill="#8E8E93" textAnchor="middle">Bretton</text>
+      <text x="248" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">Woods</text>
+      <rect x="10" y="130" width="124" height="62" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="150" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">IMF</text>
+      <text x="72" y="165" fontSize="8" fill="#8E8E93" textAnchor="middle">Balance of</text>
+      <text x="72" y="177" fontSize="8" fill="#8E8E93" textAnchor="middle">payments support</text>
+      <rect x="146" y="130" width="124" height="62" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="150" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">World Bank</text>
+      <text x="208" y="165" fontSize="8" fill="#8E8E93" textAnchor="middle">Long-term</text>
+      <text x="208" y="177" fontSize="8" fill="#8E8E93" textAnchor="middle">development loans</text>
+    </svg>
+  );
+}
+
+function PostWar() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Post-War Economic Order — IMF, World Bank</text>
+      <rect x="94" y="38" width="92" height="32" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="52" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Bretton Woods 1944</text>
+      <text x="140" y="64" fontSize="8" fill="#8E8E93" textAnchor="middle">Dollar ↔ Gold (fixed rates)</text>
+      <line x1="108" y1="70" x2="72" y2="96" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="172" y1="70" x2="208" y2="96" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="96" width="116" height="48" rx="8" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="115" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">IMF</text>
+      <text x="72" y="130" fontSize="8" fill="#8E8E93" textAnchor="middle">Stabilise exchange</text>
+      <text x="72" y="142" fontSize="8" fill="#8E8E93" textAnchor="middle">rates · short-term</text>
+      <rect x="150" y="96" width="116" height="48" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="115" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">World Bank</text>
+      <text x="208" y="130" fontSize="8" fill="#8E8E93" textAnchor="middle">Post-war reconstruction</text>
+      <text x="208" y="142" fontSize="8" fill="#8E8E93" textAnchor="middle">long-term loans</text>
+      <rect x="10" y="154" width="260" height="38" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="170" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Golden Age of Capitalism: 1950–1970</text>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Oil crisis 1970s → floating exchange rates → MNCs rise</text>
+    </svg>
+  );
+}
+
+function ProtoIndustrialisation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Proto-Industrialisation — Putting-out System</text>
+      <rect x="94" y="36" width="92" height="32" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="50" fontSize="10" fontWeight="700" fill="#FF9500" textAnchor="middle">MERCHANT</text>
+      <text x="140" y="63" fontSize="8" fill="#8E8E93" textAnchor="middle">Provides raw material</text>
+      <line x1="110" y1="68" x2="72" y2="92" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="170" y1="68" x2="208" y2="92" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="92" width="116" height="52" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="111" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Rural Family A</text>
+      <text x="72" y="125" fontSize="8" fill="#8E8E93" textAnchor="middle">Weaves cloth at home</text>
+      <text x="72" y="138" fontSize="8" fill="#8E8E93" textAnchor="middle">Returns finished cloth</text>
+      <rect x="150" y="92" width="116" height="52" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="111" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Rural Family B</text>
+      <text x="208" y="125" fontSize="8" fill="#8E8E93" textAnchor="middle">Spins yarn at home</text>
+      <text x="208" y="138" fontSize="8" fill="#8E8E93" textAnchor="middle">Returns spun yarn</text>
+      <rect x="10" y="154" width="260" height="38" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="169" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Before factories — rural cottage industries fed merchants</text>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Flexible labour · No capital · Seasonal · Survived alongside factories</text>
+    </svg>
+  );
+}
+
+function FactorySystem() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Factory System — Steam, Discipline, Mass Output</text>
+      <rect x="14" y="38" width="252" height="72" rx="8" fill="#F2F2F7" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <text x="60" y="80" fontSize="36" textAnchor="middle">🏭</text>
+      <line x1="100" y1="74" x2="150" y2="74" stroke="#007AFF" strokeWidth="2" strokeDasharray="4,2"/>
+      <text x="125" y="68" fontSize="8" fill="#007AFF" textAnchor="middle">Steam power</text>
+      <rect x="158" y="50" width="98" height="50" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1"/>
+      <text x="207" y="68" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Mass output</text>
+      <text x="207" y="82" fontSize="8" fill="#8E8E93" textAnchor="middle">Fixed hours</text>
+      <text x="207" y="95" fontSize="8" fill="#8E8E93" textAnchor="middle">Strict discipline</text>
+      <rect x="10" y="120" width="260" height="72" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="138" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Victorian Britain — Cheap Labour Paradox</text>
+      <text x="140" y="154" fontSize="9" fill="#8E8E93" textAnchor="middle">Abundant cheap labour → no rush to mechanise</text>
+      <text x="140" y="168" fontSize="9" fill="#8E8E93" textAnchor="middle">Seasonal industries preferred casual labour over machines</text>
+      <text x="140" y="184" fontSize="8" fill="#FF3B30" textAnchor="middle">Skilled craftsmen valued — machine goods seen as inferior quality</text>
+    </svg>
+  );
+}
+
+function IndiaIndustrialisation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Industrialisation in Colonial India</text>
+      <line x1="24" y1="84" x2="256" y2="84" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="44" cy="84" r="6" fill="#FF3B30"/>
+      <text x="44" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1850s</text>
+      <text x="44" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Manchester</text>
+      <text x="44" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">floods India</text>
+      <circle cx="110" cy="84" r="6" fill="#007AFF"/>
+      <text x="110" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1854</text>
+      <text x="110" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Bombay</text>
+      <text x="110" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">cotton mill</text>
+      <circle cx="176" cy="84" r="6" fill="#FF9500"/>
+      <text x="176" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1905</text>
+      <text x="176" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Swadeshi</text>
+      <text x="176" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">movement</text>
+      <circle cx="242" cy="84" r="6" fill="#34C759"/>
+      <text x="242" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1914</text>
+      <text x="242" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">WW1 boosts</text>
+      <text x="242" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">Indian mills</text>
+      <rect x="10" y="124" width="260" height="68" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="142" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Key Features of Indian Industry</text>
+      <text x="140" y="158" fontSize="9" fill="#8E8E93" textAnchor="middle">Gomasthas (EIC agents) harassed handloom weavers</text>
+      <text x="140" y="172" fontSize="9" fill="#8E8E93" textAnchor="middle">Fly shuttle loom helped handloom survive Manchester</text>
+      <text x="140" y="186" fontSize="8" fill="#007AFF" textAnchor="middle">Jobbers: recruiter + disciplinarian for mill workers</text>
+    </svg>
+  );
+}
+
+function PrintRevolution() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Gutenberg Press → Print Revolution</text>
+      <line x1="24" y1="84" x2="256" y2="84" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="44" cy="84" r="6" fill="#8E8E93"/>
+      <text x="44" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">594 CE</text>
+      <text x="44" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">China:</text>
+      <text x="44" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">woodblock</text>
+      <circle cx="114" cy="84" r="6" fill="#FF9500"/>
+      <text x="114" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1448</text>
+      <text x="114" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Gutenberg</text>
+      <text x="114" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">movable type</text>
+      <circle cx="184" cy="84" r="6" fill="#FF3B30"/>
+      <text x="184" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1517</text>
+      <text x="184" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Luther:</text>
+      <text x="184" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">Reformation</text>
+      <circle cx="246" cy="84" r="6" fill="#007AFF"/>
+      <text x="246" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1700s</text>
+      <text x="246" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Enlighten-</text>
+      <text x="246" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">ment</text>
+      <rect x="10" y="124" width="260" height="68" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="142" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Print democratised knowledge</text>
+      <text x="140" y="158" fontSize="9" fill="#8E8E93" textAnchor="middle">Chapbooks (cheap pamphlets) reached the poor</text>
+      <text x="140" y="172" fontSize="9" fill="#8E8E93" textAnchor="middle">Catholic Church: Index of Prohibited Books — censorship</text>
+      <text x="140" y="186" fontSize="8" fill="#FF3B30" textAnchor="middle">Erasmus + Luther used print to spread ideas across Europe</text>
+    </svg>
+  );
+}
+
+function IndiaPrint() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Print Culture in Colonial India</text>
+      <line x1="24" y1="84" x2="256" y2="84" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="44" cy="84" r="6" fill="#8E8E93"/>
+      <text x="44" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1556</text>
+      <text x="44" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Goa: first</text>
+      <text x="44" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">press India</text>
+      <circle cx="114" cy="84" r="6" fill="#007AFF"/>
+      <text x="114" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1780</text>
+      <text x="114" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Bengal</text>
+      <text x="114" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">Gazette</text>
+      <circle cx="184" cy="84" r="6" fill="#FF3B30"/>
+      <text x="184" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1878</text>
+      <text x="184" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Vernacular</text>
+      <text x="184" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">Press Act</text>
+      <circle cx="246" cy="84" r="6" fill="#34C759"/>
+      <text x="246" y="73" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">1905</text>
+      <text x="246" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">Nationalist</text>
+      <text x="246" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">press boom</text>
+      <rect x="10" y="124" width="260" height="68" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="142" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Key Figures in Indian Print</text>
+      <text x="140" y="158" fontSize="9" fill="#8E8E93" textAnchor="middle">Rashsundari Devi: Amar Jiban (1876) — first Bengali autobiography</text>
+      <text x="140" y="172" fontSize="9" fill="#8E8E93" textAnchor="middle">Tilak (Kesari/Marathi) · Phule (anti-caste) · Ambedkar (Mooknayak)</text>
+      <text x="140" y="186" fontSize="8" fill="#007AFF" textAnchor="middle">Ram Mohan Roy: Sambad Kaumudi — challenged orthodoxy</text>
+    </svg>
+  );
+}
+
+// ─── SST Geography Ch 6–12 ────────────────────────────────────────────────────
+
+function TypesResources() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Classification of Resources</text>
+      <rect x="94" y="36" width="92" height="28" rx="6" fill="#34C759" fillOpacity="0.2" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="54" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">RESOURCES</text>
+      <line x1="118" y1="64" x2="58" y2="88" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="140" y1="64" x2="140" y2="88" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="162" y1="64" x2="222" y2="88" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="88" width="88" height="50" rx="6" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="58" y="107" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">By Origin</text>
+      <text x="58" y="120" fontSize="8" fill="#8E8E93" textAnchor="middle">Biotic (plants)</text>
+      <text x="58" y="132" fontSize="8" fill="#8E8E93" textAnchor="middle">Abiotic (rock)</text>
+      <rect x="96" y="88" width="88" height="50" rx="6" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="107" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Exhaustibility</text>
+      <text x="140" y="120" fontSize="8" fill="#8E8E93" textAnchor="middle">Renewable (solar)</text>
+      <text x="140" y="132" fontSize="8" fill="#8E8E93" textAnchor="middle">Non-ren. (coal)</text>
+      <rect x="178" y="88" width="88" height="50" rx="6" fill="#FF3B30" fillOpacity="0.1" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="222" y="107" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Ownership</text>
+      <text x="222" y="120" fontSize="8" fill="#8E8E93" textAnchor="middle">Individual</text>
+      <text x="222" y="132" fontSize="8" fill="#8E8E93" textAnchor="middle">Community / Nat.</text>
+      <rect x="10" y="148" width="260" height="44" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="164" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Development Status</text>
+      <text x="140" y="178" fontSize="8" fill="#8E8E93" textAnchor="middle">Potential (not used) · Actual (in use) · Stock · Reserve</text>
+    </svg>
+  );
+}
+
+function LandResources() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">India's Land Use Pattern</text>
+      <rect x="10" y="38" width="156" height="24" rx="4" fill="#34C759" fillOpacity="0.7"/>
+      <text x="88" y="54" fontSize="9" fontWeight="700" fill="#fff" textAnchor="middle">Net Sown Area — 54%</text>
+      <rect x="10" y="68" width="62" height="20" rx="4" fill="#007AFF" fillOpacity="0.7"/>
+      <text x="41" y="82" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">Forest 21%</text>
+      <rect x="78" y="68" width="40" height="20" rx="4" fill="#FF9500" fillOpacity="0.7"/>
+      <text x="98" y="82" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">Fallow</text>
+      <rect x="124" y="68" width="42" height="20" rx="4" fill="#FF3B30" fillOpacity="0.6"/>
+      <text x="145" y="82" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">Barren 4%</text>
+      <rect x="10" y="96" width="260" height="88" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="114" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Land Degradation — Causes</text>
+      <circle cx="26" cy="130" r="4" fill="#FF3B30"/>
+      <text x="40" y="134" fontSize="9" fill="#1C1C1E">Waterlogging (over-irrigation)</text>
+      <circle cx="26" cy="148" r="4" fill="#FF3B30"/>
+      <text x="40" y="152" fontSize="9" fill="#1C1C1E">Soil erosion (deforestation)</text>
+      <circle cx="26" cy="166" r="4" fill="#34C759"/>
+      <text x="40" y="170" fontSize="9" fill="#34C759">Remedy: shelter belts, contour ploughing</text>
+      <text x="140" y="182" fontSize="8" fill="#8E8E93" textAnchor="middle">Sustainable development: Rio 1992 — Agenda 21</text>
+    </svg>
+  );
+}
+
+function SoilTypes() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Major Soil Types of India</text>
+      <rect x="10" y="36" width="124" height="56" rx="6" fill="#C4A882" fillOpacity="0.3" stroke="#C4A882" strokeWidth="1.5"/>
+      <text x="72" y="55" fontSize="9" fontWeight="700" fill="#8B6914" textAnchor="middle">Alluvial</text>
+      <text x="72" y="68" fontSize="8" fill="#555" textAnchor="middle">North plains · Khadar/Bhangar</text>
+      <text x="72" y="80" fontSize="8" fill="#555" textAnchor="middle">Rice, Wheat, Sugarcane</text>
+      <rect x="146" y="36" width="124" height="56" rx="6" fill="#2C1810" fillOpacity="0.2" stroke="#5C3D2E" strokeWidth="1.5"/>
+      <text x="208" y="55" fontSize="9" fontWeight="700" fill="#2C1810" textAnchor="middle">Black (Regur)</text>
+      <text x="208" y="68" fontSize="8" fill="#555" textAnchor="middle">Deccan plateau · Maharashtra</text>
+      <text x="208" y="80" fontSize="8" fill="#555" textAnchor="middle">Best for Cotton · self-ploughing</text>
+      <rect x="10" y="100" width="82" height="56" rx="6" fill="#D4654A" fillOpacity="0.25" stroke="#D4654A" strokeWidth="1.5"/>
+      <text x="51" y="119" fontSize="9" fontWeight="700" fill="#D4654A" textAnchor="middle">Red &amp; Yellow</text>
+      <text x="51" y="132" fontSize="7" fill="#555" textAnchor="middle">Low rainfall</text>
+      <text x="51" y="143" fontSize="7" fill="#555" textAnchor="middle">Iron content</text>
+      <rect x="99" y="100" width="82" height="56" rx="6" fill="#8B4513" fillOpacity="0.2" stroke="#8B4513" strokeWidth="1.5"/>
+      <text x="140" y="119" fontSize="9" fontWeight="700" fill="#8B4513" textAnchor="middle">Laterite</text>
+      <text x="140" y="132" fontSize="7" fill="#555" textAnchor="middle">High-rainfall hills</text>
+      <text x="140" y="143" fontSize="7" fill="#555" textAnchor="middle">Kerala · Tea</text>
+      <rect x="188" y="100" width="82" height="56" rx="6" fill="#D2B48C" fillOpacity="0.3" stroke="#D2B48C" strokeWidth="1.5"/>
+      <text x="229" y="119" fontSize="9" fontWeight="700" fill="#8B6914" textAnchor="middle">Arid</text>
+      <text x="229" y="132" fontSize="7" fill="#555" textAnchor="middle">Rajasthan</text>
+      <text x="229" y="143" fontSize="7" fill="#555" textAnchor="middle">Sandy · low humus</text>
+      <rect x="10" y="164" width="260" height="28" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="182" fontSize="8" fill="#8E8E93" textAnchor="middle">Forest soil: mountain slopes, humus-rich · Bhangar = old alluvial; Khadar = new</text>
+    </svg>
+  );
+}
+
+function ForestTypes() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">India's Forest Classification</text>
+      <rect x="14" y="38" width="74" height="104" rx="8" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="2"/>
+      <text x="51" y="60" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Reserved</text>
+      <text x="51" y="76" fontSize="18" textAnchor="middle">🌲</text>
+      <text x="51" y="96" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">67%</text>
+      <text x="51" y="110" fontSize="8" fill="#8E8E93" textAnchor="middle">Most valuable</text>
+      <text x="51" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">No local rights</text>
+      <rect x="103" y="38" width="74" height="104" rx="8" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="2"/>
+      <text x="140" y="60" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">Protected</text>
+      <text x="140" y="76" fontSize="18" textAnchor="middle">🌳</text>
+      <text x="140" y="96" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">29%</text>
+      <text x="140" y="110" fontSize="8" fill="#8E8E93" textAnchor="middle">Some local</text>
+      <text x="140" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">rights allowed</text>
+      <rect x="192" y="38" width="74" height="104" rx="8" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="2"/>
+      <text x="229" y="60" fontSize="10" fontWeight="700" fill="#FF9500" textAnchor="middle">Unclassed</text>
+      <text x="229" y="76" fontSize="18" textAnchor="middle">🌿</text>
+      <text x="229" y="96" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">4%</text>
+      <text x="229" y="110" fontSize="8" fill="#8E8E93" textAnchor="middle">Government or</text>
+      <text x="229" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">private land</text>
+      <rect x="10" y="152" width="260" height="40" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="168" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">JFM — Joint Forest Management (Odisha 1988)</text>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Villages manage forests with Forest Dept · 25% revenue share</text>
+    </svg>
+  );
+}
+
+function Biodiversity() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Biodiversity — India: 8% of World Species</text>
+      <rect x="10" y="38" width="260" height="66" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="54" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Threatened Species Categories (IUCN)</text>
+      <rect x="16" y="60" width="42" height="36" rx="4" fill="#8E8E93" fillOpacity="0.3" stroke="#8E8E93" strokeWidth="1"/>
+      <text x="37" y="80" fontSize="8" fontWeight="700" fill="#8E8E93" textAnchor="middle">Extinct</text>
+      <rect x="64" y="60" width="42" height="36" rx="4" fill="#FF3B30" fillOpacity="0.3" stroke="#FF3B30" strokeWidth="1"/>
+      <text x="85" y="80" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">Endangered</text>
+      <rect x="112" y="60" width="42" height="36" rx="4" fill="#FF9500" fillOpacity="0.3" stroke="#FF9500" strokeWidth="1"/>
+      <text x="133" y="80" fontSize="8" fontWeight="700" fill="#FF9500" textAnchor="middle">Vulnerable</text>
+      <rect x="160" y="60" width="42" height="36" rx="4" fill="#007AFF" fillOpacity="0.3" stroke="#007AFF" strokeWidth="1"/>
+      <text x="181" y="80" fontSize="8" fontWeight="700" fill="#007AFF" textAnchor="middle">Rare</text>
+      <rect x="208" y="60" width="54" height="36" rx="4" fill="#34C759" fillOpacity="0.3" stroke="#34C759" strokeWidth="1"/>
+      <text x="235" y="80" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Endemic</text>
+      <rect x="10" y="112" width="260" height="80" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="128" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Causes of Biodiversity Loss</text>
+      <circle cx="26" cy="144" r="4" fill="#FF3B30"/>
+      <text x="40" y="148" fontSize="8" fill="#1C1C1E">Habitat loss and fragmentation</text>
+      <circle cx="26" cy="160" r="4" fill="#FF3B30"/>
+      <text x="40" y="164" fontSize="8" fill="#1C1C1E">Hunting, poaching, over-exploitation</text>
+      <circle cx="26" cy="176" r="4" fill="#FF3B30"/>
+      <text x="40" y="180" fontSize="8" fill="#1C1C1E">Pollution · Alien species invasion</text>
+    </svg>
+  );
+}
+
+function Conservation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Conservation — Parks, JFM &amp; Community</text>
+      <rect x="14" y="38" width="116" height="72" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Protected Areas</text>
+      <text x="72" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">National Parks</text>
+      <text x="72" y="82" fontSize="8" fill="#1C1C1E" textAnchor="middle">Wildlife Sanctuaries</text>
+      <text x="72" y="94" fontSize="8" fill="#1C1C1E" textAnchor="middle">Biosphere Reserves</text>
+      <text x="72" y="106" fontSize="8" fill="#8E8E93" textAnchor="middle">Project Tiger 1973</text>
+      <rect x="150" y="38" width="116" height="72" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Community Action</text>
+      <text x="208" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Chipko movement</text>
+      <text x="208" y="82" fontSize="8" fill="#1C1C1E" textAnchor="middle">(Uttarakhand, trees)</text>
+      <text x="208" y="94" fontSize="8" fill="#1C1C1E" textAnchor="middle">Bishnoi community</text>
+      <text x="208" y="106" fontSize="8" fill="#8E8E93" textAnchor="middle">(Black Buck protection)</text>
+      <rect x="10" y="120" width="260" height="72" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="138" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Key Conservation Stories</text>
+      <circle cx="26" cy="154" r="4" fill="#34C759"/>
+      <text x="40" y="158" fontSize="8" fill="#1C1C1E">Amrita Devi Bishnoi — gave life to protect Khejri trees</text>
+      <circle cx="26" cy="170" r="4" fill="#34C759"/>
+      <text x="40" y="174" fontSize="8" fill="#1C1C1E">Beej Bachao Andolan — traditional crop variety seeds saved</text>
+      <circle cx="26" cy="184" r="4" fill="#34C759"/>
+      <text x="40" y="188" fontSize="8" fill="#1C1C1E">Sariska — villages helped tigers return to the forest</text>
+    </svg>
+  );
+}
+
+function WaterScarcity() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Water Availability — A Shrinking Resource</text>
+      <rect x="30" y="38" width="220" height="28" rx="6" fill="#007AFF" fillOpacity="0.6"/>
+      <text x="140" y="57" fontSize="10" fontWeight="700" fill="#fff" textAnchor="middle">Earth's Water — 100%</text>
+      <rect x="30" y="72" width="8" height="24" rx="3" fill="#007AFF" fillOpacity="0.3"/>
+      <rect x="52" y="72" width="7" height="24" rx="3" fill="#34C759" fillOpacity="0.7"/>
+      <text x="140" y="88" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Freshwater — only 2.7%</text>
+      <rect x="30" y="102" width="4" height="20" rx="2" fill="#007AFF" fillOpacity="0.15"/>
+      <rect x="52" y="102" width="2" height="20" rx="2" fill="#FF9500" fillOpacity="0.7"/>
+      <text x="140" y="116" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">70% of freshwater is frozen (glaciers)</text>
+      <text x="140" y="134" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Only ~1% usable by humans</text>
+      <rect x="10" y="148" width="260" height="44" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="164" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Causes of Water Stress in India</text>
+      <text x="140" y="178" fontSize="8" fill="#8E8E93" textAnchor="middle">Population growth · Industrialisation · Agriculture over-use</text>
+      <text x="140" y="190" fontSize="8" fill="#FF3B30" textAnchor="middle">Groundwater depletion: Punjab, Rajasthan, UP most affected</text>
+    </svg>
+  );
+}
+
+function MultipurposeProjects() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Multipurpose River Projects</text>
+      <polygon points="140,40 80,120 200,120" fill="#8E8E93" fillOpacity="0.4" stroke="#8E8E93" strokeWidth="2"/>
+      <rect x="80" y="120" width="120" height="12" rx="3" fill="#007AFF" fillOpacity="0.5"/>
+      <text x="140" y="90" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">DAM</text>
+      <text x="140" y="136" fontSize="8" fill="#007AFF" textAnchor="middle">Reservoir</text>
+      <text x="30" y="80" fontSize="8" fill="#34C759" textAnchor="middle">💧 Irrigation</text>
+      <text x="30" y="95" fontSize="8" fill="#007AFF" textAnchor="middle">⚡ Electricity</text>
+      <text x="245" y="80" fontSize="8" fill="#FF9500" textAnchor="middle">🚢 Navigation</text>
+      <text x="245" y="95" fontSize="8" fill="#FF3B30" textAnchor="middle">🐟 Fisheries</text>
+      <rect x="10" y="150" width="260" height="42" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="167" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Controversies</text>
+      <text x="140" y="181" fontSize="8" fill="#8E8E93" textAnchor="middle">Narmada Bachao Andolan (Medha Patkar) vs Sardar Sarovar</text>
+    </svg>
+  );
+}
+
+function RainwaterHarvesting() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Rainwater Harvesting — Regional Traditions</text>
+      <rect x="14" y="38" width="58" height="70" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="43" y="56" fontSize="18" textAnchor="middle">🏺</text>
+      <text x="43" y="74" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Johad</text>
+      <text x="43" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">Rajasthan</text>
+      <text x="43" y="97" fontSize="7" fill="#8E8E93" textAnchor="middle">check dams</text>
+      <rect x="78" y="38" width="58" height="70" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="107" y="56" fontSize="18" textAnchor="middle">🏠</text>
+      <text x="107" y="74" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Tanka</text>
+      <text x="107" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">Rajasthan</text>
+      <text x="107" y="97" fontSize="7" fill="#8E8E93" textAnchor="middle">rooftop storage</text>
+      <rect x="142" y="38" width="58" height="70" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="171" y="56" fontSize="18" textAnchor="middle">🎋</text>
+      <text x="171" y="74" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Bamboo drip</text>
+      <text x="171" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">Meghalaya</text>
+      <text x="171" y="97" fontSize="7" fill="#8E8E93" textAnchor="middle">200-yr tradition</text>
+      <rect x="206" y="38" width="60" height="70" rx="6" fill="#F2F2F7" stroke="#E5E5EA" strokeWidth="1"/>
+      <text x="236" y="56" fontSize="18" textAnchor="middle">🌧️</text>
+      <text x="236" y="74" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Kuls</text>
+      <text x="236" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">Himachal</text>
+      <text x="236" y="97" fontSize="7" fill="#8E8E93" textAnchor="middle">glacier channels</text>
+      <rect x="10" y="116" width="260" height="76" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="133" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Modern Rooftop Harvesting</text>
+      <circle cx="26" cy="150" r="4" fill="#007AFF"/>
+      <text x="40" y="154" fontSize="8" fill="#1C1C1E">Shillong, Meghalaya — nearly every household</text>
+      <circle cx="26" cy="166" r="4" fill="#007AFF"/>
+      <text x="40" y="170" fontSize="8" fill="#1C1C1E">Chennai — mandatory since 2003</text>
+      <circle cx="26" cy="182" r="4" fill="#007AFF"/>
+      <text x="40" y="186" fontSize="8" fill="#1C1C1E">Gul/Kul: diversion channels from glaciers</text>
+    </svg>
+  );
+}
+
+function TypesFarming() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Types of Farming in India</text>
+      <rect x="14" y="38" width="74" height="120" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="51" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Subsistence</text>
+      <text x="51" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Primitive</text>
+      <text x="51" y="82" fontSize="7" fill="#8E8E93" textAnchor="middle">Jhum / slash-</text>
+      <text x="51" y="92" fontSize="7" fill="#8E8E93" textAnchor="middle">and-burn</text>
+      <text x="51" y="108" fontSize="8" fill="#1C1C1E" textAnchor="middle">Intensive</text>
+      <text x="51" y="120" fontSize="7" fill="#8E8E93" textAnchor="middle">Paddy, high</text>
+      <text x="51" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">population areas</text>
+      <rect x="103" y="38" width="74" height="120" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Commercial</text>
+      <text x="140" y="72" fontSize="7" fill="#8E8E93" textAnchor="middle">Large scale</text>
+      <text x="140" y="84" fontSize="7" fill="#8E8E93" textAnchor="middle">single crop</text>
+      <text x="140" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">Wheat — Punjab</text>
+      <text x="140" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">Cotton — Haryana</text>
+      <text x="140" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">Sugar — UP</text>
+      <rect x="192" y="38" width="74" height="120" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="229" y="56" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Plantation</text>
+      <text x="229" y="72" fontSize="7" fill="#8E8E93" textAnchor="middle">British legacy</text>
+      <text x="229" y="84" fontSize="7" fill="#8E8E93" textAnchor="middle">Export-oriented</text>
+      <text x="229" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">Tea — Assam</text>
+      <text x="229" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">Coffee — Karnataka</text>
+      <text x="229" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">Rubber — Kerala</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">Kharif (Jun–Sep): paddy, cotton · Rabi (Oct–Mar): wheat, mustard</text>
+    </svg>
+  );
+}
+
+function MajorCrops() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Major Crops of India</text>
+      <rect x="10" y="36" width="260" height="152" rx="8" fill="#F2F2F7"/>
+      <rect x="16" y="42" width="248" height="18" rx="4" fill="#34C759" fillOpacity="0.3"/>
+      <text x="64" y="55" fontSize="9" fontWeight="700" fill="#34C759">Crop</text>
+      <text x="140" y="55" fontSize="9" fontWeight="700" fill="#34C759">Region</text>
+      <text x="220" y="55" fontSize="9" fontWeight="700" fill="#34C759">Season</text>
+      <text x="64" y="74" fontSize="8" fill="#1C1C1E">Rice</text>
+      <text x="140" y="74" fontSize="8" fill="#8E8E93">WB · UP · Andhra</text>
+      <text x="220" y="74" fontSize="8" fill="#8E8E93">Kharif</text>
+      <text x="64" y="90" fontSize="8" fill="#1C1C1E">Wheat</text>
+      <text x="140" y="90" fontSize="8" fill="#8E8E93">Punjab · Haryana · UP</text>
+      <text x="220" y="90" fontSize="8" fill="#8E8E93">Rabi</text>
+      <text x="64" y="106" fontSize="8" fill="#1C1C1E">Cotton</text>
+      <text x="140" y="106" fontSize="8" fill="#8E8E93">Maharashtra · Gujarat</text>
+      <text x="220" y="106" fontSize="8" fill="#8E8E93">Kharif</text>
+      <text x="64" y="122" fontSize="8" fill="#1C1C1E">Jute</text>
+      <text x="140" y="122" fontSize="8" fill="#8E8E93">West Bengal · Bihar</text>
+      <text x="220" y="122" fontSize="8" fill="#8E8E93">Kharif</text>
+      <text x="64" y="138" fontSize="8" fill="#1C1C1E">Tea</text>
+      <text x="140" y="138" fontSize="8" fill="#8E8E93">Assam · WB · TN</text>
+      <text x="220" y="138" fontSize="8" fill="#8E8E93">Year-round</text>
+      <text x="64" y="154" fontSize="8" fill="#1C1C1E">Sugarcane</text>
+      <text x="140" y="154" fontSize="8" fill="#8E8E93">UP · Maharashtra</text>
+      <text x="220" y="154" fontSize="8" fill="#8E8E93">Year-round</text>
+      <text x="64" y="170" fontSize="8" fill="#1C1C1E">Coffee</text>
+      <text x="140" y="170" fontSize="8" fill="#8E8E93">Karnataka · Kerala</text>
+      <text x="220" y="170" fontSize="8" fill="#8E8E93">Year-round</text>
+      <text x="140" y="186" fontSize="7" fill="#FF9500" textAnchor="middle">Jute = "Golden Fibre" · Cotton needs Black soil · Tea needs hill slopes</text>
+    </svg>
+  );
+}
+
+function TechReforms() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Green Revolution &amp; Agricultural Reforms</text>
+      <rect x="14" y="38" width="252" height="52" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="56" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Green Revolution (1960s)</text>
+      <text x="50" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">HYV seeds</text>
+      <text x="140" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Chemical fertilisers</text>
+      <text x="228" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Irrigation</text>
+      <text x="50" y="84" fontSize="7" fill="#8E8E93" textAnchor="middle">High Yield Variety</text>
+      <text x="228" y="84" fontSize="7" fill="#8E8E93" textAnchor="middle">Punjab, Haryana</text>
+      <rect x="14" y="98" width="116" height="62" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.2"/>
+      <text x="72" y="115" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Benefits</text>
+      <text x="72" y="130" fontSize="8" fill="#1C1C1E" textAnchor="middle">Food self-sufficiency</text>
+      <text x="72" y="144" fontSize="8" fill="#1C1C1E" textAnchor="middle">Export of food grains</text>
+      <text x="72" y="158" fontSize="8" fill="#1C1C1E" textAnchor="middle">Higher farm income</text>
+      <rect x="150" y="98" width="116" height="62" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.2"/>
+      <text x="208" y="115" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Drawbacks</text>
+      <text x="208" y="130" fontSize="8" fill="#1C1C1E" textAnchor="middle">Groundwater depletion</text>
+      <text x="208" y="144" fontSize="8" fill="#1C1C1E" textAnchor="middle">Soil degradation</text>
+      <text x="208" y="158" fontSize="8" fill="#1C1C1E" textAnchor="middle">Regional inequality</text>
+      <rect x="10" y="168" width="260" height="24" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Land reforms: zamindari abolition · land ceiling · cooperatives · MSP</text>
+    </svg>
+  );
+}
+
+function Minerals() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Mineral Distribution in India</text>
+      <rect x="10" y="36" width="260" height="148" rx="8" fill="#F2F2F7"/>
+      <rect x="16" y="42" width="248" height="18" rx="4" fill="#8E8E93" fillOpacity="0.3"/>
+      <text x="70" y="55" fontSize="9" fontWeight="700" fill="#1C1C1E">Mineral</text>
+      <text x="160" y="55" fontSize="9" fontWeight="700" fill="#1C1C1E">States</text>
+      <text x="16" y="74" fontSize="9" fontWeight="700" fill="#FF3B30">Iron Ore</text>
+      <text x="90" y="74" fontSize="8" fill="#8E8E93">Jharkhand, Odisha, Chhattisgarh (Haematite)</text>
+      <text x="16" y="92" fontSize="9" fontWeight="700" fill="#8E8E93">Coal</text>
+      <text x="90" y="92" fontSize="8" fill="#8E8E93">Jharkhand, WB (Gondwana) · Assam (Tertiary)</text>
+      <text x="16" y="110" fontSize="9" fontWeight="700" fill="#FF9500">Petroleum</text>
+      <text x="90" y="110" fontSize="8" fill="#8E8E93">Mumbai High (62%) · Assam · Gujarat</text>
+      <text x="16" y="128" fontSize="9" fontWeight="700" fill="#007AFF">Mica</text>
+      <text x="90" y="128" fontSize="8" fill="#8E8E93">Jharkhand, Bihar, Rajasthan (electrical industry)</text>
+      <text x="16" y="146" fontSize="9" fontWeight="700" fill="#34C759">Uranium</text>
+      <text x="90" y="146" fontSize="8" fill="#8E8E93">Jharkhand — nuclear power</text>
+      <text x="16" y="164" fontSize="9" fontWeight="700" fill="#34C759">Thorium</text>
+      <text x="90" y="164" fontSize="8" fill="#8E8E93">Kerala monazite sands (beaches)</text>
+      <text x="140" y="182" fontSize="7" fill="#FF3B30" textAnchor="middle">Iron ore triangle: Jharkhand–Odisha–Chhattisgarh</text>
+    </svg>
+  );
+}
+
+function EnergyResources() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Conventional vs Non-Conventional Energy</text>
+      <rect x="14" y="38" width="120" height="140" rx="8" fill="#FF3B30" fillOpacity="0.07" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="74" y="56" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">Conventional</text>
+      <text x="74" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Coal (54% electricity)</text>
+      <text x="74" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">Petroleum</text>
+      <text x="74" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">Natural gas</text>
+      <text x="74" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">Hydropower</text>
+      <text x="74" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">Nuclear (Tarapur,</text>
+      <text x="74" y="138" fontSize="8" fill="#1C1C1E" textAnchor="middle">RAPP, Kaiga)</text>
+      <text x="74" y="154" fontSize="7" fill="#FF3B30" textAnchor="middle">Non-renewable</text>
+      <text x="74" y="166" fontSize="7" fill="#FF3B30" textAnchor="middle">Polluting</text>
+      <rect x="146" y="38" width="120" height="140" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="206" y="56" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Non-Conventional</text>
+      <text x="206" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Solar (Rajasthan)</text>
+      <text x="206" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">Wind (TN, Gujarat)</text>
+      <text x="206" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">Biogas (rural gobar)</text>
+      <text x="206" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">Tidal (Kutch, Khambhat)</text>
+      <text x="206" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">Geothermal</text>
+      <text x="206" y="154" fontSize="7" fill="#34C759" textAnchor="middle">Renewable</text>
+      <text x="206" y="166" fontSize="7" fill="#34C759" textAnchor="middle">Cleaner energy</text>
+    </svg>
+  );
+}
+
+function IndustriesTypes() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Classification of Industries</text>
+      <rect x="14" y="38" width="116" height="70" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">By Raw Material</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Agro-based (cotton, jute)</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Mineral-based (iron, steel)</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Forest / Marine based</text>
+      <rect x="150" y="38" width="116" height="70" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">By Size</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Large-scale</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Small-scale</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Cottage industry</text>
+      <rect x="14" y="118" width="252" height="72" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="136" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Key Industries &amp; Locations</text>
+      <circle cx="26" cy="152" r="4" fill="#FF9500"/>
+      <text x="40" y="156" fontSize="8" fill="#1C1C1E">Cotton textile: Mumbai, Ahmedabad, Coimbatore</text>
+      <circle cx="26" cy="168" r="4" fill="#007AFF"/>
+      <text x="40" y="172" fontSize="8" fill="#1C1C1E">Iron &amp; Steel: Jamshedpur, Bhilai, Durgapur, Bokaro</text>
+      <circle cx="26" cy="184" r="4" fill="#34C759"/>
+      <text x="40" y="188" fontSize="8" fill="#1C1C1E">Jute textile: Hugli river belt, West Bengal</text>
+    </svg>
+  );
+}
+
+function TextileIndustry() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">India's Textile Industry</text>
+      <rect x="14" y="38" width="116" height="110" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="58" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">COTTON</text>
+      <text x="72" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Mumbai</text>
+      <text x="72" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">"Manchester of India"</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Ahmedabad</text>
+      <text x="72" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">Coimbatore</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Humid climate · Port</text>
+      <text x="72" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">Skilled labour</text>
+      <rect x="150" y="38" width="116" height="110" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="208" y="58" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">JUTE</text>
+      <text x="208" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Hugli River belt</text>
+      <text x="208" y="86" fontSize="7" fill="#8E8E93" textAnchor="middle">World's largest</text>
+      <text x="208" y="98" fontSize="7" fill="#8E8E93" textAnchor="middle">jute industry</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Rishra to Tribeni</text>
+      <text x="208" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">West Bengal</text>
+      <text x="208" y="142" fontSize="7" fill="#FF3B30" textAnchor="middle">Declining — synthetic</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="171" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Sugar Industry: UP + Maharashtra</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">Located near sugarcane fields · perishable raw material</text>
+    </svg>
+  );
+}
+
+function IndustriesEnvironment() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF3B30" fillOpacity="0.1" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">Industrial Pollution &amp; Control</text>
+      <rect x="14" y="38" width="116" height="110" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Pollution Types</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Air: SPM, NO₂, SO₂</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Water: effluents</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">in rivers (Ganga)</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Land: industrial waste</text>
+      <text x="72" y="128" fontSize="8" fill="#1C1C1E" textAnchor="middle">Noise: machinery</text>
+      <rect x="150" y="38" width="116" height="110" rx="8" fill="#34C759" fillOpacity="0.06" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Control Methods</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Scrubbers (air)</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Electrostatic</text>
+      <text x="208" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">precipitators</text>
+      <text x="208" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">ETP (water treatment)</text>
+      <text x="208" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">Noise barriers</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="171" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">India's Pollution Strategy</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">CPCB · ZLD (Zero Liquid Discharge) · Green belts around industries</text>
+    </svg>
+  );
+}
+
+function Transport() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Transport Networks of India</text>
+      <rect x="14" y="38" width="252" height="26" rx="6" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.2"/>
+      <text x="44" y="55" fontSize="9" fontWeight="700" fill="#007AFF">Roads:</text>
+      <text x="90" y="55" fontSize="8" fill="#1C1C1E">Golden Quadrilateral — Delhi–Mumbai–Chennai–Kolkata (6-lane NH)</text>
+      <rect x="14" y="70" width="252" height="26" rx="6" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.2"/>
+      <text x="44" y="87" fontSize="9" fontWeight="700" fill="#FF9500">Railways:</text>
+      <text x="100" y="87" fontSize="8" fill="#1C1C1E">67,956 km network · 7 divisional HQs · largest employer</text>
+      <rect x="14" y="102" width="252" height="26" rx="6" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.2"/>
+      <text x="44" y="119" fontSize="9" fontWeight="700" fill="#34C759">Waterways:</text>
+      <text x="108" y="119" fontSize="8" fill="#1C1C1E">NW-1 (Ganga) · NW-2 (Brahmaputra) · NW-3 (Kerala)</text>
+      <rect x="14" y="134" width="252" height="26" rx="6" fill="#FF3B30" fillOpacity="0.08" stroke="#FF3B30" strokeWidth="1.2"/>
+      <text x="44" y="151" fontSize="9" fontWeight="700" fill="#FF3B30">Pipelines:</text>
+      <text x="104" y="151" fontSize="8" fill="#1C1C1E">HVJ (gas) · Salaya–Mathura (crude oil)</text>
+      <rect x="10" y="168" width="260" height="24" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">NW-1: Prayagraj to Haldia (1620 km) — longest national waterway</text>
+    </svg>
+  );
+}
+
+function Communication() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">Communication in India</text>
+      <rect x="14" y="38" width="116" height="108" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Personal</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">📮 Postal services</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">📞 Telephone</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">📱 Mobile/Internet</text>
+      <text x="72" y="118" fontSize="7" fill="#8E8E93" textAnchor="middle">India: one of largest</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">internet user bases</text>
+      <rect x="150" y="38" width="116" height="108" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Mass Media</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">📻 Radio (rural reach)</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">📺 Television</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">📰 Newspapers</text>
+      <text x="208" y="118" fontSize="7" fill="#8E8E93" textAnchor="middle">Doordarshan</text>
+      <text x="208" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">All India Radio</text>
+      <rect x="10" y="154" width="260" height="38" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="170" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">INSAT — Indian National Satellite System</text>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Satellite communication: weather, TV, long-distance telephony</text>
+    </svg>
+  );
+}
+
+function InternationalTrade() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">India's Foreign Trade</text>
+      <rect x="14" y="38" width="116" height="110" rx="8" fill="#FF3B30" fillOpacity="0.07" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">IMPORTS</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Petroleum / oil</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Machinery</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Electronics</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Fertilisers</text>
+      <text x="72" y="128" fontSize="8" fill="#1C1C1E" textAnchor="middle">Chemicals</text>
+      <rect x="150" y="38" width="116" height="110" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">EXPORTS</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Software / IT</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Gems &amp; jewellery</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Textiles</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Engineering goods</text>
+      <text x="208" y="128" fontSize="8" fill="#1C1C1E" textAnchor="middle">Agriculture</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="171" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Tourism = Invisible Trade</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">Earns foreign exchange without exporting a physical product</text>
+    </svg>
+  );
+}
+
+// ─── SST Economics Ch 13–17 ───────────────────────────────────────────────────
+
+function DevelopmentGoals() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Development Goals Vary — Kerala Paradox</text>
+      <rect x="14" y="38" width="116" height="120" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="10" fontWeight="700" fill="#FF9500" textAnchor="middle">Punjab</text>
+      <text x="72" y="72" fontSize="9" fill="#1C1C1E" textAnchor="middle">Per capita income</text>
+      <text x="72" y="84" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">HIGH ↑</text>
+      <text x="72" y="100" fontSize="9" fill="#1C1C1E" textAnchor="middle">HDI rank</text>
+      <text x="72" y="112" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">LOWER</text>
+      <text x="72" y="132" fontSize="7" fill="#8E8E93" textAnchor="middle">Green Revolution</text>
+      <text x="72" y="144" fontSize="7" fill="#8E8E93" textAnchor="middle">but less public</text>
+      <text x="72" y="154" fontSize="7" fill="#8E8E93" textAnchor="middle">investment</text>
+      <rect x="150" y="38" width="116" height="120" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">Kerala</text>
+      <text x="208" y="72" fontSize="9" fill="#1C1C1E" textAnchor="middle">Per capita income</text>
+      <text x="208" y="84" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">LOWER ↓</text>
+      <text x="208" y="100" fontSize="9" fill="#1C1C1E" textAnchor="middle">HDI rank</text>
+      <text x="208" y="112" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">HIGHER</text>
+      <text x="208" y="132" fontSize="7" fill="#8E8E93" textAnchor="middle">Strong public</text>
+      <text x="208" y="144" fontSize="7" fill="#8E8E93" textAnchor="middle">investment in</text>
+      <text x="208" y="154" fontSize="7" fill="#8E8E93" textAnchor="middle">health, education</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">Per capita income alone does not measure quality of life</text>
+    </svg>
+  );
+}
+
+function HDIIndex() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">HDI — Human Development Index (UNDP)</text>
+      <rect x="94" y="36" width="92" height="30" rx="6" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="55" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">HDI = Income + Education + Health</text>
+      <line x1="110" y1="66" x2="72" y2="90" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="140" y1="66" x2="140" y2="90" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="170" y1="66" x2="208" y2="90" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="90" width="112" height="56" rx="8" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="70" y="108" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Income</text>
+      <text x="70" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">Per capita GNI</text>
+      <text x="70" y="136" fontSize="8" fill="#8E8E93" textAnchor="middle">(purchasing power)</text>
+      <rect x="94" y="90" width="92" height="56" rx="8" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="108" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Education</text>
+      <text x="140" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">Literacy rate</text>
+      <text x="140" y="136" fontSize="8" fill="#8E8E93" textAnchor="middle">School enrolment</text>
+      <rect x="154" y="90" width="112" height="56" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="210" y="108" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Health</text>
+      <text x="210" y="122" fontSize="8" fill="#8E8E93" textAnchor="middle">Life expectancy</text>
+      <text x="210" y="136" fontSize="8" fill="#8E8E93" textAnchor="middle">at birth</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="171" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">India ranks ~132/193 countries (UNDP 2023)</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">IMR · Literacy rate · Infant mortality used as development indicators</text>
+    </svg>
+  );
+}
+
+function ThreeSectors() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Three Sectors of the Indian Economy</text>
+      <rect x="14" y="38" width="74" height="118" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="51" y="58" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Primary</text>
+      <text x="51" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Agriculture</text>
+      <text x="51" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">Mining</text>
+      <text x="51" y="96" fontSize="8" fill="#1C1C1E" textAnchor="middle">Fishing</text>
+      <text x="51" y="114" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">GDP: 19%</text>
+      <text x="51" y="128" fontSize="7" fill="#FF3B30" textAnchor="middle">Jobs: 49%</text>
+      <text x="51" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">Low productivity</text>
+      <rect x="103" y="38" width="74" height="118" rx="8" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="58" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Secondary</text>
+      <text x="140" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Manufacturing</text>
+      <text x="140" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">Construction</text>
+      <text x="140" y="96" fontSize="8" fill="#1C1C1E" textAnchor="middle">Electricity</text>
+      <text x="140" y="114" fontSize="8" fontWeight="700" fill="#FF9500" textAnchor="middle">GDP: 26%</text>
+      <text x="140" y="128" fontSize="7" fill="#8E8E93" textAnchor="middle">Jobs: 22%</text>
+      <rect x="192" y="38" width="74" height="118" rx="8" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="229" y="58" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Tertiary</text>
+      <text x="229" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Banking</text>
+      <text x="229" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">Transport</text>
+      <text x="229" y="96" fontSize="8" fill="#1C1C1E" textAnchor="middle">IT, Retail</text>
+      <text x="229" y="114" fontSize="8" fontWeight="700" fill="#007AFF" textAnchor="middle">GDP: 55%</text>
+      <text x="229" y="128" fontSize="7" fill="#8E8E93" textAnchor="middle">Jobs: 29%</text>
+      <text x="229" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">Fastest growing</text>
+      <rect x="10" y="164" width="260" height="28" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="182" fontSize="8" fill="#8E8E93" textAnchor="middle">GDP = value of final goods + services produced in one year</text>
+    </svg>
+  );
+}
+
+function SectorsEmployment() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Organised vs Unorganised Sector</text>
+      <rect x="14" y="38" width="116" height="120" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Organised</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Registered with govt.</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Follows labour laws</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Fixed working hours</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">PF, pension, ESI</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Small % of workers</text>
+      <text x="72" y="144" fontSize="7" fill="#8E8E93" textAnchor="middle">but secure jobs</text>
+      <rect x="150" y="38" width="116" height="120" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Unorganised</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Small units</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Irregular wages</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">No job security</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">No social benefits</text>
+      <text x="208" y="130" fontSize="7" fill="#FF3B30" textAnchor="middle">92% of workers</text>
+      <text x="208" y="144" fontSize="7" fill="#FF3B30" textAnchor="middle">in India</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">NREGA 2005: 100 days guaranteed work for rural households</text>
+    </svg>
+  );
+}
+
+function ServicesSector() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Services Sector — India's GDP Driver</text>
+      <rect x="14" y="38" width="116" height="110" rx="8" fill="#007AFF" fillOpacity="0.07" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">IT &amp; New Services</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Software exports</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">BPO / call centres</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Internet banking</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">E-commerce</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Globalisation benefited</text>
+      <text x="72" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">IT sector most</text>
+      <rect x="150" y="38" width="116" height="110" rx="8" fill="#FF9500" fillOpacity="0.07" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Traditional Services</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Railways</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Postal services</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Banking</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Insurance</text>
+      <text x="208" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Large employers</text>
+      <text x="208" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">but slow growth</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="172" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Concern: Services grow but manufacturing lags</text>
+      <text x="140" y="186" fontSize="8" fill="#8E8E93" textAnchor="middle">IT needs high skills — can't absorb India's unskilled workforce</text>
+    </svg>
+  );
+}
+
+function MoneyEvolution() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">From Barter to Modern Money</text>
+      <line x1="24" y1="90" x2="256" y2="90" stroke="#C7C7CC" strokeWidth="2"/>
+      <circle cx="44" cy="90" r="7" fill="#8E8E93"/>
+      <text x="44" y="78" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Barter</text>
+      <text x="44" y="106" fontSize="7" fill="#8E8E93" textAnchor="middle">Double</text>
+      <text x="44" y="116" fontSize="7" fill="#8E8E93" textAnchor="middle">coincidence</text>
+      <circle cx="110" cy="90" r="7" fill="#FF9500"/>
+      <text x="110" y="78" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Coins</text>
+      <text x="110" y="106" fontSize="7" fill="#8E8E93" textAnchor="middle">Gold, silver</text>
+      <text x="110" y="116" fontSize="7" fill="#8E8E93" textAnchor="middle">metals</text>
+      <circle cx="176" cy="90" r="7" fill="#007AFF"/>
+      <text x="176" y="78" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Paper</text>
+      <text x="176" y="106" fontSize="7" fill="#8E8E93" textAnchor="middle">Currency</text>
+      <text x="176" y="116" fontSize="7" fill="#8E8E93" textAnchor="middle">notes</text>
+      <circle cx="242" cy="90" r="7" fill="#34C759"/>
+      <text x="242" y="78" fontSize="8" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Demand</text>
+      <text x="242" y="106" fontSize="7" fill="#34C759" textAnchor="middle">Deposits</text>
+      <text x="242" y="116" fontSize="7" fill="#34C759" textAnchor="middle">Cheques</text>
+      <rect x="10" y="132" width="260" height="60" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="150" fontSize="10" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Money solves the barter problem</text>
+      <text x="140" y="165" fontSize="8" fill="#8E8E93" textAnchor="middle">Medium of exchange · Store of value · Unit of account</text>
+      <text x="140" y="179" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Demand deposits are money — used via cheques</text>
+    </svg>
+  );
+}
+
+function BankingCredit() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Banking — Credit Creation &amp; RBI Oversight</text>
+      <rect x="94" y="36" width="92" height="28" rx="6" fill="#007AFF" fillOpacity="0.15" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="50" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Depositor → Bank</text>
+      <text x="140" y="62" fontSize="8" fill="#8E8E93" textAnchor="middle">₹100 deposited</text>
+      <line x1="140" y1="64" x2="140" y2="82" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="94" y="82" width="92" height="28" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="96" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Bank → Borrower A</text>
+      <text x="140" y="108" fontSize="8" fill="#8E8E93" textAnchor="middle">₹80 lent out (80%)</text>
+      <line x1="140" y1="110" x2="140" y2="128" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="94" y="128" width="92" height="28" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="142" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Re-deposited</text>
+      <text x="140" y="154" fontSize="8" fill="#8E8E93" textAnchor="middle">₹80 becomes new deposit</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">RBI regulates all formal banks · SLR + CRR control money supply</text>
+    </svg>
+  );
+}
+
+function CreditSources() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Formal vs Informal Credit Sources</text>
+      <rect x="14" y="38" width="116" height="124" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Formal</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Banks</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Cooperatives</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Lower interest</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Regulated by RBI</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Collateral required</text>
+      <text x="72" y="150" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">25% rural credit</text>
+      <rect x="150" y="38" width="116" height="124" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Informal</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Moneylenders</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Traders, relatives</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">High interest</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">No regulation</text>
+      <text x="208" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Debt traps common</text>
+      <text x="208" y="150" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">75% rural credit</text>
+      <rect x="10" y="170" width="260" height="22" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle">SHG: 15–20 women pool savings, give loans within group — Grameen Bank model</text>
+    </svg>
+  );
+}
+
+function GlobalisationMNC() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">Globalisation — MNC Global Value Chain</text>
+      <rect x="14" y="38" width="52" height="52" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="40" y="60" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">Design</text>
+      <text x="40" y="74" fontSize="7" fill="#8E8E93" textAnchor="middle">USA/EU</text>
+      <rect x="80" y="38" width="52" height="52" rx="6" fill="#FF9500" fillOpacity="0.12" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="106" y="60" fontSize="8" fontWeight="700" fill="#FF9500" textAnchor="middle">Parts</text>
+      <text x="106" y="74" fontSize="7" fill="#8E8E93" textAnchor="middle">Taiwan/Japan</text>
+      <rect x="146" y="38" width="52" height="52" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="172" y="60" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Assembly</text>
+      <text x="172" y="74" fontSize="7" fill="#8E8E93" textAnchor="middle">China/India</text>
+      <rect x="212" y="38" width="54" height="52" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="239" y="60" fontSize="8" fontWeight="700" fill="#007AFF" textAnchor="middle">Market</text>
+      <text x="239" y="74" fontSize="7" fill="#8E8E93" textAnchor="middle">Global</text>
+      <line x1="66" y1="64" x2="80" y2="64" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="132" y1="64" x2="146" y2="64" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="198" y1="64" x2="212" y2="64" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="10" y="102" width="260" height="88" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="120" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Three Flows of Globalisation</text>
+      <circle cx="26" cy="136" r="4" fill="#007AFF"/>
+      <text x="40" y="140" fontSize="8" fill="#1C1C1E">Trade: goods and services cross borders</text>
+      <circle cx="26" cy="152" r="4" fill="#FF9500"/>
+      <text x="40" y="156" fontSize="8" fill="#1C1C1E">Capital: FDI — MNCs invest in host countries</text>
+      <circle cx="26" cy="168" r="4" fill="#34C759"/>
+      <text x="40" y="172" fontSize="8" fill="#1C1C1E">Technology: transferred to subsidiaries globally</text>
+      <text x="140" y="186" fontSize="7" fill="#8E8E93" textAnchor="middle">MNC = owns/controls production in more than one country</text>
+    </svg>
+  );
+}
+
+function LiberalisationImpact() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">India 1991 — LPG Reforms</text>
+      <rect x="94" y="36" width="92" height="30" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="50" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">BoP Crisis 1991</text>
+      <text x="140" y="62" fontSize="8" fill="#8E8E93" textAnchor="middle">India mortgaged gold to IMF</text>
+      <line x1="140" y1="66" x2="140" y2="84" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="30" y="84" width="220" height="28" rx="6" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="99" fontSize="10" fontWeight="700" fill="#007AFF" textAnchor="middle">LPG = Liberalisation + Privatisation + Globalisation</text>
+      <line x1="86" y1="112" x2="62" y2="128" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="140" y1="112" x2="140" y2="128" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <line x1="194" y1="112" x2="218" y2="128" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="128" width="74" height="40" rx="6" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.2"/>
+      <text x="51" y="148" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Remove</text>
+      <text x="51" y="160" fontSize="7" fill="#8E8E93" textAnchor="middle">trade barriers</text>
+      <rect x="103" y="128" width="74" height="40" rx="6" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.2"/>
+      <text x="140" y="148" fontSize="8" fontWeight="700" fill="#007AFF" textAnchor="middle">Allow</text>
+      <text x="140" y="160" fontSize="7" fill="#8E8E93" textAnchor="middle">MNC entry/FDI</text>
+      <rect x="192" y="128" width="74" height="40" rx="6" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.2"/>
+      <text x="229" y="148" fontSize="8" fontWeight="700" fill="#FF9500" textAnchor="middle">WTO</text>
+      <text x="229" y="160" fontSize="7" fill="#8E8E93" textAnchor="middle">free trade rules</text>
+      <text x="140" y="185" fontSize="8" fill="#8E8E93" textAnchor="middle" fontWeight="700">IT gained · small Indian industries (toys, textiles) hurt</text>
+    </svg>
+  );
+}
+
+function FairGlobalisation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#007AFF" fillOpacity="0.12" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">WTO and Fair Globalisation</text>
+      <rect x="14" y="38" width="116" height="110" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">WTO Claims</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Free trade for all</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">164 members</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Open markets</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">Remove subsidies</text>
+      <text x="72" y="130" fontSize="8" fill="#1C1C1E" textAnchor="middle">Lower tariffs</text>
+      <rect x="150" y="38" width="116" height="110" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Reality (Critique)</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">US/EU subsidise</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">own farmers</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Developing countries</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">told to open up</text>
+      <text x="208" y="130" fontSize="8" fill="#FF3B30" textAnchor="middle">Double standard!</text>
+      <rect x="10" y="156" width="260" height="36" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="172" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Fair Globalisation Demands</text>
+      <text x="140" y="186" fontSize="8" fill="#8E8E93" textAnchor="middle">Workers' rights · Labour standards · Equitable trade rules for all</text>
+    </svg>
+  );
+}
+
+function ConsumerAwareness() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Consumer Exploitation — COPRA 1986</text>
+      <rect x="14" y="38" width="252" height="74" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="54" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Forms of Consumer Exploitation</text>
+      <circle cx="26" cy="70" r="4" fill="#FF3B30"/>
+      <text x="40" y="74" fontSize="8" fill="#1C1C1E">Underweight · Adulteration · Misleading advertisements</text>
+      <circle cx="26" cy="86" r="4" fill="#FF3B30"/>
+      <text x="40" y="90" fontSize="8" fill="#1C1C1E">Defective goods · Overcharging · Poor quality service</text>
+      <circle cx="26" cy="102" r="4" fill="#FF3B30"/>
+      <text x="40" y="106" fontSize="8" fill="#1C1C1E">Fake products · Duplicate brands</text>
+      <rect x="14" y="122" width="252" height="70" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="140" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Quality Certification Marks</text>
+      <text x="50" y="158" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">ISI</text>
+      <text x="50" y="172" fontSize="7" fill="#8E8E93" textAnchor="middle">Industrial</text>
+      <text x="110" y="158" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Agmark</text>
+      <text x="110" y="172" fontSize="7" fill="#8E8E93" textAnchor="middle">Agriculture</text>
+      <text x="172" y="158" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Hallmark</text>
+      <text x="172" y="172" fontSize="7" fill="#8E8E93" textAnchor="middle">Gold</text>
+      <text x="232" y="158" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">FPO</text>
+      <text x="232" y="172" fontSize="7" fill="#8E8E93" textAnchor="middle">Processed food</text>
+    </svg>
+  );
+}
+
+function ConsumerRights() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Six Consumer Rights (COPRA)</text>
+      <rect x="14" y="38" width="74" height="58" rx="6" fill="#FF3B30" fillOpacity="0.1" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="51" y="58" fontSize="16" textAnchor="middle">🛡️</text>
+      <text x="51" y="76" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Safety</text>
+      <text x="51" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">From hazardous goods</text>
+      <rect x="103" y="38" width="74" height="58" rx="6" fill="#007AFF" fillOpacity="0.1" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="58" fontSize="16" textAnchor="middle">ℹ️</text>
+      <text x="140" y="76" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Information</text>
+      <text x="140" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">Quality, price, safety</text>
+      <rect x="192" y="38" width="74" height="58" rx="6" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="229" y="58" fontSize="16" textAnchor="middle">🏪</text>
+      <text x="229" y="76" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Choice</text>
+      <text x="229" y="88" fontSize="7" fill="#8E8E93" textAnchor="middle">Variety at fair price</text>
+      <rect x="14" y="106" width="74" height="58" rx="6" fill="#FF9500" fillOpacity="0.1" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="51" y="126" fontSize="16" textAnchor="middle">📢</text>
+      <text x="51" y="144" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Heard</text>
+      <text x="51" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Voice in forums</text>
+      <rect x="103" y="106" width="74" height="58" rx="6" fill="#8E8E93" fillOpacity="0.15" stroke="#8E8E93" strokeWidth="1.5"/>
+      <text x="140" y="126" fontSize="16" textAnchor="middle">⚖️</text>
+      <text x="140" y="144" fontSize="9" fontWeight="700" fill="#8E8E93" textAnchor="middle">Redress</text>
+      <text x="140" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Settle unfair practices</text>
+      <rect x="192" y="106" width="74" height="58" rx="6" fill="#FF3B30" fillOpacity="0.08" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="229" y="126" fontSize="16" textAnchor="middle">📚</text>
+      <text x="229" y="144" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Education</text>
+      <text x="229" y="156" fontSize="7" fill="#8E8E93" textAnchor="middle">Consumer awareness</text>
+      <rect x="10" y="172" width="260" height="20" rx="4" fill="#F2F2F7"/>
+      <text x="140" y="186" fontSize="7" fill="#8E8E93" textAnchor="middle">World Consumer Rights Day: 15 March (since JFK's speech 1962)</text>
+    </svg>
+  );
+}
+
+function ConsumerProtection() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">3-tier Consumer Redressal Forum</text>
+      <rect x="70" y="36" width="140" height="40" rx="8" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="140" y="53" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">National Commission</text>
+      <text x="140" y="68" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Claims above ₹2 crore</text>
+      <line x1="140" y1="76" x2="140" y2="90" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="50" y="90" width="180" height="40" rx="8" fill="#FF9500" fillOpacity="0.12" stroke="#FF9500" strokeWidth="2"/>
+      <text x="140" y="107" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">State Commission</text>
+      <text x="140" y="122" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Claims ₹50 lakh to ₹2 crore</text>
+      <line x1="140" y1="130" x2="140" y2="144" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="30" y="144" width="220" height="40" rx="8" fill="#34C759" fillOpacity="0.1" stroke="#34C759" strokeWidth="2"/>
+      <text x="140" y="161" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">District Forum</text>
+      <text x="140" y="176" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Claims up to ₹50 lakh</text>
+      <rect x="10" y="188" width="260" height="8" rx="4" fill="#F2F2F7"/>
+      <text x="140" y="196" fontSize="6" fill="#8E8E93" textAnchor="middle">COPRA 2019: online complaints · product liability · e-commerce included</text>
+    </svg>
+  );
+}
+
+// ─── SST Political Science Ch 18–22 ──────────────────────────────────────────
+
+function PowerSharingCase() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Belgium vs Sri Lanka — Power Sharing</text>
+      <rect x="14" y="38" width="116" height="130" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">BELGIUM ✓</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Dutch 59%, French 40%</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Equal cabinet seats</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Brussels: community</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">government</text>
+      <text x="72" y="132" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">RESULT: Peace</text>
+      <text x="72" y="146" fontSize="7" fill="#8E8E93" textAnchor="middle">Now part of EU</text>
+      <text x="72" y="160" fontSize="7" fill="#8E8E93" textAnchor="middle">headquarters</text>
+      <rect x="150" y="38" width="116" height="130" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">SRI LANKA ✗</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Sinhala 74%, Tamil 18%</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">1956 Sinhala Only Act</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Tamils marginalised</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">from govt. jobs</text>
+      <text x="208" y="132" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">RESULT: Civil war</text>
+      <text x="208" y="146" fontSize="7" fill="#8E8E93" textAnchor="middle">1983–2009 war</text>
+      <text x="208" y="160" fontSize="7" fill="#8E8E93" textAnchor="middle">thousands died</text>
+      <rect x="10" y="176" width="260" height="18" rx="4" fill="#F2F2F7"/>
+      <text x="140" y="188" fontSize="8" fill="#8E8E93" textAnchor="middle">Lesson: majoritarianism destroys democracy; sharing sustains it</text>
+    </svg>
+  );
+}
+
+function PowerSharingForms() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Four Forms of Power Sharing</text>
+      <rect x="14" y="38" width="116" height="68" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">1. Horizontal</text>
+      <text x="72" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Among organs of govt.</text>
+      <text x="72" y="84" fontSize="8" fill="#8E8E93" textAnchor="middle">Legislature + Executive</text>
+      <text x="72" y="96" fontSize="8" fill="#8E8E93" textAnchor="middle">+ Judiciary (checks)</text>
+      <rect x="150" y="38" width="116" height="68" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">2. Vertical</text>
+      <text x="208" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Among levels of govt.</text>
+      <text x="208" y="84" fontSize="8" fill="#8E8E93" textAnchor="middle">Central + State</text>
+      <text x="208" y="96" fontSize="8" fill="#8E8E93" textAnchor="middle">+ Local (federalism)</text>
+      <rect x="14" y="116" width="116" height="68" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="72" y="134" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">3. Social Groups</text>
+      <text x="72" y="148" fontSize="8" fill="#1C1C1E" textAnchor="middle">Reserved seats for</text>
+      <text x="72" y="162" fontSize="8" fill="#8E8E93" textAnchor="middle">SC/ST/Women</text>
+      <text x="72" y="176" fontSize="8" fill="#8E8E93" textAnchor="middle">in legislatures</text>
+      <rect x="150" y="116" width="116" height="68" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="134" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">4. Political Parties</text>
+      <text x="208" y="148" fontSize="8" fill="#1C1C1E" textAnchor="middle">Coalition govts.</text>
+      <text x="208" y="162" fontSize="8" fill="#8E8E93" textAnchor="middle">Pressure groups</text>
+      <text x="208" y="176" fontSize="8" fill="#8E8E93" textAnchor="middle">Opposition parties</text>
+    </svg>
+  );
+}
+
+function FederalismLists() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">India's Constitution — 3 Lists</text>
+      <rect x="14" y="38" width="74" height="132" rx="8" fill="#FF3B30" fillOpacity="0.08" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="51" y="58" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Union List</text>
+      <text x="51" y="74" fontSize="18" textAnchor="middle">🏛️</text>
+      <text x="51" y="94" fontSize="11" fontWeight="700" fill="#FF3B30" textAnchor="middle">97</text>
+      <text x="51" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">subjects</text>
+      <text x="51" y="124" fontSize="8" fill="#1C1C1E" textAnchor="middle">Defence</text>
+      <text x="51" y="136" fontSize="8" fill="#1C1C1E" textAnchor="middle">Foreign affairs</text>
+      <text x="51" y="148" fontSize="8" fill="#1C1C1E" textAnchor="middle">Currency</text>
+      <text x="51" y="160" fontSize="7" fill="#FF3B30" textAnchor="middle">Parliament only</text>
+      <rect x="103" y="38" width="74" height="132" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="140" y="58" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">State List</text>
+      <text x="140" y="74" fontSize="18" textAnchor="middle">🏠</text>
+      <text x="140" y="94" fontSize="11" fontWeight="700" fill="#007AFF" textAnchor="middle">66</text>
+      <text x="140" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">subjects</text>
+      <text x="140" y="124" fontSize="8" fill="#1C1C1E" textAnchor="middle">Police</text>
+      <text x="140" y="136" fontSize="8" fill="#1C1C1E" textAnchor="middle">Agriculture</text>
+      <text x="140" y="148" fontSize="8" fill="#1C1C1E" textAnchor="middle">Trade, commerce</text>
+      <text x="140" y="160" fontSize="7" fill="#007AFF" textAnchor="middle">State legislature</text>
+      <rect x="192" y="38" width="74" height="132" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="229" y="58" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Concurrent</text>
+      <text x="229" y="74" fontSize="18" textAnchor="middle">🤝</text>
+      <text x="229" y="94" fontSize="11" fontWeight="700" fill="#34C759" textAnchor="middle">47</text>
+      <text x="229" y="108" fontSize="7" fill="#8E8E93" textAnchor="middle">subjects</text>
+      <text x="229" y="124" fontSize="8" fill="#1C1C1E" textAnchor="middle">Education</text>
+      <text x="229" y="136" fontSize="8" fill="#1C1C1E" textAnchor="middle">Forests</text>
+      <text x="229" y="148" fontSize="8" fill="#1C1C1E" textAnchor="middle">Marriage laws</text>
+      <text x="229" y="160" fontSize="7" fill="#34C759" textAnchor="middle">Both (Centre wins)</text>
+    </svg>
+  );
+}
+
+function FederalismIndia() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">India's Federal System</text>
+      <rect x="14" y="38" width="116" height="80" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Coming Together</text>
+      <text x="72" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">Independent states</text>
+      <text x="72" y="82" fontSize="8" fill="#1C1C1E" textAnchor="middle">come together as</text>
+      <text x="72" y="94" fontSize="8" fill="#1C1C1E" textAnchor="middle">equal partners</text>
+      <text x="72" y="108" fontSize="8" fill="#8E8E93" textAnchor="middle">USA, Australia, Switzerland</text>
+      <rect x="150" y="38" width="116" height="80" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Holding Together</text>
+      <text x="208" y="70" fontSize="8" fill="#1C1C1E" textAnchor="middle">One nation divided</text>
+      <text x="208" y="82" fontSize="8" fill="#1C1C1E" textAnchor="middle">into sub-units for</text>
+      <text x="208" y="94" fontSize="8" fill="#1C1C1E" textAnchor="middle">diversity management</text>
+      <text x="208" y="108" fontSize="8" fill="#8E8E93" textAnchor="middle">India, Spain, Belgium</text>
+      <rect x="10" y="128" width="260" height="64" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="146" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">India: Quasi-Federal</text>
+      <text x="140" y="162" fontSize="9" fill="#8E8E93" textAnchor="middle">Federal in structure, unitary in spirit</text>
+      <text x="140" y="176" fontSize="9" fill="#8E8E93" textAnchor="middle">Centre stronger: Governor, President's Rule, Emergency</text>
+      <text x="140" y="188" fontSize="8" fill="#8E8E93" textAnchor="middle">Linguistic reorganisation 1956 — States formed on language basis</text>
+    </svg>
+  );
+}
+
+function Decentralisation() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">73rd/74th Amendment — 3-tier Govt.</text>
+      <rect x="94" y="36" width="92" height="30" rx="6" fill="#FF3B30" fillOpacity="0.12" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="140" y="55" fontSize="10" fontWeight="700" fill="#FF3B30" textAnchor="middle">CENTRE (Union)</text>
+      <line x1="140" y1="66" x2="140" y2="80" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="74" y="80" width="132" height="30" rx="6" fill="#FF9500" fillOpacity="0.12" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="99" fontSize="10" fontWeight="700" fill="#FF9500" textAnchor="middle">STATE GOVERNMENT</text>
+      <line x1="140" y1="110" x2="140" y2="124" stroke="#C7C7CC" strokeWidth="1.5"/>
+      <rect x="14" y="124" width="252" height="30" rx="6" fill="#34C759" fillOpacity="0.12" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="140" y="143" fontSize="10" fontWeight="700" fill="#34C759" textAnchor="middle">LOCAL BODIES (Panchayati Raj / Nagarpalika)</text>
+      <rect x="10" y="164" width="260" height="28" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="178" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">73rd Amend: Rural (Gram Panchayat → Samiti → Zila Parishad)</text>
+      <text x="140" y="190" fontSize="8" fill="#8E8E93" textAnchor="middle">74th Amend: Urban (Ward → Municipal Council → Corporation) · ⅓ women reserved</text>
+    </svg>
+  );
+}
+
+function SocialDivisions() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Overlapping vs Cross-cutting Divisions</text>
+      <rect x="14" y="38" width="116" height="120" rx="8" fill="#FF3B30" fillOpacity="0.07" stroke="#FF3B30" strokeWidth="2"/>
+      <text x="72" y="58" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Overlapping ⚠️</text>
+      <text x="72" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Same group</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">disadvantaged on</text>
+      <text x="72" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">multiple dimensions</text>
+      <text x="72" y="116" fontSize="8" fill="#8E8E93" textAnchor="middle">Race = caste = class</text>
+      <text x="72" y="130" fontSize="8" fill="#FF3B30" textAnchor="middle">→ DANGEROUS</text>
+      <text x="72" y="146" fontSize="7" fill="#8E8E93" textAnchor="middle">N. Ireland, Yugoslavia</text>
+      <rect x="150" y="38" width="116" height="120" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="2"/>
+      <text x="208" y="58" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Cross-cutting ✓</text>
+      <text x="208" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Different groups</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">on different issues;</text>
+      <text x="208" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">everyone wins and</text>
+      <text x="208" y="110" fontSize="8" fill="#1C1C1E" textAnchor="middle">loses sometimes</text>
+      <text x="208" y="130" fontSize="8" fill="#34C759" textAnchor="middle">→ HEALTHY</text>
+      <text x="208" y="146" fontSize="7" fill="#8E8E93" textAnchor="middle">Reduces conflict</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">Overlapping divisions: deepen conflict. Cross-cutting: reduce tension.</text>
+    </svg>
+  );
+}
+
+function PoliticsDivisions() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">3 Factors: Outcomes of Social Divisions</text>
+      <rect x="14" y="38" width="74" height="120" rx="8" fill="#007AFF" fillOpacity="0.08" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="51" y="58" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Factor 1</text>
+      <text x="51" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Identity</text>
+      <text x="51" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Perception</text>
+      <text x="51" y="102" fontSize="7" fill="#8E8E93" textAnchor="middle">Exclusive identity</text>
+      <text x="51" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">= dangerous</text>
+      <text x="51" y="126" fontSize="7" fill="#34C759" textAnchor="middle">Non-exclusive</text>
+      <text x="51" y="138" fontSize="7" fill="#34C759" textAnchor="middle">= manageable</text>
+      <rect x="103" y="38" width="74" height="120" rx="8" fill="#FF9500" fillOpacity="0.08" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="58" fontSize="9" fontWeight="700" fill="#FF9500" textAnchor="middle">Factor 2</text>
+      <text x="140" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Political</text>
+      <text x="140" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Leaders</text>
+      <text x="140" y="102" fontSize="7" fill="#8E8E93" textAnchor="middle">Extremist leaders</text>
+      <text x="140" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">= conflict</text>
+      <text x="140" y="126" fontSize="7" fill="#34C759" textAnchor="middle">Moderate leaders</text>
+      <text x="140" y="138" fontSize="7" fill="#34C759" textAnchor="middle">= peaceful</text>
+      <rect x="192" y="38" width="74" height="120" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="229" y="58" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Factor 3</text>
+      <text x="229" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">Government</text>
+      <text x="229" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">Response</text>
+      <text x="229" y="102" fontSize="7" fill="#8E8E93" textAnchor="middle">Repression</text>
+      <text x="229" y="114" fontSize="7" fill="#8E8E93" textAnchor="middle">= worse</text>
+      <text x="229" y="126" fontSize="7" fill="#34C759" textAnchor="middle">Accommodation</text>
+      <text x="229" y="138" fontSize="7" fill="#34C759" textAnchor="middle">= better</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">Yugoslavia broke into 7 nations: all 3 factors went wrong simultaneously</text>
+    </svg>
+  );
+}
+
+function GenderPolitics() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Gender Division — Women in Politics</text>
+      <rect x="14" y="38" width="252" height="70" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="56" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Women in Parliament — International Comparison</text>
+      <rect x="24" y="64" width="36" height="36" rx="4" fill="#34C759" fillOpacity="0.5"/>
+      <text x="42" y="86" fontSize="9" fontWeight="700" fill="#fff" textAnchor="middle">40–50%</text>
+      <text x="42" y="104" fontSize="8" fill="#34C759" textAnchor="middle">Nordic nations</text>
+      <rect x="114" y="78" width="36" height="22" rx="4" fill="#FF9500" fillOpacity="0.5"/>
+      <text x="132" y="92" fontSize="9" fontWeight="700" fill="#fff" textAnchor="middle">33%</text>
+      <text x="132" y="104" fontSize="8" fill="#FF9500" textAnchor="middle">Panchayats India</text>
+      <rect x="204" y="88" width="36" height="12" rx="4" fill="#FF3B30" fillOpacity="0.5"/>
+      <text x="222" y="98" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">14%</text>
+      <text x="222" y="108" fontSize="8" fill="#FF3B30" textAnchor="middle">Lok Sabha</text>
+      <rect x="14" y="118" width="252" height="72" rx="8" fill="#F2F2F7"/>
+      <text x="140" y="136" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Gender Division = Social, NOT Biological</text>
+      <circle cx="26" cy="152" r="4" fill="#FF9500"/>
+      <text x="40" y="156" fontSize="8" fill="#1C1C1E">Patriarchy: male dominance · women do unpaid domestic work</text>
+      <circle cx="26" cy="168" r="4" fill="#34C759"/>
+      <text x="40" y="172" fontSize="8" fill="#1C1C1E">Feminist movements: political rights → then social equality</text>
+      <circle cx="26" cy="184" r="4" fill="#007AFF"/>
+      <text x="40" y="188" fontSize="8" fill="#1C1C1E">More women in parliament → better policies for women</text>
+    </svg>
+  );
+}
+
+function ReligionPolitics() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Secularism vs Communalism</text>
+      <rect x="14" y="38" width="116" height="118" rx="8" fill="#34C759" fillOpacity="0.08" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="72" y="58" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Secularism ✓</text>
+      <text x="72" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">State treats all</text>
+      <text x="72" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">religions equally</text>
+      <text x="72" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">No state religion</text>
+      <text x="72" y="116" fontSize="8" fill="#1C1C1E" textAnchor="middle">Article 25–28</text>
+      <text x="72" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">NOT anti-religion</text>
+      <text x="72" y="144" fontSize="7" fill="#8E8E93" textAnchor="middle">= equal respect</text>
+      <rect x="150" y="38" width="116" height="118" rx="8" fill="#FF3B30" fillOpacity="0.06" stroke="#FF3B30" strokeWidth="1.5"/>
+      <text x="208" y="58" fontSize="9" fontWeight="700" fill="#FF3B30" textAnchor="middle">Communalism ✗</text>
+      <text x="208" y="74" fontSize="8" fill="#1C1C1E" textAnchor="middle">One religion seen</text>
+      <text x="208" y="86" fontSize="8" fill="#1C1C1E" textAnchor="middle">as superior</text>
+      <text x="208" y="100" fontSize="8" fill="#1C1C1E" textAnchor="middle">Enemy image of</text>
+      <text x="208" y="112" fontSize="8" fill="#1C1C1E" textAnchor="middle">other religions</text>
+      <text x="208" y="128" fontSize="8" fill="#FF3B30" textAnchor="middle">→ Riots, partition</text>
+      <text x="208" y="144" fontSize="7" fill="#8E8E93" textAnchor="middle">misuse of religion</text>
+      <rect x="10" y="164" width="260" height="28" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="178" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Communalism ≠ Religion</text>
+      <text x="140" y="190" fontSize="8" fill="#8E8E93" textAnchor="middle">It is the POLITICAL misuse of religion — a critical distinction</text>
+    </svg>
+  );
+}
+
+function CastePolitics() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Caste — Reservations &amp; Mandal Commission</text>
+      <rect x="14" y="38" width="116" height="120" rx="8" fill="#F2F2F7"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Reservation in India</text>
+      <rect x="24" y="64" width="92" height="18" rx="4" fill="#FF3B30" fillOpacity="0.4"/>
+      <text x="70" y="77" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">SC/ST: 22.5%</text>
+      <rect x="24" y="88" width="92" height="18" rx="4" fill="#FF9500" fillOpacity="0.5"/>
+      <text x="70" y="101" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">OBC: 27% (Mandal 1980)</text>
+      <rect x="24" y="112" width="92" height="18" rx="4" fill="#007AFF" fillOpacity="0.3"/>
+      <text x="70" y="125" fontSize="8" fontWeight="700" fill="#fff" textAnchor="middle">EWS: 10% (2019)</text>
+      <text x="72" y="150" fontSize="7" fill="#8E8E93" textAnchor="middle">Affirmative action</text>
+      <rect x="150" y="38" width="116" height="120" rx="8" fill="#F2F2F7"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#1C1C1E" textAnchor="middle">Caste &amp; Voting</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Politicians appeal to</text>
+      <text x="208" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">caste for votes</text>
+      <text x="208" y="100" fontSize="8" fill="#8E8E93" textAnchor="middle">But caste ≠ only</text>
+      <text x="208" y="112" fontSize="8" fill="#8E8E93" textAnchor="middle">factor in voting</text>
+      <text x="208" y="126" fontSize="8" fill="#34C759" textAnchor="middle">Class, gender,</text>
+      <text x="208" y="138" fontSize="8" fill="#34C759" textAnchor="middle">region also matter</text>
+      <text x="208" y="152" fontSize="7" fill="#8E8E93" textAnchor="middle">Vote bank politics</text>
+      <rect x="10" y="166" width="260" height="26" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="183" fontSize="8" fill="#8E8E93" textAnchor="middle">Mandal Commission 1980 → VP Singh govt. 1990 implemented OBC 27%</text>
+    </svg>
+  );
+}
+
+function PopularStruggles() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Popular Struggles — Bolivia &amp; Nepal</text>
+      <rect x="14" y="38" width="116" height="130" rx="8" fill="#007AFF" fillOpacity="0.07" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Bolivia 2000</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">World Bank forced</text>
+      <text x="72" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">water privatisation</text>
+      <text x="72" y="98" fontSize="8" fill="#FF3B30" textAnchor="middle">Price tripled!</text>
+      <text x="72" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">FEDECOR led</text>
+      <text x="72" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">mass protests</text>
+      <text x="72" y="142" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Govt. reversed!</text>
+      <text x="72" y="158" fontSize="7" fill="#8E8E93" textAnchor="middle">Water re-nationalised</text>
+      <rect x="150" y="38" width="116" height="130" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Nepal 2006</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">King Gyanendra</text>
+      <text x="208" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">dismissed parliament</text>
+      <text x="208" y="98" fontSize="8" fill="#1C1C1E" textAnchor="middle">2002 — took power</text>
+      <text x="208" y="114" fontSize="8" fill="#1C1C1E" textAnchor="middle">SPA (7-party alliance)</text>
+      <text x="208" y="126" fontSize="8" fill="#1C1C1E" textAnchor="middle">+ Maoists called</text>
+      <text x="208" y="138" fontSize="8" fill="#1C1C1E" textAnchor="middle">general strike</text>
+      <text x="208" y="152" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Democracy restored!</text>
+      <rect x="10" y="176" width="260" height="18" rx="4" fill="#F2F2F7"/>
+      <text x="140" y="188" fontSize="8" fill="#8E8E93" textAnchor="middle">Both show: people's movements can override powerful institutions</text>
+    </svg>
+  );
+}
+
+function PressureGroups() {
+  return (
+    <svg viewBox="0 0 280 200" width="280" height="200" fontFamily="system-ui,sans-serif">
+      <rect x="10" y="8" width="260" height="22" rx="6" fill="#FF9500" fillOpacity="0.15" stroke="#FF9500" strokeWidth="1.5"/>
+      <text x="140" y="23" fontSize="11" fontWeight="700" fill="#FF9500" textAnchor="middle">Pressure Groups vs Political Parties</text>
+      <rect x="14" y="38" width="116" height="122" rx="8" fill="#007AFF" fillOpacity="0.07" stroke="#007AFF" strokeWidth="1.5"/>
+      <text x="72" y="56" fontSize="9" fontWeight="700" fill="#007AFF" textAnchor="middle">Pressure Groups</text>
+      <text x="72" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Organised interest</text>
+      <text x="72" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">groups</text>
+      <text x="72" y="100" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">Don't contest</text>
+      <text x="72" y="112" fontSize="8" fontWeight="700" fill="#FF3B30" textAnchor="middle">elections</text>
+      <text x="72" y="128" fontSize="7" fill="#8E8E93" textAnchor="middle">Sectional: trade unions,</text>
+      <text x="72" y="140" fontSize="7" fill="#8E8E93" textAnchor="middle">business assoc.</text>
+      <text x="72" y="154" fontSize="7" fill="#8E8E93" textAnchor="middle">Public interest: NBA,</text>
+      <text x="72" y="164" fontSize="7" fill="#8E8E93" textAnchor="middle">Chipko, BAMCEF</text>
+      <rect x="150" y="38" width="116" height="122" rx="8" fill="#34C759" fillOpacity="0.07" stroke="#34C759" strokeWidth="1.5"/>
+      <text x="208" y="56" fontSize="9" fontWeight="700" fill="#34C759" textAnchor="middle">Political Parties</text>
+      <text x="208" y="72" fontSize="8" fill="#1C1C1E" textAnchor="middle">Seek political</text>
+      <text x="208" y="84" fontSize="8" fill="#1C1C1E" textAnchor="middle">power directly</text>
+      <text x="208" y="100" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">Contest elections</text>
+      <text x="208" y="114" fontSize="8" fontWeight="700" fill="#34C759" textAnchor="middle">want to govern</text>
+      <text x="208" y="130" fontSize="7" fill="#8E8E93" textAnchor="middle">Represent broad</text>
+      <text x="208" y="142" fontSize="7" fill="#8E8E93" textAnchor="middle">social coalition</text>
+      <text x="208" y="158" fontSize="7" fill="#8E8E93" textAnchor="middle">Form government</text>
+      <rect x="10" y="168" width="260" height="24" rx="6" fill="#F2F2F7"/>
+      <text x="140" y="184" fontSize="8" fill="#8E8E93" textAnchor="middle">Methods: lobbying · strikes · petitions · agitations · media campaigns</text>
+    </svg>
+  );
+}
+
 const DIAGRAM_MAP = {
   // Biology
   sci_ch5_human_digestion:            { label: "Human Digestive System",              Component: DigestiveSystem },
@@ -4157,6 +5881,71 @@ const DIAGRAM_MAP = {
   ch14_s1_c1_t2: { label: "Classical Probability — equally likely",      Component: ClassicalProbability },
   ch14_s1_c1_t3: { label: "Complementary Events — P(E)+P(Ē)=1",         Component: ComplementaryEvents },
   ch14_s1_c1_t4: { label: "Probability Applications — bags & cards",    Component: ProbabilityApplications },
+  // SST History
+  sst_ch1_french_revolution:    { label: "French Revolution → Nationalism in Europe",      Component: FrenchRevolution },
+  sst_ch1_nationalism_europe:   { label: "Romantic Nationalism and 1848 Revolutions",       Component: NationalismEurope },
+  sst_ch1_unification:          { label: "Unification of Germany (1871) and Italy (1861)",  Component: GermanyItalyUnification },
+  sst_ch1_visualising_nation:   { label: "Marianne and Germania — Nationalist Allegories",  Component: VisualisingNation },
+  sst_ch2_non_cooperation:      { label: "Non-Cooperation Movement 1920–22",                Component: NonCooperation },
+  sst_ch2_civil_disobedience:   { label: "Dandi Salt March 1930 — Civil Disobedience",      Component: CivilDisobedience },
+  sst_ch2_collective_belonging: { label: "Symbols of Indian National Identity",             Component: CollectiveBelonging },
+  sst_ch3_premodern_world:      { label: "Pre-modern Globalisation — Silk Routes",          Component: PremodernWorld },
+  sst_ch3_interwar_economy:     { label: "Great Depression 1929 → Bretton Woods 1944",      Component: InterwarEconomy },
+  sst_ch3_post_war:             { label: "Post-War Economic Order — IMF, World Bank, WTO",  Component: PostWar },
+  sst_ch4_proto_industrialisation: { label: "Proto-Industrialisation — Putting-out System", Component: ProtoIndustrialisation },
+  sst_ch4_factory_system:       { label: "Factory System — Steam, Discipline, Child Labour",Component: FactorySystem },
+  sst_ch4_india_industrialisation: { label: "Industrialisation in India — Textile and Steel",Component: IndiaIndustrialisation },
+  sst_ch5_print_revolution:     { label: "Gutenberg Press → Print Revolution",              Component: PrintRevolution },
+  sst_ch5_india_print:          { label: "Print Culture in Colonial India",                 Component: IndiaPrint },
+  // SST Geography
+  sst_ch6_types_resources:      { label: "Types of Resources — Natural, Human, Renewable",  Component: TypesResources },
+  sst_ch6_land_resources:       { label: "India's Land Use Pattern",                        Component: LandResources },
+  sst_ch6_soil_types:           { label: "Soil Types of India — Alluvial to Laterite",      Component: SoilTypes },
+  sst_ch7_forest_types:         { label: "India's Forest Classification — Reserved/Protected",Component: ForestTypes },
+  sst_ch7_biodiversity:         { label: "Biodiversity and Food Chain",                     Component: Biodiversity },
+  sst_ch7_conservation:         { label: "Conservation Strategies — Parks, JFM, Community", Component: Conservation },
+  sst_ch8_water_scarcity:       { label: "Water Scarcity — Causes and Trends",              Component: WaterScarcity },
+  sst_ch8_multipurpose_projects:{ label: "Multipurpose River Projects in India",            Component: MultipurposeProjects },
+  sst_ch8_rainwater_harvesting: { label: "Rainwater Harvesting — Rooftop and Traditional",  Component: RainwaterHarvesting },
+  sst_ch9_types_farming:        { label: "Types of Farming — Subsistence to Commercial",    Component: TypesFarming },
+  sst_ch9_major_crops:          { label: "Major Crops and Their Regions in India",          Component: MajorCrops },
+  sst_ch9_tech_reforms:         { label: "Green Revolution and Agricultural Reforms",       Component: TechReforms },
+  sst_ch10_minerals:            { label: "Mineral Distribution in India",                   Component: Minerals },
+  sst_ch10_energy_resources:    { label: "Conventional vs Non-conventional Energy",         Component: EnergyResources },
+  sst_ch11_industries_types:    { label: "Classification of Industries",                    Component: IndustriesTypes },
+  sst_ch11_textile_industry:    { label: "India's Textile Industry — Cotton, Jute, Silk",  Component: TextileIndustry },
+  sst_ch11_environment:         { label: "Industrial Pollution and Control",                Component: IndustriesEnvironment },
+  sst_ch12_transport:           { label: "Transport Networks of India",                     Component: Transport },
+  sst_ch12_communication:       { label: "Communication — Personal and Mass Media",         Component: Communication },
+  sst_ch12_international_trade: { label: "India's Foreign Trade — Exports, Imports, Ports", Component: InternationalTrade },
+  // SST Economics
+  sst_ch13_development_goals:  { label: "Development Goals — Per Capita Income vs HDI",      Component: DevelopmentGoals },
+  sst_ch13_hdi:                { label: "HDI — Income, Education and Health Index",           Component: HDIIndex },
+  sst_ch14_sectors:            { label: "Three Sectors — Primary, Secondary, Tertiary",       Component: ThreeSectors },
+  sst_ch14_employment:         { label: "Organised vs Unorganised Sector",                    Component: SectorsEmployment },
+  sst_ch14_services_sector:    { label: "Growth of Services Sector and IT Industry",          Component: ServicesSector },
+  sst_ch15_money:              { label: "From Barter to Modern Money",                        Component: MoneyEvolution },
+  sst_ch15_banking:            { label: "Banking — Credit Creation and RBI Regulation",       Component: BankingCredit },
+  sst_ch15_credit:             { label: "Formal vs Informal Credit Sources",                  Component: CreditSources },
+  sst_ch16_globalisation:      { label: "Globalisation — MNCs and Global Production",         Component: GlobalisationMNC },
+  sst_ch16_impact:             { label: "India 1991 LPG Reforms — Impact of Liberalisation",  Component: LiberalisationImpact },
+  sst_ch16_fair_globalisation: { label: "WTO, Trade Barriers, and Fair Globalisation",        Component: FairGlobalisation },
+  sst_ch17_consumer_awareness: { label: "Consumer Exploitation and COPRA 1986",               Component: ConsumerAwareness },
+  sst_ch17_consumer_rights:    { label: "Six Consumer Rights",                                Component: ConsumerRights },
+  sst_ch17_consumer_protection:{ label: "3-tier Consumer Redressal Forum",                    Component: ConsumerProtection },
+  // SST Political Science
+  sst_ch18_power_sharing:      { label: "Belgium vs Sri Lanka — Power Sharing",               Component: PowerSharingCase },
+  sst_ch18_forms:              { label: "Four Forms of Power Sharing",                        Component: PowerSharingForms },
+  sst_ch19_federalism:         { label: "Federalism — Union, State and Concurrent Lists",     Component: FederalismLists },
+  sst_ch19_how_it_works:       { label: "India's Federal Structure — Holding Together",       Component: FederalismIndia },
+  sst_ch19_decentralisation:   { label: "73rd/74th Amendment — 3-tier Panchayati Raj",       Component: Decentralisation },
+  sst_ch20_social_differences: { label: "Overlapping vs Cross-cutting Social Divisions",      Component: SocialDivisions },
+  sst_ch20_politics_division:  { label: "Three Factors — Outcomes of Social Division",        Component: PoliticsDivisions },
+  sst_ch21_gender:             { label: "Gender Division — Patriarchy and Women in Politics",  Component: GenderPolitics },
+  sst_ch21_religion_politics:  { label: "Secularism vs Communalism",                          Component: ReligionPolitics },
+  sst_ch21_caste:              { label: "Caste and OBC Reservations — Mandal Commission",     Component: CastePolitics },
+  sst_ch22_struggles:          { label: "Bolivia Water War 2000 — Popular Struggles",         Component: PopularStruggles },
+  sst_ch22_movements:          { label: "Pressure Groups vs Political Parties",               Component: PressureGroups },
 };
 
 export function Diagram({ topicId }) {

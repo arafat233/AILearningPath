@@ -1371,10 +1371,15 @@ npm run seed:science-physics-questions   ← 60 Physics MCQs Ch9-12 (seed 4)
 npm run seed:english-questions          ← 30 CBSE MCQ practice questions for English
 npm run seed:hindi-questions            ← 30 CBSE MCQ practice questions for Hindi
 npm run seed:social-questions           ← 30 CBSE MCQ practice questions for Social Science (legacy)
-npm run seed:sst-content               ← SST NcertTopicContent — 65 fine-grained topics (History/Geo/Eco/PolSci)
+npm run seed:sst-history-content       ← SST NcertTopicContent — History Ch1–5 (12 topics)
+npm run seed:sst-geography-content     ← SST NcertTopicContent — Geography Ch6–12 (17 topics)
+npm run seed:sst-economics-content     ← SST NcertTopicContent — Economics Ch13–17 (14 topics)
+npm run seed:sst-polsci-content        ← SST NcertTopicContent — Political Science Ch18–22 (12 topics)
 npm run seed:sst-questions-a           ← SST questions History + Geography (~435 Qs, 15 per topic)
-npm run seed:sst-questions-b           ← SST questions Economics + Political Science (~360 Qs, 15 per topic)
-npm run seed:sst-all                   ← convenience: runs all 3 SST seeds in order
+npm run seed:sst-questions-b           ← SST questions Economics Ch13–14 (~112 Qs)
+npm run seed:sst-questions-c           ← SST questions Economics Ch15–17 + PolSci Ch18–22 (168 Qs, 8 per topic)
+npm run seed:sst-topic-dag             ← Social Science Topic prerequisite DAG (55 nodes, Ch1–22)
+npm run seed:sst-all                   ← convenience: runs all 4 content + 3 question + DAG seeds in order
 npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent (17 topics, Ch1-4 incl. carbon allotropes)
 npm run seed:science-biology-content    ← Science Biology NcertTopicContent (23 topics, Ch5-8,13 incl. endocrine, reproductive health, variation)
 npm run seed:science-physics-content    ← Science Physics NcertTopicContent (16 topics, Ch9-12 incl. domestic circuits)
@@ -1621,10 +1626,11 @@ To activate push (not yet wired):
 | Admin AI metrics dashboard widget (7-day: calls, tokens, cache/RAG hit rate, latency, feedback) | ✅ Complete |
 | Analytics event tracking (AnalyticsEvent model, 90-day TTL, fire-and-forget trackEvent util) | ✅ Complete |
 | Admin Retention dashboard (D1/D7/D30 cohort retention, conversion funnel, AI retry rate, top topics) | ✅ Complete |
-| SVG diagram components — Science: 55/55, Math: 54/54, SST: 65/65 (1690+ questions total) | ✅ Complete |
-| CBSE Class 10 Social Science — 65 fine-grained topics, ~795 questions, 65 SVG diagrams | ✅ Complete |
-| SST NcertTopicContent (65 records: History/Geography/Economics/Political Science) | ✅ Complete |
-| auditCoverage.mjs supports Social Science with 65 expected topicIds across 22 chapters | ✅ Complete |
+| SVG diagram components — Science: 55/55, Math: 54/54, SST: 55/55 (1690+ questions total) | ✅ Complete |
+| CBSE Class 10 Social Science — 55 fine-grained topics, ~715 questions, 55 SVG diagrams | ✅ Complete |
+| SST NcertTopicContent (55 records: History/Geography/Economics/Political Science — 4 subject files) | ✅ Complete |
+| SST Topic DAG (55 nodes, prerequisite graph Ch1–22, seedSocialScienceTopicDAG.js) | ✅ Complete |
+| auditCoverage.mjs supports Social Science with topicIds across 22 chapters | ✅ Complete |
 
 ---
 

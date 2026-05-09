@@ -345,7 +345,7 @@ const TOPICS = [
     key_formulas: [
       "Proto-industrialisation: rural domestic production before factories (merchants + peasants)",
       "First Industrial Revolution: Britain, 1780s-1850s — cotton, steam, iron",
-      "First mill in India: 1854, Bombay (cotton)"; actually: Bombay Spinning and Weaving Company 1851",
+      "First mill in India: 1854, Bombay (cotton); actually Bombay Spinning and Weaving Company 1851",
       "Swadeshi movement boosted Indian industry — boycott of Manchester cloth",
     ],
     teaching_content: {

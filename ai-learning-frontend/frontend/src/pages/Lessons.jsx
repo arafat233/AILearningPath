@@ -40,6 +40,14 @@ const SCIENCE_CHAPTER_TITLES = {
 
 const SCI_SUB_CHAPTERS = { Physics: [9,10,11,12], Chemistry: [1,2,3,4], Biology: [5,6,7,8,13] };
 
+const SST_SUBS = {
+  History:             [1,2,3,4,5],
+  Geography:           [6,7,8,9,10,11,12],
+  Economics:           [13,14,15,16,17],
+  "Political Science": [18,19,20,21,22],
+};
+const SST_COLORS = { History: "#FF3B30", Geography: "#34C759", Economics: "#007AFF", "Political Science": "#FF9500" };
+
 // ── sub-components ─────────────────────────────────────────────────
 function SubjectBar({ active, onSelect }) {
   return (
@@ -78,6 +86,30 @@ function ScienceSubBar({ active, onSelect }) {
           {s}
         </button>
       ))}
+    </div>
+  );
+}
+
+function SstSubBar({ active, onSelect }) {
+  return (
+    <div className="flex gap-1.5 flex-wrap">
+      {["All", "History", "Geography", "Economics", "Political Science"].map((s) => {
+        const color = SST_COLORS[s] || "#AF52DE";
+        const isActive = (s === "All" && !active) || active === s;
+        return (
+          <button
+            key={s}
+            onClick={() => onSelect(s === "All" ? null : s)}
+            className="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border"
+            style={isActive
+              ? { background: color, color: "#fff", borderColor: color }
+              : { background: color + "18", color, borderColor: color + "30" }
+            }
+          >
+            {s}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -169,7 +201,7 @@ function ScienceChapterCard({ chapterNumber, topics, onTopic, onPractice }) {
         </div>
       </div>
       {expanded && (
-        <div className="border-t border-[var(--separator)] divide-y divide-[var(--separator)]">
+        <div className="border-t border-apple-gray5 divide-y divide-apple-gray5">
           {topics.map((t) => (
             <button
               key={t.topicId}
@@ -198,8 +230,9 @@ export default function Lessons() {
   const goToChapter  = useCallback((chapterId) => navigate(`/ncert/chapters/${chapterId}`), [navigate]);
 
   const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
-  const [scienceSub,    setScienceSub]    = useState(null); // Physics | Chemistry | Biology | null
-  const [contentTab,    setContentTab]    = useState("curriculum"); // curriculum | ai-lessons
+  const [scienceSub,    setScienceSub]    = useState(null);
+  const [sstSub,        setSstSub]        = useState(null);
+  const [contentTab,    setContentTab]    = useState("curriculum");
 
   const [chapters,    setChapters]    = useState([]);
   const [lessons,     setLessons]     = useState([]);
@@ -207,10 +240,10 @@ export default function Lessons() {
   const [sciTopics,   setSciTopics]   = useState([]);
   const [loading,     setLoading]     = useState(true);
 
-  // reload when subject changes
   useEffect(() => {
     setLoading(true);
     setScienceSub(null);
+    setSstSub(null);
     Promise.all([
       listLessons(activeSubject, grade).catch(() => ({ data: [] })),
       getRevisionDue().catch(() => ({ data: [] })),
@@ -226,7 +259,6 @@ export default function Lessons() {
     }).finally(() => setLoading(false));
   }, [activeSubject, grade]);
 
-  // group Science NcertTopicContent by chapter number (must be before early return — hooks rule)
   const sciChapterGroups = useMemo(() => {
     const groups = {};
     sciTopics.forEach((t) => {
@@ -242,9 +274,10 @@ export default function Lessons() {
 
   const dueTopic = new Set(revisionDue.map((r) => r.topic));
 
-  // science sub-subject filter
   const visibleChapters = (activeSubject === "Science" && scienceSub)
     ? chapters.filter((ch) => SCIENCE_SUBS[scienceSub]?.some((t) => ch.title?.includes(t) || t.includes(ch.title)))
+    : (activeSubject === "Social Science" && sstSub)
+    ? chapters.filter((ch) => SST_SUBS[sstSub]?.includes(ch.number))
     : chapters;
 
   const visibleSciGroups = scienceSub
@@ -253,6 +286,8 @@ export default function Lessons() {
 
   const visibleLessons = (activeSubject === "Science" && scienceSub)
     ? lessons.filter((l) => SCIENCE_SUBS[scienceSub]?.includes(l.topic))
+    : (activeSubject === "Social Science" && sstSub)
+    ? lessons.filter((l) => SST_SUBS[sstSub]?.includes(l.topic))
     : lessons;
 
   const subjectColor = SUBJECTS.find((s) => s.id === activeSubject)?.color || "#007AFF";
@@ -271,6 +306,11 @@ export default function Lessons() {
       {/* Science sub-subject tabs */}
       {activeSubject === "Science" && (
         <ScienceSubBar active={scienceSub} onSelect={setScienceSub} />
+      )}
+
+      {/* SST sub-subject tabs */}
+      {activeSubject === "Social Science" && (
+        <SstSubBar active={sstSub} onSelect={setSstSub} />
       )}
 
       {/* Content type tabs */}
@@ -355,12 +395,11 @@ export default function Lessons() {
           {/* ── AI Lessons ── */}
           {contentTab === "ai-lessons" && (
             <div className="space-y-4">
-              {/* practice all topics in this subject */}
               {visibleLessons.length > 0 && (
                 <div className="bg-apple-blue/6 border border-apple-blue/15 rounded-apple-lg p-4 flex items-center justify-between gap-4">
                   <div>
                     <p className="text-[14px] font-semibold text-[var(--label)]">
-                      Practice {scienceSub || activeSubject} topics
+                      Practice {scienceSub || sstSub || activeSubject} topics
                     </p>
                     <p className="text-[12px] text-apple-gray mt-0.5">
                       {visibleLessons.length} topic{visibleLessons.length > 1 ? "s" : ""} available · random questions from all of them
@@ -378,7 +417,6 @@ export default function Lessons() {
                 </div>
               )}
 
-              {/* revision due alert */}
               {revisionDue.length > 0 && (
                 <div className="bg-apple-orange/8 border border-apple-orange/20 rounded-apple-lg p-5">
                   <div className="flex items-center gap-2 mb-3">

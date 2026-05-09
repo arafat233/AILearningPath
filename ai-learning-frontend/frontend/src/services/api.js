@@ -135,7 +135,10 @@ export const getAIAdvice         = ()                           => api.get("/ai/
 export const getAIUsage          = ()                           => api.get("/ai/usage");
 export const getAICacheStats     = ()                           => api.get("/ai/cache-stats");
 export const getAIMetrics        = ()                           => api.get("/ai/metrics");
-export const askTutor            = (message, history, topic)   => api.post("/ai/chat", { message, history, topic });
+export const askTutor            = (message, history, topic, subject) => api.post("/ai/chat", { message, history, topic, subject });
+export const saveVoiceTutorNote  = (data)                      => api.post("/ai/save-note", data);
+export const getSavedVoiceTutorNotes = ()                      => api.get("/ai/saved-notes");
+export const deleteVoiceTutorNote    = (id)                    => api.delete(`/ai/saved-notes/${id}`);
 export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
 export const getHint             = (questionText, topic)       => api.post("/ai/hint", { questionText, topic });
 export const voiceAnswer         = (transcript, subject, topic) => api.post("/ai/voice-answer", { transcript, subject, topic });

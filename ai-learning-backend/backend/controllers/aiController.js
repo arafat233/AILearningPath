@@ -1,8 +1,8 @@
 import crypto from "crypto";
-import { getChatResponse } from "../services/aiService.js";
+import { getChatResponse, getChatResponseFull } from "../services/aiService.js";
 import { smartStudyAdvice, getUsageCount, getCacheStats } from "../services/aiRouter.js";
 import { getCached, setCache } from "../utils/cache.js";
-import { UserProfile, AIResponseCache } from "../models/index.js";
+import { UserProfile, AIResponseCache, SavedNote } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 const CHAT_CACHE_TTL = 24 * 60 * 60 * 1000;
@@ -33,18 +33,18 @@ export const usageInfo = async (req, res, next) => {
 
 export const tutorChat = async (req, res, next) => {
   try {
-    const { message, history = [], topic } = req.body;
+    const { message, history = [], topic, subject = "Math" } = req.body;
     const userId       = req.user.id;
     const cleanHistory = history.map((m) => ({ role: m.role, content: m.content }));
     const isFirstTurn  = cleanHistory.length === 0;
 
     if (isFirstTurn) {
       const cacheKey = `chat::${crypto.createHash("md5")
-        .update(`${topic || "general"}::${message.toLowerCase().trim()}`)
+        .update(`${topic || "general"}::${subject}::${message.toLowerCase().trim()}`)
         .digest("hex")}`;
 
       const memHit = await getCached(cacheKey);
-      if (memHit) return res.json({ reply: memHit, fromCache: true });
+      if (memHit) return res.json({ reply: memHit, followUps: [], fromCache: true });
 
       const dbHit = await AIResponseCache.findOne({ cacheKey }).lean();
       if (dbHit?.response) {
@@ -53,11 +53,10 @@ export const tutorChat = async (req, res, next) => {
           { cacheKey },
           { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }
         ).catch(() => {});
-        return res.json({ reply: dbHit.response, fromCache: true });
+        return res.json({ reply: dbHit.response, followUps: [], fromCache: true });
       }
 
-      // 7. Pass userId so conversation context (last explanation) auto-injects
-      const reply = await getChatResponse([], message, topic, "Math", userId);
+      const { text: reply, followUps } = await getChatResponseFull([], message, topic, subject, userId);
       if (reply) {
         const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
         AIResponseCache.findOneAndUpdate(
@@ -67,14 +66,37 @@ export const tutorChat = async (req, res, next) => {
         ).catch(() => {});
         await setCache(cacheKey, reply, CHAT_CACHE_TTL);
       }
-      return res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
+      return res.json({ reply: reply || "I'm here to help! Could you rephrase that?", followUps });
     }
 
-    const reply = await getChatResponse(cleanHistory, message, topic, "Math", userId);
-    res.json({ reply: reply || "I'm here to help! Could you rephrase that?" });
+    const { text: reply, followUps } = await getChatResponseFull(cleanHistory, message, topic, subject, userId);
+    res.json({ reply: reply || "I'm here to help! Could you rephrase that?", followUps });
   } catch (err) {
     next(err);
   }
+};
+
+export const saveNote = async (req, res, next) => {
+  try {
+    const { content, topic = "", subject = "Math" } = req.body;
+    const note = await SavedNote.create({ userId: req.user.id, content, topic, subject });
+    res.json({ data: { id: note._id, saved: true } });
+  } catch (err) { next(err); }
+};
+
+export const getSavedNotes = async (req, res, next) => {
+  try {
+    const notes = await SavedNote.find({ userId: req.user.id })
+      .sort({ createdAt: -1 }).limit(50).lean();
+    res.json({ data: notes });
+  } catch (err) { next(err); }
+};
+
+export const deleteSavedNote = async (req, res, next) => {
+  try {
+    await SavedNote.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    res.json({ data: { deleted: true } });
+  } catch (err) { next(err); }
 };
 
 export const cacheStats = async (req, res, next) => {

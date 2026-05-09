@@ -480,6 +480,17 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
   }
 };
 
+// ── Parse follow-up suggestions out of a Claude response ─────────
+const FOLLOW_UP_RE = /\nFOLLOW_UPS:\s*(.+)$/;
+function parseFollowUps(raw) {
+  const match = (raw || "").match(FOLLOW_UP_RE);
+  if (!match) return { text: raw, followUps: [] };
+  const followUps = match[1].split("|").map((q) => q.trim().replace(/^\[|\]$/g, "")).filter(Boolean);
+  return { text: raw.replace(FOLLOW_UP_RE, "").trim(), followUps };
+}
+
+const FOLLOW_UP_INSTRUCTION = `\nEnd your response with exactly this line (no extra text after it): FOLLOW_UPS: [question 1] | [question 2] | [question 3]\nKeep each follow-up under 8 words. They should naturally continue the current discussion.`;
+
 // ── Multi-turn AI tutor chat ──────────────────────────────────────
 // 7. Auto-injects last explanation as context on first turn so follow-ups work.
 // history = [{role:"user"|"assistant", content:"..."}]
@@ -521,5 +532,45 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
     logger.error("Claude chat error", { err: err.message, topic, subject });
     logAICall({ userId, aiType: "chat", subject, latencyMs: Date.now()-start, success: false });
     return null;
+  }
+};
+
+// Same as getChatResponse but returns { text, followUps } — used by tutorChat + voice-answer
+export const getChatResponseFull = async (history, userMessage, topic, subject = "Math", userId = null) => {
+  let messages = [...history.slice(-8), { role: "user", content: userMessage }];
+  if (userId && history.length === 0) {
+    const lastExpl = await getLastExplanation(userId);
+    if (lastExpl) {
+      messages = [
+        { role: "user",      content: `I just got this question wrong: "${lastExpl.question}"` },
+        { role: "assistant", content: lastExpl.explanation },
+        { role: "user",      content: userMessage },
+      ];
+    }
+  }
+
+  const start = Date.now();
+  try {
+    const res = await callClaude({
+      model:       MODEL,
+      temperature: 0.3,
+      max_tokens:  500,
+      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.${FOLLOW_UP_INSTRUCTION}`,
+      messages,
+    }, userId);
+
+    const raw  = res.content[0]?.text?.trim() || null;
+    if (!raw) return { text: null, followUps: [] };
+
+    const { safe } = checkOutput(raw, { aiType: "chat", subject });
+    if (!safe) return { text: null, followUps: [] };
+
+    const { text, followUps } = parseFollowUps(raw);
+    logAICall({ userId, aiType: "chat", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: true });
+    return { text, followUps };
+  } catch (err) {
+    logger.error("Claude chat error (full)", { err: err.message, topic, subject });
+    logAICall({ userId, aiType: "chat", subject, latencyMs: Date.now()-start, success: false });
+    return { text: null, followUps: [] };
   }
 };

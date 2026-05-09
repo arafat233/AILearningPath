@@ -2,8 +2,8 @@ import crypto from "crypto";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import Joi from "joi";
-import { studyAdvice, usageInfo, cacheStats, tutorChat } from "../controllers/aiController.js";
-import { getChatResponse, generateHint } from "../services/aiService.js";
+import { studyAdvice, usageInfo, cacheStats, tutorChat, saveNote, getSavedNotes, deleteSavedNote } from "../controllers/aiController.js";
+import { getChatResponse, getChatResponseFull, generateHint } from "../services/aiService.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { AIResponseCache, AIFeedback, AICallLog } from "../models/index.js";
 import { auth } from "../middleware/auth.js";
@@ -37,6 +37,13 @@ const chatSchema = Joi.object({
   message: Joi.string().trim().min(1).max(2000).required(),
   history: Joi.array().max(20).optional(),
   topic:   Joi.string().max(200).optional().allow(""),
+  subject: Joi.string().max(100).optional().allow(""),
+});
+
+const noteSchema = Joi.object({
+  content: Joi.string().trim().min(1).max(5000).required(),
+  topic:   Joi.string().max(200).optional().allow(""),
+  subject: Joi.string().max(100).optional().allow(""),
 });
 
 const voiceSchema = Joi.object({
@@ -57,8 +64,13 @@ const hintSchema = Joi.object({
 
 r.get("/advice",      auth,      studyAdvice);
 r.get("/usage",       auth,      usageInfo);
-r.get("/cache-stats", adminAuth, cacheStats); // admin only — business metrics
+r.get("/cache-stats", adminAuth, cacheStats);
 r.post("/chat",       auth, perUserAILimit, validate(chatSchema), inputGuard, tutorChat);
+
+// Saved notes (Voice Tutor bookmarks)
+r.post("/save-note",        auth, validate(noteSchema), saveNote);
+r.get("/saved-notes",       auth, getSavedNotes);
+r.delete("/saved-notes/:id",auth, deleteSavedNote);
 
 // Admin: invalidate cached AI responses by cacheKey prefix or mistakeType
 r.delete("/cache", adminAuth, async (req, res, next) => {
@@ -101,15 +113,14 @@ r.post("/voice-answer", auth, perUserAILimit, validate(voiceSchema), inputGuard,
     const existing = (await sessionGet(voiceHistoryKey(userId))) || [];
     const history  = Array.isArray(existing) ? existing : [];
 
-    const reply = await getChatResponse(history, transcript, topic || `General ${subject || "Math"}`, subject || "Math");
-    const answer = reply || "Could not generate a response. Please try rephrasing your question.";
+    const { text, followUps } = await getChatResponseFull(history, transcript, topic || `General ${subject || "Math"}`, subject || "Math");
+    const answer = text || "Could not generate a response. Please try rephrasing your question.";
 
-    // Append exchange and persist (cap oldest messages to avoid unbounded growth)
     const updated = [...history, { role: "user", content: transcript }, { role: "assistant", content: answer }];
     const capped  = updated.length > HISTORY_CAP ? updated.slice(updated.length - HISTORY_CAP) : updated;
     sessionSet(voiceHistoryKey(userId), capped, VOICE_HISTORY_TTL).catch(() => {});
 
-    res.json({ answer });
+    res.json({ answer, followUps });
   } catch (err) { next(err); }
 });
 

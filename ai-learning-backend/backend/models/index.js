@@ -507,6 +507,17 @@ const paymentRecordSchema = new mongoose.Schema({
 });
 export const PaymentRecord = mongoose.model("PaymentRecord", paymentRecordSchema);
 
+// ==================== SavedNote (Voice Tutor saved AI messages) ====================
+const savedNoteSchema = new mongoose.Schema({
+  userId:    { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  content:   { type: String, required: true, maxlength: 5000 },
+  topic:     { type: String, default: "" },
+  subject:   { type: String, default: "Math" },
+  createdAt: { type: Date, default: Date.now },
+});
+savedNoteSchema.index({ userId: 1, createdAt: -1 });
+export const SavedNote = mongoose.model("SavedNote", savedNoteSchema);
+
 // ==================== Coupon (discount codes) ====================
 const couponSchema = new mongoose.Schema({
   code:          { type: String, required: true, unique: true, uppercase: true, trim: true },

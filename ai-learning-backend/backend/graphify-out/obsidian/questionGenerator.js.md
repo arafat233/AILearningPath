@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js"
 type: "code"
-community: "Community 7"
+community: "Community 8"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_7
+  - community/Community_8
 ---
 
 # questionGenerator.js
@@ -32,4 +32,4 @@ tags:
 - [[triangles()]] - `contains` [EXTRACTED]
 - [[trigonometry()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_7
+#graphify/code #graphify/EXTRACTED #community/Community_8

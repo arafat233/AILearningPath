@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\featureFlags.js"
 type: "code"
-community: "Community 18"
+community: "Community 20"
 location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_18
+  - community/Community_20
 ---
 
 # getFlagsForUser()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[featureFlags.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_18
+#graphify/code #graphify/EXTRACTED #community/Community_20

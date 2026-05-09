@@ -1,14 +1,14 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\routes\schoolRoutes.js"
 type: "code"
-community: "Community 82"
+community: "Community 86"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_82
+  - community/Community_86
 ---
 
 # schoolRoutes.js
 
-#graphify/code #graphify/EXTRACTED #community/Community_82
+#graphify/code #graphify/EXTRACTED #community/Community_86

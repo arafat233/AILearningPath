@@ -1160,12 +1160,32 @@ const QUESTIONS = [
 
 ];
 
+function transform(q) {
+  const correctText = q.correctAnswer;
+  const options = (q.options || []).map((text) => ({
+    text,
+    type: text === correctText ? "correct" : "concept_error",
+    logicTag: "",
+  }));
+  const { chapter, explanation, correctAnswer, ...rest } = q;
+  return {
+    ...rest,
+    topic:           chapter || q.topicId,
+    options,
+    questionType:    "mcq",
+    grade:           "10",
+    examBoard:       "CBSE",
+    isAIGenerated:   true,
+    difficultyScore: q.difficulty === "easy" ? 0.2 : q.difficulty === "hard" ? 0.8 : 0.5,
+  };
+}
+
 async function run() {
   await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 15000 });
   let created = 0;
   for (const q of QUESTIONS) {
     const exists = await Question.findOne({ questionText: q.questionText, subject: q.subject });
-    if (!exists) { await Question.create(q); created++; }
+    if (!exists) { await Question.create(transform(q)); created++; }
   }
   console.log(`✅ SST Questions C: ${created} created (${QUESTIONS.length - created} already existed)`);
   await mongoose.disconnect();

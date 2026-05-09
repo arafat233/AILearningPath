@@ -1,23 +1,24 @@
 ---
 type: community
-members: 10
+members: 11
 ---
 
 # Community 12
 
-**Members:** 10 nodes
+**Members:** 11 nodes
 
 ## Members
-- [[getPYQById()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getPYQs()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
-- [[getQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[listYears()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[pyqController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\pyqController.js
-- [[pyqService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\pyqService.js
+- [[buildOptions()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[chapterFromTopicId()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[cleanFormula()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[collectMockPaperQuestionIds()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[main()_5]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestion()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[mapQuestionType()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedMockPapers()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestions()]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[seedQuestionsAndMockPapers.js]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
+- [[shuffle()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\config\seedQuestionsAndMockPapers.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -27,10 +28,9 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 4 edges to [[_COMMUNITY_Community 0]]
+- 3 edges to [[_COMMUNITY_Community 1]]
 
 ## Top bridge nodes
-- [[listTopics()]] - degree 3, connects to 1 community
-- [[listYears()]] - degree 3, connects to 1 community
-- [[listQuestions()]] - degree 3, connects to 1 community
-- [[getQuestion()]] - degree 3, connects to 1 community
+- [[seedQuestions()]] - degree 4, connects to 1 community
+- [[seedMockPapers()_1]] - degree 4, connects to 1 community
+- [[main()_5]] - degree 4, connects to 1 community

@@ -341,6 +341,128 @@ const TOPICS = {
     level: 3,
     prerequisites: ["sst_ch22_struggles"],
   },
+
+  // ─── Canonical topicIds (audit-aligned, added in pipeline gap-fill) ──────
+
+  // Chapter 1 canonical
+  sst_ch1_unification: {
+    name: "German and Italian Unification — Bismarck and Garibaldi",
+    level: 2,
+    prerequisites: ["sst_ch1_french_revolution", "sst_ch1_nationalism_europe"],
+  },
+  sst_ch1_visualising_nation: {
+    name: "Visualising the Nation — Allegory and Nationalism Art",
+    level: 1,
+    prerequisites: ["sst_ch1_french_revolution"],
+  },
+
+  // Chapter 2 canonical
+  sst_ch2_collective_belonging: {
+    name: "Collective Belonging — Symbols, Bharat Mata, Folklore",
+    level: 2,
+    prerequisites: ["sst_ch2_non_cooperation"],
+  },
+
+  // Chapter 3 canonical
+  sst_ch3_premodern_world: {
+    name: "Pre-modern World — Silk Routes and Trade Networks",
+    level: 0,
+    prerequisites: [],
+  },
+  sst_ch3_interwar_economy: {
+    name: "Interwar Economy — Great Depression and Protectionism",
+    level: 1,
+    prerequisites: ["sst_ch3_premodern_world"],
+  },
+  sst_ch3_post_war: {
+    name: "Post-War Economy — Bretton Woods and IMF",
+    level: 2,
+    prerequisites: ["sst_ch3_interwar_economy"],
+  },
+
+  // Chapter 4 canonical
+  sst_ch4_proto_industrialisation: {
+    name: "Proto-industrialisation — Putting-Out System",
+    level: 0,
+    prerequisites: [],
+  },
+  sst_ch4_factory_system: {
+    name: "Factory System — Steam Engine and Industrial Revolution",
+    level: 1,
+    prerequisites: ["sst_ch4_proto_industrialisation"],
+  },
+  sst_ch4_india_industrialisation: {
+    name: "India's Industrialisation — Colonial Constraints",
+    level: 2,
+    prerequisites: ["sst_ch4_factory_system"],
+  },
+
+  // Chapter 5 canonical
+  sst_ch5_print_revolution: {
+    name: "Print Revolution — Gutenberg Press and Reformation",
+    level: 0,
+    prerequisites: [],
+  },
+  sst_ch5_india_print: {
+    name: "Print in India — Vernacular Press and Nationalism",
+    level: 1,
+    prerequisites: ["sst_ch5_print_revolution"],
+  },
+
+  // Chapter 6 canonical
+  sst_ch6_types_resources: {
+    name: "Types of Resources — Classification and Sustainable Use",
+    level: 0,
+    prerequisites: [],
+  },
+  sst_ch6_soil_types: {
+    name: "Soil Types — Alluvial, Black, Red, Laterite",
+    level: 1,
+    prerequisites: ["sst_ch6_types_resources"],
+  },
+
+  // Chapter 7 canonical
+  sst_ch7_biodiversity: {
+    name: "Biodiversity — Flora, Fauna and Ecosystem Diversity",
+    level: 1,
+    prerequisites: ["sst_ch6_types_resources"],
+  },
+  sst_ch7_conservation: {
+    name: "Conservation — Project Tiger, Wildlife Act, Chipko",
+    level: 2,
+    prerequisites: ["sst_ch7_biodiversity"],
+  },
+
+  // Chapter 8 canonical
+  sst_ch8_water_scarcity: {
+    name: "Water Scarcity — Causes, Multi-purpose Projects",
+    level: 1,
+    prerequisites: ["sst_ch6_types_resources"],
+  },
+  sst_ch8_rainwater_harvesting: {
+    name: "Rainwater Harvesting — Traditional Systems",
+    level: 2,
+    prerequisites: ["sst_ch8_water_scarcity"],
+  },
+
+  // Chapter 9 canonical
+  sst_ch9_types_farming: {
+    name: "Types of Farming — Subsistence to Plantation",
+    level: 2,
+    prerequisites: ["sst_ch6_types_resources", "sst_ch8_water_scarcity"],
+  },
+  sst_ch9_tech_reforms: {
+    name: "Agricultural Reforms — Green Revolution and Land Reforms",
+    level: 3,
+    prerequisites: ["sst_ch9_types_farming"],
+  },
+
+  // Chapter 10 canonical
+  sst_ch10_minerals: {
+    name: "Minerals — Types, Distribution and Conservation",
+    level: 0,
+    prerequisites: [],
+  },
 };
 
 async function main() {

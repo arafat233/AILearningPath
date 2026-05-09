@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js"
 type: "code"
 community: "Community 0"
-location: "L60"
+location: "L62"
 tags:
   - graphify/code
   - graphify/EXTRACTED

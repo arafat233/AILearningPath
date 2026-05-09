@@ -8,9 +8,9 @@ members: 3
 **Members:** 3 nodes
 
 ## Members
-- [[exam.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
-- [[makeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
-- [[mockReqRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\exam.controller.test.js
+- [[competition.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\competition.controller.test.js
+- [[getRouteHandler()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\competition.controller.test.js
+- [[mockRes()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\competition.controller.test.js
 
 ## Live Query (requires Dataview plugin)
 

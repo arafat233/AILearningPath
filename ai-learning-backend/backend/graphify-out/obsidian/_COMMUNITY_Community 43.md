@@ -8,8 +8,8 @@ members: 2
 **Members:** 2 nodes
 
 ## Members
-- [[setupSwagger()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
-- [[swagger.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\swagger.js
+- [[_childView()]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\userRoutes.js
+- [[userRoutes.js]] - code - E:\AILearningPath\ai-learning-backend\backend\routes\userRoutes.js
 
 ## Live Query (requires Dataview plugin)
 

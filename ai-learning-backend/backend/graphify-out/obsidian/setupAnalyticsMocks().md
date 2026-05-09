@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\__tests__\adminStats.controller.test.js"
 type: "code"
-community: "Community 30"
+community: "Community 31"
 location: "L87"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_30
+  - community/Community_31
 ---
 
 # setupAnalyticsMocks()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[adminStats.controller.test.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_30
+#graphify/code #graphify/EXTRACTED #community/Community_31

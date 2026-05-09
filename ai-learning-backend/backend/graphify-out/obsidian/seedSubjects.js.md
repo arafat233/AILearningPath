@@ -12,6 +12,6 @@ tags:
 # seedSubjects.js
 
 ## Connections
-- [[seed()_4]] - `contains` [EXTRACTED]
+- [[seed()_13]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_1

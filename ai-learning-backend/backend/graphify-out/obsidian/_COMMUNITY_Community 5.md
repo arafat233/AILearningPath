@@ -1,33 +1,25 @@
 ---
 type: community
-members: 31
+members: 23
 ---
 
 # Community 5
 
-**Members:** 31 nodes
+**Members:** 23 nodes
 
 ## Members
 - [[adminStatsController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[aiController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 - [[aiRouter.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
-- [[aiService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[cache.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[cacheSize()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
 - [[cacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\aiController.js
 - [[checkAndIncrementUsage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[costUSD()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
-- [[generateAIQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateHint()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[generateLesson()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getAIExplanation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
 - [[getAdminStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getCacheStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[getCached()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\cache.js
-- [[getChatResponse()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getStudyAdvice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
-- [[getSystemPrompt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiService.js
+- [[getRagHealth()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminStatsController.js
 - [[getUsageCount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[makeCacheKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
 - [[recordCacheHit()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiRouter.js
@@ -49,13 +41,15 @@ SORT file.name ASC
 
 ## Connections to other communities
 - 7 edges to [[_COMMUNITY_Community 0]]
-- 4 edges to [[_COMMUNITY_Community 2]]
-- 1 edge to [[_COMMUNITY_Community 16]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 5 edges to [[_COMMUNITY_Community 6]]
+- 3 edges to [[_COMMUNITY_Community 4]]
+- 2 edges to [[_COMMUNITY_Community 2]]
+- 1 edge to [[_COMMUNITY_Community 14]]
+- 1 edge to [[_COMMUNITY_Community 9]]
 
 ## Top bridge nodes
-- [[smartAIExplanation()]] - degree 11, connects to 1 community
-- [[smartStudyAdvice()]] - degree 8, connects to 1 community
-- [[tutorChat()]] - degree 5, connects to 1 community
-- [[checkAndIncrementUsage()]] - degree 5, connects to 1 community
-- [[getUsageCount()]] - degree 5, connects to 1 community
+- [[smartAIExplanation()]] - degree 11, connects to 2 communities
+- [[smartStudyAdvice()]] - degree 8, connects to 2 communities
+- [[setCache()]] - degree 7, connects to 2 communities
+- [[getCached()]] - degree 6, connects to 2 communities
+- [[tutorChat()]] - degree 5, connects to 2 communities

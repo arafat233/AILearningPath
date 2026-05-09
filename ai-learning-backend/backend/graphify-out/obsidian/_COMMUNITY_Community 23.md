@@ -1,16 +1,17 @@
 ---
 type: community
-members: 3
+members: 4
 ---
 
 # Community 23
 
-**Members:** 3 nodes
+**Members:** 4 nodes
 
 ## Members
-- [[callDeleteMe()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
-- [[mockRes()_3]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
-- [[user.controller.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\user.controller.test.js
+- [[MockQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[makeQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[makeStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
+- [[selfLearning.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\selfLearning.service.test.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -18,9 +19,3 @@ members: 3
 TABLE source_file, type FROM #community/Community_23
 SORT file.name ASC
 ```
-
-## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 0]]
-
-## Top bridge nodes
-- [[callDeleteMe()]] - degree 3, connects to 1 community

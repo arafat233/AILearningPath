@@ -12,6 +12,6 @@ tags:
 # seedTopicDAG.js
 
 ## Connections
-- [[main()_6]] - `contains` [EXTRACTED]
+- [[main()_9]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_1

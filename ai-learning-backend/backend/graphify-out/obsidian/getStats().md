@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\companyController.js"
 type: "code"
-community: "Community 13"
+community: "Community 15"
 location: "L43"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_13
+  - community/Community_15
 ---
 
 # getStats()
@@ -16,4 +16,4 @@ tags:
 - [[companyController.js]] - `contains` [EXTRACTED]
 - [[getDashboardStats()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_13
+#graphify/code #graphify/INFERRED #community/Community_15

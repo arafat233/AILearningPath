@@ -14,12 +14,16 @@ tags:
 ## Connections
 - [[adminAuth()]] - `calls` [INFERRED]
 - [[createOrder()_1]] - `calls` [INFERRED]
+- [[generateMock()]] - `calls` [INFERRED]
 - [[issueTokens()]] - `calls` [INFERRED]
 - [[logout()]] - `calls` [INFERRED]
+- [[recordStrike()]] - `calls` [INFERRED]
 - [[redisClient.js]] - `contains` [EXTRACTED]
 - [[saveRoom()]] - `calls` [INFERRED]
+- [[setCache()]] - `calls` [INFERRED]
 - [[startExam()]] - `calls` [INFERRED]
 - [[startTopic()]] - `calls` [INFERRED]
+- [[storeLastExplanation()]] - `calls` [INFERRED]
 - [[submitAnswer()]] - `calls` [INFERRED]
 
 #graphify/code #graphify/INFERRED #community/Community_2

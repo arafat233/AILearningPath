@@ -12,6 +12,6 @@ tags:
 # seedSocialScienceCurriculum.js
 
 ## Connections
-- [[seed()_3]] - `contains` [EXTRACTED]
+- [[seed()_11]] - `contains` [EXTRACTED]
 
 #graphify/code #graphify/EXTRACTED #community/Community_1

@@ -1,28 +1,31 @@
 ---
 type: community
-members: 15
+members: 18
 ---
 
 # Community 9
 
-**Members:** 15 nodes
+**Members:** 18 nodes
 
 ## Members
-- [[assignRanks()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[calculateExamScore()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[computeDynamicDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[currentWeekStr()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[examController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[examKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getExamReview()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[getLeaderboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[listExams()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[normalizeScores()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[scoringService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\scoringService.js
-- [[selfLearningService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
-- [[startExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[submitExam()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\examController.js
-- [[updateQuestionStats()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\selfLearningService.js
+- [[authController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[csrf.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[csrfProtect()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[escHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[forgotPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[initPassport()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[issueTokens()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[login()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[makeRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[parseRefreshToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[queueWelcomeEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[refresh()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[register()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[resetPassword()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[safeUser()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
+- [[save()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[setCsrfCookie()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\csrf.js
+- [[signToken()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -32,14 +35,19 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 5 edges to [[_COMMUNITY_Community 0]]
-- 2 edges to [[_COMMUNITY_Community 2]]
-- 2 edges to [[_COMMUNITY_Community 4]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 7 edges to [[_COMMUNITY_Community 0]]
+- 6 edges to [[_COMMUNITY_Community 2]]
+- 3 edges to [[_COMMUNITY_Community 7]]
+- 1 edge to [[_COMMUNITY_Community 1]]
+- 1 edge to [[_COMMUNITY_Community 10]]
+- 1 edge to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 3]]
+- 1 edge to [[_COMMUNITY_Community 14]]
+- 1 edge to [[_COMMUNITY_Community 8]]
 
 ## Top bridge nodes
-- [[submitExam()]] - degree 9, connects to 2 communities
-- [[startExam()]] - degree 4, connects to 2 communities
-- [[updateQuestionStats()]] - degree 4, connects to 2 communities
-- [[listExams()]] - degree 2, connects to 1 community
-- [[getExamReview()]] - degree 2, connects to 1 community
+- [[save()]] - degree 10, connects to 8 communities
+- [[refresh()]] - degree 8, connects to 2 communities
+- [[register()]] - degree 7, connects to 2 communities
+- [[forgotPassword()]] - degree 5, connects to 2 communities
+- [[authController.js]] - degree 15, connects to 1 community

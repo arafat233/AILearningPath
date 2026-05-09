@@ -1,47 +1,46 @@
 ---
 type: community
-members: 34
+members: 33
 ---
 
 # Community 4
 
-**Members:** 34 nodes
+**Members:** 33 nodes
 
 ## Members
-- [[acquireCronLock()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[adminAuth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[adminAuth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\adminAuth.js
-- [[auth()]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[auth.js]] - code - E:\AILearningPath\ai-learning-backend\backend\middleware\auth.js
-- [[checkConnLimit()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[computeDiscount()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[connectRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[couponService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[createClient()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[createOrder()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[dropRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getIO()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getRazorpay()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[getRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[getSubscription()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[initSocket()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isThrottled()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[isUsingFallback()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[orderCouponKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[orderPlanKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[paymentService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[pingRedis()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[redeemCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[redisClient.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[rk()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[saveRoom()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[sessionDel()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[sessionGet()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js
-- [[socket.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\socket.js
-- [[updateUserRole()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[validateCoupon()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\couponService.js
-- [[verifyPayment()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
-- [[withTransaction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\paymentService.js
+- [[adaptiveService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[aiTeacherService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[analysisService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[analyzeAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[autoDoubtService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[award()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[badgeService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkAndAwardBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[checkFoundation()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[classifyThinkingProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[detectDoubtType()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[foundationService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\foundationService.js
+- [[generateDoubtInsight()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[generateFeedback()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\analysisService.js
+- [[generateTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDailyMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\aiTeacherService.js
+- [[getDifficulty()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[getInterleavedQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getNextQuestion()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\adaptiveService.js
+- [[getSuggestedAction()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[getTeacherMessage()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[getUserBadges()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\badgeService.js
+- [[makeAttempt()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[mockAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[practiceController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[profile.service.test.js]] - code - E:\AILearningPath\ai-learning-backend\backend\__tests__\profile.service.test.js
+- [[profileService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
+- [[resolveDoubt()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\autoDoubtService.js
+- [[safeQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[sessionKey()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[startTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[submitAnswer()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\practiceController.js
+- [[updateUserProfile()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\profileService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -51,15 +50,15 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 5 edges to [[_COMMUNITY_Community 2]]
-- 4 edges to [[_COMMUNITY_Community 6]]
-- 4 edges to [[_COMMUNITY_Community 0]]
-- 2 edges to [[_COMMUNITY_Community 9]]
-- 1 edge to [[_COMMUNITY_Community 8]]
+- 4 edges to [[_COMMUNITY_Community 2]]
+- 3 edges to [[_COMMUNITY_Community 0]]
+- 3 edges to [[_COMMUNITY_Community 5]]
+- 1 edge to [[_COMMUNITY_Community 14]]
+- 1 edge to [[_COMMUNITY_Community 6]]
 
 ## Top bridge nodes
-- [[sessionGet()]] - degree 9, connects to 3 communities
-- [[sessionDel()]] - degree 7, connects to 2 communities
-- [[adminAuth()]] - degree 4, connects to 2 communities
-- [[verifyPayment()_1]] - degree 9, connects to 1 community
-- [[redisClient.js]] - degree 8, connects to 1 community
+- [[submitAnswer()]] - degree 16, connects to 4 communities
+- [[startTopic()]] - degree 8, connects to 2 communities
+- [[resolveDoubt()]] - degree 6, connects to 1 community
+- [[getNextQuestion()_1]] - degree 5, connects to 1 community
+- [[getTeacherMessage()]] - degree 3, connects to 1 community

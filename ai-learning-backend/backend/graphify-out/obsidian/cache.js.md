@@ -12,7 +12,6 @@ tags:
 # cache.js
 
 ## Connections
-- [[cacheSize()]] - `contains` [EXTRACTED]
 - [[getCached()]] - `contains` [EXTRACTED]
 - [[setCache()]] - `contains` [EXTRACTED]
 

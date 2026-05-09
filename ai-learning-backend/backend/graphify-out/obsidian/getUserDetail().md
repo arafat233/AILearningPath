@@ -2,7 +2,7 @@
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js"
 type: "code"
 community: "Community 0"
-location: "L49"
+location: "L75"
 tags:
   - graphify/code
   - graphify/EXTRACTED

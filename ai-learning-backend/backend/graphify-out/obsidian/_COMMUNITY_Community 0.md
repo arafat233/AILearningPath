@@ -1,11 +1,11 @@
 ---
 type: community
-members: 96
+members: 93
 ---
 
 # Community 0
 
-**Members:** 96 nodes
+**Members:** 93 nodes
 
 ## Members
 - [[.choice()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\questionTemplateService.js
@@ -57,13 +57,11 @@ members: 96
 - [[getSharedPlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[getStudentAnalytics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getStudentAttempts()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[getStudentDashboard()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 - [[getStudentDashboardCtrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getStudiedTopics()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[getStudyReminders()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[getSubscription()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\paymentController.js
 - [[getUserDetail()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminUserController.js
-- [[gradeFromAccuracy()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 - [[lessonController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\lessonController.js
 - [[linkStudentDirect()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[listChapters()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\curriculumController.js
@@ -84,9 +82,9 @@ members: 96
 - [[plannerController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[plannerService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\plannerService.js
 - [[portalController.js]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[portalService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 - [[removeLinkedStudent()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[reschedulePlan()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
+- [[respondToLinkRequest()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[revisionService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\revisionService.js
 - [[saveDayNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
 - [[saveNcertNote()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
@@ -95,7 +93,6 @@ members: 96
 - [[scorePlacementQuiz()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\placementController.js
 - [[searchStudents()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
 - [[setStudyReminder()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\portalController.js
-- [[timeAgoLabel()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\portalService.js
 - [[toggleStudiedTopic()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\ncertController.js
 - [[unflagQuestion()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\admin\adminQuestionController.js
 - [[updatePlanSettings()]] - code - E:\AILearningPath\ai-learning-backend\backend\controllers\plannerController.js
@@ -113,22 +110,23 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
+- 12 edges to [[_COMMUNITY_Community 2]]
 - 10 edges to [[_COMMUNITY_Community 3]]
-- 9 edges to [[_COMMUNITY_Community 6]]
 - 7 edges to [[_COMMUNITY_Community 5]]
-- 5 edges to [[_COMMUNITY_Community 9]]
+- 7 edges to [[_COMMUNITY_Community 9]]
 - 5 edges to [[_COMMUNITY_Community 10]]
-- 4 edges to [[_COMMUNITY_Community 12]]
-- 4 edges to [[_COMMUNITY_Community 4]]
-- 3 edges to [[_COMMUNITY_Community 2]]
-- 2 edges to [[_COMMUNITY_Community 13]]
-- 1 edge to [[_COMMUNITY_Community 16]]
-- 1 edge to [[_COMMUNITY_Community 17]]
-- 1 edge to [[_COMMUNITY_Community 23]]
+- 4 edges to [[_COMMUNITY_Community 13]]
+- 3 edges to [[_COMMUNITY_Community 4]]
+- 2 edges to [[_COMMUNITY_Community 15]]
+- 1 edge to [[_COMMUNITY_Community 14]]
+- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 19]]
+- 1 edge to [[_COMMUNITY_Community 18]]
+- 1 edge to [[_COMMUNITY_Community 38]]
 
 ## Top bridge nodes
-- [[.next()]] - degree 112, connects to 11 communities
-- [[portalController.js]] - degree 15, connects to 1 community
+- [[.next()]] - degree 115, connects to 10 communities
 - [[Rng]] - degree 6, connects to 1 community
 - [[adminUserController.js]] - degree 5, connects to 1 community
 - [[getRevisionTopics()]] - degree 5, connects to 1 community
+- [[getStudentDashboardCtrl()]] - degree 4, connects to 1 community

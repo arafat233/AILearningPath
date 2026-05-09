@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\migrations\20260503000000-add-indexes-and-soft-delete.js"
 type: "code"
-community: "Community 24"
+community: "Community 25"
 location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_24
+  - community/Community_25
 ---
 
 # down()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[20260503000000-add-indexes-and-soft-delete.js]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_24
+#graphify/code #graphify/EXTRACTED #community/Community_25

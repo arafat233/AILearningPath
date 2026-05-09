@@ -34,7 +34,7 @@ SORT file.name ASC
 ## Connections to other communities
 - 5 edges to [[_COMMUNITY_Community 0]]
 - 2 edges to [[_COMMUNITY_Community 3]]
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 1 edge to [[_COMMUNITY_Community 9]]
 
 ## Top bridge nodes
 - [[adaptiveRecommenderService.js]] - degree 10, connects to 1 community

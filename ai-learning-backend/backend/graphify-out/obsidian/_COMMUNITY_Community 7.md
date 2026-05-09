@@ -8,25 +8,25 @@ members: 19
 **Members:** 19 nodes
 
 ## Members
-- [[ap()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[appsTrig()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[areasCircles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[circles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[coordinateGeometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[diff()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[ds()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[gcd()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[linear()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[polynomials()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[probability()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[quadratic()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[questionGenerator.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[rand()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[realNumbers()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[statistics()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[surfaceVolumes()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[triangles()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
-- [[trigonometry()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\questionGenerator.js
+- [[buildEmailHtml()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[buildStudentSummary()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[email.js]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[escHtml()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[escHtml()_2]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[frontendUrl()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[frontendUrl()_1]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[onboardingEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[pct()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[runOnboardingEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[runTrialExpirySoonEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[runWeeklyParentEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[sendDay2Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendDay7Emails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[sendEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[sendReceiptEmail()]] - code - E:\AILearningPath\ai-learning-backend\backend\utils\email.js
+- [[sendTrialExpiringSoonEmails()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\onboardingEmailService.js
+- [[trendArrow()]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
+- [[weeklyParentEmailService.js]] - code - E:\AILearningPath\ai-learning-backend\backend\services\weeklyParentEmailService.js
 
 ## Live Query (requires Dataview plugin)
 
@@ -36,7 +36,10 @@ SORT file.name ASC
 ```
 
 ## Connections to other communities
-- 1 edge to [[_COMMUNITY_Community 6]]
+- 3 edges to [[_COMMUNITY_Community 9]]
+- 1 edge to [[_COMMUNITY_Community 11]]
+- 1 edge to [[_COMMUNITY_Community 2]]
 
 ## Top bridge nodes
-- [[questionGenerator.js]] - degree 19, connects to 1 community
+- [[sendEmail()]] - degree 10, connects to 2 communities
+- [[sendReceiptEmail()]] - degree 3, connects to 1 community

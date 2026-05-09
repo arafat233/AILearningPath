@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\controllers\authController.js"
 type: "code"
-community: "Community 6"
+community: "Community 9"
 location: "L143"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Community_6
+  - community/Community_9
 ---
 
 # register()
@@ -20,4 +20,4 @@ tags:
 - [[sendEmail()]] - `calls` [INFERRED]
 - [[setCsrfCookie()]] - `calls` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/Community_6
+#graphify/code #graphify/EXTRACTED #community/Community_9

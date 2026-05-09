@@ -1,12 +1,12 @@
 ---
 source_file: "E:\AILearningPath\ai-learning-backend\backend\utils\redisClient.js"
 type: "code"
-community: "Community 4"
+community: "Community 2"
 location: "L60"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Community_4
+  - community/Community_2
 ---
 
 # sessionGet()
@@ -14,6 +14,9 @@ tags:
 ## Connections
 - [[adminAuth()]] - `calls` [INFERRED]
 - [[auth()]] - `calls` [INFERRED]
+- [[checkCooldown()]] - `calls` [INFERRED]
+- [[getCached()]] - `calls` [INFERRED]
+- [[getLastExplanation()]] - `calls` [INFERRED]
 - [[getRoom()]] - `calls` [INFERRED]
 - [[logout()]] - `calls` [INFERRED]
 - [[redisClient.js]] - `contains` [EXTRACTED]
@@ -22,4 +25,4 @@ tags:
 - [[submitExam()]] - `calls` [INFERRED]
 - [[verifyPayment()_1]] - `calls` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Community_4
+#graphify/code #graphify/INFERRED #community/Community_2

@@ -474,6 +474,82 @@ const EXPECTED = [
       "sst_ch22_movements",
     ],
   },
+
+  // ── English Grade 10 (no diagrams required) ──────────────────────────────
+  // First Flight — Prose
+  { chapterId: "eng_ff_ch1", chapterName: "A Letter to God", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch1_prose"] },
+  { chapterId: "eng_ff_ch2", chapterName: "Nelson Mandela: Long Walk to Freedom", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch2_prose"] },
+  { chapterId: "eng_ff_ch3", chapterName: "Two Stories about Flying", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch3_prose"] },
+  { chapterId: "eng_ff_ch4", chapterName: "From the Diary of Anne Frank", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch4_prose"] },
+  { chapterId: "eng_ff_ch5", chapterName: "Glimpses of India", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch5_prose"] },
+  { chapterId: "eng_ff_ch6", chapterName: "Mijbil the Otter", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch6_prose"] },
+  { chapterId: "eng_ff_ch7", chapterName: "Madam Rides the Bus", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch7_prose"] },
+  { chapterId: "eng_ff_ch8", chapterName: "The Sermon at Benares", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch8_prose"] },
+  { chapterId: "eng_ff_ch9", chapterName: "The Proposal", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch9_prose"] },
+  // First Flight — Poems
+  { chapterId: "eng_ff_poem1", chapterName: "Dust of Snow + Fire and Ice", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch1_poem"] },
+  { chapterId: "eng_ff_poem2", chapterName: "A Tiger in the Zoo", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch2_poem"] },
+  { chapterId: "eng_ff_poem3", chapterName: "How to Tell Wild Animals + The Ball Poem", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch3_poem"] },
+  { chapterId: "eng_ff_poem4", chapterName: "Amanda!", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch4_poem"] },
+  { chapterId: "eng_ff_poem5", chapterName: "The Trees", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch5_poem"] },
+  { chapterId: "eng_ff_poem6", chapterName: "Fog", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch6_poem"] },
+  { chapterId: "eng_ff_poem7", chapterName: "The Tale of Custard the Dragon", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch7_poem"] },
+  { chapterId: "eng_ff_poem8", chapterName: "For Anne Gregory", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_ff_ch8_poem"] },
+  // Footprints Without Feet
+  { chapterId: "eng_fw_ch1", chapterName: "A Triumph of Surgery", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch1"] },
+  { chapterId: "eng_fw_ch2", chapterName: "The Thief's Story", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch2"] },
+  { chapterId: "eng_fw_ch3", chapterName: "The Midnight Visitor", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch3"] },
+  { chapterId: "eng_fw_ch4", chapterName: "A Question of Trust", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch4"] },
+  { chapterId: "eng_fw_ch5", chapterName: "Footprints Without Feet", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch5"] },
+  { chapterId: "eng_fw_ch6", chapterName: "The Making of a Scientist", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch6"] },
+  { chapterId: "eng_fw_ch7", chapterName: "The Necklace", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch7"] },
+  { chapterId: "eng_fw_ch8", chapterName: "Bholi", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch8"] },
+  { chapterId: "eng_fw_ch9", chapterName: "The Book That Saved the Earth", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_fw_ch9"] },
+  // Words and Expressions 2 — Grammar/Writing
+  { chapterId: "eng_wb_unit1", chapterName: "Workbook Unit 1 — Sequencing & Narrative", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar1"] },
+  { chapterId: "eng_wb_unit2", chapterName: "Workbook Unit 2 — Verb Forms & Tenses", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar2"] },
+  { chapterId: "eng_wb_unit3", chapterName: "Workbook Unit 3 — Relative Clauses", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar3"] },
+  { chapterId: "eng_wb_unit4", chapterName: "Workbook Unit 4 — Active and Passive Voice", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar4"] },
+  { chapterId: "eng_wb_unit5", chapterName: "Workbook Unit 5 — Conditionals", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar5"] },
+  { chapterId: "eng_wb_unit6", chapterName: "Workbook Unit 6 — Reported Speech", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar6"] },
+  { chapterId: "eng_wb_unit7", chapterName: "Workbook Unit 7 — Article Writing", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar7"] },
+  { chapterId: "eng_wb_unit8", chapterName: "Workbook Unit 8 — Report Writing", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar8"] },
+  { chapterId: "eng_wb_unit9", chapterName: "Workbook Unit 9 — Speech Writing", subject: "English", grade: "10", skipDiagram: true,
+    expectedTopicIds: ["eng_wb_grammar9"] },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -530,7 +606,7 @@ const chapters = filterSubject
   : EXPECTED;
 
 if (chapters.length === 0) {
-  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science`));
+  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science, English`));
   process.exit(1);
 }
 
@@ -563,7 +639,8 @@ for (const subjectGrade of subjects) {
     const missing   = expected - inDb;
     const missingIds = ch.expectedTopicIds.filter(id => !topicMap.has(id));
     const totalQsForChapter = ch.expectedTopicIds.reduce((s, id) => s + (qCount[id] || 0), 0);
-    const diagCount = ch.expectedTopicIds.filter(id => diagramIds.has(id)).length;
+    const noDiagram = ch.skipDiagram === true;
+    const diagCount = noDiagram ? expected : ch.expectedTopicIds.filter(id => diagramIds.has(id)).length;
 
     totalExpected += expected;
     totalInDb     += inDb;
@@ -577,7 +654,9 @@ for (const subjectGrade of subjects) {
     const diagOk     = diagCount === expected;
     const missingStr = missingOk ? colGreen(center("0", 9)) : colRed(center(String(missing), 9));
     const qStr       = qOk ? colGreen(center(String(totalQsForChapter), 6)) : colYellow(center(String(totalQsForChapter), 6));
-    const diagStr    = diagOk ? colGreen(center(`${diagCount}/${expected}`, 10)) : colRed(center(`${diagCount}/${expected}`, 10));
+    const diagStr    = noDiagram
+      ? colGreen(center("N/A", 10))
+      : (diagOk ? colGreen(center(`${diagCount}/${expected}`, 10)) : colRed(center(`${diagCount}/${expected}`, 10)));
 
     if (!missingOnly || missing > 0 || !qOk || !diagOk) {
       console.log(
@@ -595,7 +674,7 @@ for (const subjectGrade of subjects) {
         const diag   = diagramIds.has(id);
         const status = exists ? colGreen("✓") : colRed("✗");
         const qMark  = q >= 4 ? colGreen(`${q}q`) : colRed(`${q}q`);
-        const dMark  = diag ? colGreen("📊") : colRed("no diagram");
+        const dMark  = ch.skipDiagram ? colGreen("N/A") : (diag ? colGreen("📊") : colRed("no diagram"));
         console.log(colDim(`    ${status} ${pad(id, 45)} ${qMark}  ${dMark}`));
       }
     }

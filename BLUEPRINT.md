@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell.
+> Last updated: May 2026 — streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell. English pipeline complete: 35 fine-grained topics, 256 MCQs (4 seed files), NcertTopicContent, TopicDAG, RAG index (156 chunks), skipDiagram audit flag.
 
 ---
 
@@ -1385,6 +1385,14 @@ npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent 
 npm run seed:science-biology-content    ← Science Biology NcertTopicContent (23 topics, Ch5-8,13 incl. endocrine, reproductive health, variation)
 npm run seed:science-physics-content    ← Science Physics NcertTopicContent (16 topics, Ch9-12 incl. domestic circuits)
 npm run seed:science-topic-dag          ← Science Topic prerequisite DAG (50 nodes)
+npm run seed:english-ncert-chapters    ← Bridge Chapter→NcertChapter for English (23 chapters, powers /api/v1/ncert/chapters)
+npm run seed:english-content           ← English NcertTopicContent — 35 topics (FF Prose/Poems + FW + Grammar)
+npm run seed:english-questions-a       ← English questions — First Flight Prose Ch1–9 (68 Qs)
+npm run seed:english-questions-b       ← English questions — First Flight Poems Ch1–8 (53 Qs)
+npm run seed:english-questions-c       ← English questions — Footprints Without Feet Ch1–9 (63 Qs)
+npm run seed:english-questions-d       ← English questions — Workbook Grammar Units 1–9 (72 Qs)
+npm run seed:english-topic-dag         ← English Topic prerequisite DAG (35 nodes, levels 0–3)
+npm run seed:english-all               ← convenience: curriculum + NcertChapters + content + questions A/B/C/D + DAG
 npm run rag:build-curriculum            ← build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
 npm run rag:build-science               ← RAG chunks for Science only
 npm run migrate                         ← run pending DB migrations (migrate-mongo)
@@ -1632,6 +1640,11 @@ To activate push (not yet wired):
 | SST NcertTopicContent (55 records: History/Geography/Economics/Political Science — 4 subject files) | ✅ Complete |
 | SST Topic DAG (55 nodes, prerequisite graph Ch1–22, seedSocialScienceTopicDAG.js) | ✅ Complete |
 | auditCoverage.mjs supports Social Science with topicIds across 22 chapters | ✅ Complete |
+| CBSE Class 10 English — 35 fine-grained topics, 256 questions, no diagrams (literature subject) | ✅ Complete |
+| English NcertTopicContent (35 records: FF Prose/Poems + Footprints + Workbook Grammar — seedEnglishContent.js) | ✅ Complete |
+| English Topic DAG (35 nodes, prerequisite graph FF/FW/Grammar, seedEnglishTopicDAG.js) | ✅ Complete |
+| auditCoverage.mjs supports English with skipDiagram flag (shows N/A instead of 0/missing) | ✅ Complete |
+| English RAG index (156 chunks via buildRagFromCurriculum.js --subject=English) | ✅ Complete |
 
 ---
 

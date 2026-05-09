@@ -63,7 +63,16 @@
     "restore": "node scripts/restore.js",
     "audit:coverage": "node config/auditCoverage.mjs",
     "audit:coverage:detail": "node config/auditCoverage.mjs --detail",
-    "seed:missing-questions": "node config/seedScienceMissingQuestions.js"
+    "audit:coverage:english": "node config/auditCoverage.mjs English",
+    "seed:missing-questions": "node config/seedScienceMissingQuestions.js",
+    "seed:english-ncert-chapters": "node config/seedEnglishNcertChapters.js",
+    "seed:english-content": "node config/seedEnglishContent.js",
+    "seed:english-questions-a": "node config/seedEnglishQuestionsA.js",
+    "seed:english-questions-b": "node config/seedEnglishQuestionsB.js",
+    "seed:english-questions-c": "node config/seedEnglishQuestionsC.js",
+    "seed:english-questions-d": "node config/seedEnglishQuestionsD.js",
+    "seed:english-topic-dag": "node config/seedEnglishTopicDAG.js",
+    "seed:english-all": "node config/seedEnglishCurriculum.js && node config/seedEnglishNcertChapters.js && node config/seedEnglishContent.js && node config/seedEnglishQuestionsA.js && node config/seedEnglishQuestionsB.js && node config/seedEnglishQuestionsC.js && node config/seedEnglishQuestionsD.js && node config/seedEnglishTopicDAG.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

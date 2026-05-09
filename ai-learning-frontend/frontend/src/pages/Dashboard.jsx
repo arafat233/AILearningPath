@@ -239,8 +239,8 @@ export default function Dashboard() {
         </h1>
         <p className="text-[15px] text-[#1a1040]/65 mb-6 max-w-[480px] leading-relaxed">
           {todayTasks.length > 0
-            ? `${todayTasks.length} focused ${todayTasks.length === 1 ? "set" : "sets"}. ~${todayTasks.reduce((s,t) => { const m = t.detail.match(/~?(\d+)\s*min/); return s + (m ? +m[1] : 0); }, 0)} minutes. Aria has spotted your next improvement zone.`
-            : "Practice a few topics to let Aria build your daily plan."}
+            ? `${todayTasks.length} focused ${todayTasks.length === 1 ? "set" : "sets"}. ~${todayTasks.reduce((s,t) => { const m = t.detail.match(/~?(\d+)\s*min/); return s + (m ? +m[1] : 0); }, 0)} minutes. Stellar has spotted your next improvement zone.`
+            : "Practice a few topics to let Stellar build your daily plan."}
         </p>
         <div className="flex items-center gap-3">
           <button
@@ -436,7 +436,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#f0f0f5] flex flex-col">
           <div className="flex items-center gap-2.5 mb-4">
             <AriaDot />
-            <p className="text-[13px] font-semibold text-[#1c1c1e]">Aria · your AI coach</p>
+            <p className="text-[13px] font-semibold text-[#1c1c1e]">Stellar · your AI coach</p>
           </div>
           <p className="text-[15px] text-[#1c1c1e] leading-relaxed flex-1">
             {advice
@@ -482,12 +482,12 @@ export default function Dashboard() {
                 {isNewUser ? (
                   <>
                     <p className="text-[15px] font-semibold text-[#1c1c1e] mb-1">No topics surfaced yet</p>
-                    <p className="text-[13px] text-[#8e8e93]">Practice 10 questions and Aria will build your focus queue.</p>
+                    <p className="text-[13px] text-[#8e8e93]">Practice 10 questions and Stellar will build your focus queue.</p>
                   </>
                 ) : (
                   <>
                     <p className="text-[15px] font-semibold text-[#1c1c1e] mb-1">You're all caught up!</p>
-                    <p className="text-[13px] text-[#8e8e93]">Strong across all active topics. Aria will surface new ones soon.</p>
+                    <p className="text-[13px] text-[#8e8e93]">Strong across all active topics. Stellar will surface new ones soon.</p>
                   </>
                 )}
               </div>

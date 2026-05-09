@@ -4,6 +4,7 @@ import {
   getDailyBrief, saveVoiceTutorNote,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import AICreditsIndicator from "../components/AICreditsIndicator";
 
 /* ── Sub-components ────────────────────────────────────────────── */
 
@@ -210,7 +211,7 @@ export default function VoiceTutor() {
 
   /* ── Render ── */
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="w-full space-y-5">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -226,6 +227,7 @@ export default function VoiceTutor() {
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
+          <AICreditsIndicator compact />
           {chat.length > 0 && (
             <button onClick={handleClearHistory}
               className="text-[12px] text-apple-gray hover:text-apple-red transition-colors border border-apple-gray5 px-3 py-1.5 rounded-apple">

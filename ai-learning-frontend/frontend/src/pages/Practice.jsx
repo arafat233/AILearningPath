@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { startTopic, submitAnswer, evaluateExplanation, flagQuestion, getTopics, getHint, toggleBookmark, startBookmarkPractice, startRetryPractice, getBookmarks, rateAIResponse } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import FeedbackWidget from "../components/FeedbackWidget";
+import AICreditsIndicator from "../components/AICreditsIndicator";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
 
 // ── subject / sub-subject constants ────────────────────────────────
@@ -710,6 +711,7 @@ export default function Practice() {
               >
                 {hintLoading ? "Getting hint…" : hint ? "Hint shown" : "💡 Get Hint"}
               </button>
+              <AICreditsIndicator compact />
             </div>
             {hint && (
               <div className="bg-apple-orange/6 border border-apple-orange/20 rounded-apple-lg px-4 py-3 animate-enter">

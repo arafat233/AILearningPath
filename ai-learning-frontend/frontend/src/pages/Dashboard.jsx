@@ -7,6 +7,7 @@ import {
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { DashboardSkeleton } from "../components/Skeleton";
+import AICreditsIndicator from "../components/AICreditsIndicator";
 
 /* ── Constants ───────────────────────────────────────────────────── */
 
@@ -451,6 +452,7 @@ export default function Dashboard() {
               See full analysis
             </button>
           </div>
+          <AICreditsIndicator usage={aiUsage} />
         </div>
       </div>
 

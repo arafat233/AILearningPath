@@ -1379,7 +1379,8 @@ npm run seed:sst-questions-a           ← SST questions History + Geography (~4
 npm run seed:sst-questions-b           ← SST questions Economics Ch13–14 (~112 Qs)
 npm run seed:sst-questions-c           ← SST questions Economics Ch15–17 + PolSci Ch18–22 (168 Qs, 8 per topic)
 npm run seed:sst-topic-dag             ← Social Science Topic prerequisite DAG (55 nodes, Ch1–22)
-npm run seed:sst-all                   ← convenience: runs all 4 content + 3 question + DAG seeds in order
+npm run seed:sst-ncert-chapters        ← Bridge Chapter→NcertChapter for SST (powers /api/v1/ncert/chapters)
+npm run seed:sst-all                   ← convenience: curriculum + NcertChapters + content + questions + DAG
 npm run seed:science-chemistry-content  ← Science Chemistry NcertTopicContent (17 topics, Ch1-4 incl. carbon allotropes)
 npm run seed:science-biology-content    ← Science Biology NcertTopicContent (23 topics, Ch5-8,13 incl. endocrine, reproductive health, variation)
 npm run seed:science-physics-content    ← Science Physics NcertTopicContent (16 topics, Ch9-12 incl. domestic circuits)

@@ -73,6 +73,36 @@ const SST_SUBS = {
 };
 const SST_COLORS = { History: "#FF3B30", Geography: "#34C759", Economics: "#007AFF", "Political Science": "#FF9500" };
 
+const ENG_CHAPTER_TITLES = {
+  1:  "A Letter to God",
+  2:  "Nelson Mandela: Long Walk to Freedom",
+  3:  "Two Stories about Flying",
+  4:  "From the Diary of Anne Frank",
+  5:  "Glimpses of India",
+  6:  "Mijbil the Otter",
+  7:  "Madam Rides the Bus",
+  8:  "The Sermon at Benares",
+  9:  "The Proposal",
+  10: "A Triumph of Surgery",
+  11: "The Thief's Story",
+  12: "The Midnight Visitor",
+  13: "A Question of Trust",
+  14: "Footprints Without Feet",
+  15: "The Making of a Scientist",
+  16: "The Necklace",
+  17: "Bholi",
+  18: "The Book That Saved the Earth",
+  19: "Sequencing and Narrative Writing",
+  20: "Verb Forms and Tenses",
+  21: "Relative Clauses",
+  22: "Active and Passive Voice",
+  23: "Conditionals",
+  24: "Reported Speech",
+  25: "Article Writing",
+  26: "Report Writing",
+  27: "Speech Writing",
+};
+
 // ── sub-components ─────────────────────────────────────────────────
 function SubjectBar({ active, onSelect }) {
   return (
@@ -248,6 +278,10 @@ const ScienceChapterCard = (props) => (
   <TopicsChapterCard {...props} color="#34C759" titleMap={SCIENCE_CHAPTER_TITLES} />
 );
 
+const EnglishChapterCard = (props) => (
+  <TopicsChapterCard {...props} color="#FF9500" titleMap={ENG_CHAPTER_TITLES} />
+);
+
 // ── main page ──────────────────────────────────────────────────────
 export default function Lessons() {
   const { user }  = useAuthStore();
@@ -268,6 +302,7 @@ export default function Lessons() {
   const [revisionDue, setRevisionDue] = useState([]);
   const [sciTopics,   setSciTopics]   = useState([]);
   const [sstTopics,   setSstTopics]   = useState([]);
+  const [engTopics,   setEngTopics]   = useState([]);
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
@@ -284,12 +319,16 @@ export default function Lessons() {
       activeSubject === "Social Science"
         ? listNcertTopics(undefined, "Social Science").catch(() => ({ data: { data: [] } }))
         : Promise.resolve({ data: { data: [] } }),
-    ]).then(([l, r, c, st, sst]) => {
+      activeSubject === "English"
+        ? listNcertTopics(undefined, "English").catch(() => ({ data: { data: [] } }))
+        : Promise.resolve({ data: { data: [] } }),
+    ]).then(([l, r, c, st, sst, eng]) => {
       setLessons(l.data);
       setRevisionDue(r.data);
       setChapters(c.data?.data ?? []);
       setSciTopics(st.data?.data ?? []);
       setSstTopics(sst.data?.data ?? []);
+      setEngTopics(eng.data?.data ?? []);
     }).finally(() => setLoading(false));
   }, [activeSubject, grade]);
 
@@ -314,6 +353,17 @@ export default function Lessons() {
       .map((n) => ({ chapterNumber: Number(n), topics: groups[n] }))
       .sort((a, b) => a.chapterNumber - b.chapterNumber);
   }, [sstTopics]);
+
+  const engChapterGroups = useMemo(() => {
+    const groups = {};
+    engTopics.forEach((t) => {
+      if (!groups[t.chapterNumber]) groups[t.chapterNumber] = [];
+      groups[t.chapterNumber].push(t);
+    });
+    return Object.keys(groups)
+      .map((n) => ({ chapterNumber: Number(n), topics: groups[n] }))
+      .sort((a, b) => a.chapterNumber - b.chapterNumber);
+  }, [engTopics]);
 
   if (loading) return <LessonsSkeleton />;
 
@@ -437,6 +487,30 @@ export default function Lessons() {
                         topics={g.topics}
                         color={sstChapterColor(g.chapterNumber)}
                         titleMap={SST_CHAPTER_TITLES}
+                        onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
+                        onPractice={() => navigate("/practice", {
+                          state: { mixTopics: g.topics.map((t) => t.topicId), autoStart: true },
+                        })}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : activeSubject === "English" ? (
+                engChapterGroups.length === 0 ? (
+                  <div className="card p-10 text-center space-y-2">
+                    <p className="text-[28px]">📖</p>
+                    <p className="text-[15px] font-semibold text-[var(--label)]">Loading English chapters…</p>
+                    <p className="text-[13px] text-apple-gray">
+                      Switch to <strong>AI Lessons</strong> to study now.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5">
+                    {engChapterGroups.map((g) => (
+                      <EnglishChapterCard
+                        key={g.chapterNumber}
+                        chapterNumber={g.chapterNumber}
+                        topics={g.topics}
                         onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
                         onPractice={() => navigate("/practice", {
                           state: { mixTopics: g.topics.map((t) => t.topicId), autoStart: true },

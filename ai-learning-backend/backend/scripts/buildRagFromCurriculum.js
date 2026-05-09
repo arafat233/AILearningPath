@@ -18,7 +18,7 @@ import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const { NcertChunk } = await import("../models/index.js");
 const { Chapter }    = await import("../models/chapterModel.js");
@@ -28,7 +28,8 @@ const args = Object.fromEntries(
     .filter((a) => a.startsWith("--"))
     .map((a) => a.slice(2).split("="))
 );
-const targetSubject = args.subject || null;
+const SUBJECT_ALIASES = { SST: "Social Science", SocialScience: "Social Science", Social: "Social Science" };
+const targetSubject = SUBJECT_ALIASES[args.subject] || args.subject || null;
 
 const NON_MATH_SUBJECTS = ["Science", "English", "Hindi", "Social Science"];
 

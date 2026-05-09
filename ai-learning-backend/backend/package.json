@@ -18,7 +18,7 @@
     "rag:build-science": "node scripts/buildRagFromCurriculum.js --subject=Science",
     "rag:build-english": "node scripts/buildRagFromCurriculum.js --subject=English",
     "rag:build-hindi": "node scripts/buildRagFromCurriculum.js --subject=Hindi",
-    "rag:build-social": "node scripts/buildRagFromCurriculum.js --subject=Social Science",
+    "rag:build-social": "node scripts/buildRagFromCurriculum.js --subject=SST",
     "import:ncert": "node config/importNcert.js",
     "seed:ncert-content": "node config/seedNcertContent.js",
     "seed:pyq": "node config/seedPYQ.js",

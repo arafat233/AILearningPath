@@ -1,4 +1,6 @@
-const CACHE = "stellar-v1";
+// Cache name is bumped on every deploy so service workers auto-invalidate stale assets.
+// Format: stellar-v{N}-{YYYY-MM-DD}
+const CACHE = "stellar-v2-2026-05-12";
 
 self.addEventListener("install", () => self.skipWaiting());
 

@@ -1,9 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getReport, getAIAdvice, getAIUsage, getAICacheStats,
   getLinkRequests, respondToLinkRequest,
   submitFeedback, getNpsEligibility, getDailyBrief, getPrediction,
+  dashboardV2Get, dashboardV2Commit, dashboardV2Snooze, dashboardV2Widget,
+  profileGetMood, profileSetMood, profileGetBestWindow,
+  askTutor,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { DashboardSkeleton } from "../components/Skeleton";
@@ -152,10 +155,101 @@ export default function Dashboard() {
   const [prediction,     setPrediction]     = useState(null);
   const [completedTasks, setCompletedTasks] = useState(() => new Set());
 
+  // v2 state
+  const [v2,         setV2]         = useState(null);
+  const [bestWindow, setBestWindow] = useState(null);
+  const [todayMood,  setTodayMood]  = useState(null);
+  const [snoozedIds, setSnoozedIds] = useState(new Set());
+  const [taskOrder,  setTaskOrder]  = useState(null); // null = use default
+  const [showCommitModal, setShowCommitModal] = useState(false);
+  const [commitDraft,    setCommitDraft]      = useState(30);
+  const [pomoOpen,   setPomoOpen]   = useState(false);
+  const [pomoSec,    setPomoSec]    = useState(25 * 60);
+  const [pomoRunning,setPomoRunning]= useState(false);
+  const [density,    setDensity]    = useState(() => localStorage.getItem("stellar_dashboard_density") || "comfortable");
+  const [miniAriaOpen, setMiniAriaOpen] = useState(false);
+  const [miniAriaInput, setMiniAriaInput] = useState("");
+  const [miniAriaReply, setMiniAriaReply] = useState("");
+  const [idleNudge,  setIdleNudge]  = useState(false);
+  const lastActiveRef = useRef(Date.now());
+
   useEffect(() => {
     getDailyBrief().then((r) => setBrief(r.data?.data)).catch(() => {});
     getPrediction().then((r) => setPrediction(r.data)).catch(() => {});
+    dashboardV2Get().then((r) => {
+      const d = r.data?.data || {};
+      setV2(d);
+      setSnoozedIds(new Set((d.snoozes || []).map((s) => s.taskId)));
+      if (d.widget?.density) setDensity(d.widget.density);
+    }).catch(() => {});
+    profileGetBestWindow().then((r) => setBestWindow(r.data?.data)).catch(() => {});
+    profileGetMood().then((r) => {
+      const today = new Date().toISOString().slice(0, 10);
+      setTodayMood((r.data?.data || []).find((m) => m.date === today));
+    }).catch(() => {});
   }, []);
+
+  // Idle detection (#25) — fires after 90s of no input, dismisses on activity
+  useEffect(() => {
+    const ping = () => { lastActiveRef.current = Date.now(); if (idleNudge) setIdleNudge(false); };
+    const events = ["mousemove", "keydown", "click", "scroll"];
+    events.forEach((e) => window.addEventListener(e, ping, { passive: true }));
+    const id = setInterval(() => {
+      if (Date.now() - lastActiveRef.current > 90_000) setIdleNudge(true);
+    }, 10_000);
+    return () => { events.forEach((e) => window.removeEventListener(e, ping)); clearInterval(id); };
+  }, [idleNudge]);
+
+  // Pomodoro tick
+  useEffect(() => {
+    if (!pomoRunning) return;
+    const id = setInterval(() => setPomoSec((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [pomoRunning]);
+  useEffect(() => { if (pomoSec === 0) setPomoRunning(false); }, [pomoSec]);
+
+  useEffect(() => { localStorage.setItem("stellar_dashboard_density", density); }, [density]);
+
+  const setMoodToday = async (m) => {
+    try { await profileSetMood(m); setTodayMood({ mood: m, date: new Date().toISOString().slice(0, 10) }); } catch {}
+  };
+
+  const handleCommit = async () => {
+    try {
+      const r = await dashboardV2Commit(commitDraft);
+      setV2((prev) => ({ ...prev, commitment: r.data?.data }));
+      setShowCommitModal(false);
+    } catch {}
+  };
+
+  const handleSnooze = async (taskId, reason) => {
+    setSnoozedIds((s) => new Set([...s, taskId]));
+    try { await dashboardV2Snooze(taskId, reason); } catch {}
+  };
+
+  const askMiniAria = async () => {
+    if (!miniAriaInput.trim()) return;
+    setMiniAriaReply("…");
+    try {
+      const r = await askTutor(miniAriaInput, [], "Dashboard", user?.subject || "Math");
+      setMiniAriaReply(r.data?.message || r.data?.reply || "");
+      setMiniAriaInput("");
+    } catch { setMiniAriaReply("Try again later."); }
+  };
+
+  const speakPlan = () => {
+    const text = `Hey ${name}. Today's plan: ${(buildTodayTasks(brief) || []).map((t) => t.title).join(", ")}. Let's go.`;
+    if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.05; u.pitch = 1;
+      window.speechSynthesis.speak(u);
+    }
+  };
+
+  const setDensityPref = async (d) => {
+    setDensity(d);
+    try { await dashboardV2Widget({ density: d }); } catch {}
+  };
 
   useEffect(() => {
     Promise.all([getReport(), getAIAdvice(), getAIUsage()])
@@ -209,7 +303,10 @@ export default function Dashboard() {
     : null;
 
   const todayTasks     = buildTodayTasks(brief);
-  const name           = (child?.name || user?.name || "").split(" ")[0];
+  const name           = (() => {
+    const first = (child?.name || user?.name || "").split(" ")[0];
+    return first ? first.charAt(0).toUpperCase() + first.slice(1) : first;
+  })();
   const profile        = PROFILE_STYLE[report?.thinkingProfile];
   const todayPractised = (aiUsage?.used ?? 0) > 0;
   const doneCount      = todayTasks.filter(t => completedTasks.has(t.id)).length;
@@ -223,6 +320,61 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
 
+      {/* ── Top control bar: streak strip + mood + density + speak plan ── */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        {/* #1 Mini 7-day streak strip */}
+        {v2?.streakStrip && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.12em] uppercase text-[#3A3A3C]">7d</p>
+            <div className="flex gap-1">
+              {v2.streakStrip.map((d, i) => (
+                <div key={i} className={`flex flex-col items-center gap-0.5 ${d.isToday ? "scale-110" : ""}`}>
+                  <div className="w-3.5 h-3.5 rounded-sm" title={`${d.date}: ${d.count}`}
+                    style={{ background: d.count > 0 ? "#34C759" : "#D1D1D6" }} />
+                  <span className={`text-[9px] font-semibold ${d.isToday ? "text-[#1c1c1e]" : "text-[#3A3A3C]"}`}>{d.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          {/* #3 Mood inline */}
+          {!todayMood ? (
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-[#f0f0f5] shadow-sm">
+              <span className="text-[10px] text-[#3A3A3C] mr-1 font-semibold">Mood?</span>
+              {[
+                { id: "great", e: "😊" },
+                { id: "ok",    e: "😐" },
+                { id: "low",   e: "😫" },
+              ].map((m) => (
+                <button key={m.id} onClick={() => setMoodToday(m.id)} className="text-[14px] hover:scale-110 transition-transform">{m.e}</button>
+              ))}
+            </div>
+          ) : (
+            <span className="px-3 py-1.5 rounded-full bg-white border border-[#f0f0f5] shadow-sm text-[12px] text-[#3A3A3C] font-semibold">Today: {todayMood.mood === "great" ? "😊" : todayMood.mood === "ok" ? "😐" : "😫"}</span>
+          )}
+          {/* #6 Pomodoro launcher */}
+          <button onClick={() => setPomoOpen(true)} title="Focus timer" className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white border border-[#f0f0f5] shadow-sm text-[#3A3A3C] hover:shadow-md transition-all">⏲ Pomodoro</button>
+          {/* #24 Voice "what's my plan" */}
+          <button onClick={speakPlan} title="Read plan aloud" className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white border border-[#f0f0f5] shadow-sm text-[#3A3A3C] hover:shadow-md transition-all">🔊 Plan</button>
+          {/* #22 Density toggle */}
+          <div className="flex bg-white border border-[#f0f0f5] shadow-sm rounded-full overflow-hidden text-[11px]">
+            <button onClick={() => setDensityPref("comfortable")} title="Comfortable" className={`px-2.5 py-1.5 font-semibold ${density === "comfortable" ? "bg-[#1c1c1e] text-white" : "text-[#3A3A3C]"}`}>▦</button>
+            <button onClick={() => setDensityPref("compact")} title="Compact" className={`px-2.5 py-1.5 font-semibold ${density === "compact" ? "bg-[#1c1c1e] text-white" : "text-[#3A3A3C]"}`}>▤</button>
+          </div>
+        </div>
+      </div>
+
+      {/* #4 Streak risk banner */}
+      {v2?.streakRisk && !v2.streakRisk.safe && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#FF3B30]/8 border border-[#FF3B30]/20">
+          <p className="text-[12px] text-[#FF3B30] font-medium">
+            🔥 {v2.streakRisk.currentStreak}-day streak at risk — practice in {v2.streakRisk.hoursLeft} hrs to keep it alive
+          </p>
+          <button onClick={() => navigate("/practice")} className="px-3 py-1 rounded-lg bg-[#FF3B30] text-white text-[11px] font-bold">Save it →</button>
+        </div>
+      )}
+
       {/* ── Hero Card ─────────────────────────────────────────────── */}
       <div
         className="rounded-2xl p-8 relative overflow-hidden"
@@ -230,6 +382,10 @@ export default function Dashboard() {
       >
         <p className="text-[11px] font-bold tracking-[0.18em] text-[#1a1040]/60 mb-3 uppercase">
           {getTimeLabel(!!brief?.planProgress)}
+          {/* #5 Smart-context greeting */}
+          {bestWindow?.lift > 0 && new Date().getHours() === bestWindow.bestHour && (
+            <span className="ml-2 normal-case tracking-normal text-[#1a1040]/80 font-semibold">· you peak at this hour ✨</span>
+          )}
         </p>
         <h1 className="text-[44px] sm:text-[52px] font-bold leading-[1.1] text-[#1a1040] mb-3 tracking-tight">
           Hey {name} — let's clear{" "}
@@ -243,7 +399,7 @@ export default function Dashboard() {
             ? `${todayTasks.length} focused ${todayTasks.length === 1 ? "set" : "sets"}. ~${todayTasks.reduce((s,t) => { const m = t.detail.match(/~?(\d+)\s*min/); return s + (m ? +m[1] : 0); }, 0)} minutes. Stellar has spotted your next improvement zone.`
             : "Practice a few topics to let Stellar build your daily plan."}
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => navigate(brief?.weakTopics?.[0]?.topic ? "/practice" : "/lessons")}
             className="flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
@@ -251,6 +407,26 @@ export default function Dashboard() {
           >
             <IconPlay /> Begin plan
           </button>
+          {/* #2 Daily commitment */}
+          {v2?.commitment ? (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/40 backdrop-blur-sm">
+              <p className="text-[12px] font-bold text-[#1a1040]">{v2.commitment.doneMinutes}/{v2.commitment.goalMinutes} min</p>
+              <div className="w-20 h-1.5 bg-white/50 rounded-full overflow-hidden">
+                <div className="h-full bg-[#1a1040] rounded-full" style={{ width: `${v2.commitment.percent}%` }} />
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setShowCommitModal(true)} className="px-3 py-2 rounded-full bg-white/40 backdrop-blur-sm text-[12px] font-semibold text-[#1a1040]">
+              + Commit to today
+            </button>
+          )}
+          {/* #15 NBA chip */}
+          {v2?.nba && (
+            <button onClick={() => navigate(brief?.weakTopics?.[0] ? "/practice" : "/lessons")}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/40 backdrop-blur-sm text-[12px] font-semibold text-[#1a1040]">
+              <span>{v2.nba.icon}</span> {v2.nba.label}
+            </button>
+          )}
         </div>
       </div>
 
@@ -304,6 +480,14 @@ export default function Dashboard() {
         </button>
       )}
 
+      {/* #9 Quick launcher row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <button onClick={() => navigate("/practice")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-sm transition-all">⚡ 5-min warmup</button>
+        <button onClick={() => navigate("/voice-tutor")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-sm transition-all">🎤 Voice tutor</button>
+        <button onClick={() => navigate("/bookmarks")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-sm transition-all">↻ Review due</button>
+        <button onClick={() => setMiniAriaOpen(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-sm transition-all">💬 Ask Aria</button>
+      </div>
+
       {/* ── Today's Plan + Revise Today + Aria ───────────────────── */}
       <div className="grid md:grid-cols-3 gap-4">
 
@@ -346,30 +530,45 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="flex flex-col gap-1">
-              {todayTasks.map((task) => {
+              {todayTasks.filter((t) => !snoozedIds.has(t.id)).map((task, idx, arr) => {
                 const color = task.subject ? subjectColor(task.subject) : "#8e8e93";
                 const label = task.subject ? subjectLabel(task.subject) : "Mixed";
                 const done  = completedTasks.has(task.id);
                 return (
-                  <button
-                    key={task.id}
-                    onClick={() => markDone(task.id, task.topicName ? "/practice" : null, task.topicName ? { topic: task.topicName } : null)}
-                    className={`flex items-center gap-4 px-2 py-3.5 rounded-xl transition-colors text-left w-full ${done ? "opacity-45" : "hover:bg-[#f5f5fa]"}`}
-                  >
-                    <div className="w-[3px] h-10 rounded-full shrink-0" style={{ background: done ? "#8e8e93" : color }} />
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-[14px] font-semibold truncate ${done ? "line-through text-[#8e8e93]" : "text-[#1c1c1e]"}`}>{task.title}</p>
-                      <p className="text-[12px] text-[#8e8e93] mt-0.5">{task.detail}</p>
-                    </div>
-                    {done ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#34C759]" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                    ) : (
-                      <span className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                        style={{ background: color + "18", color }}>{label}</span>
+                  <div key={task.id} className={`group/task flex items-center gap-2 px-2 py-3.5 rounded-xl transition-colors w-full ${done ? "opacity-45" : "hover:bg-[#f5f5fa]"}`}
+                    draggable onDragStart={(e) => { e.dataTransfer.setData("text", task.id); }}>
+                    {/* #7 drag handle */}
+                    <span className="text-[#C7C7CC] text-[12px] cursor-grab opacity-0 group-hover/task:opacity-100" title="Drag to reorder">⋮⋮</span>
+                    <button
+                      onClick={() => markDone(task.id, task.topicName ? "/practice" : null, task.topicName ? { topic: task.topicName } : null)}
+                      className="flex-1 flex items-center gap-4 text-left min-w-0"
+                    >
+                      <div className="w-[3px] h-10 rounded-full shrink-0" style={{ background: done ? "#8e8e93" : color }} />
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[14px] font-semibold truncate ${done ? "line-through text-[#8e8e93]" : "text-[#1c1c1e]"}`}>{task.title}</p>
+                        <p className="text-[12px] text-[#8e8e93] mt-0.5">{task.detail}</p>
+                      </div>
+                      {done ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#34C759]" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <span className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                          style={{ background: color + "18", color }}>{label}</span>
+                      )}
+                    </button>
+                    {/* #8 + #10 snooze/skip with reason */}
+                    {!done && (
+                      <select onChange={(e) => { if (e.target.value) handleSnooze(task.id, e.target.value); e.target.value = ""; }}
+                        className="text-[10px] text-[#C7C7CC] bg-transparent border-none outline-none opacity-0 group-hover/task:opacity-100 cursor-pointer">
+                        <option value="">⋯</option>
+                        <option value="later_today">Later today</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="this_week">This week</option>
+                        <option value="not_relevant">Not relevant</option>
+                      </select>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -530,6 +729,103 @@ export default function Dashboard() {
           </div>
         );
       })()}
+
+      {/* ── New: peer activity + class avg + rank + next badge + tomorrow + micro-feed ── */}
+      <div className="grid md:grid-cols-4 gap-3">
+        {/* #16 Peer ticker */}
+        {v2?.peer && (
+          <div className="bg-white rounded-2xl p-4 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Online now</p>
+            <p className="text-[24px] font-bold text-[#34C759]">{v2.peer.online}</p>
+            <p className="text-[10px] text-[#8e8e93] mt-1">classmates · last 30 min</p>
+          </div>
+        )}
+        {/* #17 Class avg */}
+        {v2?.peer?.classAvg != null && (
+          <div className="bg-white rounded-2xl p-4 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Class avg</p>
+            <p className="text-[24px] font-bold text-[#007AFF]">{v2.peer.classAvg}%</p>
+            <p className="text-[10px] text-[#8e8e93] mt-1">grade {child?.grade || user?.grade} · 7d</p>
+          </div>
+        )}
+        {/* #19 Rank */}
+        {v2?.rank?.rank && (
+          <div className="bg-white rounded-2xl p-4 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Your rank</p>
+            <p className="text-[24px] font-bold text-[#FF9500]">#{v2.rank.rank}</p>
+            <p className="text-[10px] text-[#8e8e93] mt-1">of {v2.rank.total} · top {100 - (v2.rank.percentile || 0)}%</p>
+          </div>
+        )}
+        {/* #12 Next badge */}
+        {v2?.nextBadge && (
+          <div className="bg-gradient-to-br from-[#FF9500]/8 to-[#FFCC02]/8 rounded-2xl p-4 border border-[#FF9500]/20">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#FF9500] mb-1">Next badge</p>
+            <p className="text-[14px] font-bold text-[#1c1c1e]">🏅 {v2.nextBadge.label}</p>
+            <div className="flex items-center gap-1.5 mt-2">
+              <div className="flex-1 h-1.5 bg-white rounded-full overflow-hidden">
+                <div className="h-full bg-[#FF9500]" style={{ width: `${(v2.nextBadge.current / v2.nextBadge.target) * 100}%` }} />
+              </div>
+              <span className="text-[10px] font-bold text-[#FF9500]">{v2.nextBadge.remaining}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* #11 Tomorrow + #18 Friend activity + #20 Recent micro-feed */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {v2?.tomorrow?.topics?.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-2">Tomorrow's likely focus</p>
+            <p className="text-[13px] text-[#1c1c1e] leading-relaxed">{v2.tomorrow.topics.join(" · ")}</p>
+            <button onClick={() => navigate("/study-planner")} className="text-[11px] font-semibold text-[#007AFF] mt-3">Open planner →</button>
+          </div>
+        )}
+        {v2?.friends?.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-2">Friend activity</p>
+            <div className="space-y-1.5">
+              {v2.friends.slice(0, 3).map((f, i) => (
+                <p key={i} className="text-[12px] text-[#3A3A3C]">
+                  <span className="font-semibold text-[#1c1c1e]">{f.name.split(" ")[0]}</span> earned <span className="font-semibold text-[#FF9500]">{f.badge}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
+        {v2?.recent?.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-2">Recently completed</p>
+            <div className="space-y-1.5">
+              {v2.recent.slice(0, 3).map((r, i) => (
+                <button key={i} onClick={() => navigate("/practice", { state: { topic: r.topic } })} className="w-full text-left text-[12px] text-[#3A3A3C] hover:bg-[#FAFAFB] px-2 py-1 rounded-md transition-colors">
+                  <span className="font-semibold text-[#1c1c1e]">{r.topic}</span> · {r.count} qs · {r.accuracy}%
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* #13 Goal countdown + #14 Counterfactual */}
+      {(prediction?.predictedMin != null || user?.examDate) && (
+        <div className="grid md:grid-cols-2 gap-3">
+          {user?.examDate && (
+            <div className="rounded-2xl p-5 border border-[#007AFF]/20" style={{ background: "linear-gradient(135deg, rgba(0,122,255,0.06), rgba(175,82,222,0.06))" }}>
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#007AFF] mb-1">Board exam countdown</p>
+              <div className="flex items-end gap-3">
+                <p className="text-[36px] font-bold text-[#007AFF] leading-none">{Math.max(0, Math.ceil((new Date(user.examDate) - new Date()) / 86400000))}</p>
+                <p className="text-[12px] text-[#8e8e93] mb-1">days · on track for {predScore || "—"}{predScore ? `/${100} (${prediction?.predictedGrade})` : ""}</p>
+              </div>
+            </div>
+          )}
+          {predScore && (
+            <div className="rounded-2xl p-5 border border-[#7c3aed]/20 predscore-card">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#7c3aed] mb-1">If you do today's plan</p>
+              <p className="text-[13px] text-[#1c1c1e] leading-relaxed">Predicted score lifts <span className="font-bold text-[#7c3aed]">+2 marks</span> · current {predScore}/100</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── 4 Stat Cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -710,6 +1006,88 @@ export default function Dashboard() {
 
         </div>
       </div>
+
+      {/* ── Modals + floating UI ─────────────────────────────────── */}
+
+      {/* #2 Commit modal */}
+      {showCommitModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={() => setShowCommitModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-[16px] font-bold text-[#1c1c1e] mb-1">How long today?</h3>
+            <p className="text-[12px] text-[#8e8e93] mb-4">Setting a tiny commitment dramatically improves follow-through.</p>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[15, 30, 45, 60, 90, 120].map((m) => (
+                <button key={m} onClick={() => setCommitDraft(m)}
+                  className={`py-2.5 rounded-xl text-[13px] font-bold ${commitDraft === m ? "bg-[#1c1c1e] text-white" : "bg-[#F2F2F7] text-[#3A3A3C]"}`}>
+                  {m} min
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setShowCommitModal(false)} className="flex-1 py-2.5 rounded-xl border border-[#E5E5EA] text-[12px] font-semibold text-[#3A3A3C]">Cancel</button>
+              <button onClick={handleCommit} className="flex-1 py-2.5 rounded-xl bg-[#1c1c1e] text-white text-[12px] font-semibold">Commit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* #6 Pomodoro mini-panel */}
+      {pomoOpen && (
+        <div className="fixed bottom-4 right-4 z-50 bg-[#1c1c1e] text-white rounded-2xl px-5 py-4 shadow-2xl w-64">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-bold tracking-wider uppercase text-white/60">Focus timer</p>
+            <button onClick={() => { setPomoOpen(false); setPomoRunning(false); }} className="text-white/60 text-[16px] leading-none">×</button>
+          </div>
+          <p className="text-[44px] font-bold tabular-nums leading-none mb-3 text-center" style={{ fontFamily: "ui-monospace, monospace" }}>
+            {String(Math.floor(pomoSec / 60)).padStart(2, "0")}:{String(pomoSec % 60).padStart(2, "0")}
+          </p>
+          <div className="flex gap-2">
+            <button onClick={() => setPomoRunning((r) => !r)} className="flex-1 py-2 rounded-lg bg-white text-[#1c1c1e] text-[12px] font-bold">
+              {pomoRunning ? "Pause" : pomoSec === 0 ? "Reset" : "Start"}
+            </button>
+            <button onClick={() => { setPomoSec(25 * 60); setPomoRunning(false); }} className="px-3 py-2 rounded-lg bg-white/10 text-white text-[11px]">25:00</button>
+            <button onClick={() => { setPomoSec(5 * 60); setPomoRunning(false); }} className="px-3 py-2 rounded-lg bg-white/10 text-white text-[11px]">5:00</button>
+          </div>
+        </div>
+      )}
+
+      {/* #23 Mini Aria PIP chat */}
+      {miniAriaOpen && (
+        <div className="fixed bottom-4 left-4 z-50 bg-white rounded-2xl shadow-2xl w-80 border border-[#f0f0f5]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#F2F2F7]">
+            <div className="flex items-center gap-2">
+              <AriaDot />
+              <p className="text-[13px] font-bold text-[#1c1c1e]">Aria</p>
+            </div>
+            <button onClick={() => setMiniAriaOpen(false)} className="text-[#8e8e93] text-[18px] leading-none">×</button>
+          </div>
+          <div className="p-3 max-h-[200px] overflow-y-auto">
+            {miniAriaReply ? (
+              <p className="text-[13px] text-[#1c1c1e] leading-relaxed">{miniAriaReply}</p>
+            ) : (
+              <p className="text-[12px] text-[#8e8e93]">Ask anything — concept, tip, motivation.</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 p-3 border-t border-[#F2F2F7]">
+            <input value={miniAriaInput} onChange={(e) => setMiniAriaInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && askMiniAria()}
+              placeholder="Ask Aria…"
+              className="flex-1 text-[12px] px-2.5 py-1.5 rounded-lg bg-[#F2F2F7] border-none outline-none" />
+            <button onClick={askMiniAria} className="w-8 h-8 rounded-lg bg-[#1c1c1e] text-white text-[12px] font-bold">→</button>
+          </div>
+        </div>
+      )}
+
+      {/* #25 Idle prompt */}
+      {idleNudge && (
+        <div className="fixed top-20 right-4 z-50 bg-[#7c3aed] text-white rounded-xl px-4 py-3 shadow-xl max-w-xs">
+          <p className="text-[12px] font-semibold mb-2">👋 Stuck or distracted? A 5-min warmup gets the brain back online.</p>
+          <div className="flex gap-2">
+            <button onClick={() => { setIdleNudge(false); navigate("/practice"); }} className="px-3 py-1 rounded-lg bg-white text-[#7c3aed] text-[11px] font-bold">Try it</button>
+            <button onClick={() => setIdleNudge(false)} className="px-3 py-1 rounded-lg bg-white/15 text-white text-[11px]">Later</button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

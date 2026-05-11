@@ -4,7 +4,7 @@ import {
   listNcertChapters, getNcertChapter, listNcertTopics, getNcertTopicContent,
   getStudiedTopics, toggleStudiedTopic,
   getNcertNote, saveNcertNote,
-  getPaperQuestions,
+  getPaperQuestions, getMasteryTest, submitMasteryTest,
 } from "../controllers/ncertController.js";
 
 const r = Router();
@@ -14,6 +14,8 @@ r.get("/chapters/:chapterId", getNcertChapter);
 r.get("/topics",              listNcertTopics);
 r.get("/topics/:topicId",              getNcertTopicContent);
 r.get("/topics/:topicId/paper-questions", getPaperQuestions);
+r.get("/topics/:topicId/mastery-test",    auth, getMasteryTest);
+r.post("/topics/:topicId/mastery-test/submit", auth, submitMasteryTest);
 r.get("/studied",             auth, getStudiedTopics);
 r.post("/studied/:topicId",   auth, toggleStudiedTopic);
 r.get("/notes/:topicId",      auth, getNcertNote);

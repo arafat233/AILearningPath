@@ -1,1073 +1,557 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useAuthStore } from "../store/authStore";
-import { getLinkedStudents, getStudentDashboard, searchStudents, linkStudentDirect, removeLinkedStudent, getStudyReminders, setStudyReminder, deleteStudyReminder, getClassStats, getStudentAttempts } from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getLinkedStudents, getStudyReminders, setStudyReminder, deleteStudyReminder,
+  parentDashboardV2, parentSetControls, parentSendMessage, parentCosignGoal,
+} from "../services/api";
 
-// ── helpers ────────────────────────────────────────────────────────────────
-const daysSince = (iso) => {
-  if (!iso) return null;
-  return Math.floor((Date.now() - new Date(iso)) / 86400000);
+/* ─── helpers ─────────────────────────────────────────── */
+const SUBJECT_COLOR = {
+  Math:    "#007AFF",
+  Maths:   "#007AFF",
+  Science: "#34C759",
+  English: "#FF9500",
+  "Social Science": "#AF52DE",
+  Social:  "#AF52DE",
+  Hindi:   "#FF3B30",
+};
+const initials = (n = "") => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
+const fmtDate = (d) => {
+  if (!d) return null;
+  const x = new Date(d);
+  return x.toLocaleDateString("en-IN", { day: "numeric", month: "long" });
+};
+const daysUntil = (d) => {
+  if (!d) return null;
+  const t = new Date(d); t.setHours(0,0,0,0);
+  const now = new Date(); now.setHours(0,0,0,0);
+  return Math.ceil((t - now) / 86400000);
 };
 
-const hoursMinutes = (totalMin) => {
-  if (!totalMin) return "0m";
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
-};
+/* ─── Dots palette for Aria notes ─────────────────────── */
+const DOT = { green: "#34C759", blue: "#007AFF", orange: "#FF9500", red: "#FF3B30", pink: "#f0a4cc" };
 
-const gradeColor = { A1: "#AF52DE", A2: "#AF52DE", B1: "#007AFF", B2: "#007AFF", C1: "#FF9500", C2: "#FF9500", D: "#FF3B30" };
+/* ─── Main ────────────────────────────────────────────── */
+export default function ParentDashboard() {
+  const [children, setChildren] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [data, setData]         = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [tab, setTab]           = useState("overview"); // overview | weekly_digest | privacy | billing
+  const [message, setMessage]   = useState("");
+  const [goalDraft, setGoalDraft] = useState("");
+  const [toast, setToast]       = useState(null);
 
-const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-// ── study reminder card ───────────────────────────────────────────────────
-function StudyReminderCard({ studentId }) {
-  const [reminders, setReminders] = useState([]);
-  const [time,      setTime]      = useState("18:00");
-  const [days,      setDays]      = useState(["Mon","Tue","Wed","Thu","Fri"]);
-  const [saving,    setSaving]    = useState(false);
-  const [saved,     setSaved]     = useState(false);
-
+  // Load linked children
   useEffect(() => {
-    getStudyReminders()
-      .then(({ data }) => {
-        setReminders(data);
-        const mine = data.find((r) => r.studentId === studentId);
-        if (mine) { setTime(mine.time); setDays(mine.days || []); }
-      })
-      .catch(() => {});
-  }, [studentId]);
+    getLinkedStudents().then((r) => {
+      const list = r.data?.data || r.data || [];
+      setChildren(list);
+      if (list.length > 0) setActiveId(String(list[0]._id || list[0].id));
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
 
-  const toggleDay = (d) => setDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await setStudyReminder({ studentId, time, days });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch { }
-    finally { setSaving(false); }
-  };
-
-  const handleDelete = async () => {
-    await deleteStudyReminder(studentId).catch(() => {});
-    setReminders((prev) => prev.filter((r) => r.studentId !== studentId));
-    setTime("18:00");
-    setDays(["Mon","Tue","Wed","Thu","Fri"]);
-  };
-
-  const existing = reminders.find((r) => r.studentId === studentId);
-
-  return (
-    <div className="card p-5">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide">Study Reminder</p>
-        {existing && (
-          <button onClick={handleDelete} className="text-[11px] text-apple-red hover:underline">Remove</button>
-        )}
-      </div>
-      <div className="flex items-center gap-3 mb-3">
-        <label className="text-[13px] text-[var(--label)] shrink-0">Remind at</label>
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className="px-3 py-1.5 rounded-xl bg-apple-gray6 border border-apple-gray5 text-[13px] text-[var(--label)] focus:outline-none focus:border-[var(--accent,#007AFF)]"
-        />
-      </div>
-      <div className="flex gap-1.5 flex-wrap mb-3">
-        {ALL_DAYS.map((d) => (
-          <button
-            key={d}
-            onClick={() => toggleDay(d)}
-            className={`px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-colors ${
-              days.includes(d)
-                ? "bg-[var(--accent,#007AFF)] text-white"
-                : "bg-apple-gray6 text-apple-gray"
-            }`}
-          >
-            {d}
-          </button>
-        ))}
-      </div>
-      <button
-        onClick={handleSave}
-        disabled={saving || saved}
-        className="btn-primary text-[12px] px-4 py-1.5"
-      >
-        {saved ? "Saved ✓" : saving ? "Saving…" : existing ? "Update" : "Set Reminder"}
-      </button>
-    </div>
-  );
-}
-
-// ── attempts drill-down ───────────────────────────────────────────────────
-function AttemptsPanel({ studentId }) {
-  const [data,    setData]    = useState(null);
-  const [page,    setPage]    = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [open,    setOpen]    = useState(false);
-
-  const load = useCallback((p) => {
+  // Load active child dashboard
+  useEffect(() => {
+    if (!activeId) return;
     setLoading(true);
-    getStudentAttempts(studentId, { page: p, limit: 15 })
-      .then(({ data: d }) => { setData(d); setPage(p); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [studentId]);
+    parentDashboardV2(activeId).then((r) => setData(r.data?.data)).catch(() => setData(null)).finally(() => setLoading(false));
+  }, [activeId]);
 
-  const handleToggle = () => {
-    if (!open && !data) load(1);
-    setOpen((v) => !v);
+  const showToast = (msg, kind = "ok") => {
+    setToast({ msg, kind });
+    setTimeout(() => setToast(null), 3000);
   };
 
-  return (
-    <div className="card p-5">
-      <button
-        onClick={handleToggle}
-        className="flex items-center justify-between w-full"
-      >
-        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide">
-          Individual Question Attempts
-        </p>
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-             strokeLinecap="round" strokeLinejoin="round"
-             className={`w-4 h-4 text-apple-gray transition-transform ${open ? "rotate-180" : ""}`}>
-          <path d="M4 6l4 4 4-4"/>
-        </svg>
-      </button>
-
-      {open && (
-        <div className="mt-4">
-          {loading && <div className="h-2 w-full bg-apple-gray5 rounded animate-pulse" />}
-          {data && (
-            <>
-              <p className="text-[12px] text-apple-gray mb-3">{data.total} total attempts</p>
-              <div className="flex flex-col gap-2">
-                {data.attempts.map((a) => (
-                  <div key={a._id} className={`flex items-start gap-2 p-2.5 rounded-xl ${a.isCorrect ? "bg-apple-green/6" : "bg-apple-red/6"}`}>
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold ${a.isCorrect ? "bg-apple-green" : "bg-apple-red"}`}>
-                      {a.isCorrect ? "✓" : "✗"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {a.questionText && (
-                        <p className="text-[12px] text-[var(--label)] truncate">{a.questionText}</p>
-                      )}
-                      <p className="text-[11px] text-apple-gray">
-                        {a.topic}
-                        {a.timeTaken ? ` · ${Math.round(a.timeTaken / 60)}m` : ""}
-                        {" · "}{new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* pagination */}
-              {data.pages > 1 && (
-                <div className="flex items-center justify-between mt-3">
-                  <button
-                    onClick={() => load(page - 1)}
-                    disabled={page <= 1 || loading}
-                    className="text-[12px] text-apple-blue disabled:opacity-40"
-                  >
-                    ← Prev
-                  </button>
-                  <span className="text-[12px] text-apple-gray">Page {page} of {data.pages}</span>
-                  <button
-                    onClick={() => load(page + 1)}
-                    disabled={page >= data.pages || loading}
-                    className="text-[12px] text-apple-blue disabled:opacity-40"
-                  >
-                    Next →
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── activity icon ──────────────────────────────────────────────────────────
-function ActivityIcon({ type }) {
-  const configs = {
-    mastered:   { bg: "#34C759", label: "✓" },
-    practiced:  { bg: "#007AFF", label: "▶" },
-    practicing: { bg: "#007AFF", label: "▶" },
-    struggling: { bg: "#FF3B30", label: "?" },
-    doubt:      { bg: "#FF3B30", label: "?" },
-    lesson:     { bg: "#5856D6", label: "📖" },
-    exam:       { bg: "#AF52DE", label: "★" },
-    competition:{ bg: "#FF9500", label: "⚡" },
+  const handleSendMessage = async () => {
+    if (!message.trim() || !activeId) return;
+    try {
+      await parentSendMessage(activeId, message);
+      setMessage("");
+      showToast("Message sent");
+    } catch { showToast("Send failed", "err"); }
   };
-  const cfg = configs[type] || configs.practiced;
-  return (
-    <div
-      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0"
-      style={{ background: cfg.bg }}
-    >
-      {cfg.label}
+
+  const handleControl = async (patch) => {
+    try {
+      const r = await parentSetControls(activeId, patch);
+      setData((d) => ({ ...d, parentalControls: r.data?.data?.parentalControls || patch }));
+      showToast("Updated");
+    } catch { showToast("Update failed", "err"); }
+  };
+
+  const handleCosignGoal = async () => {
+    if (!goalDraft.trim()) return;
+    try { await parentCosignGoal(activeId, goalDraft); setGoalDraft(""); showToast("Goal co-signed"); }
+    catch { showToast("Failed", "err"); }
+  };
+
+  const exportPdf = () => window.print();
+
+  if (loading && !data) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-2 border-[#E5E5EA] border-t-[#7c3aed] rounded-full animate-spin" />
     </div>
   );
-}
 
-// ── 4-week accuracy trend ─────────────────────────────────────────────────
-function WeeklyTrendChart({ trend }) {
-  const max = Math.max(...trend.map((w) => w.accuracy ?? 0), 1);
-  return (
-    <div className="card p-5">
-      <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">4-Week Accuracy Trend</p>
-      <div className="flex items-end gap-3 h-24">
-        {trend.map((w, i) => {
-          const isLatest = i === trend.length - 1;
-          const pct = w.accuracy !== null ? (w.accuracy / 100) * 100 : 0;
-          return (
-            <div key={w.label} className="flex-1 flex flex-col items-center gap-1">
-              {w.accuracy !== null && (
-                <span className="text-[11px] font-semibold" style={{ color: isLatest ? "var(--accent,#007AFF)" : "#636366" }}>
-                  {w.accuracy}%
-                </span>
-              )}
-              <div className="w-full flex flex-col justify-end" style={{ height: 56 }}>
-                <div
-                  className="w-full rounded-t-md transition-all"
-                  style={{
-                    height: pct > 0 ? `${Math.max(pct, 8)}%` : "2px",
-                    background: isLatest
-                      ? "var(--accent,#007AFF)"
-                      : w.accuracy !== null
-                        ? w.accuracy >= 70
-                          ? "#34C759"
-                          : w.accuracy >= 50
-                            ? "#FF9500"
-                            : "#FF3B30"
-                        : "#E2E8F0",
-                  }}
-                />
-              </div>
-              <span className="text-[10px] font-medium text-apple-gray">{w.label}</span>
-              {w.sessions > 0 && (
-                <span className="text-[10px] text-apple-gray">{w.sessions}q</span>
-              )}
-            </div>
-          );
-        })}
-      </div>
+  if (children.length === 0) return (
+    <div className="rounded-3xl p-10 text-center" style={{ background: "linear-gradient(135deg, #ede9fe, #fce7f3)" }}>
+      <p className="text-[16px] font-bold text-[#7c3aed] mb-2">No linked students</p>
+      <p className="text-[13px] text-[#8e8e93]">Search a student and link to view their progress.</p>
     </div>
   );
-}
 
-// ── weekly bar chart ───────────────────────────────────────────────────────
-function WeeklyChart({ weeklyPractice, totalWeeklyMinutes }) {
-  const maxMin = Math.max(...weeklyPractice.map((d) => d.minutes), 1);
   return (
-    <div className="card p-5">
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide">Weekly Practice</p>
-        <p className="text-[13px] font-semibold text-[var(--label)]">
-          <span className="text-[var(--accent,#007AFF)] font-bold">{hoursMinutes(totalWeeklyMinutes)}</span>
-          <span className="text-apple-gray font-normal"> this week</span>
-        </p>
-      </div>
-      <div className="flex items-end gap-1 h-16">
-        {weeklyPractice.map((d) => {
-          const pct = maxMin > 0 ? (d.minutes / maxMin) * 100 : 0;
-          return (
-            <div key={d.key} className="flex-1 flex flex-col items-center gap-1">
-              {d.minutes > 0 && (
-                <span className="text-[10px] font-medium" style={{ color: d.isToday ? "var(--accent,#007AFF)" : "transparent" }}>
-                  {d.minutes}m
-                </span>
-              )}
-              <div className="w-full flex flex-col justify-end" style={{ height: 40 }}>
-                <div
-                  className="w-full rounded-t-sm transition-all"
-                  style={{
-                    height: pct > 0 ? `${Math.max(pct, 8)}%` : "2px",
-                    background: d.isToday
-                      ? "var(--accent,#007AFF)"
-                      : d.minutes > 0
-                      ? "#CBD5E1"
-                      : "#E2E8F0",
-                  }}
-                />
-              </div>
-              <span
-                className="text-[10px] font-medium"
-                style={{ color: d.isToday ? "var(--accent,#007AFF)" : "#94A3B8" }}
-              >
-                {d.dayName}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── subject mastery bars ───────────────────────────────────────────────────
-function SubjectMastery({ subjectMastery }) {
-  if (!subjectMastery?.length) return null; // fallback only
-  return (
-    <div className="card p-5">
-      <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Subject Mastery</p>
-      <div className="space-y-3">
-        {subjectMastery.map((s) => (
-          <div key={s.subject} className="flex items-center gap-3">
-            <span className="text-[13px] text-[var(--label)] w-28 shrink-0">{s.subject}</span>
-            <div className="flex-1 bg-apple-gray5 rounded-full h-2 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${s.accuracy}%`, background: s.color }}
-              />
-            </div>
-            <span className="text-[12px] font-semibold text-[var(--label)] w-8 text-right">
-              {s.accuracy}%
-            </span>
+    <div className="flex gap-6 items-start">
+      {/* ── Sidebar ── */}
+      <aside className="w-56 shrink-0 space-y-5">
+        <div>
+          <div className="mb-3">
+            <p className="text-[14px] font-bold text-[#1c1c1e] leading-tight">Stellar · Family</p>
+            <p className="text-[10px] text-[#8e8e93]">parent view</p>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── main dashboard ─────────────────────────────────────────────────────────
-function StudentView({ data }) {
-  const joined = daysSince(data.student?.createdAt);
-
-  return (
-    <div className="space-y-4">
-      {/* child header */}
-      <div className="card p-4 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-[var(--accent,#007AFF)] flex items-center justify-center shrink-0">
-          <span className="text-white text-[18px] font-bold">
-            {data.student.name?.charAt(0).toUpperCase()}
-          </span>
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-[17px] font-bold text-[var(--label)]">{data.student.name}</h2>
-            {data.isLearningNow && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#1a7a32] text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
-                LEARNING NOW
-              </span>
-            )}
-          </div>
-          <p className="text-[13px] text-apple-gray mt-0.5">
-            Class {data.student.grade} · CBSE
-            {joined !== null && ` · linked ${joined} day${joined !== 1 ? "s" : ""} ago`}
-          </p>
-        </div>
-      </div>
-
-      {/* 3 stat cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card p-4">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Accuracy</p>
-          <p className="text-[28px] font-bold" style={{ color: "var(--accent,#007AFF)" }}>
-            {data.accuracy}<span className="text-[18px]">%</span>
-          </p>
-          <p className="text-[11px] text-apple-gray mt-1">
-            {data.totalAttempts} questions answered
-          </p>
         </div>
 
-        <div className="card p-4">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Streak</p>
-          <p className="text-[28px] font-bold text-[#FF9500]">
-            {data.streak.current}<span className="text-[18px]">d</span>
-          </p>
-          <p className="text-[11px] text-apple-gray mt-1">
-            {data.streak.current >= data.streak.longest
-              ? "▲ personal best"
-              : `best: ${data.streak.longest}d`}
-          </p>
-        </div>
-
-        <div className="card p-4">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Predicted</p>
-          <p
-            className="text-[28px] font-bold"
-            style={{ color: gradeColor[data.predicted?.grade] || "#007AFF" }}
-          >
-            {data.predicted?.grade}
-          </p>
-          <p className="text-[11px] text-apple-gray mt-1">
-            ▲ {data.predicted?.range} / 100
-          </p>
-        </div>
-      </div>
-
-      {/* 4-week accuracy trend */}
-      {data.weeklyTrend?.some((w) => w.accuracy !== null) && (
-        <WeeklyTrendChart trend={data.weeklyTrend} />
-      )}
-
-      {/* weekly chart */}
-      {data.weeklyPractice?.length > 0 && (
-        <WeeklyChart weeklyPractice={data.weeklyPractice} totalWeeklyMinutes={data.totalWeeklyMinutes} />
-      )}
-
-      {/* subject mastery — always shown, 0% when no practice data yet */}
-      <SubjectMastery subjectMastery={data.subjectMastery} />
-
-      {/* NCERT chapter progress */}
-      {data.ncertProgress?.length > 0 && (
-        <div className="card p-5">
-          <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">NCERT Chapter Progress</p>
-          <div className="space-y-3">
-            {data.ncertProgress.map((ch) => {
-              const pct = ch.total > 0 ? Math.round((ch.studied / ch.total) * 100) : 0;
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#8e8e93] mb-2">My Children</p>
+          <div className="space-y-1">
+            {children.map((c) => {
+              const id = String(c._id || c.id);
+              const isActive = id === activeId;
               return (
-                <div key={ch.chapterId}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[13px] text-[var(--label)] truncate flex-1 mr-2">
-                      Ch {ch.number}. {ch.title}
-                    </span>
-                    <span className="text-[12px] font-semibold shrink-0" style={{ color: pct === 100 ? "#34C759" : "#007AFF" }}>
-                      {ch.studied}/{ch.total}
-                    </span>
+                <button key={id} onClick={() => setActiveId(id)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-colors ${
+                    isActive ? "bg-white shadow-sm" : "hover:bg-white/60"
+                  }`}>
+                  <div className="relative">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
+                      style={{ background: id.charCodeAt(0) % 2 === 0
+                        ? "linear-gradient(135deg, #c8b4f0, #a78bfa)"
+                        : "linear-gradient(135deg, #f9a8d4, #f472b6)" }}>
+                      {initials(c.name)}
+                    </div>
+                    {/* Online dot — derived heuristically; real-time presence is a future hook */}
+                    {isActive && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#34C759] ring-2 ring-white" />
+                    )}
                   </div>
-                  <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${pct}%`,
-                        background: pct === 100 ? "#34C759" : pct > 0 ? "#007AFF" : "#E5E5EA",
-                      }}
-                    />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#1c1c1e] truncate">{c.name?.split(" ")[0]}</p>
+                    <p className="text-[10px] text-[#8e8e93]">Class {c.grade || "—"}</p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
-      )}
 
-      {/* weak topics + mastered this week */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#FF3B30]">Weak Topics</p>
-            <span className="text-[12px] font-semibold text-apple-gray">{data.weakTopics?.length || 0}</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {data.weakTopics?.length > 0 ? (
-              data.weakTopics.map((t) => (
-                <span
-                  key={t}
-                  className="px-2 py-0.5 rounded-full text-[12px] font-medium bg-[#FF3B30]/10 text-[#FF3B30]"
-                >
-                  {t}
-                </span>
-              ))
-            ) : (
-              <p className="text-[12px] text-apple-gray">No weak topics yet</p>
-            )}
-          </div>
-        </div>
-
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#34C759]">Mastered This Week</p>
-            <span className="text-[12px] font-semibold text-apple-gray">{data.masteredThisWeek?.length || 0}</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {data.masteredThisWeek?.length > 0 ? (
-              data.masteredThisWeek.map((t) => (
-                <span
-                  key={t}
-                  className="px-2 py-0.5 rounded-full text-[12px] font-medium bg-[#34C759]/10 text-[#1a7a32]"
-                >
-                  {t}
-                </span>
-              ))
-            ) : (
-              <p className="text-[12px] text-apple-gray">Keep practicing to master topics</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* today's activity — always shown */}
-      <div className="card p-5">
-        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Today's Activity</p>
-        {data.recentActivity?.length > 0 ? (
-          <div className="divide-y divide-apple-gray5">
-            {data.recentActivity.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                <ActivityIcon type={item.type} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-[var(--label)]">{item.text}</p>
-                  <p className="text-[11px] text-apple-gray mt-0.5">{item.detail}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-[13px] text-apple-gray">No activity in the last 48 hours</p>
-            <p className="text-[11px] text-apple-gray mt-1">Activity will appear here once your child starts practicing</p>
-          </div>
-        )}
-      </div>
-
-      {/* question attempts drill-down */}
-      <AttemptsPanel studentId={data.student.id} />
-
-      {/* study reminder */}
-      <StudyReminderCard studentId={data.student.id} />
-
-      {/* privacy note */}
-      <div className="flex items-center gap-1.5 justify-center py-2">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-             strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-apple-gray">
-          <rect x="3" y="7" width="10" height="7" rx="1.5"/>
-          <path d="M5 7V5a3 3 0 016 0v2"/>
-        </svg>
-        <p className="text-[11px] text-apple-gray">
-          Read-only view · private chats and notes are never shared
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ── page root ──────────────────────────────────────────────────────────────
-// ── search panel ──────────────────────────────────────────────────────────
-function AddChildPanel({ onAdded }) {
-  const [query,       setQuery]       = useState("");
-  const [results,     setResults]     = useState([]);
-  const [searching,   setSearching]   = useState(false);
-  const [adding,      setAdding]      = useState(null); // id being added
-  const debounceRef = useRef(null);
-
-  const handleSearch = (val) => {
-    setQuery(val);
-    clearTimeout(debounceRef.current);
-    if (val.trim().length < 2) { setResults([]); return; }
-    setSearching(true);
-    debounceRef.current = setTimeout(() => {
-      searchStudents(val.trim())
-        .then(({ data }) => setResults(data))
-        .catch(() => setResults([]))
-        .finally(() => setSearching(false));
-    }, 350);
-  };
-
-  const handleAdd = async (student) => {
-    setAdding(student.id);
-    try {
-      const { data } = await linkStudentDirect(student.id);
-      onAdded({ ...student, _pendingConsent: data.status === "pending" });
-      setQuery("");
-      setResults([]);
-    } catch {
-      onAdded(student);
-    } finally { setAdding(null); }
-  };
-
-  return (
-    <div className="card p-5 space-y-3">
-      <div>
-        <p className="text-[14px] font-semibold text-[var(--label)]">Find your child</p>
-        <p className="text-[12px] text-apple-gray mt-0.5">Type their name to search — no code needed</p>
-      </div>
-
-      <div className="relative">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-             strokeLinecap="round" strokeLinejoin="round"
-             className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-apple-gray pointer-events-none">
-          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/>
-        </svg>
-        <input
-          autoFocus
-          type="text"
-          placeholder="Search by name…"
-          value={query}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-apple-gray6 border border-apple-gray5 text-[13px] text-[var(--label)] placeholder:text-apple-gray focus:outline-none focus:border-[var(--accent,#007AFF)] transition-colors"
-        />
-        {searching && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-[var(--accent,#007AFF)] border-t-transparent rounded-full animate-spin" />
-        )}
-      </div>
-
-      {/* results */}
-      {results.length > 0 && (
-        <div className="space-y-1.5">
-          {results.map((s) => (
-            <div key={s.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-apple-gray6 border border-apple-gray5">
-              <div className="w-8 h-8 rounded-full bg-[var(--accent,#007AFF)] flex items-center justify-center shrink-0">
-                <span className="text-white text-[12px] font-bold">{s.name?.charAt(0).toUpperCase()}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-[var(--label)]">{s.name}</p>
-                <p className="text-[11px] text-apple-gray">Class {s.grade} · {s.subject}</p>
-              </div>
-              <button
-                onClick={() => handleAdd(s)}
-                disabled={adding === s.id}
-                className="btn-primary text-[12px] px-3 py-1.5"
-              >
-                {adding === s.id ? "Adding…" : "Add"}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {query.trim().length >= 2 && !searching && results.length === 0 && (
-        <p className="text-[12px] text-apple-gray text-center py-2">No students found for "{query}"</p>
-      )}
-    </div>
-  );
-}
-
-// ── teacher class-level view ───────────────────────────────────────────────
-function TeacherClassView() {
-  const [stats,   setStats]   = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getClassStats()
-      .then(({ data }) => setStats(data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return (
-    <div className="space-y-3">
-      {[1,2,3].map((i) => <div key={i} className="card h-20 animate-pulse bg-apple-gray5" />)}
-    </div>
-  );
-
-  if (!stats) return null;
-
-  return (
-    <div className="space-y-4">
-      {/* class summary */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Students</p>
-          <p className="text-[28px] font-bold text-apple-blue">{stats.students}</p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Class Accuracy</p>
-          <p className="text-[28px] font-bold" style={{ color: stats.classAccuracy >= 70 ? "#34C759" : stats.classAccuracy >= 50 ? "#FF9500" : "#FF3B30" }}>
-            {stats.classAccuracy}%
-          </p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Avg Streak</p>
-          <p className="text-[28px] font-bold text-apple-orange">{stats.avgStreak}d</p>
-        </div>
-      </div>
-
-      {/* students needing attention */}
-      {stats.weakStudents?.length > 0 && (
-        <div className="card p-5">
-          <p className="text-[11px] font-semibold text-apple-red uppercase tracking-wide mb-3">
-            Students Needing Attention ({stats.weakStudents.length})
-          </p>
-          <div className="flex flex-col gap-2">
-            {stats.weakStudents.map((s) => (
-              <div key={s.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-apple-red/20 flex items-center justify-center text-apple-red text-[10px] font-bold">
-                    {s.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-[13px] text-[var(--label)]">{s.name}</span>
-                  <span className="text-[11px] text-apple-gray">Gr.{s.grade}</span>
-                </div>
-                <span className="text-[13px] font-bold text-apple-red">{s.accuracy}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* topic performance */}
-      {stats.topicStats?.length > 0 && (
-        <div className="card p-5">
-          <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-3">
-            Weakest Topics (class average)
-          </p>
-          <div className="flex flex-col gap-3">
-            {stats.topicStats.slice(0, 8).map((t) => (
-              <div key={t.topic}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[13px] text-[var(--label)] capitalize">{t.topic}</span>
-                  <span className="text-[12px] font-semibold text-[var(--label)]">{t.accuracy}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-apple-gray5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width:      `${t.accuracy}%`,
-                      background: t.accuracy >= 70 ? "#34C759" : t.accuracy >= 50 ? "#FF9500" : "#FF3B30",
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── multi-child overview ───────────────────────────────────────────────────
-function MultiChildOverview({ students, dashboards }) {
-  const activeDashboards = students
-    .filter((s) => !s._pendingConsent)
-    .map((s) => ({ ...dashboards[(s._id || s.id)], _student: s }))
-    .filter(Boolean);
-
-  const totalQ   = activeDashboards.reduce((sum, d) => sum + (d.totalAttempts || 0), 0);
-  const avgAcc   = activeDashboards.length > 0
-    ? Math.round(activeDashboards.reduce((sum, d) => sum + (d.accuracy || 0), 0) / activeDashboards.length)
-    : 0;
-  const active   = activeDashboards.filter((d) => d.isLearningNow).length;
-
-  return (
-    <div className="space-y-4">
-      {/* combined stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Avg Accuracy</p>
-          <p className="text-[28px] font-bold text-apple-blue">{avgAcc}%</p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Total Questions</p>
-          <p className="text-[28px] font-bold text-apple-green">{totalQ}</p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-[10px] font-semibold text-apple-gray uppercase tracking-wide mb-1">Learning Now</p>
-          <p className="text-[28px] font-bold text-apple-orange">{active}</p>
-        </div>
-      </div>
-
-      {/* per-student comparison */}
-      <div className="card p-5">
-        <p className="text-[11px] font-semibold text-apple-gray uppercase tracking-wide mb-4">Children at a Glance</p>
-        <div className="flex flex-col gap-4">
-          {activeDashboards.map((d) => {
-            const sid = d._student._id || d._student.id;
-            return (
-              <div key={sid}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-[var(--accent,#007AFF)] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
-                      {(d.student?.name || d._student?.name)?.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-[13px] font-semibold text-[var(--label)]">
-                      {d.student?.name || d._student?.name}
-                    </span>
-                    {d.isLearningNow && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 text-right">
-                    <span className="text-[13px] font-bold text-[var(--label)]">{d.accuracy ?? 0}%</span>
-                    {d.streak?.current > 0 && (
-                      <span className="text-[11px] text-apple-orange">🔥{d.streak.current}d</span>
-                    )}
-                  </div>
-                </div>
-                <div className="w-full h-2 bg-apple-gray5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width:      `${d.accuracy ?? 0}%`,
-                      background: (d.accuracy ?? 0) >= 70 ? "#34C759" : (d.accuracy ?? 0) >= 50 ? "#FF9500" : "#FF3B30",
-                    }}
-                  />
-                </div>
-                {(d.weeklyTrend?.some((w) => w.sessions > 0)) && (
-                  <p className="text-[11px] text-apple-gray mt-1">
-                    This week: {d.weeklyTrend?.[3]?.sessions ?? 0} questions,{" "}
-                    {d.weeklyTrend?.[3]?.accuracy != null ? `${d.weeklyTrend[3].accuracy}% acc` : "no data"}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* pending consent note */}
-      {students.some((s) => s._pendingConsent) && (
-        <p className="text-[12px] text-apple-gray text-center">
-          {students.filter((s) => s._pendingConsent).length} student(s) still pending consent — not included above.
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ── page root ──────────────────────────────────────────────────────────────
-const OVERVIEW_ID = "__overview__";
-const CLASS_ID    = "__class__";
-
-export default function ParentDashboard() {
-  const { user }  = useAuthStore();
-  const isTeacher = user?.role === "teacher";
-
-  const [students,    setStudents]    = useState([]);
-  const [selectedId,  setSelectedId]  = useState(null);
-  const [dashboard,   setDashboard]   = useState(null);
-  const [allDashboards, setAllDashboards] = useState({});
-  const [loading,     setLoading]     = useState(true);
-  const [dashLoading, setDashLoading] = useState(false);
-  const [showSearch,  setShowSearch]  = useState(false);
-
-  // load already-linked students on mount
-  useEffect(() => {
-    getLinkedStudents()
-      .then(({ data }) => {
-        setStudents(data);
-        if (isTeacher) setSelectedId(CLASS_ID);
-        else if (data.length >= 2) setSelectedId(OVERVIEW_ID);
-        else if (data.length === 1) setSelectedId(data[0]._id || data[0].id);
-        else setShowSearch(true);
-      })
-      .catch(() => { setShowSearch(true); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  // load dashboard whenever selected child changes (skip if consent is pending or overview)
-  const loadDashboard = useCallback((id) => {
-    if (!id || id === OVERVIEW_ID || id === CLASS_ID) return;
-    const isPending = students.find((s) => (s._id || s.id) === id)?._pendingConsent;
-    if (isPending) return;
-    setDashLoading(true);
-    setDashboard(null);
-    getStudentDashboard(id)
-      .then(({ data }) => {
-        setDashboard(data);
-        setAllDashboards((prev) => ({ ...prev, [id]: data }));
-      })
-      .catch(() => setDashboard(null))
-      .finally(() => setDashLoading(false));
-  }, [students]);
-
-  // When overview is selected, pre-load all non-pending students
-  useEffect(() => {
-    if (selectedId !== OVERVIEW_ID) return;
-    students
-      .filter((s) => !s._pendingConsent)
-      .forEach((s) => {
-        const sid = s._id || s.id;
-        if (allDashboards[sid]) return; // already cached
-        getStudentDashboard(sid)
-          .then(({ data }) => setAllDashboards((prev) => ({ ...prev, [sid]: data })))
-          .catch(() => {});
-      });
-  }, [selectedId, students]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => { loadDashboard(selectedId); }, [selectedId, loadDashboard]);
-
-  const handleAdded = (student) => {
-    const id = student.id || student._id;
-    setStudents((prev) => {
-      const already = prev.find((s) => (s._id || s.id) === id);
-      return already ? prev : [...prev, student];
-    });
-    setSelectedId(id);
-    setShowSearch(false);
-  };
-
-  const handleRemove = async (sid) => {
-    await removeLinkedStudent(sid).catch(() => {});
-    setStudents((prev) => prev.filter((s) => (s._id || s.id) !== sid));
-    if (selectedId === sid) {
-      const remaining = students.filter((s) => (s._id || s.id) !== sid);
-      setSelectedId(remaining[0]?._id || remaining[0]?.id || null);
-      setDashboard(null);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-7 w-48 bg-apple-gray5 rounded-xl animate-pulse" />
-        <div className="card h-20 animate-pulse bg-apple-gray5" />
-        <div className="grid grid-cols-3 gap-3">
-          {[1,2,3].map((i) => <div key={i} className="card h-24 animate-pulse bg-apple-gray5" />)}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-5">
-
-      {/* header */}
-      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-[var(--label)]">
-            {isTeacher ? "Teacher Dashboard" : "Parent Dashboard"}
-          </h1>
-          <p className="text-[13px] text-apple-gray mt-0.5">
-            {isTeacher ? "Class performance overview and individual student data" : "Read-only view of your child's learning progress"}
-          </p>
+          <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#8e8e93] mb-2">Settings</p>
+          <div className="space-y-0.5">
+            {[
+              { id: "overview",       label: "Overview" },
+              { id: "weekly_digest",  label: "Weekly digest" },
+              { id: "controls",       label: "Parental controls" },
+              { id: "privacy",        label: "Privacy" },
+              { id: "billing",        label: "Billing" },
+            ].map((s) => (
+              <button key={s.id} onClick={() => setTab(s.id)}
+                className={`w-full text-left px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                  tab === s.id ? "bg-white text-[#1c1c1e]" : "text-[#8e8e93] hover:text-[#1c1c1e]"
+                }`}>
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
-        {students.length > 0 && !showSearch && (
-          <button onClick={() => setShowSearch(true)} className="btn-secondary text-[12px]">
-            + Add child
+      </aside>
+
+      {/* ── Main ── */}
+      <div className="flex-1 min-w-0 space-y-5">
+        {tab === "overview" && data && <OverviewPanel data={data} onMessage={handleSendMessage} message={message} setMessage={setMessage} onExport={exportPdf} />}
+        {tab === "weekly_digest" && <WeeklyDigestPanel />}
+        {tab === "controls" && data && <ControlsPanel controls={data.parentalControls || {}} onUpdate={handleControl} goalDraft={goalDraft} setGoalDraft={setGoalDraft} onCosign={handleCosignGoal} />}
+        {tab === "privacy" && <PrivacyPanel />}
+        {tab === "billing" && <BillingPanel />}
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl shadow-lg text-[12px] font-semibold text-white ${
+          toast.kind === "err" ? "bg-[#FF3B30]" : "bg-[#34C759]"
+        }`}>
+          {toast.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Overview panel (matches mockup) ────────────────── */
+function OverviewPanel({ data, onMessage, message, setMessage, onExport }) {
+  const exam = data.child.examDate ? fmtDate(data.child.examDate) : null;
+  const days = data.child.examDate ? daysUntil(data.child.examDate) : null;
+  const onTrack = (data.predicted?.score || 0) >= 70 && data.concerns.length === 0;
+
+  return (
+    <>
+      {/* Hero */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-2">
+            {data.child.name} · Class {data.child.grade} · This week
+          </p>
+          <h1 className="text-[34px] sm:text-[40px] font-bold leading-[1.05] text-[#1c1c1e] tracking-tight">
+            {onTrack ? "On track for" : "Heads-up for"}{" "}
+            <em className="not-italic" style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic", fontWeight: 700 }}>
+              {exam || (days != null ? `${days} days` : "boards")}.
+            </em>
+          </h1>
+          {days != null && exam && (
+            <p className="text-[13px] text-[#8e8e93] mt-2">{days} days remaining</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={onExport} className="px-4 py-2 rounded-full bg-white shadow-sm border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-md transition-all">
+            Export PDF
           </button>
+          <MessageButton message={message} setMessage={setMessage} onSend={onMessage} childName={data.child.name} />
+        </div>
+      </div>
+
+      {/* 4 stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon="📅" iconBg="#7c3aed14" iconColor="#7c3aed" label="Hours this week" value={data.hours.thisWeek}
+          sub={data.hours.delta != null
+            ? <span className={data.hours.delta >= 0 ? "text-[#34C759]" : "text-[#FF3B30]"}>{data.hours.delta >= 0 ? "↑" : "↓"} {Math.abs(data.hours.delta)} vs last</span>
+            : null} />
+        <StatCard icon="🏆" iconBg="#34C75914" iconColor="#34C759" label="Predicted score" value={data.predicted.score}
+          sub={`boards · ±${data.predicted.margin}`} />
+        <StatCard icon="✨" iconBg="#FF950014" iconColor="#FF9500" label="Concept mastery" value={data.conceptMastery.pct != null ? `${data.conceptMastery.pct}%` : "—"}
+          sub={`across ${data.conceptMastery.subjectCount} subjects`} />
+        <StatCard icon="✓" iconBg={data.concerns.length === 0 ? "#34C75914" : "#FF3B3014"} iconColor={data.concerns.length === 0 ? "#34C759" : "#FF3B30"}
+          label="Concerns" value={data.concerns.length} sub="system flagged" />
+      </div>
+
+      {/* Concerns detail */}
+      {data.concerns.length > 0 && (
+        <div className="bg-white rounded-2xl p-4 border border-[#FF3B30]/20">
+          <p className="text-[10px] font-bold tracking-wider uppercase text-[#FF3B30] mb-2">⚠ Flagged this week</p>
+          <ul className="space-y-1">
+            {data.concerns.map((c) => (
+              <li key={c.id} className="text-[12px] text-[#3A3A3C]">• {c.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Daily study time + Mastery by subject (2 cards) */}
+      <div className="grid lg:grid-cols-5 gap-4">
+        {/* Daily study time bar chart */}
+        <div className="lg:col-span-3 bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93]">Daily study time</p>
+            <p className="text-[10px] text-[#C7C7CC]">min/day · last 7</p>
+          </div>
+          <DailyStudyChart days={data.dailyStudyTime} />
+        </div>
+
+        {/* Mastery by subject */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-4">Mastery by subject</p>
+          <div className="space-y-3">
+            {data.masteryBySubject.map((s) => (
+              <div key={s.subject}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] text-[#1c1c1e]">{s.subject === "Math" ? "Maths" : s.subject}</span>
+                  <span className="text-[13px] font-bold" style={{ color: SUBJECT_COLOR[s.subject] || "#8E8E93" }}>
+                    {s.pct != null ? `${s.pct}%` : "—"}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${s.pct || 0}%`, background: SUBJECT_COLOR[s.subject] || "#8E8E93" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Aria's week timeline */}
+      <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+        <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-4">
+          {data.child.name?.split(" ")[0]}'s week — what Aria noticed
+        </p>
+        {data.ariaNotes.length === 0 ? (
+          <p className="text-[12px] text-[#8e8e93] py-4 text-center">Not enough activity yet to summarize.</p>
+        ) : (
+          <div className="space-y-3">
+            {data.ariaNotes.map((n, i) => {
+              const d = new Date(n.at);
+              const day = ["SUN","MON","TUE","WED","THU","FRI","SAT"][d.getDay()];
+              const time = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }).toLowerCase();
+              return (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="w-12 shrink-0 text-right">
+                    <p className="text-[10px] font-bold tracking-wider text-[#8e8e93]">{day}</p>
+                    <p className="text-[10px] text-[#C7C7CC]">{time}</p>
+                  </div>
+                  <span className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: DOT[n.dot] || DOT.blue }} />
+                  <p className="flex-1 text-[13px] text-[#1c1c1e] leading-relaxed">{n.message}</p>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
-      {/* search panel */}
-      {showSearch && (
-        <AddChildPanel onAdded={handleAdded} />
-      )}
-      {showSearch && students.length > 0 && (
-        <button onClick={() => setShowSearch(false)} className="text-[12px] text-apple-gray hover:text-[var(--label)] transition-colors">
-          ← Back to dashboard
-        </button>
-      )}
+      {/* 8-week trend + Time of day */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        <TrendCard trend={data.trendByWeek} />
+        <TimeOfDayCard timeOfDay={data.timeOfDay} />
+      </div>
 
-      {/* child tabs — shown when ≥1 child tracked */}
-      {!showSearch && students.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
-          {/* Class tab — teachers only */}
-          {isTeacher && (
-            <button
-              onClick={() => setSelectedId(CLASS_ID)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[13px] transition-all ${
-                selectedId === CLASS_ID
-                  ? "border-apple-purple/60 bg-apple-purple/8 text-apple-purple font-semibold"
-                  : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
-              }`}
-            >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                   strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                <circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/>
-                <path d="M1 14c0-2.5 2-4 4-4h6c2 0 4 1.5 4 4"/>
-              </svg>
-              Class View
-            </button>
-          )}
-          {/* Overview tab — shown when 2+ students */}
-          {students.length >= 2 && (
-            <button
-              onClick={() => setSelectedId(OVERVIEW_ID)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[13px] transition-all ${
-                selectedId === OVERVIEW_ID
-                  ? "border-[var(--accent,#007AFF)] bg-[var(--accent,#007AFF)]/8 text-[var(--accent,#007AFF)] font-semibold"
-                  : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
-              }`}
-            >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                   strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                <rect x="1" y="1" width="6" height="6" rx="1.5"/>
-                <rect x="9" y="1" width="6" height="6" rx="1.5"/>
-                <rect x="1" y="9" width="6" height="6" rx="1.5"/>
-                <rect x="9" y="9" width="6" height="6" rx="1.5"/>
-              </svg>
-              Overview
-            </button>
-          )}
-          {students.map((s) => {
-            const sid = s._id || s.id;
-            const isActive = selectedId === sid;
-            return (
-              <div key={sid} className="relative group">
-                <button
-                  onClick={() => setSelectedId(sid)}
-                  className={`flex items-center gap-2 pl-3 pr-7 py-2 rounded-xl border text-[13px] transition-all ${
-                    isActive
-                      ? "border-[var(--accent,#007AFF)] bg-[var(--accent,#007AFF)]/8 text-[var(--accent,#007AFF)] font-semibold"
-                      : "border-apple-gray5 bg-white text-[var(--label)] hover:border-apple-gray4"
-                  }`}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                    style={{ background: isActive ? "var(--accent,#007AFF)" : "#94A3B8" }}
-                  >
-                    {s.name?.charAt(0).toUpperCase()}
-                  </div>
-                  {s.name}
-                  {s._pendingConsent ? (
-                    <span className="text-[10px] font-semibold text-apple-orange bg-apple-orange/10 px-1.5 py-0.5 rounded-full">
-                      Pending
-                    </span>
-                  ) : (
-                    <span className={`text-[11px] ${isActive ? "text-[var(--accent,#007AFF)]/70" : "text-apple-gray"}`}>
-                      Gr.{s.grade}
-                    </span>
-                  )}
-                </button>
-                {/* remove × */}
-                <button
-                  onClick={() => handleRemove(sid)}
-                  title="Remove"
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center text-apple-gray hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 text-[10px] transition-colors"
-                >
-                  ×
-                </button>
-              </div>
-            );
-          })}
+      {/* Mood aggregate */}
+      {data.moodHistory.length > 0 && (
+        <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-3">Mood this week</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {data.moodHistory.map((m, i) => (
+              <span key={i} className="text-[22px]" title={m.date}>
+                {m.mood === "great" ? "😊" : m.mood === "ok" ? "😐" : "😫"}
+              </span>
+            ))}
+          </div>
         </div>
       )}
+    </>
+  );
+}
 
-      {/* dashboard content */}
-      {!showSearch && (
-        students.length === 0 ? (
-          <div className="card p-12 text-center space-y-3">
-            <div className="w-14 h-14 rounded-full bg-apple-gray6 flex items-center justify-center mx-auto">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                   strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 text-apple-gray">
-                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
+/* ─── Sub-components ──────────────────────────────────── */
+function StatCard({ icon, iconBg, iconColor, label, value, sub }) {
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#8e8e93]">{label}</p>
+        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-[12px]" style={{ background: iconBg, color: iconColor }}>{icon}</span>
+      </div>
+      <p className="text-[36px] font-bold leading-none text-[#1c1c1e] tracking-tight">{value}</p>
+      {sub && <p className="text-[11px] text-[#8e8e93] mt-2">{sub}</p>}
+    </div>
+  );
+}
+
+function DailyStudyChart({ days }) {
+  const max = Math.max(...days.map((d) => d.minutes), 1);
+  return (
+    <div className="flex items-end justify-between gap-3 h-44">
+      {days.map((d, i) => {
+        const h = (d.minutes / max) * 100;
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center gap-2">
+            <div className="flex-1 w-full flex items-end">
+              <div className="w-full rounded-xl transition-all"
+                style={{
+                  height: `${Math.max(h, 3)}%`,
+                  background: d.isToday
+                    ? "linear-gradient(180deg, #fbcfe8, #c8b4f0, #fad4a4)"
+                    : d.minutes > 0
+                      ? "linear-gradient(180deg, #a78bfa, #8b5cf6)"
+                      : "transparent",
+                  border: d.minutes === 0 ? "1px dashed #E5E5EA" : "none",
+                }} />
             </div>
-            <p className="text-[15px] font-semibold text-[var(--label)]">No children added yet</p>
-            <p className="text-[13px] text-apple-gray">Search for your child by name to get started.</p>
-            <button onClick={() => setShowSearch(true)} className="btn-primary mx-auto">
-              Find my child
-            </button>
-          </div>
-        ) : selectedId === CLASS_ID ? (
-          <TeacherClassView />
-        ) : selectedId === OVERVIEW_ID ? (
-          <MultiChildOverview students={students} dashboards={allDashboards} />
-        ) : students.find((s) => (s._id || s.id) === selectedId)?._pendingConsent ? (
-          <div className="card p-10 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-apple-orange/10 flex items-center justify-center mx-auto">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                   strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-apple-orange">
-                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-              </svg>
+            <div className="text-center">
+              <p className={`text-[11px] font-bold ${d.isToday ? "text-[#1c1c1e]" : "text-[#3A3A3C]"}`}>{d.label}</p>
+              <p className="text-[10px] text-[#8e8e93]">{d.minutes}m</p>
             </div>
-            <p className="text-[15px] font-semibold text-[var(--label)]">
-              Waiting for {students.find((s) => (s._id || s.id) === selectedId)?.name} to accept
-            </p>
-            <p className="text-[13px] text-apple-gray">
-              A request has been sent. Once they approve it on their dashboard, you'll see their progress here.
-            </p>
           </div>
-        ) : dashLoading ? (
-          <div className="space-y-4">
-            <div className="card h-20 animate-pulse bg-apple-gray5" />
-            <div className="grid grid-cols-3 gap-3">
-              {[1,2,3].map((i) => <div key={i} className="card h-24 animate-pulse bg-apple-gray5" />)}
+        );
+      })}
+    </div>
+  );
+}
+
+function TrendCard({ trend }) {
+  const values = trend.filter((w) => w.accuracy != null);
+  if (values.length < 2) return (
+    <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-3">8-week trend</p>
+      <p className="text-[12px] text-[#8e8e93] py-6 text-center">Not enough data yet.</p>
+    </div>
+  );
+  const max = Math.max(...values.map((v) => v.accuracy));
+  const min = Math.min(...values.map((v) => v.accuracy));
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-3">8-week accuracy trend</p>
+      <div className="flex items-end gap-1 h-20">
+        {trend.map((w, i) => {
+          const h = w.accuracy != null ? ((w.accuracy - 30) / 70) * 100 : 0;
+          return (
+            <div key={i} className="flex-1 rounded-t-sm bg-[#7c3aed]/40 transition-all"
+              style={{ height: `${Math.max(h, 5)}%`, opacity: w.accuracy != null ? 1 : 0.2 }}
+              title={`${w.weekStart}: ${w.accuracy || 0}%`} />
+          );
+        })}
+      </div>
+      <p className="text-[11px] text-[#8e8e93] mt-2">Min {min}% · Max {max}%</p>
+    </div>
+  );
+}
+
+function TimeOfDayCard({ timeOfDay }) {
+  if (!timeOfDay?.length) return null;
+  const max = Math.max(...timeOfDay.map((b) => b.minutes), 1);
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-3">Time-of-day study pattern</p>
+      <div className="flex items-end gap-1 h-20">
+        {[0,3,6,9,12,15,18,21].map((h) => {
+          const b = timeOfDay.find((x) => x.hour === h);
+          const min = b?.minutes || 0;
+          const ht = (min / max) * 100;
+          return (
+            <div key={h} className="flex-1 flex flex-col items-center gap-1">
+              <div className="flex-1 w-full flex items-end">
+                <div className="w-full rounded-t-sm bg-[#FF9500]/50" style={{ height: `${Math.max(ht, 4)}%` }} title={`${min}m at ${h}:00`} />
+              </div>
+              <span className="text-[8px] text-[#C7C7CC]">{h}</span>
             </div>
-            <div className="card h-36 animate-pulse bg-apple-gray5" />
-            <div className="card h-48 animate-pulse bg-apple-gray5" />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MessageButton({ message, setMessage, onSend, childName }) {
+  const [open, setOpen] = useState(false);
+  if (!open) return (
+    <button onClick={() => setOpen(true)} className="px-4 py-2 rounded-full bg-[#1c1c1e] text-white text-[12px] font-bold hover:bg-[#3A3A3C]">
+      Message {childName?.split(" ")[0]}
+    </button>
+  );
+  return (
+    <div className="absolute right-4 mt-12 bg-white rounded-2xl shadow-2xl border border-[#f0f0f5] p-4 w-80 z-30">
+      <p className="text-[12px] font-bold text-[#1c1c1e] mb-2">Send to {childName?.split(" ")[0]}</p>
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Quick encouragement…"
+        maxLength={500} rows={3}
+        className="w-full text-[13px] px-3 py-2 rounded-lg border border-[#E5E5EA] resize-none focus:outline-none focus:border-[#7c3aed]" />
+      <div className="flex gap-2 mt-2">
+        <button onClick={() => setOpen(false)} className="flex-1 py-1.5 rounded-lg border border-[#E5E5EA] text-[11px] font-semibold">Cancel</button>
+        <button onClick={() => { onSend(); setOpen(false); }} disabled={!message.trim()}
+          className="flex-1 py-1.5 rounded-lg bg-[#1c1c1e] text-white text-[11px] font-bold disabled:opacity-50">Send</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Weekly digest ─────────────────────────────────── */
+function WeeklyDigestPanel() {
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-[#f0f0f5]">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-2">Weekly digest</p>
+      <h2 className="text-[18px] font-bold text-[#1c1c1e] mb-2">Email every Sunday</h2>
+      <p className="text-[13px] text-[#3A3A3C] leading-relaxed mb-4">
+        Stellar sends a weekly summary email with study time, accuracy, mood trends, and Aria's insights.
+        You can also send one on demand from the Planner page → "Send weekly digest now".
+      </p>
+      <p className="text-[11px] text-[#8e8e93]">Toggle subscription in Profile → Notifications.</p>
+    </div>
+  );
+}
+
+/* ─── Parental controls panel ───────────────────────── */
+function ControlsPanel({ controls, onUpdate, goalDraft, setGoalDraft, onCosign }) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] space-y-4">
+        <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93]">Parental controls</p>
+
+        <ToggleRow label="Pause AI access" desc="Temporarily disable Aria + voice tutor"
+          value={controls.pauseAI} onChange={(v) => onUpdate({ pauseAI: v })} />
+        <ToggleRow label="Approve AI doubt threads" desc="Review before child starts a chat"
+          value={controls.approveAIThreads} onChange={(v) => onUpdate({ approveAIThreads: v })} />
+        <ToggleRow label="Vacation mode" desc="Pause streaks + reminders during holidays"
+          value={controls.vacationMode} onChange={(v) => onUpdate({ vacationMode: v })} />
+
+        <div>
+          <p className="text-[12px] font-semibold text-[#1c1c1e]">Daily screen-time cap</p>
+          <p className="text-[10px] text-[#8e8e93] mb-2">App locks after this many minutes per day. 0 = no cap.</p>
+          <input type="number" min={0} max={720} value={controls.screenTimeCapMin || 0}
+            onChange={(e) => onUpdate({ screenTimeCapMin: parseInt(e.target.value) || 0 })}
+            className="w-24 px-2 py-1.5 rounded-lg border border-[#E5E5EA] text-[13px]" /> min/day
+        </div>
+
+        <div>
+          <p className="text-[12px] font-semibold text-[#1c1c1e]">Quiet hours</p>
+          <p className="text-[10px] text-[#8e8e93] mb-2">No notifications during this window.</p>
+          <div className="flex items-center gap-2">
+            <input type="time" defaultValue={controls.quietHours?.start || "21:00"}
+              onBlur={(e) => onUpdate({ quietHours: { ...controls.quietHours, start: e.target.value } })}
+              className="px-2 py-1.5 rounded-lg border border-[#E5E5EA] text-[12px]" />
+            <span className="text-[12px] text-[#8e8e93]">to</span>
+            <input type="time" defaultValue={controls.quietHours?.end || "07:00"}
+              onBlur={(e) => onUpdate({ quietHours: { ...controls.quietHours, end: e.target.value } })}
+              className="px-2 py-1.5 rounded-lg border border-[#E5E5EA] text-[12px]" />
           </div>
-        ) : dashboard ? (
-          <StudentView data={dashboard} />
-        ) : null
-      )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+        <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-2">Co-sign weekly goal</p>
+        <p className="text-[12px] text-[#8e8e93] mb-3">A shared commitment between you and your child for this week.</p>
+        <div className="flex gap-2">
+          <input value={goalDraft} onChange={(e) => setGoalDraft(e.target.value)}
+            placeholder="e.g. Finish Trigonometry by Sunday"
+            className="flex-1 px-3 py-2 rounded-lg border border-[#E5E5EA] text-[13px]" />
+          <button onClick={onCosign} disabled={!goalDraft.trim()}
+            className="px-4 py-2 rounded-lg bg-[#7c3aed] text-white text-[12px] font-bold disabled:opacity-50">Co-sign</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ToggleRow({ label, desc, value, onChange }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2 border-b border-[#F2F2F7] last:border-0">
+      <div className="min-w-0">
+        <p className="text-[13px] font-semibold text-[#1c1c1e]">{label}</p>
+        <p className="text-[11px] text-[#8e8e93]">{desc}</p>
+      </div>
+      <button onClick={() => onChange(!value)} className="w-11 h-6 rounded-full relative transition-colors shrink-0"
+        style={{ background: value ? "#34C759" : "#E5E5EA" }}>
+        <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+          style={{ left: value ? "calc(100% - 22px)" : "2px" }} />
+      </button>
+    </div>
+  );
+}
+
+/* ─── Privacy / Billing placeholders ─────────────────── */
+function PrivacyPanel() {
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-[#f0f0f5] space-y-3">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93]">Privacy</p>
+      <p className="text-[13px] text-[#3A3A3C] leading-relaxed">
+        Only data you've been granted access to via your child's Profile → Linked Parents is visible here.
+        The child controls visibility per category (scores, streaks, chats) and can revoke at any time.
+      </p>
+      <p className="text-[12px] text-[#8e8e93]">
+        Stellar is GDPR / India-DPDP compliant. We never sell student data.
+      </p>
+    </div>
+  );
+}
+
+function BillingPanel() {
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-[#f0f0f5]">
+      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-2">Billing</p>
+      <p className="text-[14px] text-[#1c1c1e] font-semibold">Family plan</p>
+      <p className="text-[12px] text-[#8e8e93] mt-1">Multi-child access included. Manage subscription in Profile → Plan.</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell. English pipeline complete: 35 fine-grained topics, 256 MCQs (4 seed files), NcertTopicContent, TopicDAG, RAG index (156 chunks), skipDiagram audit flag.
+> Last updated: May 2026 — engagement-gated "Mark as studied" (5 min active + 80% scroll + 2 sections viewed + AI-graded note ≥70/100), spaced mastery test (10 MCQs · 3E/4M/3H, 8/10 to pass → "pending" → 3-day spacing → second pass confirms "Mastered", 30-min cooldown, question-pool rotation, server-side anti-cheat grading), localhost-skip rate limiter for dev (max bumped to 5000), per-topic + per-chapter live status pills on /lessons (Not started / In progress / Due / Mastered), focus-event re-fetch for cross-page progress sync, getStudiedTopics cache-bust, dark-mode polish across Dashboard/Bookmarks/Planner/Analytics/Competition/PYQBank/Profile/Practice/Certificate/ParentDashboard (white-pill toolbar pattern, global bg-[#1c1c1e] CTA inversion, certificate-light-only override, invite-card + predscore-card dark gradients). Previous: streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell. English pipeline complete: 35 fine-grained topics, 256 MCQs (4 seed files), NcertTopicContent, TopicDAG, RAG index (156 chunks), skipDiagram audit flag.
 
 ---
 
@@ -49,6 +49,13 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 │          /api/badges  /api/doubt   /api/portal              │
 │          /api/v1/placement-quiz  /api/v1/recommender        │
 │          /api/v1/curriculum  /api/v1/ncert  /api/v1/pyq     │
+│          /api/v1/bookmarks (collections, SM-2, share, AI)   │
+│          /api/v1/profile (heatmap, level, mood, public)     │
+│          /api/v1/lessons-v2 (dashboard, search, diagnostic) │
+│          /api/v1/analytics-v2 (radar, persona, insights)    │
+│          /api/v1/dashboard-v2 (commit, snooze, peer, NBA)   │
+│          /api/v1/competition-v2 (rooms, ELO, quests, match) │
+│          /api/v1/live-room (theme, friends)                 │
 │          /api/health                                         │
 │                                                              │
 │  Socket.IO: competition room events (join/start/score/end)  │
@@ -405,6 +412,73 @@ createdAt: Date
 Unique index: { userId, cacheKey } — one rating per user per response
 ```
 
+### 3.27 BookmarkCollection  ← NEW (custom user folders for saved items)
+```
+userId:      String
+name, emoji, color, order
+memberRefs:  [{ kind: "question"|"topic"|"section", refId, addedAt }]
+shareToken:  String (sparse, for /c/:token public read-only view)
+sharedAt:    Date
+aiSummary:   String (cached 24h)
+aiSummaryAt: Date
+
+Indexes: { userId, order }, { shareToken } sparse
+```
+
+### 3.28 BookmarkReview  ← NEW (SM-2 spaced repetition state)
+```
+userId, questionId (Mongo _id of Question, as string)
+easeFactor:    Number (SM-2 EF, default 2.5, min 1.3)
+intervalDays:  Number
+repetitions:   Number
+lastReviewedAt, dueAt
+lastRating:    0=again | 1=hard | 2=good | 3=easy
+reviewCount, wrongCount
+mastered, masteredAt
+note:          String (max 280, "why I saved this")
+
+Indexes: { userId, questionId } unique, { userId, dueAt }, { userId, mastered }
+```
+
+### 3.29 TopicBookmark / SectionBookmark  ← NEW
+```
+TopicBookmark   — server-side mirror of stellar_topic_bookmarks LS
+SectionBookmark — server-side mirror of stellar_section_bookmarks LS
+Both auto-migrate from localStorage on first visit to /bookmarks
+```
+
+### 3.31 Profile v2 fields & models  ← NEW
+```
+User schema additions:
+  avatarDataUrl       — base64 image, ≤100KB (no S3 dependency)
+  manifesto           — student "why I learn" line, max 200
+  locale              — "en" | "hi"
+  timezone            — IANA tz string, default "Asia/Kolkata"
+  theme               — "light" | "dark" | "system"
+  density             — "comfortable" | "compact"
+  notifPrefs          — { push, email, streak, exam } booleans
+  twoFactorEnabled    — boolean (UI placeholder)
+  publicProfileEnabled, publicSlug — opt-in /u/:slug page
+  parentVisibility    — Map<parentId, { scores, streak, chats }> per-parent privacy
+
+profileV2Models.js (new file):
+  MoodCheckin   — daily { userId, date, mood: great|ok|low, note } unique per day
+  ActiveSession — best-effort login session log, 30-day TTL, sign-out by id
+  Certificate   — issued certificates surfaced on profile (admin-managed)
+```
+
+### 3.30 Practice feedback models  ← NEW (practiceFeedbackModels.js)
+```
+QuestionReport — user-reported issues (wrong_answer | confusing_wording | broken_image |
+                 off_syllabus | duplicate | other) + optional note. Status: open|resolved|rejected.
+                 Distinct from Question.isFlagged (boolean only).
+SkipReason     — captures why a user skipped (dont_know | too_easy | confusing | bad_question | no_time).
+                 90-day TTL.
+ErrorLabel     — user self-labels their error after seeing the answer
+                 (misread | calc_slip | concept_gap | stuck_step | guessed | other).
+                 180-day TTL. Richer than auto-classified Attempt.selectedType.
+```
+
 ### 3.26 NcertChunk  ← NEW (RAG knowledge store)
 ```
 chapterId:     String (e.g. "ch1")
@@ -670,6 +744,131 @@ autoDoubt: surfaces recurring mistakes from ErrorMemory
 foundation: checks Topic.prerequisites against UserProfile.weakAreas
 ```
 
+### 4.14g Live Room v2/v3 (Socket.IO extensions)  ← NEW
+```
+Extended utils/socket.js with new events:
+  room_chat        — text chat (200 char cap, 1/s throttle)
+  room_reaction    — emoji floating (2/s throttle)
+  player_pulse     — every 5s; updates {status, lastSeen} → presence_update broadcast
+  power_up         — fifty_fifty | freeze | double; freeze targets opponents
+  answer_timing    — server flags 3-in-a-row <2s answers as anti_cheat_flag
+  list_public_rooms→ public_rooms broadcast for lobby browser
+  on disconnect    — auto sets status="disconnected" in all rooms
+
+  v3 additions:
+  submit_score     — accepts {qIdx, optionLetter}; broadcasts opponent_answered + first_answer
+  chat_typing      — typing indicator broadcast
+  chat_reaction    — emoji on chat message broadcast
+  rematch_offer    — result-screen rematch invite broadcast
+  spectate_room    — joins socket room as spectator (not added to players)
+
+In-memory activeRooms Map<roomId, info> for public lobby browser, pruned every 5 min.
+
+routes/liveRoomV2Routes.js:
+  GET /v1/live-room/theme   — daily theme topic (rotates by day-of-week)
+  GET /v1/live-room/friends — linkedStudents picker for invites
+```
+
+### 4.14f competitionV2Service.js  ← NEW (Arena, ELO, rooms, quests)
+```
+Models added (competitionV2Models.js):
+  ArenaRating  — ELO rating + weekly points + win streak + tier (Bronze→Master)
+  Room         — lobby/live multiplayer room (code-based, capacity 2-8)
+  Match        — finished match history with rank changes
+  DailyQuest   — 3 daily competition quests (win1, play3, hard_topic)
+  MatchReport  — opponent reports (cheating, bad_sport, afk, other)
+
+Service helpers:
+  getArena             — rating + tier + rank + weekly points + win streak
+  getWeeklyLeaderboard — class-grade scoped, with rank deltas vs last snapshot
+  listOpenRooms / createRoom / joinRoom / leaveRoom / readyUp / startMatch
+  recordAnswer         — live score updates per-question
+  finishMatch          — pairwise ELO update (K=16/N), rank, history persist
+  quickMatch           — auto-join similar-rated lobby OR create new
+  getMatchHistory / getDailyQuests / bumpQuest / getChampion / reportOpponent
+
+Routes: GET /dashboard (one-shot), POST /rooms, POST /rooms/:code/{join,leave,ready,start,answer,finish},
+        POST /quick-match, GET /history, GET /quests, POST /report
+```
+
+### 4.14e dashboardV2Service.js  ← NEW (Home dashboard aggregator)
+```
+12 helpers:
+  getStreakStrip      — last 7 days with isToday flag for hero strip
+  getCommitment       — DailyCommitment + live doneMinutes from today's attempts
+  setCommitment       — pledge N min today (5–480 range)
+  getStreakRisk       — afternoon banner: "Practice in N hrs to keep streak alive"
+  getPeerActivity     — anonymized count of grade-peers active in last 30 min + class avg accuracy 7d
+  getRankWidget       — your rank + percentile across all profiles ≥5 attempts
+  getFriendActivity   — recent badges from linked users
+  getRecentSessions   — last 3 hour-grouped sessions
+  getNextBadgePreview — closest unearned badge with N-to-go progress
+  getTomorrowPreview  — top-3 weak areas as likely tomorrow focus
+  snoozeTask / listActiveSnoozes — TaskSnooze CRUD
+  getWidgetOrder / setWidgetOrder — per-user dashboard layout + density
+  getNBA              — next-best-action one-liner ("drill X for 10 min — your weakest")
+
+Models added: DailyCommitment (90d TTL), TaskSnooze (30d TTL), WidgetOrder.
+Routes: GET /dashboard, POST /commitment, POST /snooze, PATCH /widget
+```
+
+### 4.14d analyticsV2Service.js  ← NEW (Analytics dashboard aggregator)
+```
+14 helpers, all subject- and range-aware:
+  getPersona              — named persona ("The Deep Thinker") + tagline based on UserProfile
+  getRadar                — 5-axis (Depth/Speed/Pattern/Recall/Calibration) + peer-median ghost
+  getPredictedBreakdown   — per-chapter +/- marks contribution + counterfactual ("if mastered top 3 → +N")
+  getMistakeByTopic       — per-topic stacked breakdown (concept/calc/partial_logic/guess/misread)
+  getTimeOfDayCorrelation — accuracy by 3-hour bucket
+  getCalibrationCurve     — stated confidence vs actual accuracy (perfect = diagonal)
+  getThisWeek             — 7-day bar chart + active-days + total minutes + WoW %
+  getTopicHeatmap         — per-topic mastery state from UserTopicMastery
+  getQuestionTypeBreakdown- accuracy per MCQ/AssertionReason/CaseBased/etc.
+  getDifficultyDistribution- accuracy per easy/medium/hard (last 30d)
+  getRetestRecs           — SM-2 due bookmarks for re-testing
+  getMockPaperReadiness   — per-section readiness % (VSA/SA-I/SA-II/LA/Case) + history sparkline
+  getAnomalies            — slow-session, low-accuracy, repeat-wrong intervention triggers
+  getInsights             — Aria-style narrated bullets (time-of-day, long-question accuracy, calibration, skip patterns, bookmark review rate)
+  getBehaviourFingerprint — avg time, consistency, overconfidence %, underconfidence %
+
+Routes: GET /dashboard?subject=X — one-shot returns all 14 sections in parallel.
+```
+
+### 4.14c lessonsV2Service.js  ← NEW (Learn dashboard aggregator)
+```
+getContinueCard       — last LessonProgress + mode + slideIndex + percent
+getRecentTopics       — last 5 distinct topics studied
+getTopicMasteryMap    — { topicId: "mastered"|"in_progress"|"wrong_repeat"|"not_started" }
+getRecommendedTopics  — wrong-repeat first, then next not-started
+getChaptersMeta       — per-chapter rollup: topicCount, mastered, progressPct,
+                        estimatedMinutes, difficulty, examWeight (CBSE table),
+                        pyqCount (from Question.isPYQ), hasVideo/Diagram/Formula,
+                        prereqs, isNew (last 30d updatedAt)
+getDiagnostic         — 3 quick questions for the "Skip if I know" pre-lesson check
+searchTopics          — fuzzy regex search across NcertTopicContent.name
+createCoStudyLink     — in-memory token, 1h TTL, returns shareable URL
+
+Routes: GET /dashboard, /search, /diagnostic/:topicId, POST /co-study, GET /co-study/:token
+EXAM_WEIGHTS table hardcoded for CBSE Class-10 Math/Science/SST. Other grades fall back to 100/N.
+```
+
+### 4.14b bookmarkService.js  ← NEW (SM-2 spaced repetition + collections)
+```
+sm2Next(prev, rating)  — SuperMemo 2 algorithm; returns {easeFactor, intervalDays, repetitions, dueAt}
+rateReview(userId, qid, rating)  — updates BookmarkReview, marks mastered after 3 "easy" in a row
+getDueQuestions(userId, limit)   — Due Today queue (mastered excluded)
+computeSmartCollections(userId)  — server-side filter buckets:
+  due, forgotten (>14d, never reviewed), frequentlyWrong (wrongCount≥2), thisWeek, mastered
+listCollections / createCollection / updateCollection / addToCollection / bulkAdd
+generateCollectionShareToken / getSharedCollection (public, no auth)
+exportCollection(format=md|anki) — Markdown or Anki CSV (Front,Back,Tags)
+generateAiSummary — heuristic 3-bullet study insight, cached 24h on collection doc
+
+Routes mounted at /api/v1/bookmarks/*  (bookmarkRoutes.js + bookmarkController.js)
+Public route: GET /api/v1/bookmarks/share/:token → SharedCollection page at /c/:token
+Practice handoff: POST /api/practice/start-bookmarks now accepts { collectionId } too
+```
+
 ### 4.14 couponService.js  ← NEW
 ```
 validateCoupon(code, planKey) → checks isActive, validUntil, maxUses, planFilter → Coupon doc
@@ -796,7 +995,13 @@ GET    /api/competition/leaderboard
 POST   /api/competition/room-questions
 
 POST   /api/practice/mixed          ← mixed-topic practice session
-POST   /api/practice/flag           ← student flags a question for review
+POST   /api/practice/flag           ← student flags a question for review (boolean only)
+POST   /api/practice/report          ← user reports a question with reason + note → QuestionReport ← NEW
+POST   /api/practice/skip-reason     ← captures why a question was skipped → SkipReason ← NEW
+POST   /api/practice/error-label     ← user self-labels their error after wrong answer → ErrorLabel ← NEW
+GET    /api/practice/question-stats/:questionId ← attempts/accuracy/avgTime for "i" popover ← NEW
+GET    /api/practice/peer-time/:questionId      ← my avg vs peer avg time on a question ← NEW
+GET    /api/practice/lineage/:questionId        ← prerequisite topic chain for concept-gap drill ← NEW
 POST   /api/practice/start-bookmarks ← start practice from bookmarks; optional body { questionIds }
                                        if questionIds provided: uses those IDs as pool (retry-wrong flow)
                                        if not provided: falls back to user's savedQuestions
@@ -1393,6 +1598,105 @@ npm run seed:english-questions-c       ← English questions — Footprints With
 npm run seed:english-questions-d       ← English questions — Workbook Grammar Units 1–9 (72 Qs)
 npm run seed:english-topic-dag         ← English Topic prerequisite DAG (35 nodes, levels 0–3)
 npm run seed:english-all               ← convenience: curriculum + NcertChapters + content + questions A/B/C/D + DAG
+npm run seed:hindi-ncert-chapters      ← Bridge Chapter→NcertChapter for Hindi (32 chapters, powers /api/v1/ncert/chapters)
+npm run seed:hindi-content-a           ← Hindi NcertTopicContent — Kshitij Bhaag 2 Ch1–12 (12 topics, in Hindi)
+npm run seed:hindi-content-b           ← Hindi NcertTopicContent — Sparsh Bhaag 2 Ch13–26 (14 topics, in Hindi)
+npm run seed:hindi-content-c           ← Hindi NcertTopicContent — Kritika Ch27–29 + Sanchayan Ch30–32 (6 topics, in Hindi)
+npm run seed:hindi-questions-a         ← Hindi questions — Kshitij Ch1–12 (32 Qs, in Hindi)
+npm run seed:hindi-questions-b         ← Hindi questions — Sparsh Ch13–26 (34 Qs, in Hindi)
+npm run seed:hindi-questions-c         ← Hindi questions — Kritika Ch27–29 + Sanchayan Ch30–32 (21 Qs, in Hindi)
+npm run seed:hindi-questions-d         ← Hindi questions — top-up to ≥4 Qs/chapter (42 Qs; total 129 Qs)
+npm run seed:hindi-topic-dag           ← Hindi Topic prerequisite DAG (32 nodes, all level 0)
+npm run seed:hindi-all                 ← convenience: curriculum + NcertChapters + content A/B/C + questions A/B/C/D + DAG
+npm run seed:math9-curriculum          ← Class 9 Math Chapter model (8 chapters, Ganita Manjari NCERT 2026)
+npm run seed:math9-ncert-chapters      ← Class 9 Math NcertChapters bridge (8 chapters, chapterId: math9_ch1…)
+npm run seed:math9-content             ← Class 9 Math NcertTopicContent v1 (8 topics, flat format — superseded by v2)
+npm run seed:math9-questions-a         ← Class 9 Math MCQs v1 ch1–ch4 (20 questions — superseded by v2)
+npm run seed:math9-questions-b         ← Class 9 Math MCQs v1 ch5–ch8 (20 questions — superseded by v2)
+npm run seed:math9-topic-dag           ← Class 9 Math Topic DAG (8 nodes, prerequisite links)
+npm run seed:math9-all                 ← convenience: all 6 Math9 v1 seeds in sequence
+npm run seed:math9-cleanup-v1          ← delete old v1 single-topic math9 NcertTopicContent (math9_ch1–ch8)
+npm run seed:math9-v2-content          ← Class 9 Math NcertTopicContent v2 (32 sub-topics, 4 per chapter)
+npm run seed:math9-v2-questions-a      ← Class 9 Math MCQs v2 ch1–ch2 (64 questions)
+npm run seed:math9-v2-questions-b      ← Class 9 Math MCQs v2 ch3–ch4 (44 questions)
+npm run seed:math9-v2-questions-c      ← Class 9 Math MCQs v2 ch5–ch6 (44 questions)
+npm run seed:math9-v2-questions-d      ← Class 9 Math MCQs v2 ch7–ch8 (48 questions)
+npm run seed:math9-v2-all              ← convenience: cleanup v1 + all 5 v2 seeds in sequence
+npm run audit:coverage:math9           ← audit Math9 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math7-curriculum          ← Class 7 Math Chapter model (15 chapters, Ganita Prakash Grade 7 NCERT 2026)
+npm run seed:math7-ncert-chapters      ← Class 7 Math NcertChapters bridge (15 chapters, chapterId: math7_ch1…)
+npm run seed:math7-content             ← Class 7 Math NcertTopicContent (15 topics, flat format)
+npm run seed:math7-questions-a         ← Class 7 Math MCQs ch1–ch8 (40 questions)
+npm run seed:math7-questions-b         ← Class 7 Math MCQs ch9–ch15 (35 questions)
+npm run seed:math7-topic-dag           ← Class 7 Math Topic DAG (15 nodes, prerequisite links)
+npm run seed:math7-all                 ← convenience: all 6 Math7 seeds in sequence
+npm run audit:coverage:math7           ← audit Math7 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math8-curriculum          ← Class 8 Math Chapter model (14 chapters, Ganita Prakash Grade 8 NCERT 2026)
+npm run seed:math8-ncert-chapters      ← Class 8 Math NcertChapters bridge (14 chapters, chapterId: math8_ch1…)
+npm run seed:math8-content             ← Class 8 Math NcertTopicContent (14 topics, flat format)
+npm run seed:math8-questions-a         ← Class 8 Math MCQs ch1–ch7 (35 questions)
+npm run seed:math8-questions-b         ← Class 8 Math MCQs ch8–ch14 (35 questions)
+npm run seed:math8-topic-dag           ← Class 8 Math Topic DAG (14 nodes, prerequisite links)
+npm run seed:math8-all                 ← convenience: all 6 Math8 seeds in sequence
+npm run audit:coverage:math8           ← audit Math8 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math6-curriculum          ← Class 6 Math Chapter model (10 chapters, Ganita Prakash Grade 6 NCERT 2026)
+npm run seed:math6-ncert-chapters      ← Class 6 Math NcertChapters bridge (10 chapters, chapterId: math6_ch1…)
+npm run seed:math6-content             ← Class 6 Math NcertTopicContent (10 topics, flat format)
+npm run seed:math6-questions-a         ← Class 6 Math MCQs ch1–ch5 (25 questions)
+npm run seed:math6-questions-b         ← Class 6 Math MCQs ch6–ch10 (25 questions)
+npm run seed:math6-topic-dag           ← Class 6 Math Topic DAG (10 nodes, prerequisite links)
+npm run seed:math6-all                 ← convenience: all 6 Math6 seeds in sequence
+npm run audit:coverage:math6           ← audit Math6 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math5-curriculum          ← Class 5 Math Chapter model (14 chapters, Maths Magic NCERT)
+npm run seed:math5-ncert-chapters      ← Class 5 Math NcertChapters bridge (14 chapters, chapterId: math5_ch1…)
+npm run seed:math5-content             ← Class 5 Math NcertTopicContent (14 topics, flat format)
+npm run seed:math5-questions-a         ← Class 5 Math MCQs ch1–ch7 (35 questions)
+npm run seed:math5-questions-b         ← Class 5 Math MCQs ch8–ch14 (35 questions)
+npm run seed:math5-topic-dag           ← Class 5 Math Topic DAG (14 nodes, prerequisite links)
+npm run seed:math5-all                 ← convenience: all 6 Math5 seeds in sequence
+npm run audit:coverage:math5           ← audit Math5 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math4-curriculum          ← Class 4 Math Chapter model (14 chapters, Math Magic NCERT)
+npm run seed:math4-ncert-chapters      ← Class 4 Math NcertChapters bridge (14 chapters, chapterId: math4_ch1…)
+npm run seed:math4-content             ← Class 4 Math NcertTopicContent (14 topics, flat format)
+npm run seed:math4-questions-a         ← Class 4 Math MCQs ch1–ch7 (35 questions)
+npm run seed:math4-questions-b         ← Class 4 Math MCQs ch8–ch14 (35 questions)
+npm run seed:math4-topic-dag           ← Class 4 Math Topic DAG (14 nodes, prerequisite links)
+npm run seed:math4-all                 ← convenience: all 6 Math4 seeds in sequence
+npm run audit:coverage:math4           ← audit Math4 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math3-curriculum          ← Class 3 Math Chapter model (14 chapters, Math Magic NCERT)
+npm run seed:math3-ncert-chapters      ← Class 3 Math NcertChapters bridge (14 chapters, chapterId: math3_ch1…)
+npm run seed:math3-content             ← Class 3 Math NcertTopicContent (14 topics, flat format)
+npm run seed:math3-questions-a         ← Class 3 Math MCQs ch1–ch7 (35 questions)
+npm run seed:math3-questions-b         ← Class 3 Math MCQs ch8–ch14 (35 questions)
+npm run seed:math3-topic-dag           ← Class 3 Math Topic DAG (14 nodes, prerequisite links)
+npm run seed:math3-all                 ← convenience: all 6 Math3 seeds in sequence
+npm run audit:coverage:math3           ← audit Math3 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math2-curriculum          ← Class 2 Math Chapter model (15 chapters, Math Magic NCERT)
+npm run seed:math2-ncert-chapters      ← Class 2 Math NcertChapters bridge (15 chapters, chapterId: math2_ch1…)
+npm run seed:math2-content             ← Class 2 Math NcertTopicContent (15 topics, flat format)
+npm run seed:math2-questions-a         ← Class 2 Math MCQs ch1–ch8 (40 questions)
+npm run seed:math2-questions-b         ← Class 2 Math MCQs ch9–ch15 (35 questions)
+npm run seed:math2-topic-dag           ← Class 2 Math Topic DAG (15 nodes, prerequisite links)
+npm run seed:math2-all                 ← convenience: all 6 Math2 seeds in sequence
+npm run audit:coverage:math2           ← audit Math2 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+npm run seed:math1-curriculum          ← Class 1 Math Chapter model (13 chapters, Math Magic NCERT)
+npm run seed:math1-ncert-chapters      ← Class 1 Math NcertChapters bridge (13 chapters, chapterId: math1_ch1…)
+npm run seed:math1-content             ← Class 1 Math NcertTopicContent v1 [superseded by v2]
+npm run seed:math1-questions-a         ← Class 1 Math MCQs v1 [superseded by v2]
+npm run seed:math1-questions-b         ← Class 1 Math MCQs v1 [superseded by v2]
+npm run seed:math1-topic-dag           ← Class 1 Math Topic DAG (13 nodes, prerequisite links)
+npm run seed:math1-all                 ← convenience: all 6 Math1 v1 seeds [use v2 instead]
+npm run seed:math1-cleanup-v1          ← delete old v1 single-topic entries (13 deleted)
+npm run seed:math1-v2-content          ← Class 1 Math v2 NcertTopicContent (52 sub-topics, 4/chapter)
+npm run seed:math1-v2-questions-a      ← Class 1 Math v2 MCQs Ch1–Ch2 (64 questions)
+npm run seed:math1-v2-questions-b      ← Class 1 Math v2 MCQs Ch3–Ch4 (64 questions)
+npm run seed:math1-v2-questions-c      ← Class 1 Math v2 MCQs Ch5–Ch6 (64 questions)
+npm run seed:math1-v2-questions-d      ← Class 1 Math v2 MCQs Ch7–Ch8 (64 questions)
+npm run seed:math1-v2-questions-e      ← Class 1 Math v2 MCQs Ch9–Ch10 (64 questions)
+npm run seed:math1-v2-questions-f      ← Class 1 Math v2 MCQs Ch11–Ch12 (64 questions)
+npm run seed:math1-v2-questions-g      ← Class 1 Math v2 MCQs Ch13 (32 questions)
+npm run seed:math1-v2-all              ← convenience: cleanup + content + all 7 question files
+npm run audit:coverage:math1           ← audit Math1 coverage (Mathematics filter; must show ✅ FULLY COVERED)
 npm run rag:build-curriculum            ← build RAG chunks from Chapter docs (Science/English/Hindi/SocSci)
 npm run rag:build-science               ← RAG chunks for Science only
 npm run migrate                         ← run pending DB migrations (migrate-mongo)
@@ -1583,6 +1887,35 @@ To activate push (not yet wired):
 | CBSE Class 10 Science curriculum (13 chapters — Chemistry/Biology/Physics, seed, API) | ✅ Complete |
 | CBSE Class 10 English curriculum (23 chapters — First Flight/Footprints/Words & Expr, seed) | ✅ Complete |
 | CBSE Class 10 Hindi curriculum (32 chapters — Kshitij/Sparsh/Kritika/Sanchayan, seed) | ✅ Complete |
+| Hindi full content pipeline — NcertChapters + NcertTopicContent (32 topics, in Hindi) + 129 MCQs + TopicDAG (32 nodes) | ✅ Complete |
+| Hindi UI — HindiSubBar (4 textbook tabs), HindiChapterCard, NcertTopicView Hindi routing (isSciLike pattern) | ✅ Complete |
+| CBSE Class 9 Mathematics — "Ganita Manjari" (NCERT 2026) — 8 chapters, seed pipeline complete | ✅ Complete |
+| Math9 content pipeline v2 — 32 sub-topics (4/chapter) + 200 MCQs + TopicDAG (8 nodes); v1 single-topics cleaned up | ✅ Complete |
+| Math9 UI — MathChapterCard in Lessons.jsx (grade-filtered via topicId prefix), NcertTopicView isMath9 routing (isSciLike) | ✅ Complete |
+| CBSE Class 7 Mathematics — "Ganita Prakash Grade 7" (NCERT 2026) — 15 chapters, seed pipeline complete | ✅ Complete |
+| Math7 content pipeline — Chapter model + NcertChapters + NcertTopicContent (15 topics) + 75 MCQs + TopicDAG (15 nodes) | ✅ Complete |
+| Math7 UI — grade "7" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath7 routing (isSciLike) | ✅ Complete |
+| CBSE Class 8 Mathematics — "Ganita Prakash Grade 8" (NCERT 2026) — 14 chapters, seed pipeline complete | ✅ Complete |
+| Math8 content pipeline — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
+| Math8 UI — grade "8" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath8 routing (isSciLike) | ✅ Complete |
+| CBSE Class 6 Mathematics — "Ganita Prakash Grade 6" (NCERT 2026) — 10 chapters, seed pipeline complete | ✅ Complete |
+| Math6 content pipeline — Chapter model + NcertChapters + NcertTopicContent (10 topics) + 50 MCQs + TopicDAG (10 nodes) | ✅ Complete |
+| Math6 UI — grade "6" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath6 routing (isSciLike) | ✅ Complete |
+| CBSE Class 5 Mathematics — "Maths Magic" (NCERT) — 14 chapters, seed pipeline complete | ✅ Complete |
+| Math5 content pipeline — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
+| Math5 UI — grade "5" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath5 routing (isSciLike) | ✅ Complete |
+| CBSE Class 4 Mathematics — "Math Magic" (NCERT) — 14 chapters, seed pipeline complete | ✅ Complete |
+| Math4 content pipeline — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
+| Math4 UI — grade "4" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath4 routing (isSciLike) | ✅ Complete |
+| CBSE Class 3 Mathematics — "Math Magic" (NCERT) — 14 chapters, seed pipeline complete | ✅ Complete |
+| Math3 content pipeline — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
+| Math3 UI — grade "3" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath3 routing (isSciLike) | ✅ Complete |
+| CBSE Class 2 Mathematics — "Math Magic" (NCERT) — 15 chapters, seed pipeline complete | ✅ Complete |
+| Math2 content pipeline — Chapter model + NcertChapters + NcertTopicContent (15 topics) + 75 MCQs + TopicDAG (15 nodes) | ✅ Complete |
+| Math2 UI — grade "2" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath2 routing (isSciLike) | ✅ Complete |
+| CBSE Class 1 Mathematics — "Math Magic" (NCERT) — 13 chapters, seed pipeline complete | ✅ Complete |
+| Math1 content pipeline v2 — 52 sub-topics (4/chapter) + 416 MCQs; v1 single-topics cleaned up | ✅ Complete |
+| Math1 UI — grade "1" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath1 routing (isSciLike) | ✅ Complete |
 | CBSE Class 10 Social Science curriculum (22 chapters — History/Geo/Eco/PolSci, seed) | ✅ Complete |
 | ChapterView page (sections, formulas, theorems, tips, exercises) | ✅ Complete |
 | Lessons page — Textbook Chapters tab + AI Lessons tab | ✅ Complete |
@@ -1608,6 +1941,14 @@ To activate push (not yet wired):
 | NcertTopicView Quick/Deep mode (timer, formula quiz, error hunt, video player, topic nav, studied sync) | ✅ Complete |
 | NCERT studied sync — backend (User.studiedNcertTopics, toggle API) | ✅ Complete |
 | NCERT prerequisite links — resolved from all-topics list, clickable → topic page | ✅ Complete |
+| Engagement-gated "Mark as studied" — 5min active + 80% scroll + 2 sections viewed + AI note ≥70/100 (localStorage per topic, custom event for note-approved bus) | ✅ Complete |
+| Spaced mastery test — GET /v1/ncert/topics/:topicId/mastery-test ($sample 3E/4M/3H, strips correct-flag, shuffles server-side, excludeIds rotation) + POST .../submit (server-side grading); 8/10 pass, 30-min cooldown, 3-day spacing to confirm | ✅ Complete |
+| MasteryBanner — state-aware (not_passed / pending / ready_to_confirm / mastered) + MasteryTestModal (10-Q flow, prev/next, server-graded result, spaced-mastery messaging) | ✅ Complete |
+| Per-chapter & per-topic status pills on /lessons (effectiveMastery merges practice mastery + studied set + localStorage engagement scan → Mastered/Due/In progress/Not started) | ✅ Complete |
+| lessonsV2Service.getChaptersMeta — studied topics now count as mastered for chapter aggregate | ✅ Complete |
+| getStudiedTopics cache-bust (?_=Date.now()) — bypasses 304 stale-empty-response trap | ✅ Complete |
+| Lessons/Chapter/Topic focus + visibilitychange listeners — auto re-fetch studied + dashboard when user returns to tab | ✅ Complete |
+| Rate limiter dev exception — NODE_ENV !== production skips 127.0.0.1/::1; non-localhost dev cap bumped 300 → 5000 per 15-min | ✅ Complete |
 | PYQ (Past Year Questions) browse + filter routes | ✅ Complete |
 | Admin analytics dashboard (DAU/MAU/revenue/30-day charts) | ✅ Complete |
 | Admin coupon CRUD | ✅ Complete |

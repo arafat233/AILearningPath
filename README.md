@@ -39,6 +39,10 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | 7-day free trial + annual plan options | Complete |
 | Terms of Service + Privacy Policy pages | Complete |
 | Dark mode support | Complete |
+| Engagement-gated "Mark as studied" (5 min + 80% scroll + 2 sections + AI note ≥70/100) | Complete |
+| Spaced mastery test (10 MCQs · 3E/4M/3H, 8/10 to pass → 3-day spacing → re-test confirms) | Complete |
+| Server-side mastery test grading (anti-cheat: correct flag stripped, options shuffled) | Complete |
+| Live per-topic / per-chapter status pills on /lessons (Not started / In progress / Due / Mastered) | Complete |
 | Refresh token family tracking (stolen-token detection) | Complete |
 | Voice history persistence (Redis, 7-day TTL) | Complete |
 | Push notifications (VAPID, Web Push — revision + study reminders) | Complete |

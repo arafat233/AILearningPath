@@ -7,6 +7,7 @@ import passport from "passport";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
 import helmet from "helmet";
 import morgan from "morgan";
 import http from "http";
@@ -19,7 +20,7 @@ import { runWeeklyParentEmails } from "./services/weeklyParentEmailService.js";
 import pushRoutes from "./routes/pushRoutes.js";
 import logger from "./utils/logger.js";
 import { validateEnv } from "./utils/validateEnv.js";
-import { connectRedis, isUsingFallback, acquireCronLock, pingRedis } from "./utils/redisClient.js";
+import { connectRedis, isUsingFallback, acquireCronLock, pingRedis, getRedisClient } from "./utils/redisClient.js";
 import { checkAndAlertBudget } from "./utils/tokenBudget.js";
 import { initSentry } from "./utils/sentry.js";
 import { getFlagsForUser } from "./utils/featureFlags.js";
@@ -54,6 +55,15 @@ import placementRoutes    from "./routes/placementRoutes.js";
 import recommenderRoutes  from "./routes/recommenderRoutes.js";
 import schoolRoutes       from "./routes/schoolRoutes.js";
 import publicRoutes      from "./routes/publicRoutes.js";
+import bookmarkRoutes    from "./routes/bookmarkRoutes.js";
+import profileV2Routes   from "./routes/profileV2Routes.js";
+import lessonsV2Routes   from "./routes/lessonsV2Routes.js";
+import analyticsV2Routes from "./routes/analyticsV2Routes.js";
+import dashboardV2Routes from "./routes/dashboardV2Routes.js";
+import competitionV2Routes from "./routes/competitionV2Routes.js";
+import liveRoomV2Routes  from "./routes/liveRoomV2Routes.js";
+import parentV2Routes    from "./routes/parentV2Routes.js";
+import schoolGroupV2Routes from "./routes/schoolGroupV2Routes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
 dotenv.config();
@@ -63,6 +73,11 @@ initPassport(); // register Google strategy after env vars are loaded
 
 const app    = express();
 const server = http.createServer(app);
+
+// Node.js default keepAliveTimeout is 5 s — too short for users who pause to read.
+// Raise to 65 s so the browser's TCP connection stays alive between requests.
+server.keepAliveTimeout = 65_000;
+server.headersTimeout   = 66_000; // must be slightly above keepAliveTimeout
 
 app.use(compression());
 
@@ -126,14 +141,42 @@ app.use(passport.initialize());
 app.use("/api/webhooks", webhookRoutes);
 
 app.use(express.json());
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+
+// Rate limit — Redis-backed in production (counter survives restarts + shared
+// across pods); falls back to in-memory store when REDIS_URL isn't set.
+// The real limiter is built AFTER connectRedis() resolves so that the
+// rate-limit-redis store's eager loadIncrementScript call sees a ready client.
+// Until then we pass requests through via a lazy wrapper.
+let _limiter = null;
+app.use((req, res, next) => (_limiter ? _limiter(req, res, next) : next()));
 
 mongoose
   .connect(process.env.MONGO_URI, { maxPoolSize: 10, minPoolSize: 2, serverSelectionTimeoutMS: 5000 })
   .then(() => logger.info("MongoDB connected"))
   .catch((err) => { logger.error("MongoDB connection failed", { err: err.message }); process.exit(1); });
 
-connectRedis();
+connectRedis().then(() => {
+  const isProd = process.env.NODE_ENV === "production";
+  const opts = {
+    windowMs: 15 * 60 * 1000,
+    max: isProd ? 300 : 5000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip rate limiting entirely for localhost in development
+    skip: (req) => !isProd && ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(req.ip),
+  };
+  const c = getRedisClient();
+  if (c) {
+    opts.store = new RedisStore({
+      prefix: "rl:",
+      sendCommand: (...args) => c.call(...args),
+    });
+    logger.info("Rate limiter using Redis store");
+  } else {
+    logger.warn("Rate limiter using in-memory store (no Redis)");
+  }
+  _limiter = rateLimit(opts);
+});
 
 initSocket(server);
 
@@ -186,6 +229,15 @@ app.use("/api/push",             pushRoutes);
 app.use("/api/v1/placement-quiz", placementRoutes);
 app.use("/api/v1/recommender",    recommenderRoutes);
 app.use("/api/v1/schools",        schoolRoutes);
+app.use("/api/v1/bookmarks",      bookmarkRoutes);
+app.use("/api/v1/profile",        profileV2Routes);
+app.use("/api/v1/lessons-v2",     lessonsV2Routes);
+app.use("/api/v1/analytics-v2",   analyticsV2Routes);
+app.use("/api/v1/dashboard-v2",   dashboardV2Routes);
+app.use("/api/v1/competition-v2", competitionV2Routes);
+app.use("/api/v1/live-room",      liveRoomV2Routes);
+app.use("/api/v1/parent",         parentV2Routes);
+app.use("/api/v1/school-group",   schoolGroupV2Routes);
 
 // API docs — only in non-production or when ENABLE_SWAGGER=true
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {

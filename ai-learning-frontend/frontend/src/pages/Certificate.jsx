@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getReport, getMe } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import StellarLogo from "../components/StellarLogo";
 
 // Inject/remove @media print styles that hide the sidebar so only the
 // certificate fills the page when the user saves as PDF.
@@ -134,7 +135,7 @@ export default function Certificate() {
       {/* Certificate card */}
       <div
         id="certificate-card"
-        className="bg-white rounded-2xl shadow-apple-lg overflow-hidden"
+        className="bg-white rounded-2xl shadow-apple-lg overflow-hidden certificate-light-only"
         style={{ border: "2px solid #c9aa71" }}
       >
         {/* Gold top bar */}
@@ -144,13 +145,8 @@ export default function Certificate() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-apple-blue flex items-center justify-center shadow-sm">
-                <span className="text-white text-base font-bold">S</span>
-              </div>
-              <div className="text-left">
-                <p className="text-[14px] font-bold text-[#1a1a1a] leading-tight">Stellar</p>
-                <p className="text-[11px] text-[#8e8e93]">CBSE Practice Platform</p>
-              </div>
+              <StellarLogo size={40} />
+              <p className="text-[18px] font-bold text-[#1a1a1a] leading-tight tracking-tight">Stellar</p>
             </div>
 
             {/* Decorative rule */}

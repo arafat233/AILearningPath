@@ -37,6 +37,14 @@ api.interceptors.response.use(
     const is401    = err.response?.status === 401;
     const isAuth   = original?.url?.includes("/auth/");
 
+    // Network-level failure (keep-alive connection reset) — retry once automatically
+    const isNetworkError = !err.response && !original._networkRetry;
+    if (isNetworkError) {
+      original._networkRetry = true;
+      await new Promise((r) => setTimeout(r, 150)); // brief pause for new connection
+      return api(original);
+    }
+
     // Don't try to refresh on auth routes or if already retried
     if (!is401 || isAuth || original._retry) {
       if (is401 && !original?.url?.includes("/user/me")) {
@@ -91,15 +99,137 @@ export const searchTopics    = (q, grade) => api.get("/topics", { params: { q, g
 export const toggleBookmark  = (questionId) => api.post(`/user/bookmarks/${questionId}`);
 export const getBookmarks    = ()            => api.get("/user/bookmarks");
 
+// ── Bookmarks v2 — server-side collections, SM-2, share, export, AI summary ──
+const bm = "/v1/bookmarks";
+export const bmGetReviews        = ()                    => api.get(`${bm}/reviews`);
+export const bmRate              = (questionId, rating)  => api.post(`${bm}/reviews/rate`, { questionId, rating });
+export const bmSetMastery        = (questionId, mastered)=> api.post(`${bm}/reviews/mastery`, { questionId, mastered });
+export const bmSetNote           = (questionId, note)    => api.post(`${bm}/reviews/note`, { questionId, note });
+export const bmGetDue            = (limit = 20)          => api.get(`${bm}/due`, { params: { limit } });
+export const bmGetSmart          = ()                    => api.get(`${bm}/smart`);
+
+export const bmListCollections   = ()                    => api.get(`${bm}/collections`);
+export const bmCreateCollection  = (body)                => api.post(`${bm}/collections`, body);
+export const bmUpdateCollection  = (id, patch)           => api.patch(`${bm}/collections/${id}`, patch);
+export const bmDeleteCollection  = (id)                  => api.delete(`${bm}/collections/${id}`);
+export const bmReorderCollections = (orderedIds)         => api.patch(`${bm}/collections/reorder`, { orderedIds });
+export const bmAddMember         = (id, kind, refId)     => api.post(`${bm}/collections/${id}/members`, { kind, refId });
+export const bmRemoveMember      = (id, kind, refId)     => api.post(`${bm}/collections/${id}/members/remove`, { kind, refId });
+export const bmBulkAddMembers    = (id, items)           => api.post(`${bm}/collections/${id}/members/bulk`, { items });
+export const bmShareCollection   = (id)                  => api.post(`${bm}/collections/${id}/share`);
+export const bmUnshareCollection = (id)                  => api.delete(`${bm}/collections/${id}/share`);
+export const bmGetSharedCollection = (token)             => api.get(`${bm}/share/${token}`);
+export const bmExportUrl         = (id, format = "md")   => `${api.defaults.baseURL}${bm}/collections/${id}/export?format=${format}`;
+export const bmAiSummary         = (id)                  => api.post(`${bm}/collections/${id}/ai-summary`);
+
+export const bmListTopics        = ()                    => api.get(`${bm}/topics`);
+export const bmUpsertTopic       = (body)                => api.post(`${bm}/topics`, body);
+export const bmRemoveTopic       = (topicId)             => api.delete(`${bm}/topics/${encodeURIComponent(topicId)}`);
+export const bmListSections      = ()                    => api.get(`${bm}/sections`);
+export const bmUpsertSection     = (body)                => api.post(`${bm}/sections`, body);
+export const bmRemoveSection     = (bmId)                => api.delete(`${bm}/sections/${encodeURIComponent(bmId)}`);
+
+export const bmBulkRemove        = (ids)                 => api.post(`${bm}/bulk/remove`, { ids });
+export const bmBulkMastery       = (ids, mastered)       => api.post(`${bm}/bulk/mastery`, { ids, mastered });
+
+export const startCollectionPractice = (collectionId)    => api.post("/practice/start-bookmarks", { collectionId });
+
+// ── Profile v2 ───────────────────────────────────────────────────────
+const pv = "/v1/profile";
+export const profileGetHeatmap        = ()         => api.get(`${pv}/heatmap`);
+export const profileGetSubjects       = ()         => api.get(`${pv}/subjects`);
+export const profileGetLevel          = ()         => api.get(`${pv}/level`);
+export const profileGetGoalProgress   = ()         => api.get(`${pv}/goal-progress`);
+export const profileGetActivity       = ()         => api.get(`${pv}/activity`);
+export const profileGetNextBadge      = ()         => api.get(`${pv}/next-badge`);
+export const profileGetBestWindow     = ()         => api.get(`${pv}/best-window`);
+export const profileGetTimeline       = ()         => api.get(`${pv}/timeline`);
+export const profileGetSessions       = ()         => api.get(`${pv}/sessions`);
+export const profileRevokeSession     = (id)       => api.delete(`${pv}/sessions/${id}`);
+export const profileGetCertificates   = ()         => api.get(`${pv}/certificates`);
+export const profileGetClassmateCompare = ()       => api.get(`${pv}/classmate-compare`);
+export const profileGetMood           = ()         => api.get(`${pv}/mood`);
+export const profileSetMood           = (mood, note = "") => api.post(`${pv}/mood`, { mood, note });
+export const profileUpdateSettings    = (patch)    => api.patch(`${pv}/settings`, patch);
+export const profileSetPublic         = (patch)    => api.patch(`${pv}/public`, patch);
+export const profileSetParentVisibility = (parentId, vis) => api.patch(`${pv}/parent-visibility`, { parentId, ...vis });
+export const profileExportUrl         = ()         => `${api.defaults.baseURL}${pv}/export`;
+export const profileGetPublic         = (slug)     => api.get(`${pv}/public/${slug}`);
+
+// ── Lessons v2 ───────────────────────────────────────────────────────
+const lv = "/v1/lessons-v2";
+export const lessonsV2Dashboard   = (subject, grade) => api.get(`${lv}/dashboard`, { params: { subject, grade } });
+export const lessonsV2Search      = (q, subject, grade) => api.get(`${lv}/search`, { params: { q, subject, grade } });
+export const lessonsV2Diagnostic  = (topicId)        => api.get(`${lv}/diagnostic/${encodeURIComponent(topicId)}`);
+export const lessonsV2CoStudy     = (topicId, name)  => api.post(`${lv}/co-study`, { topicId, name });
+
+// ── Analytics v2 ──────────────────────────────────────────────────────
+const av = "/v1/analytics-v2";
+export const analyticsV2Dashboard = (subject)  => api.get(`${av}/dashboard`, { params: subject ? { subject } : {} });
+
+// ── Dashboard v2 ────────────────────────────────────────────────────
+const dv = "/v1/dashboard-v2";
+export const dashboardV2Get        = ()                  => api.get(`${dv}/dashboard`);
+export const dashboardV2Commit     = (goalMinutes)       => api.post(`${dv}/commitment`, { goalMinutes });
+export const dashboardV2Snooze     = (taskId, reason)    => api.post(`${dv}/snooze`, { taskId, reason });
+export const dashboardV2Widget     = (patch)             => api.patch(`${dv}/widget`, patch);
+
+// ── Competition v2 ─────────────────────────────────────────────────
+const cv = "/v1/competition-v2";
+export const compV2Dashboard     = ()                      => api.get(`${cv}/dashboard`);
+export const compV2CreateRoom    = (body)                  => api.post(`${cv}/rooms`, body);
+export const compV2ListRooms     = ()                      => api.get(`${cv}/rooms`);
+export const compV2GetRoom       = (code)                  => api.get(`${cv}/rooms/${code}`);
+export const compV2JoinRoom      = (code)                  => api.post(`${cv}/rooms/${code}/join`);
+export const compV2LeaveRoom     = (code)                  => api.post(`${cv}/rooms/${code}/leave`);
+export const compV2ReadyUp       = (code)                  => api.post(`${cv}/rooms/${code}/ready`);
+export const compV2StartMatch    = (code)                  => api.post(`${cv}/rooms/${code}/start`);
+export const compV2RecordAnswer  = (code, body)            => api.post(`${cv}/rooms/${code}/answer`, body);
+export const compV2FinishMatch   = (code)                  => api.post(`${cv}/rooms/${code}/finish`);
+export const compV2QuickMatch    = (subject)               => api.post(`${cv}/quick-match`, { subject });
+export const compV2History       = ()                      => api.get(`${cv}/history`);
+export const compV2Quests        = ()                      => api.get(`${cv}/quests`);
+export const compV2Report        = (body)                  => api.post(`${cv}/report`, body);
+
+// ── Live Room v2 ────────────────────────────────────────────────────
+export const liveRoomTheme   = ()    => api.get("/v1/live-room/theme");
+export const liveRoomFriends = ()    => api.get("/v1/live-room/friends");
+
+// ── Parent View v2 ─────────────────────────────────────────────────
+const pv2 = "/v1/parent";
+export const parentDashboardV2  = (childId)        => api.get(`${pv2}/dashboard/${childId}`);
+export const parentSetControls  = (childId, patch) => api.patch(`${pv2}/controls/${childId}`, patch);
+export const parentSendMessage  = (childId, message) => api.post(`${pv2}/message`, { childId, message });
+export const parentCosignGoal   = (childId, goal)  => api.post(`${pv2}/cosign-goal`, { childId, goal });
+
+// ── School Group v2 ──────────────────────────────────────────────────
+const sg = "/v1/school-group";
+export const sgDashboard         = ()                     => api.get(`${sg}/dashboard`);
+export const sgSendKudos         = (body)                 => api.post(`${sg}/kudos`, body);
+export const sgCreateChallenge   = (body)                 => api.post(`${sg}/challenge`, body);
+export const sgPostTeacher       = (body)                 => api.post(`${sg}/teacher-post`, body);
+export const sgReactPost         = (id, emoji)            => api.post(`${sg}/teacher-post/${id}/react`, { emoji });
+export const sgCommentPost       = (id, text)             => api.post(`${sg}/teacher-post/${id}/comment`, { text });
+export const sgSetFocus          = (body)                 => api.post(`${sg}/subject-focus`, body);
+export const sgGetPrefs          = ()                     => api.get(`${sg}/prefs`);
+export const sgUpdatePrefs       = (patch)                => api.patch(`${sg}/prefs`, patch);
+export const sgReport            = (body)                 => api.post(`${sg}/report`, body);
+
 export const listLessons       = (subject, grade) => api.get("/lessons", { params: { subject, grade } });
 export const getLesson         = (topic) => api.get(`/lessons/${encodeURIComponent(topic)}`);
 export const saveProgress      = (data)  => api.post("/lessons/progress", data);
 export const getCompletedLessons = ()    => api.get("/lessons/completed");
 
-export const startTopic         = (topicId)    => api.post("/practice/start", { topicId });
+export const startTopic         = (topicId, excludeCurrentId) => api.post("/practice/start", { topicId, ...(excludeCurrentId ? { excludeCurrentId } : {}) });
 export const submitAnswer       = (data)       => api.post("/practice/submit", data);
 export const startMixedPractice = (topics)     => api.post("/practice/mixed", { topics });
 export const flagQuestion           = (questionId) => api.post("/practice/flag", { questionId });
+export const reportQuestion         = (questionId, reason, note = "") => api.post("/practice/report", { questionId, reason, note });
+export const submitSkipReason       = (questionId, reason) => api.post("/practice/skip-reason", { questionId, reason });
+export const submitErrorLabel       = (questionId, label) => api.post("/practice/error-label", { questionId, label });
+export const getQuestionStats       = (questionId) => api.get(`/practice/question-stats/${questionId}`);
+export const getPeerTime            = (questionId) => api.get(`/practice/peer-time/${questionId}`);
+export const getQuestionLineage     = (questionId) => api.get(`/practice/lineage/${questionId}`);
 export const startBookmarkPractice = ()           => api.post("/practice/start-bookmarks");
 export const startRetryPractice    = (questionIds) => api.post("/practice/start-bookmarks", { questionIds });
 
@@ -125,6 +255,9 @@ export const activatePlan       = (id)            => api.put(`/planner/${id}/act
 export const updatePlanSettings = (id, data)      => api.put(`/planner/${id}/settings`, data);
 export const deleteStudyPlan    = (id)            => api.delete(`/planner/${id}`);
 export const reschedulePlan     = ()              => api.post("/planner/reschedule");
+export const smartRebalancePlan      = (pinnedTopics = []) => api.post("/planner/smart-rebalance", { pinnedTopics });
+export const getPlannerClassStats    = ()              => api.get("/planner/class-stats");
+export const sendPlannerDigestNow    = ()              => api.post("/planner/digest-now");
 export const generateShareToken = ()              => api.post("/planner/share");
 export const getSharedPlan      = (token)         => api.get(`/planner/share/${token}`);
 export const markDayComplete    = (day, planId)   => api.post("/planner/complete", { day, planId });
@@ -206,7 +339,11 @@ export const getNcertChapter      = (chapterId)         => api.get(`/v1/ncert/ch
 export const listNcertTopics      = (chapterNumber, subject) => api.get("/v1/ncert/topics", { params: { chapterNumber, subject } });
 export const getNcertTopicContent = (topicId)           => api.get(`/v1/ncert/topics/${topicId}`);
 export const getPaperQuestions    = (topicId)           => api.get(`/v1/ncert/topics/${topicId}/paper-questions`);
-export const getStudiedTopics     = ()                  => api.get("/v1/ncert/studied");
+export const getMasteryTest       = (topicId, excludeIds = []) =>
+  api.get(`/v1/ncert/topics/${topicId}/mastery-test`, { params: { excludeIds: excludeIds.join(",") } });
+export const submitMasteryTest    = (topicId, answers) =>
+  api.post(`/v1/ncert/topics/${topicId}/mastery-test/submit`, { answers });
+export const getStudiedTopics     = ()                  => api.get("/v1/ncert/studied", { params: { _: Date.now() } });
 export const toggleNcertStudied   = (topicId)           => api.post(`/v1/ncert/studied/${topicId}`);
 export const getNcertNote         = (topicId)           => api.get(`/v1/ncert/notes/${topicId}`);
 export const saveNcertNote        = (topicId, text)     => api.put(`/v1/ncert/notes/${topicId}`, { text });
@@ -215,6 +352,10 @@ export const getPYQTopics    = (params)  => api.get("/v1/pyq/topics", { params }
 export const getPYQYears     = (params)  => api.get("/v1/pyq/years",  { params });
 export const getPYQs         = (params)  => api.get("/v1/pyq",        { params });
 export const getPYQById      = (id)      => api.get(`/v1/pyq/${id}`);
+export const getPYQDashboard = (params)  => api.get("/v1/pyq/dashboard", { params });
+export const enrichPYQs      = (body)    => api.post("/v1/pyq/enrich", body);
+export const buildPYQMock    = (body)    => api.post("/v1/pyq/mock-from-filters", body);
+export const getPYQChapters  = (params)  => api.get("/v1/pyq/chapters", { params });
 
 export const getPlans        = ()        => api.get("/v1/payment/plans");
 export const getSubscription = ()        => api.get("/v1/payment/subscription");

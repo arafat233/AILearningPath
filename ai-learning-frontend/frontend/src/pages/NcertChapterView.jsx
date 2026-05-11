@@ -118,6 +118,12 @@ export default function NcertChapterView() {
   const [loading, setLoading]           = useState(true);
   const [studiedSet, setStudiedSet]     = useState(new Set());
 
+  const refreshStudied = () => {
+    getStudiedTopics()
+      .then((r) => setStudiedSet(new Set(r.data?.data || [])))
+      .catch(() => {});
+  };
+
   useEffect(() => {
     Promise.all([
       getNcertChapter(chapterId),
@@ -127,6 +133,18 @@ export default function NcertChapterView() {
       setStudiedSet(new Set(stRes.data?.data || []));
     }).catch(() => {}).finally(() => setLoading(false));
   }, [chapterId]);
+
+  // Re-fetch studied topics when the user returns to this tab/page (e.g. back from /ncert/topics/X)
+  useEffect(() => {
+    const onFocus = () => refreshStudied();
+    const onVisible = () => { if (document.visibilityState === "visible") refreshStudied(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
 
   const handleToggle = async (topicId) => {
     try {

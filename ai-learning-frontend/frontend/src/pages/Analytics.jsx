@@ -1,385 +1,533 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnalyticsSkeleton } from "../components/Skeleton";
 import {
-  LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  LineChart, Line, BarChart, Bar, AreaChart, Area,
+  XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { getReport, getErrorMemory, getWeeklyLeaderboard, getLastDayRevision, getPrediction } from "../services/api";
+import { getReport, getErrorMemory, getWeeklyLeaderboard, getPrediction, analyticsV2Dashboard } from "../services/api";
+
+const SUBJECTS = [
+  { id: "all",      label: "All",     color: "#1c1c1e" },
+  { id: "Math",     label: "Math",    color: "#007AFF" },
+  { id: "Science",  label: "Science", color: "#34C759" },
+  { id: "English",  label: "English", color: "#FF9500" },
+  { id: "Social Science", label: "Social", color: "#AF52DE" },
+];
+
+const RANGES = [
+  { id: 7,   label: "7d" },
+  { id: 30,  label: "30d" },
+  { id: 90,  label: "90d" },
+  { id: null,label: "All" },
+];
+
+const fmtTime = (s) => {
+  if (!s) return "—";
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`;
+};
 
 export default function Analytics() {
-  const [data, setData]           = useState(null);
-  const [errors, setErrors]       = useState([]);
-  const [weekly, setWeekly]       = useState(null);
-  const [lastDay, setLastDay]     = useState(null);
+  const [subject, setSubject] = useState("all");
+  const [range, setRange]     = useState(30);
+  const [v2, setV2]           = useState(null);
+  const [report, setReport]   = useState(null);
   const [prediction, setPrediction] = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState("");
+  const [weekly, setWeekly]   = useState(null);
+  const [errors, setErrors]   = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr]         = useState("");
+  const printRef = useRef(null);
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([
-      getReport().then((r) => setData(r.data)),
+      analyticsV2Dashboard(subject === "all" ? undefined : subject).then((r) => setV2(r.data?.data)).catch(() => {}),
+      getReport().then((r) => setReport(r.data)).catch(() => {}),
+      getPrediction().then((r) => setPrediction(r)).catch(() => {}),
       getErrorMemory().then((r) => setErrors(r.data || [])).catch(() => {}),
       getWeeklyLeaderboard().then((r) => setWeekly(r.data)).catch(() => {}),
-      getLastDayRevision().then((r) => setLastDay(r.data)).catch(() => {}),
-      getPrediction().then((r) => setPrediction(r.data)).catch(() => {}),
-    ])
-      .catch(() => setError("Could not load analytics. Make sure the backend is running."))
-      .finally(() => setLoading(false));
-  }, []);
+    ]).catch(() => setErr("Could not load analytics.")).finally(() => setLoading(false));
+  }, [subject]);
+
+  const handlePrint = () => window.print();
+  const handleShare = async () => {
+    const node = printRef.current;
+    if (!node) return;
+    try {
+      // Native share with screenshot fallback to text
+      if (navigator.share) {
+        await navigator.share({
+          title: `My Stellar fingerprint — ${v2?.persona?.name || "Learner"}`,
+          text: `${v2?.persona?.tagline || ""} · Predicted ${prediction?.predictedMin}-${prediction?.predictedMax}/80`,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(`${v2?.persona?.name} — ${window.location.href}`);
+      }
+    } catch {}
+  };
 
   if (loading) return <AnalyticsSkeleton />;
+  if (err) return <div className="card p-10 text-center text-[#FF3B30] text-[13px]">{err}</div>;
 
-  if (error) return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight mb-6">Analytics</h1>
-      <div className="card p-10 text-center">
-        <p className="text-[13px] text-apple-red">{error}</p>
-      </div>
-    </div>
-  );
-
-  const hasData = (data?.totalAttempts ?? 0) > 0;
+  const hasData = (report?.totalAttempts ?? 0) > 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold text-[var(--label)] tracking-tight">Analytics</h1>
-          <p className="text-[14px] text-apple-gray mt-0.5">Your thinking patterns and performance breakdown</p>
+    <div ref={printRef} className="space-y-5">
+      {/* ── Subject + range tabs + share ── */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex gap-0.5 p-1 bg-white shadow-sm border border-[#f0f0f5] rounded-full">
+            {SUBJECTS.map((s) => (
+              <button key={s.id} onClick={() => setSubject(s.id)}
+                className={`px-3 py-1 rounded-full text-[12px] font-semibold transition-all ${subject === s.id ? "bg-[#1c1c1e] text-white" : "text-[#3A3A3C] hover:bg-[#F2F2F7]"}`}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-0.5 p-1 bg-white shadow-sm border border-[#f0f0f5] rounded-full">
+            {RANGES.map((r) => (
+              <button key={r.id ?? "all"} onClick={() => setRange(r.id)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${range === r.id ? "bg-[#1c1c1e] text-white" : "text-[#3A3A3C] hover:bg-[#F2F2F7]"}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
         </div>
-        {hasData && (
-          <Link
-            to="/certificate"
-            className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-apple border border-[#c9aa71]/50 bg-[#faf7f0] text-[13px] font-medium text-[#8b6914] hover:bg-[#f5f0e4] transition-colors"
-          >
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                 strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-              <path d="M8 1l1.8 5.5H15l-4.6 3.4 1.8 5.5L8 12l-4.2 3.4 1.8-5.5L1 6.5h5.2z"/>
-            </svg>
-            Certificate
-          </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={handleShare} className="px-3 py-1.5 rounded-xl bg-white shadow-sm border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-md transition-all">↗ Share</button>
+          <button onClick={handlePrint} className="px-3 py-1.5 rounded-xl bg-white shadow-sm border border-[#f0f0f5] text-[12px] font-semibold text-[#3A3A3C] hover:shadow-md transition-all">🖨 PDF</button>
+          {hasData && (
+            <Link to="/certificate" className="px-3 py-1.5 rounded-xl border border-[#c9aa71]/50 bg-[#faf7f0] text-[12px] font-semibold text-[#8b6914]">★ Certificate</Link>
+          )}
+        </div>
+      </div>
+
+      {/* ── Anomalies / interventions ── */}
+      {(v2?.anomalies?.length || 0) > 0 && (
+        <div className="space-y-2">
+          {v2.anomalies.map((a, i) => (
+            <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border text-[12px] ${
+              a.type === "low_accuracy" ? "bg-[#FF3B30]/8 border-[#FF3B30]/20 text-[#FF3B30]" :
+              a.type === "slow_session" ? "bg-[#FF9500]/8 border-[#FF9500]/20 text-[#FF9500]" :
+              "bg-[#007AFF]/8 border-[#007AFF]/20 text-[#007AFF]"
+            }`}>
+              <span className="text-[16px]">{a.type === "low_accuracy" ? "⚠️" : a.type === "slow_session" ? "🐢" : "🎯"}</span>
+              <p className="flex-1 font-medium">{a.message}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── HERO: persona + radar ── */}
+      <div className="rounded-3xl p-7 lg:p-9 relative overflow-hidden grid md:grid-cols-2 gap-6 items-center"
+        style={{ background: "linear-gradient(130deg, #ddd6fe 0%, #fbcfe8 50%, #fde68a 100%)" }}>
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#1c1c1e]/60 mb-3">Your thinking profile</p>
+          <h1 className="text-[42px] md:text-[56px] font-bold text-[#1c1c1e] leading-[0.95] tracking-tight mb-4" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+            {v2?.persona?.name || "The Learner."}
+          </h1>
+          <p className="text-[14px] md:text-[15px] text-[#1c1c1e]/75 leading-relaxed max-w-md">
+            {v2?.persona?.tagline || "Practice 10+ questions to unlock your persona."}
+          </p>
+          {/* #3 Strength annotation */}
+          {v2?.radar?.me && (
+            (() => {
+              const m = v2.radar.me;
+              const arr = [["Depth", m.depth], ["Speed", m.speed], ["Pattern", m.pattern], ["Recall", m.recall], ["Calibration", m.calibration]];
+              const sharp = arr.reduce((a, b) => a[1] > b[1] ? a : b);
+              const soft  = arr.reduce((a, b) => a[1] < b[1] ? a : b);
+              return (
+                <p className="text-[12px] text-[#1c1c1e]/60 mt-4">
+                  Sharpest axis: <span className="font-bold text-[#1c1c1e]">{sharp[0]} ({sharp[1]})</span> · Soft axis: <span className="font-bold text-[#1c1c1e]">{soft[0]} ({soft[1]})</span>
+                </p>
+              );
+            })()
+          )}
+        </div>
+        {/* Radar */}
+        {v2?.radar?.me && (
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={280}>
+              <RadarChart data={[
+                { axis: "Depth",       you: v2.radar.me.depth,       peer: v2.radar.peer.depth },
+                { axis: "Speed",       you: v2.radar.me.speed,       peer: v2.radar.peer.speed },
+                { axis: "Pattern",     you: v2.radar.me.pattern,     peer: v2.radar.peer.pattern },
+                { axis: "Recall",      you: v2.radar.me.recall,      peer: v2.radar.peer.recall },
+                { axis: "Calibration", you: v2.radar.me.calibration, peer: v2.radar.peer.calibration },
+              ]}>
+                <PolarGrid stroke="rgba(28,28,30,0.18)" />
+                <PolarAngleAxis dataKey="axis" tick={{ fontSize: 11, fill: "#1c1c1e" }} />
+                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar name="Peer median" dataKey="peer" stroke="rgba(28,28,30,0.35)" fill="rgba(28,28,30,0.08)" strokeDasharray="3 3" strokeWidth={1} />
+                <Radar name="You" dataKey="you" stroke="#1c1c1e" fill="rgba(28,28,30,0.35)" strokeWidth={2} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", fontSize: 12 }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
 
-      {/* Top stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Accuracy"         value={`${data?.score ?? 0}%`}               accent="blue"   />
-        <StatCard label="Total Attempts"   value={data?.totalAttempts ?? 0}              accent="green"  />
-        <StatCard label="Thinking Profile" value={data?.thinkingProfile && data.thinkingProfile !== "Unclassified" ? data.thinkingProfile : "10+ attempts needed"} accent="purple" small />
-        <StatCard label="Weak Topics"      value={data?.weakAreas?.length ?? 0}          accent="orange" />
-      </div>
-
-      {/* Empty state */}
       {!hasData && (
         <div className="card p-10 text-center">
-          <p className="text-[14px] font-semibold text-[var(--label)] mb-1">No practice data yet</p>
-          <p className="text-[13px] text-apple-gray">Go to Practice, answer some questions, then come back here.</p>
+          <p className="text-[14px] font-semibold text-[#1c1c1e] mb-1">No practice data yet</p>
+          <p className="text-[13px] text-[#8E8E93]">Go to Practice, answer some questions, then come back here.</p>
         </div>
       )}
 
-      {/* Accuracy over time */}
-      {hasData && (data?.accuracyHistory?.length ?? 0) >= 2 && (
-        <div className="card p-5">
-          <p className="section-label">Accuracy Over Time</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={data.accuracyHistory}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "var(--label3)" }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "var(--label3)" }} unit="%" />
-              <Tooltip formatter={(v) => `${v}%`} contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} />
-              <Line type="monotone" dataKey="accuracy" stroke="#0071e3" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Topic performance */}
-      {hasData && (data?.topicStats?.length ?? 0) > 0 && (
-        <div className="card p-5">
-          <p className="section-label">Topic Performance</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={data.topicStats}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-              <XAxis dataKey="topic" tick={{ fontSize: 10, fill: "var(--label3)" }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "var(--label3)" }} unit="%" />
-              <Tooltip formatter={(v) => `${v}%`} contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} />
-              <Bar dataKey="accuracy" fill="#0071e3" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Exam Score Prediction */}
-      {hasData && prediction && (
-        <div className="card p-5">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div>
-              <p className="section-label">Predicted Board Score</p>
-              <p className="text-[12px] text-apple-gray mt-0.5">Based on your practice performance across topics</p>
-            </div>
-            <span className={`badge text-[11px] capitalize ${
-              prediction.confidence === "high"   ? "bg-apple-green/10 text-apple-green" :
-              prediction.confidence === "medium" ? "bg-apple-yellow/10 text-apple-yellow" :
-                                                   "bg-apple-gray5 text-apple-gray"
-            }`}>
-              {prediction.confidence} confidence
-            </span>
-          </div>
-
-          <div className="flex items-end gap-3 mb-4">
-            <span className="text-[42px] font-bold text-[var(--label)] leading-none">
-              {prediction.predictedMin}–{prediction.predictedMax}
-            </span>
-            <span className="text-[16px] text-apple-gray mb-1">/ 80</span>
-            <span className="ml-2 text-[22px] font-semibold text-apple-blue mb-0.5">
-              {prediction.predictedGrade}
-            </span>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full h-2.5 bg-apple-gray5 rounded-full overflow-hidden mb-4">
-            <div
-              className="h-2.5 rounded-full bg-apple-blue transition-all"
-              style={{ width: `${prediction.pctMax ?? 0}%` }}
-            />
-          </div>
-
-          {/* Disclaimer — prominent, always shown */}
-          <div className="flex items-start gap-2 bg-apple-yellow/8 border border-apple-yellow/20 rounded-apple p-3">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                 strokeLinecap="round" strokeLinejoin="round"
-                 className="w-3.5 h-3.5 text-apple-yellow shrink-0 mt-0.5">
-              <path d="M8 2L1 14h14L8 2z"/><path d="M8 6v4M8 11.5v.5"/>
-            </svg>
-            <p className="text-[11px] text-apple-yellow leading-relaxed">
-              This is a <strong>statistical estimate</strong> based solely on in-app practice data —
-              not a guarantee of actual CBSE board results. Actual marks depend on examination
-              conditions, syllabus changes, and many other factors.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Weakness + Confidence */}
       {hasData && (
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="card p-5">
-            <p className="section-label">Mistake Breakdown</p>
-            {data?.weakness?.length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {data.weakness.map((w) => (
-                  <div key={w.skill} className="flex items-center justify-between">
-                    <span className="text-[13px] text-[var(--label)] capitalize">{w.skill}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-apple-gray5 rounded-full overflow-hidden">
-                        <div
-                          className={`h-2 rounded-full ${
-                            w.level === "high" ? "bg-apple-red" :
-                            w.level === "medium" ? "bg-apple-yellow" : "bg-apple-green"
-                          }`}
-                          style={{ width: `${Math.min(100, w.count * 10)}%` }}
-                        />
+        <>
+          {/* ── 3 stat cards: Predicted · Behaviour Fingerprint · This Week ── */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Predicted */}
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-2">Predicted Board Score</p>
+              {prediction ? (
+                <>
+                  <p className="text-[44px] font-bold text-[#7c3aed] leading-none">{Math.round(((prediction.predictedMin || 0) + (prediction.predictedMax || 0)) / 2)}</p>
+                  <p className="text-[12px] text-[#8e8e93] mt-1">± {Math.round(((prediction.predictedMax || 0) - (prediction.predictedMin || 0)) / 2)} · grade {prediction.predictedGrade}</p>
+                  {/* mini sparkline */}
+                  <div className="mt-2 h-8">
+                    <ResponsiveContainer width="100%" height={32}>
+                      <LineChart data={(report?.accuracyHistory || []).slice(-12).map((p, i) => ({ x: i, y: p.accuracy }))}>
+                        <Line type="monotone" dataKey="y" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {prediction.confidence && <p className="text-[11px] text-[#8e8e93] mt-1">↑ {report?.totalAttempts || 0} attempts · {prediction.confidence} confidence</p>}
+                </>
+              ) : <p className="text-[13px] text-[#8e8e93]">Practice more to predict</p>}
+            </div>
+
+            {/* Behaviour Fingerprint */}
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">Behaviour Fingerprint</p>
+              {v2?.fingerprint ? (
+                <div className="space-y-2.5">
+                  <Row label="avg time / q" value={fmtTime(v2.fingerprint.avgTimeSeconds)} />
+                  <Row label="consistency"  value={v2.fingerprint.consistency.toFixed(2)} />
+                  <Row label="overconfidence" value={`${v2.fingerprint.overconfidence}%`} color={v2.fingerprint.overconfidence > 15 ? "#FF3B30" : undefined} />
+                  <Row label="underconfidence" value={`${v2.fingerprint.underconfidence}%`} color={v2.fingerprint.underconfidence > 15 ? "#FF9500" : undefined} />
+                </div>
+              ) : <p className="text-[13px] text-[#8e8e93]">Not enough data yet</p>}
+            </div>
+
+            {/* This Week */}
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">This Week</p>
+              {v2?.thisWeek?.byDay && (
+                <>
+                  <div className="flex items-end justify-between gap-1.5 h-20 mb-2">
+                    {v2.thisWeek.byDay.map((d, i) => {
+                      const max = Math.max(...v2.thisWeek.byDay.map((x) => x.count), 1);
+                      const h = (d.count / max) * 100;
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                          <div className="w-full rounded-md transition-all" style={{
+                            height: `${Math.max(h, 6)}%`,
+                            background: d.count > 0
+                              ? "linear-gradient(180deg, #fbcfe8 0%, #ddd6fe 100%)"
+                              : "#F2F2F7",
+                          }} title={`${d.count} questions on ${d.date}`} />
+                          <span className="text-[9px] font-semibold text-[#8e8e93]">{d.dayLabel}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[#8e8e93]">{v2.thisWeek.activeDays} of 7 days · {Math.floor(v2.thisWeek.totalMinutes / 60)}h {v2.thisWeek.totalMinutes % 60}m</span>
+                    {v2.thisWeek.wow != null && <span className={v2.thisWeek.wow >= 0 ? "text-[#34C759] font-bold" : "text-[#FF3B30] font-bold"}>{v2.thisWeek.wow >= 0 ? "↑" : "↓"} {Math.abs(v2.thisWeek.wow)}% wow</span>}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── Why You Got Things Wrong ── */}
+          {(report?.weakness?.length || 0) > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Why You Got Things Wrong</p>
+              <p className="text-[11px] text-[#8e8e93] mb-4">Last {report.totalAttempts || 0} attempts · classified by Aria</p>
+              <div className="space-y-3">
+                {report.weakness.slice(0, 6).map((w) => {
+                  const pct = Math.min(100, (w.count / Math.max(...report.weakness.map((x) => x.count))) * 100);
+                  const color = w.level === "high" ? "#FF3B30" : w.level === "medium" ? "#FF9500" : "#34C759";
+                  return (
+                    <div key={w.skill}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[13px] text-[#1c1c1e] capitalize">{w.skill.replace(/_/g, " ")}</span>
+                        <span className="text-[12px] font-bold text-[#1c1c1e]">{Math.round(pct)}%</span>
                       </div>
-                      <span className={`badge text-[11px] ${
-                        w.level === "high" ? "bg-apple-red/10 text-apple-red" :
-                        w.level === "medium" ? "bg-apple-yellow/10 text-apple-yellow" :
-                        "bg-apple-green/10 text-apple-green"
-                      }`}>{w.level}</span>
+                      <div className="h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
+                        <div className="h-full transition-all" style={{ width: `${pct}%`, background: color }} />
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Counterfactual ── */}
+          {v2?.predicted?.counterfactual && (
+            <div className="rounded-2xl p-5 border border-[#7c3aed]/20" style={{ background: "linear-gradient(135deg, #ede9fe, #fce7f3)" }}>
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#7c3aed] mb-2">If you mastered your top 3 weak areas…</p>
+              <div className="flex items-end gap-3 mb-2">
+                <p className="text-[36px] font-bold text-[#7c3aed] leading-none">{v2.predicted.counterfactual.projectedScore}</p>
+                <p className="text-[14px] text-[#8e8e93] mb-1">predicted (from {v2.predicted.counterfactual.currentScore})</p>
+              </div>
+              <p className="text-[12px] text-[#1c1c1e]/70">
+                Focus areas: <span className="font-bold">{v2.predicted.counterfactual.weakest.join(" · ")}</span> · ~{v2.predicted.counterfactual.hoursNeeded} hrs of focused practice
+              </p>
+            </div>
+          )}
+
+          {/* ── Predicted score chapter breakdown ── */}
+          {(v2?.predicted?.byChapter?.length || 0) > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">What's lifting / dragging your score</p>
+              <div className="space-y-2">
+                {v2.predicted.byChapter.slice(0, 8).map((c) => (
+                  <div key={c.chapter} className="flex items-center gap-3">
+                    <span className="w-7 text-[11px] text-[#8e8e93] font-mono">Ch {c.chapter}</span>
+                    <span className="flex-1 text-[13px] text-[#1c1c1e] truncate">{c.topic || `Chapter ${c.chapter}`}</span>
+                    <span className="text-[12px] text-[#8e8e93]">{c.accuracy}%</span>
+                    <span className={`text-[12px] font-bold w-14 text-right ${c.contribution > 0 ? "text-[#34C759]" : c.contribution < 0 ? "text-[#FF3B30]" : "text-[#8E8E93]"}`}>
+                      {c.contribution > 0 ? "+" : ""}{c.contribution} marks
+                    </span>
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-[13px] text-apple-gray">No mistake patterns detected yet.</p>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="card p-5">
-            <p className="section-label">Confidence Analysis</p>
-            {data?.confidenceAccuracy ? (
-              <div className="flex flex-col gap-4">
-                <ConfRow
-                  label="High confidence → wrong"
-                  value={data.confidenceAccuracy.highConfidenceWrong}
-                  color="red"
-                  hint="Dangerous misconceptions — review carefully"
-                />
-                <ConfRow
-                  label="Low confidence → right"
-                  value={data.confidenceAccuracy.lowConfidenceRight}
-                  color="orange"
-                  hint="Unstable knowledge — needs reinforcement"
-                />
+          {/* ── Calibration curve + Time-of-day ── */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Calibration */}
+            {(v2?.calibration?.length || 0) > 0 && (
+              <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Calibration curve</p>
+                <p className="text-[11px] text-[#8e8e93] mb-3">Diagonal = perfect calibration</p>
+                <ResponsiveContainer width="100%" height={180}>
+                  <LineChart data={[{ stated: 0, actual: 0 }, ...v2.calibration.map((c) => ({ stated: c.stated, actual: c.actual })), { stated: 100, actual: 100 }]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="stated" type="number" domain={[0, 100]} tick={{ fontSize: 10 }} unit="%" label={{ value: "stated confidence", fontSize: 10, position: "bottom" }} />
+                    <YAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} unit="%" />
+                    <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", fontSize: 12 }} />
+                    <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 100, y: 100 }]} stroke="#8E8E93" strokeDasharray="3 3" />
+                    <Line type="monotone" dataKey="actual" stroke="#7c3aed" strokeWidth={2} dot={{ r: 4, fill: "#7c3aed" }} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            ) : (
-              <p className="text-[13px] text-apple-gray">Use the confidence selector in Practice to unlock this.</p>
+            )}
+            {/* Time of day */}
+            {(v2?.timeOfDay?.length || 0) > 0 && (
+              <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">Accuracy by time of day</p>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={v2.timeOfDay}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} tickFormatter={(h) => `${h}:00`} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} unit="%" />
+                    <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", fontSize: 12 }} />
+                    <Bar dataKey="accuracy" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
-        </div>
-      )}
 
-      {/* Confidence vs Reality */}
-      {hasData && data?.confidenceAccuracy && (
-        <div className="card p-5">
-          <p className="section-label">Confidence vs Reality</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-apple-red/8 border border-apple-red/15 rounded-apple-lg p-4">
-              <p className="text-[30px] font-bold text-apple-red">
-                {data.confidenceAccuracy.highConfidenceWrong}
-              </p>
-              <p className="text-[12px] text-apple-gray mt-1">
-                High confidence → wrong (dangerous misconceptions)
-              </p>
-            </div>
-            <div className="bg-apple-orange/8 border border-apple-orange/15 rounded-apple-lg p-4">
-              <p className="text-[30px] font-bold text-apple-orange">
-                {data.confidenceAccuracy.lowConfidenceRight}
-              </p>
-              <p className="text-[12px] text-apple-gray mt-1">
-                Low confidence → correct (unstable knowledge)
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error Memory — repeated mistakes */}
-      {errors.length > 0 && (
-        <div className="card p-5">
-          <p className="section-label">Repeated Mistakes</p>
-          <div className="flex flex-col gap-3">
-            {errors.map((e) => (
-              <div key={`${e.topic}-${e.mistakeType}`} className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[13px] font-medium text-[var(--label)] capitalize">
-                      {e.mistakeType.replace(/_/g, " ")}
-                    </span>
-                    <span className="badge bg-apple-gray6 text-apple-gray">{e.topic}</span>
+          {/* ── Per-topic mistake fingerprint ── */}
+          {(v2?.mistakeByTopic?.length || 0) > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">Mistakes by topic — different topics fail differently</p>
+              <div className="space-y-3">
+                {v2.mistakeByTopic.slice(0, 5).map((t) => (
+                  <div key={t.topic}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[13px] font-semibold text-[#1c1c1e]">{t.topic}</span>
+                      <span className="text-[11px] text-[#8E8E93]">{t.total} wrong</span>
+                    </div>
+                    <div className="flex h-3 rounded-full overflow-hidden">
+                      {t.breakdown.map((b, i) => {
+                        const colors = { concept_error: "#FF3B30", calculation_error: "#FF9500", partial_logic: "#AF52DE", guessing: "#FFCC02", misinterpretation: "#5AC8FA" };
+                        return (
+                          <div key={i} title={`${b.type.replace(/_/g, " ")}: ${b.pct}%`}
+                            style={{ width: `${b.pct}%`, background: colors[b.type] || "#8E8E93" }} />
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-[#8E8E93] mt-1">{t.breakdown.slice(0, 3).map((b) => `${b.type.replace(/_/g, " ")} ${b.pct}%`).join(" · ")}</p>
                   </div>
-                  {e.questionSnippets?.length > 0 && (
-                    <p className="text-[12px] text-apple-gray truncate">
-                      e.g. "{e.questionSnippets[e.questionSnippets.length - 1]}…"
-                    </p>
-                  )}
-                </div>
-                <span className="text-[13px] font-bold text-apple-red shrink-0">{e.count}×</span>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Last-day trouble spots */}
-      {lastDay && (lastDay.topMistakes?.length > 0 || lastDay.recentWrong?.length > 0) && (
-        <div className="card p-5">
-          <p className="section-label">Recent Trouble Spots</p>
-          {lastDay.topMistakes?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {lastDay.topMistakes.map((m) => (
-                <span key={m.type} className="badge bg-apple-red/10 text-apple-red font-medium capitalize">
-                  {m.type.replace(/_/g, " ")} — {m.count}×
-                </span>
-              ))}
-            </div>
-          )}
-          {lastDay.weakTopics?.length > 0 && (
-            <p className="text-[12px] text-apple-gray mb-3">
-              Weak areas:{" "}
-              <span className="font-medium text-[var(--label)]">{lastDay.weakTopics.join(", ")}</span>
-            </p>
-          )}
-          {lastDay.recentWrong?.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <p className="text-[12px] font-medium text-apple-gray mb-1">
-                Last {lastDay.recentWrong.length} wrong answers:
-              </p>
-              {lastDay.recentWrong.slice(0, 5).map((a, i) => (
-                <p key={i} className="text-[12px] text-apple-gray truncate">• {a.topic}</p>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Weekly leaderboard */}
-      {weekly?.board?.length > 0 && (
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <p className="section-label mb-0">Weekly Leaderboard</p>
-            <span className="text-[12px] text-apple-gray">{weekly.week}</span>
-          </div>
-          {weekly.userEntry && (
-            <div className="bg-apple-blue/8 border border-apple-blue/20 rounded-apple-lg px-4 py-2.5 mb-3 flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-apple-blue">Your rank: #{weekly.userEntry.rank}</span>
-              <span className="text-[12px] text-apple-blue/70">{weekly.userEntry.percentile}% percentile</span>
-            </div>
-          )}
-          <div className="flex flex-col gap-2">
-            {weekly.board.slice(0, 10).map((row) => (
-              <div
-                key={row.userId ?? row._id}
-                className={`flex items-center justify-between py-1.5 ${
-                  weekly.userEntry?.userId === row.userId ? "font-semibold" : ""
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] w-6">
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
-                  </span>
-                  <span className="text-[12px] text-apple-gray font-mono">{String(row.userId).slice(-6)}</span>
-                  {row.topic && (
-                    <span className="badge bg-apple-gray6 text-apple-gray">{row.topic}</span>
-                  )}
-                </div>
-                <div className="text-right">
-                  <span className="text-[13px] font-medium text-[var(--label)]">{row.score?.toFixed(2)}</span>
-                  <span className="text-[12px] text-apple-gray ml-2">{Math.round((row.accuracy || 0) * 100)}%</span>
+          {/* ── Question type + Difficulty ── */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Question type */}
+            {(v2?.qTypes?.length || 0) > 0 && (
+              <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">By question type</p>
+                <div className="space-y-2">
+                  {v2.qTypes.map((q) => (
+                    <div key={q.type}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[12px] text-[#1c1c1e] capitalize">{q.type.replace(/_/g, " ")}</span>
+                        <span className="text-[11px] text-[#8e8e93]"><span className="font-bold text-[#1c1c1e]">{q.accuracy}%</span> · {q.total}</span>
+                      </div>
+                      <div className="h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#007AFF]" style={{ width: `${q.accuracy}%` }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+            {/* Difficulty distribution */}
+            {(v2?.difficulty?.length || 0) > 0 && (
+              <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">By difficulty (last 30d)</p>
+                <div className="space-y-2">
+                  {v2.difficulty.map((d) => (
+                    <div key={d.level} className="flex items-center gap-3">
+                      <span className="w-16 text-[12px] capitalize text-[#3A3A3C]">{d.level}</span>
+                      <div className="flex-1 h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
+                        <div className="h-full" style={{ width: `${d.accuracy}%`, background: d.level === "easy" ? "#34C759" : d.level === "medium" ? "#FF9500" : "#FF3B30" }} />
+                      </div>
+                      <span className="text-[11px] text-[#8e8e93] w-20 text-right">{d.accuracy}% of {d.total}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
 
-      {/* AI advice */}
-      {data?.aiAdvice && (
-        <div className="card p-5 border-l-4 border-apple-blue">
-          <p className="section-label">AI Coach Recommendation</p>
-          <p className="text-[14px] text-[var(--label2)] leading-relaxed">{data.aiAdvice}</p>
-        </div>
+          {/* ── Mock paper readiness ── */}
+          {v2?.mockPaper?.sections && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">Mock paper readiness</p>
+              <div className="grid grid-cols-5 gap-3">
+                {v2.mockPaper.sections.map((s) => (
+                  <div key={s.name} className="text-center">
+                    <div className="relative w-16 h-16 mx-auto mb-1">
+                      <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="#F2F2F7" strokeWidth="3" />
+                        <circle cx="18" cy="18" r="16" fill="none"
+                          stroke={s.readiness >= 75 ? "#34C759" : s.readiness >= 50 ? "#FF9500" : "#FF3B30"}
+                          strokeWidth="3" strokeDasharray={`${s.readiness} 100`} strokeLinecap="round" />
+                      </svg>
+                      <p className="absolute inset-0 flex items-center justify-center text-[12px] font-bold text-[#1c1c1e]">{s.readiness}%</p>
+                    </div>
+                    <p className="text-[10px] font-semibold text-[#3A3A3C]">{s.name}</p>
+                  </div>
+                ))}
+              </div>
+              {v2.mockPaper.history?.length > 1 && (
+                <div className="mt-4 pt-4 border-t border-[#F2F2F7]">
+                  <p className="text-[11px] text-[#8E8E93] mb-2">Mock paper history</p>
+                  <ResponsiveContainer width="100%" height={80}>
+                    <AreaChart data={v2.mockPaper.history}>
+                      <Area type="monotone" dataKey="score" stroke="#7c3aed" fill="rgba(124,58,237,0.15)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Re-test recommendations ── */}
+          {(v2?.retest?.length || 0) > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-1">Re-test recommendations</p>
+              <p className="text-[11px] text-[#8e8e93] mb-3">SM-2 says it's time to revisit these</p>
+              <div className="space-y-2">
+                {v2.retest.map((r) => (
+                  <Link key={r.questionId} to="/bookmarks" className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FAFAFB] hover:bg-[#F2F2F7] transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-[13px] text-[#1c1c1e] truncate">Question {r.questionId.slice(-6)}</p>
+                      <p className="text-[10px] text-[#8E8E93]">Last {r.intervalDays}d ago{r.wrongCount > 0 ? ` · ${r.wrongCount} previous wrong` : ""}</p>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#007AFF]">Review →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Smart insights feed (Aria) ── */}
+          {(v2?.insights?.length || 0) > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">✨ Aria's read on you</p>
+              <div className="space-y-2">
+                {v2.insights.map((i, idx) => (
+                  <div key={idx} className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-[#FAFAFB]">
+                    <span className="text-[18px] shrink-0">{i.icon}</span>
+                    <p className="text-[13px] text-[#1c1c1e] leading-relaxed">{i.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Repeated mistakes ── */}
+          {errors.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">Repeated mistakes</p>
+              <div className="space-y-2">
+                {errors.slice(0, 5).map((e) => (
+                  <div key={`${e.topic}-${e.mistakeType}`} className="flex items-start justify-between gap-3 px-3 py-2 rounded-xl bg-[#FAFAFB]">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[13px] font-medium text-[#1c1c1e] capitalize">{e.mistakeType.replace(/_/g, " ")}</span>
+                        <span className="text-[10px] font-bold text-[#8E8E93] bg-[#F2F2F7] px-1.5 py-0.5 rounded">{e.topic}</span>
+                      </div>
+                      {e.questionSnippets?.length > 0 && (
+                        <p className="text-[11px] text-[#8E8E93] truncate">e.g. "{e.questionSnippets[e.questionSnippets.length - 1]}…"</p>
+                      )}
+                    </div>
+                    <span className="text-[14px] font-bold text-[#FF3B30] shrink-0">{e.count}×</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Weekly leaderboard / classmate compare ── */}
+          {weekly?.board?.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93]">Where you stand</p>
+                <span className="text-[11px] text-[#8e8e93]">{weekly.week}</span>
+              </div>
+              {weekly.userEntry && (
+                <div className="bg-[#007AFF]/8 border border-[#007AFF]/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                  <span className="text-[13px] font-semibold text-[#007AFF]">Your rank: #{weekly.userEntry.rank}</span>
+                  <span className="text-[12px] text-[#007AFF]/70">{weekly.userEntry.percentile}% percentile</span>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function StatCard({ label, value, accent, small }) {
-  const accents = {
-    blue:   { ring: "ring-apple-blue/20",   text: "text-apple-blue",   bg: "bg-apple-blue/8"   },
-    green:  { ring: "ring-apple-green/20",  text: "text-apple-green",  bg: "bg-apple-green/8"  },
-    orange: { ring: "ring-apple-orange/20", text: "text-apple-orange", bg: "bg-apple-orange/8" },
-    purple: { ring: "ring-apple-purple/20", text: "text-apple-purple", bg: "bg-apple-purple/8" },
-  };
-  const a = accents[accent] || accents.blue;
+function Row({ label, value, color }) {
   return (
-    <div className={`card p-5 ring-1 ${a.ring}`}>
-      <p className="text-[11px] font-medium text-apple-gray mb-2">{label}</p>
-      <p className={`font-bold tracking-tight ${a.text} ${small ? "text-[15px] mt-1" : "text-[26px]"}`}>{value}</p>
-    </div>
-  );
-}
-
-function ConfRow({ label, value, color, hint }) {
-  const colorClass = color === "red" ? "text-apple-red" : "text-apple-orange";
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-0.5">
-        <span className="text-[13px] text-[var(--label)]">{label}</span>
-        <span className={`text-[13px] font-semibold ${colorClass}`}>{value ?? 0}×</span>
-      </div>
-      <p className="text-[12px] text-apple-gray">{hint}</p>
+    <div className="flex items-center justify-between">
+      <span className="text-[12px] text-[#8e8e93]">{label}</span>
+      <span
+        className={`text-[13px] font-bold tabular-nums ${color ? "" : "text-[#1c1c1e]"}`}
+        style={color ? { color } : undefined}
+      >
+        {value}
+      </span>
     </div>
   );
 }

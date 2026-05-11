@@ -5,6 +5,16 @@ import * as Sentry from "@sentry/react";
 import "./index.css";
 import App from "./App.jsx";
 
+// ── Theme bootstrap — applies persisted dark mode before first paint ──
+(function applyTheme() {
+  try {
+    const saved = localStorage.getItem("stellar_theme"); // "light" | "dark" | "system"
+    const isDark = saved === "dark" ||
+      (saved === "system" && window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark", isDark);
+  } catch {}
+})();
+
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,

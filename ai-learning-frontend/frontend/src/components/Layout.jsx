@@ -5,31 +5,49 @@ import { useThemeStore } from "../store/themeStore";
 import { logoutApi } from "../services/api";
 import SearchOverlay from "./SearchOverlay";
 import OfflineBanner from "./OfflineBanner";
+import StellarLogo from "./StellarLogo";
 
 function Icon({ id }) {
   const paths = {
-    dashboard:   <><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></>,
-    lessons:     <><path d="M3 2h9a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 2v12M5 6h3M5 9h3"/></>,
-    practice:    <><path d="M11 3l2 2L5 13H3v-2L11 3z"/><path d="M9 5l2 2"/></>,
-    analytics:   <><path d="M3 13V9M7 13V5M11 13V2M13 13V7"/><path d="M1 13h14"/></>,
-    certificate: <><rect x="1.5" y="3" width="13" height="9" rx="1.5"/><path d="M5 7h6M5 9.5h3"/><circle cx="11.5" cy="10" r="2"/><path d="M10 12l-.5 2M13 12l.5 2"/></>,
-    competition: <><path d="M5 2h6l-1 5H6L5 2z"/><path d="M3 2v2.5c0 1.5 1 2.5 2.5 2.5M13 2v2.5c0 1.5-1 2.5-2.5 2.5"/><path d="M8 7v4M5.5 11h5"/></>,
-    live:        <><rect x="5.5" y="1.5" width="5" height="7" rx="2.5"/><path d="M3.5 8a4.5 4.5 0 009 0M8 12.5v2M5.5 14.5h5"/></>,
-    bookmarks:   <><path d="M4 2h8a1 1 0 011 1v11l-5-3-5 3V3a1 1 0 011-1z"/></>,
-    planner:     <><rect x="2" y="3.5" width="12" height="11" rx="1.5"/><path d="M2 7.5h12M5.5 2v3M10.5 2v3"/></>,
-    voiceTutor:  <><path d="M3 8.5a5 5 0 0010 0"/><rect x="1.5" y="8" width="3" height="4.5" rx="1.5"/><rect x="11.5" y="8" width="3" height="4.5" rx="1.5"/></>,
-    pyq:         <><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 5h6M5 8h4M5 11h3"/><path d="M11 9l2 2-2 2"/></>,
-    parent:      <><circle cx="5.5" cy="5" r="2.5"/><path d="M1 13.5a4.5 4.5 0 019 0"/><circle cx="12" cy="6" r="2"/><path d="M10 13.5a3 3 0 016 0"/></>,
-    profile:     <><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
-    upgrade:     <><path d="M10 2L6 8.5h4L8 14l6-7.5h-4L10 2z"/></>,
-    settings:    <><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.6 3.6l1.5 1.5M10.9 10.9l1.5 1.5M3.6 12.4l1.5-1.5M10.9 5.1l1.5-1.5"/></>,
-    school:      <><path d="M8 2l6 4v1H2V6L8 2z"/><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M6 14v-4h4v4"/></>,
-    mock:        <><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 5h6M5 8h4M5 11h3"/><path d="M11 9l2 2-2 2"/></>,
+    // House with centre door — home/dashboard
+    dashboard:   <><path d="M8 2L2 7V14h4.5V10h3v4H14V7L8 2z"/></>,
+    // Grid box with inner cross — learn/lessons
+    lessons:     <><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M8 2v12M2 8h12"/></>,
+    // Target/bullseye — practice
+    practice:    <><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3.5"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/></>,
+    // Bookmark — single ribbon bookmark
+    bookmarks:   <><path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/></>,
+    // BarChart2 — 3 ascending bars + baseline
+    analytics:   <><path d="M1.5 13.5h13"/><rect x="2.5" y="8.5" width="2.5" height="5" rx=".5"/><rect x="6.75" y="5.5" width="2.5" height="8" rx=".5"/><rect x="11" y="2.5" width="2.5" height="11" rx=".5"/></>,
+    // Award — medal circle + ribbon tails
+    certificate: <><circle cx="8" cy="6.5" r="3.5"/><path d="M5.5 9.3L4 14l4-1.5L12 14l-1.5-4.7"/><path d="M6.5 6l1.2 1.2L10 5"/></>,
+    // Trophy — cup body + handles + stem + base
+    competition: <><path d="M5 1.5h6l-1 5a2.5 2.5 0 01-5 0L5 1.5z"/><path d="M2 1.5h3M11 1.5h3"/><path d="M2 1.5v2a2.5 2.5 0 002.5 2.5"/><path d="M14 1.5v2A2.5 2.5 0 0111.5 6"/><path d="M8 11V13M5.5 13h5"/></>,
+    // Mic — capsule + stand arc + base line (live room)
+    live:        <><rect x="5.5" y="1.5" width="5" height="7" rx="2.5"/><path d="M3 8.5a5 5 0 0010 0"/><path d="M8 13.5v-1.5M5.5 13.5h5"/></>,
+    // CalendarDays — calendar with dot grid
+    planner:     <><rect x="2" y="3" width="12" height="11.5" rx="1.5"/><path d="M2 7h12M5.5 1.5v3M10.5 1.5v3"/><circle cx="5.5" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="8" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="10.5" cy="10" r=".7" fill="currentColor" stroke="none"/><circle cx="5.5" cy="12.5" r=".7" fill="currentColor" stroke="none"/><circle cx="8" cy="12.5" r=".7" fill="currentColor" stroke="none"/></>,
+    // Sparkle — centre dot + 8 radiating rays (voice tutor / AI)
+    voiceTutor:  <><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><path d="M8 1.5V4M8 12V14.5M1.5 8H4M12 8H14.5M3.2 3.2l1.8 1.8M11 11l1.8 1.8M12.8 3.2L11 5M5 11L3.2 12.8"/></>,
+    // Zap/Lightning — bolt shape (past year questions)
+    pyq:         <><path d="M9.5 1.5L5.5 8.5h4l-2 6 6-8h-4l2-5z"/></>,
+    // User — single person (parent view)
+    parent:      <><circle cx="8" cy="6" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
+    // Users — two overlapping silhouettes (school groups)
+    school:      <><circle cx="5.5" cy="5" r="2.5"/><path d="M1 14a4.5 4.5 0 019 0"/><circle cx="12" cy="5.5" r="2"/><path d="M14.5 14a3.5 3.5 0 00-3.5-3.5"/></>,
+    // ClipboardList — clipboard with text lines
+    mock:        <><rect x="3.5" y="3" width="9" height="11.5" rx="1.2"/><path d="M6 3V2a2 2 0 014 0v1"/><path d="M6 7h4M6 9.5h4M6 12h2.5"/></>,
+    // User — single person circle + shoulders
+    profile:     <><circle cx="8" cy="6" r="3"/><path d="M2.5 14.5a5.5 5.5 0 0111 0"/></>,
+    // Zap — lightning bolt
+    upgrade:     <><path d="M9.5 1.5L5.5 8.5h4l-2 6 6-8h-4l2-5z"/></>,
+    // Settings — gear with inner circle
+    settings:    <><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3"/></>,
   };
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
          strokeLinecap="round" strokeLinejoin="round"
-         className="w-3.5 h-3.5 shrink-0" aria-hidden="true">
+         className="w-4 h-4 shrink-0" aria-hidden="true">
       {paths[id]}
     </svg>
   );
@@ -147,24 +165,13 @@ export default function Layout() {
       >
         {/* App logo */}
         <div className="px-5 pt-6 pb-4">
-          <div className="flex items-center gap-2.5 mb-0.5">
-            <div className="w-7 h-7 rounded-lg bg-apple-blue flex items-center justify-center shadow-sm">
-              <span className="text-white text-xs font-bold">S</span>
+          <div className="flex items-center gap-2.5">
+            <StellarLogo size={28} />
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[14px] font-bold text-[var(--label)] tracking-tight leading-tight">Stellar</span>
+              <span className="text-[11px] text-apple-gray leading-tight">CBSE · Class {user?.grade || "10"}</span>
             </div>
-            <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
           </div>
-          {activeChild ? (
-            <button onClick={() => navigate("/child-picker")}
-              className="flex items-center gap-1 ml-9 text-[11px] text-apple-gray hover:text-apple-blue transition-colors group">
-              <span>{activeChild.examBoard} · Class {activeChild.grade}</span>
-              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"
-                   strokeLinecap="round" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <path d="M2 4l3 3 3-3"/>
-              </svg>
-            </button>
-          ) : (
-            <p className="text-[11px] text-apple-gray ml-9">CBSE Class {user?.grade || "10"}</p>
-          )}
         </div>
 
         <div className="divider mx-4 mb-3" />
@@ -216,6 +223,36 @@ export default function Layout() {
             </>
           )}
         </nav>
+
+        {/* Boards countdown badge — always visible */}
+        {(() => {
+          const profile = activeChild || user;
+          let targetDate = profile?.examDate ? new Date(profile.examDate) : null;
+          if (!targetDate) {
+            // Default: next CBSE boards (Feb 15 next year, or this year if not yet passed)
+            const now = new Date();
+            const year = now.getMonth() >= 1 && now.getDate() > 15 && now.getMonth() <= 2
+              ? now.getFullYear() + 1
+              : now.getMonth() < 1
+              ? now.getFullYear()
+              : now.getFullYear() + 1;
+            targetDate = new Date(year, 1, 15);
+          }
+          const days = Math.ceil((targetDate - new Date()) / 86400000);
+          if (days <= 0) return null;
+          return (
+            <div className="mx-3 mb-4 mt-2 rounded-2xl overflow-hidden"
+              style={{ background: "linear-gradient(120deg,#d4b8f0 0%,#f0b8d0 50%,#fad4b0 100%)" }}>
+              <div className="px-4 py-3.5">
+                <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(40,20,80,0.55)" }}>Boards in</p>
+                <div className="flex items-baseline gap-1.5 mt-0.5">
+                  <span className="text-[34px] font-bold leading-none tracking-tight" style={{ color: "#1a0f3a" }}>{days}</span>
+                  <span className="text-[14px] font-semibold" style={{ color: "rgba(40,20,80,0.65)" }}>days</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </aside>
 
       {/* Main content */}
@@ -237,16 +274,55 @@ export default function Layout() {
             <span className="w-3.5 h-0.5 bg-[var(--label)] rounded-full" />
           </button>
 
-          {/* Mobile logo */}
+          {/* Mobile logo / viewing-as */}
           <div className="sm:hidden flex items-center gap-1.5 flex-1">
-            <div className="w-5 h-5 rounded-md bg-apple-blue flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">S</span>
-            </div>
-            <span className="text-[13px] font-semibold text-[var(--label)]">Stellar</span>
+            {activeChild ? (
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-apple-blue/10 border border-apple-blue/20">
+                <span className="text-[11px] font-semibold text-apple-blue truncate max-w-[120px]">
+                  {activeChild.name} · Class {activeChild.grade}
+                </span>
+                <button
+                  onClick={() => setActiveChild(null)}
+                  className="text-apple-blue/60 hover:text-apple-blue transition-colors shrink-0"
+                  aria-label="Exit child view"
+                >
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-2.5 h-2.5">
+                    <path d="M2 2l6 6M8 2l-6 6"/>
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <>
+                <StellarLogo size={22} />
+                <span className="text-[13px] font-bold text-[var(--label)] tracking-tight">Stellar</span>
+              </>
+            )}
           </div>
 
-          {/* Spacer on desktop */}
-          <div className="hidden sm:block flex-1" />
+          {/* Desktop left — viewing-as pill when child active, spacer otherwise */}
+          <div className="hidden sm:flex flex-1 items-center">
+            {activeChild && (
+              <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-apple-blue/8 border border-apple-blue/15">
+                <div className="w-5 h-5 rounded-full bg-apple-blue flex items-center justify-center shrink-0">
+                  <span className="text-white text-[9px] font-bold">
+                    {activeChild.name?.[0]?.toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-[12px] font-medium text-apple-blue">
+                  Viewing as <strong>{activeChild.name}</strong> · Class {activeChild.grade}
+                </span>
+                <button
+                  onClick={() => setActiveChild(null)}
+                  className="text-apple-blue/50 hover:text-apple-blue transition-colors ml-0.5 shrink-0"
+                  aria-label="Exit child view"
+                >
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-2.5 h-2.5">
+                    <path d="M2 2l6 6M8 2l-6 6"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Right-side controls */}
           <div className="flex items-center gap-1.5">
@@ -366,7 +442,7 @@ export default function Layout() {
         </div>
 
         <OfflineBanner />
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
+        <div className="px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-8">
           <Outlet />
         </div>
       </main>

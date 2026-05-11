@@ -1,488 +1,488 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  getMyEnrollment,
-  joinSchoolByCode,
-  createSchool,
-  listMySchools,
-  getSchoolDetail,
-  getDynamicTopics,
-  getHomeworkQuestion,
+  sgDashboard, sgSendKudos, sgCreateChallenge, sgPostTeacher, sgReactPost,
+  sgCommentPost, sgSetFocus, sgGetPrefs, sgUpdatePrefs, sgReport,
+  joinSchoolByCode, createSchool,
 } from "../services/api";
+import { useAuthStore } from "../store/authStore";
 
-const CHAPTER_NAMES = {
-  ch1: "Real Numbers", ch2: "Polynomials", ch3: "Pair of Linear Equations",
-  ch4: "Quadratic Equations", ch5: "Arithmetic Progressions", ch6: "Triangles",
-  ch7: "Coordinate Geometry", ch8: "Introduction to Trigonometry",
-  ch9: "Applications of Trigonometry", ch10: "Circles",
-  ch11: "Areas Related to Circles", ch12: "Surface Areas & Volumes",
-  ch13: "Statistics", ch14: "Probability",
+const AVATAR_PALETTE = ["#7c3aed","#f472b6","#fb923c","#34c759","#06b6d4","#a78bfa","#facc15","#fda4af"];
+const fmtTimeAgo = (d) => {
+  const ms = Date.now() - new Date(d).getTime();
+  const h = Math.floor(ms / 3600_000);
+  if (h < 1) return `${Math.floor(ms / 60_000)}m ago`;
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 };
 
-function chapterLabel(topicId) {
-  const ch = topicId?.match(/^(ch\d+)/)?.[1];
-  return CHAPTER_NAMES[ch] || topicId;
-}
-
-// ── Clipboard copy helper ─────────────────────────────────────────────────────
-function CopyButton({ text }) {
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    });
-  };
-  return (
-    <button onClick={copy}
-      className="ml-2 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-apple-blue/10 text-apple-blue hover:bg-apple-blue/20 transition-colors">
-      {copied ? "Copied!" : "Copy"}
-    </button>
-  );
-}
-
-// ── Uniqueness badge ──────────────────────────────────────────────────────────
-function UniqueBadge({ guaranteed }) {
-  return guaranteed ? (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-apple-green/10 text-apple-green">
-      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-      </svg>
-      Unique in your school
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-apple-orange/10 text-apple-orange">
-      Personal variant
-    </span>
-  );
-}
-
-// ── Question card ─────────────────────────────────────────────────────────────
-function QuestionCard({ q }) {
-  const [selected, setSelected]   = useState(null);
-  const [textAns, setTextAns]     = useState("");
-  const [checked, setChecked]     = useState(false);
-  const [correct, setCorrect]     = useState(null);
-
-  const isMcq = q.questionType === "mcq";
-
-  const buildOptions = () => {
-    if (q.options?.length) return q.options;
-    const all = [q.correctAnswer, ...(q.distractors?.map((d) => d.text) || [])];
-    return all.slice(0, 4).map((text) => ({ text }));
-  };
-
-  const check = () => {
-    const ans = isMcq
-      ? (selected !== null ? buildOptions()[selected]?.text : null)
-      : textAns.trim();
-    if (ans === null || ans === "") return;
-    setCorrect(String(ans).trim() === String(q.correctAnswer).trim());
-    setChecked(true);
-  };
-
-  const reset = () => { setSelected(null); setTextAns(""); setChecked(false); setCorrect(null); };
-
-  return (
-    <div className="card p-5 space-y-4">
-      {/* Meta row */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="text-[11px] text-apple-gray font-medium uppercase tracking-wide">
-          {chapterLabel(q.topicId)} · {q.difficulty} · {q.marks} mark{q.marks !== 1 ? "s" : ""}
-        </span>
-        <UniqueBadge guaranteed={q._meta?.uniquenessGuaranteed} />
-      </div>
-
-      {/* Question text */}
-      <p className="text-[15px] font-medium text-[var(--label)] leading-relaxed">{q.questionText}</p>
-
-      {/* Answer input */}
-      {isMcq ? (
-        <div className="space-y-2">
-          {buildOptions().map((opt, i) => {
-            const isSelected = selected === i;
-            const isCorrectOpt = checked && opt.text === q.correctAnswer;
-            const isWrong = checked && isSelected && opt.text !== q.correctAnswer;
-            return (
-              <button key={i} disabled={checked} onClick={() => setSelected(i)}
-                className={`w-full text-left px-4 py-2.5 rounded-apple-lg border text-[13px] transition-all
-                  ${isCorrectOpt ? "border-apple-green bg-apple-green/8 text-apple-green font-medium" :
-                    isWrong     ? "border-apple-red bg-apple-red/8 text-apple-red" :
-                    isSelected  ? "border-apple-blue bg-apple-blue/8 text-apple-blue" :
-                                  "border-[var(--separator)] hover:border-apple-blue/40"}`}>
-                {opt.text}
-              </button>
-            );
-          })}
-        </div>
-      ) : (
-        <input
-          type="text" disabled={checked} value={textAns} onChange={(e) => setTextAns(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && check()}
-          placeholder="Type your answer…"
-          className="input w-full" />
-      )}
-
-      {/* Result banner */}
-      {checked && (
-        <div className={`rounded-apple-lg px-4 py-2.5 text-[13px] font-medium
-          ${correct ? "bg-apple-green/10 text-apple-green" : "bg-apple-red/10 text-apple-red"}`}>
-          {correct ? "Correct!" : `Incorrect. Answer: ${q.correctAnswer}`}
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-2">
-        {!checked
-          ? <button onClick={check} className="btn-primary text-[13px] py-1.5 px-4">Check Answer</button>
-          : <button onClick={reset} className="btn-secondary text-[13px] py-1.5 px-4">Try Another</button>
-        }
-      </div>
-    </div>
-  );
-}
-
-// ── School roster row ─────────────────────────────────────────────────────────
-function SchoolCard({ group, onExpand, expanded, detail, loadingDetail }) {
-  return (
-    <div className="card p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[15px] font-semibold text-[var(--label)]">{group.schoolName}</p>
-          <p className="text-[12px] text-apple-gray mt-0.5">
-            {group.studentCount ?? group.enrolledStudentIds?.length ?? 0} student
-            {(group.studentCount ?? group.enrolledStudentIds?.length ?? 0) !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <div className="text-right shrink-0">
-          <p className="text-[11px] text-apple-gray mb-1">Join code</p>
-          <span className="font-mono text-[16px] font-bold tracking-widest text-apple-blue">
-            {group.joinCode}
-          </span>
-          <CopyButton text={group.joinCode} />
-        </div>
-      </div>
-
-      <button onClick={onExpand}
-        className="mt-3 text-[12px] text-apple-blue hover:underline flex items-center gap-1">
-        {expanded ? "Hide roster" : "View roster"}
-        <svg className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
-          fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {expanded && (
-        <div className="mt-3 border-t border-[var(--separator)] pt-3">
-          {loadingDetail ? (
-            <p className="text-[12px] text-apple-gray">Loading…</p>
-          ) : detail?.students?.length ? (
-            <div className="space-y-1.5">
-              {detail.students.map((s) => (
-                <div key={s.userId} className="flex items-center justify-between text-[12px]">
-                  <span className="text-[var(--label)]">{s.name}</span>
-                  <span className="text-apple-gray font-mono text-[11px]">
-                    variant #{s.variantIndex} · {s.email}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-[12px] text-apple-gray">No students enrolled yet.</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
 export default function SchoolGroups() {
-  const [tab, setTab] = useState("homework"); // "homework" | "manage"
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("week"); // week | month | term
+  const [prefs, setPrefs] = useState({ anonymousMode: false, hideRank: false, blockedIds: [], mutedIds: [] });
+  const [showPrefs, setShowPrefs] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
+  const [kudosTarget, setKudosTarget] = useState(null);
+  const [reportTarget, setReportTarget] = useState(null);
+  const [showCommentFor, setShowCommentFor] = useState(null);
+  const [commentText, setCommentText] = useState("");
+  const [toast, setToast] = useState(null);
 
-  // Enrollment state
-  const [enrollment, setEnrollment]   = useState(null);  // null = not enrolled
-  const [joinCode, setJoinCode]       = useState("");
-  const [joinLoading, setJoinLoading] = useState(false);
-  const [joinError, setJoinError]     = useState("");
+  const showToast = (msg, kind = "ok") => { setToast({ msg, kind }); setTimeout(() => setToast(null), 2500); };
 
-  // Homework state
-  const [topics, setTopics]           = useState([]);
-  const [topicId, setTopicId]         = useState("");
-  const [difficulty, setDifficulty]   = useState("medium");
-  const [question, setQuestion]       = useState(null);
-  const [hwLoading, setHwLoading]     = useState(false);
-  const [hwError, setHwError]         = useState("");
-  const [questionKey, setQuestionKey] = useState(0); // force re-mount on new question
+  const refresh = async () => {
+    try {
+      const r = await sgDashboard();
+      setData(r.data?.data);
+      const p = await sgGetPrefs();
+      setPrefs(p.data?.data || prefs);
+    } catch {} finally { setLoading(false); }
+  };
+  useEffect(() => { refresh(); }, []); // eslint-disable-line
 
-  // Manage state
-  const [schools, setSchools]         = useState([]);
-  const [newName, setNewName]         = useState("");
-  const [createLoading, setCreateLoading] = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [expandedId, setExpandedId]   = useState(null);
-  const [details, setDetails]         = useState({});
-  const [detailLoading, setDetailLoading] = useState({});
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-2 border-[#E5E5EA] border-t-[#7c3aed] rounded-full animate-spin" />
+    </div>
+  );
 
-  // Load on mount
-  useEffect(() => {
-    getMyEnrollment().then((r) => setEnrollment(r.data.data?.enrolled === false ? null : r.data.data)).catch(() => {});
-    getDynamicTopics().then((r) => {
-      setTopics(r.data.data || []);
-      if (r.data.data?.length) setTopicId(r.data.data[0].topicId);
-    }).catch(() => {});
-    if (tab === "manage") loadSchools();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  if (!data?.hasGroup) {
+    return (
+      <div className="space-y-5">
+        <div className="rounded-3xl p-10 text-center light-on-gradient" style={{ background: "linear-gradient(135deg, #ede9fe, #fce7f3, #fef3c7)" }}>
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#7c3aed]/70 mb-2">School groups</p>
+          <h2 className="text-[32px] font-bold text-[#1c1c1e] mb-2" style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic" }}>
+            Find your class.
+          </h2>
+          <p className="text-[13px] text-[#3A3A3C] mb-6 max-w-md mx-auto">Compete with your classmates, share teacher updates, and beat the class challenge together.</p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <button onClick={() => setShowJoin(true)} className="px-5 py-2.5 rounded-full bg-[#1c1c1e] text-white text-[13px] font-bold hover:bg-[#3A3A3C]">Enter join code →</button>
+            <button onClick={() => setShowCreate(true)} style={{ background: "#ffffff", color: "#1c1c1e" }} className="px-5 py-2.5 rounded-full border border-[#1c1c1e]/20 text-[13px] font-bold hover:opacity-90">+ Create new class</button>
+          </div>
+        </div>
 
-  useEffect(() => {
-    if (tab === "manage") loadSchools();
-  }, [tab]);
+        {/* Help card */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#7c3aed] mb-2">If your teacher set one up</p>
+            <p className="text-[13px] text-[#3A3A3C]">Ask them for the <span className="font-bold">8-character join code</span> — it looks like <code className="bg-[#F2F2F7] px-1.5 py-0.5 rounded text-[11px]">DPSXB123</code>. Tap "Enter join code" above.</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#fb923c] mb-2">If you're the first one in</p>
+            <p className="text-[13px] text-[#3A3A3C]">Create a class for your school, then share the code with your classmates. You'll all see each other's progress, challenges, and teacher posts.</p>
+          </div>
+        </div>
 
-  const loadSchools = () => {
-    listMySchools().then((r) => setSchools(r.data.data || [])).catch(() => {});
+        {showJoin && <JoinModal joinCode={joinCode} setJoinCode={setJoinCode} onClose={() => setShowJoin(false)}
+          onJoin={async () => { try { await joinSchoolByCode(joinCode); setShowJoin(false); refresh(); showToast("Joined!"); } catch (e) { showToast(e.response?.data?.error || "Join failed", "err"); } }} />}
+        {showCreate && <CreateClassModal onClose={() => setShowCreate(false)}
+          onCreate={async (name) => {
+            try {
+              const r = await createSchool(name);
+              const group = r.data?.data || r.data;
+              setShowCreate(false);
+              refresh();
+              showToast(`Created! Share code: ${group?.joinCode || ""}`);
+            } catch (e) { showToast(e.response?.data?.error || "Create failed", "err"); }
+          }} />}
+      </div>
+    );
+  }
+
+  const { school, stats, leaderboard, challenge, teacherPost, cluster, subjectFocus, inviteLink } = data;
+  const rows = leaderboard?.week || [];
+
+  const handleKudos = async (toId, emoji) => {
+    try {
+      await sgSendKudos({ toId, schoolGroupId: school.groupId, emoji: emoji || "👏", message: "" });
+      showToast("Kudos sent 👏");
+      setKudosTarget(null);
+    } catch { showToast("Failed", "err"); }
   };
 
-  const handleJoin = async () => {
-    if (!joinCode.trim()) return;
-    setJoinLoading(true); setJoinError("");
-    try {
-      const r = await joinSchoolByCode(joinCode.trim().toUpperCase());
-      setEnrollment(r.data.data);
-      setJoinCode("");
-    } catch (e) {
-      setJoinError(e.response?.data?.error || "Invalid join code");
-    } finally { setJoinLoading(false); }
+  const handlePrefsUpdate = async (patch) => {
+    try { const r = await sgUpdatePrefs(patch); setPrefs(r.data?.data || patch); showToast("Updated"); }
+    catch { showToast("Failed", "err"); }
   };
 
-  const handleGetQuestion = async () => {
-    if (!topicId) return;
-    setHwLoading(true); setHwError(""); setQuestion(null);
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const r = await getHomeworkQuestion({ topicId, difficulty, assessmentId: `hw_${today}`, slotId: "q1" });
-      setQuestion(r.data.data);
-      setQuestionKey((k) => k + 1);
-    } catch (e) {
-      setHwError(e.response?.data?.error || "Could not load question");
-    } finally { setHwLoading(false); }
+  const handleReact = async (postId, emoji) => {
+    try { await sgReactPost(postId, emoji); refresh(); } catch {}
   };
 
-  const handleCreate = async () => {
-    if (!newName.trim()) return;
-    setCreateLoading(true); setCreateError("");
-    try {
-      await createSchool(newName.trim());
-      setNewName("");
-      loadSchools();
-    } catch (e) {
-      setCreateError(e.response?.data?.error || "Failed to create group");
-    } finally { setCreateLoading(false); }
+  const handleComment = async (postId) => {
+    if (!commentText.trim()) return;
+    try { await sgCommentPost(postId, commentText); setCommentText(""); setShowCommentFor(null); refresh(); }
+    catch {}
   };
 
-  const toggleRoster = useCallback(async (groupId) => {
-    if (expandedId === groupId) { setExpandedId(null); return; }
-    setExpandedId(groupId);
-    if (details[groupId]) return;
-    setDetailLoading((p) => ({ ...p, [groupId]: true }));
-    try {
-      const r = await getSchoolDetail(groupId);
-      setDetails((p) => ({ ...p, [groupId]: r.data.data }));
-    } catch { /* ignore */ }
-    finally { setDetailLoading((p) => ({ ...p, [groupId]: false })); }
-  }, [expandedId, details]);
-
-  // Group topics by chapter for dropdown
-  const topicsByChapter = topics.reduce((acc, t) => {
-    const ch = t.topicId.match(/^(ch\d+)/)?.[1] || "other";
-    if (!acc[ch]) acc[ch] = [];
-    acc[ch].push(t);
-    return acc;
-  }, {});
-
-  const selectedTopicDifficulties = topics.find((t) => t.topicId === topicId)?.difficulties || [];
+  const handleReport = async (reason, note) => {
+    try { await sgReport({ targetId: reportTarget, schoolGroupId: school.groupId, reason, note }); setReportTarget(null); showToast("Reported"); }
+    catch { showToast("Failed", "err"); }
+  };
 
   return (
-    <div className="max-w-2xl space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-[22px] font-bold text-[var(--label)]">School Groups</h1>
-        <p className="text-[13px] text-apple-gray mt-1">
-          Unique homework for every student — no two classmates get the same question.
-        </p>
-      </div>
+    <div className="grid lg:grid-cols-3 gap-5 items-start">
+      {/* ── Left/center column ── */}
+      <div className="lg:col-span-2 space-y-5">
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-[var(--fill)] rounded-apple-lg w-fit">
-        {[["homework", "Homework"], ["manage", "Manage Groups"]].map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)}
-            className={`px-4 py-1.5 rounded-lg text-[13px] font-medium transition-all
-              ${tab === key ? "bg-[var(--card)] text-[var(--label)] shadow-sm" : "text-apple-gray hover:text-[var(--label)]"}`}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Homework tab ─────────────────────────────────────────── */}
-      {tab === "homework" && (
-        <div className="space-y-5">
-          {/* Enrollment card */}
-          {enrollment ? (
-            <div className="card p-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-apple-green/10 flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5 text-apple-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-[14px] font-semibold text-[var(--label)]">{enrollment.schoolName}</p>
-                  <p className="text-[12px] text-apple-gray">
-                    Slot #{enrollment.variantIndex} · Your questions are unique to your position in the class
-                  </p>
-                </div>
-                <span className="px-2.5 py-1 bg-apple-green/10 text-apple-green text-[11px] font-semibold rounded-full">
-                  Enrolled
-                </span>
-              </div>
+        {/* HERO with cluster (mockup) */}
+        <div className="relative rounded-3xl p-7 lg:p-9 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #d4b4f0 0%, #f0a4cc 50%, #fad4a4 100%)" }}>
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#1c1c1e]/55 mb-2">
+            {school.name?.toUpperCase()} · CLASS {school.classCode}
+          </p>
+          <h1 className="text-[34px] sm:text-[44px] font-bold leading-[1.05] text-[#1c1c1e] tracking-tight mb-5 max-w-xl">
+            <em className="not-italic" style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic", fontWeight: 700 }}>
+              {school.classmateCount} classmates
+            </em> are studying with you.
+          </h1>
+          <div className="flex gap-8 flex-wrap">
+            <div>
+              <p className="text-[26px] font-bold text-[#1c1c1e] leading-none">{stats.myRank ? <>{stats.myRank}<sup className="text-[12px] ml-0.5">{ordinalSuffix(stats.myRank)}</sup></> : "—"}</p>
+              <p className="text-[10px] text-[#1c1c1e]/60 mt-1">your class rank</p>
             </div>
-          ) : (
-            <div className="card p-5 space-y-3">
-              <p className="text-[14px] font-semibold text-[var(--label)]">Join a School Group</p>
-              <p className="text-[12px] text-apple-gray">
-                Ask your teacher for the 6-character join code to get school-guaranteed unique homework.
+            <div>
+              <p className="text-[26px] font-bold text-[#1c1c1e] leading-none">{stats.groupQuestionsToday.toLocaleString()}</p>
+              <p className="text-[10px] text-[#1c1c1e]/60 mt-1">group questions today</p>
+            </div>
+            <div>
+              <p className="text-[26px] font-bold text-[#1c1c1e] leading-none">+{stats.myGainThisWeek}</p>
+              <p className="text-[10px] text-[#1c1c1e]/60 mt-1">your gain this week</p>
+            </div>
+          </div>
+          {/* Avatar cluster — top right */}
+          <div className="absolute right-7 top-6 hidden md:block">
+            <ClusterCloud cluster={cluster} you={{ name: user?.name, studying: true }} />
+          </div>
+        </div>
+
+        {/* LEADERBOARD CARD */}
+        <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93]">This week's class leaderboard</p>
+              <p className="text-[14px] font-semibold text-[#1c1c1e]">
+                {school.classCode}{subjectFocus?.subject ? ` · ${subjectFocus.subject} focus week` : ""}
               </p>
-              <div className="flex gap-2">
-                <input
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
-                  onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-                  placeholder="ABC123"
-                  className="input font-mono tracking-widest uppercase text-center text-[18px] w-36" />
-                <button onClick={handleJoin} disabled={joinLoading || !joinCode.trim()}
-                  className="btn-primary disabled:opacity-50">
-                  {joinLoading ? "Joining…" : "Join"}
+            </div>
+            <div className="flex gap-1 p-1 bg-[#F2F2F7] rounded-full">
+              {["week","month","term"].map((t) => (
+                <button key={t} onClick={() => setView(t)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-semibold capitalize ${view === t ? "bg-[#1c1c1e] text-white" : "text-[#8e8e93]"}`}>
+                  {t}
                 </button>
-              </div>
-              {joinError && <p className="text-[12px] text-apple-red">{joinError}</p>}
-              <p className="text-[11px] text-apple-gray">
-                Not in a school group? You'll still get personalised unique questions — just without school-wide deduplication.
-              </p>
+              ))}
             </div>
-          )}
+          </div>
+          <div className="space-y-0">
+            {rows.slice(0, 12).map((r, i) => (
+              <LeaderboardRow key={r.userId} row={r} rank={i + 1}
+                onKudos={() => setKudosTarget(r)} onReport={() => setReportTarget(r.userId)} />
+            ))}
+            {rows.length === 0 && (
+              <p className="text-[12px] text-[#8e8e93] text-center py-6">No activity yet — be the first to practice!</p>
+            )}
+          </div>
+        </div>
+      </div>
 
-          {/* Question picker */}
-          <div className="card p-5 space-y-4">
-            <p className="text-[14px] font-semibold text-[var(--label)]">Get Today's Homework Question</p>
+      {/* ── Right column ── */}
+      <div className="space-y-5">
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Topic picker */}
-              <div className="space-y-1.5">
-                <label className="text-[12px] font-medium text-apple-gray">Topic</label>
-                <select value={topicId} onChange={(e) => { setTopicId(e.target.value); setQuestion(null); }}
-                  className="input w-full text-[13px]">
-                  {Object.entries(topicsByChapter).map(([ch, tpls]) => (
-                    <optgroup key={ch} label={CHAPTER_NAMES[ch] || ch}>
-                      {tpls.map((t) => (
-                        <option key={t.topicId} value={t.topicId}>
-                          {t.topicId} ({t.difficulties.join("/")})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
+        {/* ACTIVE CLASS CHALLENGE (dark mockup card) */}
+        {challenge ? (
+          <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(180deg, #1c1c1e, #0a0a0a)" }}>
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-3">Active class challenge</p>
+            <h3 className="text-[28px] font-bold leading-tight mb-2" style={{ fontFamily: "Georgia,'Times New Roman',serif", fontStyle: "italic" }}>
+              {challenge.title}
+            </h3>
+            {challenge.rewardText && <p className="text-[12px] text-white/70 leading-relaxed mb-4">{challenge.rewardText}</p>}
+            <div className="space-y-2 mb-3">
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full" style={{ width: `${Math.min(100, (challenge.currentCount / challenge.targetCount) * 100)}%`,
+                  background: "linear-gradient(90deg, #f472b6, #fb923c)" }} />
               </div>
-
-              {/* Difficulty picker */}
-              <div className="space-y-1.5">
-                <label className="text-[12px] font-medium text-apple-gray">Difficulty</label>
-                <select value={difficulty} onChange={(e) => { setDifficulty(e.target.value); setQuestion(null); }}
-                  className="input w-full text-[13px]">
-                  {["easy", "medium", "hard"].filter((d) =>
-                    selectedTopicDifficulties.length === 0 || selectedTopicDifficulties.includes(d)
-                  ).map((d) => (
-                    <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
-                  ))}
-                </select>
+              <div className="flex justify-between text-[11px]">
+                <span className="text-white/60">{challenge.currentCount} / {challenge.targetCount} · {challenge.daysLeft} days left</span>
+                <span className="text-[#fb923c] font-bold">You: {challenge.myContribution} contributed</span>
               </div>
             </div>
-
-            <button onClick={handleGetQuestion} disabled={hwLoading || !topicId}
-              className="btn-primary w-full disabled:opacity-50">
-              {hwLoading ? "Generating…" : "Get My Question"}
+            <button onClick={() => navigate("/practice")} className="w-full py-2.5 rounded-xl bg-white text-[#1c1c1e] text-[13px] font-bold hover:bg-white/90">
+              Solve 5 more →
             </button>
-
-            {hwError && <p className="text-[12px] text-apple-red">{hwError}</p>}
           </div>
-
-          {/* Question display */}
-          {question && <QuestionCard key={questionKey} q={question} />}
-        </div>
-      )}
-
-      {/* ── Manage tab ───────────────────────────────────────────── */}
-      {tab === "manage" && (
-        <div className="space-y-5">
-          {/* Create form */}
-          <div className="card p-5 space-y-3">
-            <p className="text-[14px] font-semibold text-[var(--label)]">Create a School Group</p>
-            <p className="text-[12px] text-apple-gray">
-              Give your class a name. Students join using the generated 6-character code.
-            </p>
-            <div className="flex gap-2">
-              <input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                placeholder="e.g. Section A — St. Xavier's"
-                className="input flex-1" />
-              <button onClick={handleCreate} disabled={createLoading || !newName.trim()}
-                className="btn-primary disabled:opacity-50">
-                {createLoading ? "Creating…" : "Create"}
-              </button>
-            </div>
-            {createError && <p className="text-[12px] text-apple-red">{createError}</p>}
+        ) : (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] text-center">
+            <p className="text-[12px] text-[#8e8e93]">No active challenge.</p>
           </div>
+        )}
 
-          {/* Groups list */}
-          {schools.length > 0 ? (
-            <div className="space-y-3">
-              <p className="text-[13px] font-semibold text-apple-gray uppercase tracking-wide">
-                My Groups ({schools.length})
-              </p>
-              {schools.map((g) => (
-                <SchoolCard
-                  key={g._id} group={g}
-                  expanded={expandedId === g._id}
-                  detail={details[g._id]}
-                  loadingDetail={!!detailLoading[g._id]}
-                  onExpand={() => toggleRoster(g._id)}
-                />
-              ))}
+        {/* TEACHER POST */}
+        {teacherPost && (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-full bg-[#1c1c1e] text-white text-[11px] font-bold flex items-center justify-center">
+                {(teacherPost.teacherName || "T").split(" ").map((w) => w[0]).slice(0, 2).join("")}
+              </div>
+              <div>
+                <p className="text-[13px] font-bold text-[#1c1c1e] leading-tight">{teacherPost.teacherName}</p>
+                <p className="text-[11px] text-[#8e8e93]">{teacherPost.teacherRole}</p>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-10 text-apple-gray text-[13px]">
-              No groups yet. Create one above to get started.
+            <p className="text-[13px] italic text-[#3A3A3C] leading-relaxed mb-3">"{teacherPost.message}"</p>
+            <div className="flex items-center justify-between text-[10px] text-[#8e8e93]">
+              <span>posted {fmtTimeAgo(teacherPost.at)} · {teacherPost.readCount} read</span>
+              <div className="flex gap-2">
+                <button onClick={() => handleReact(teacherPost._id, "👍")} className="hover:scale-110">👍</button>
+                <button onClick={() => handleReact(teacherPost._id, "❤️")} className="hover:scale-110">❤️</button>
+                <button onClick={() => setShowCommentFor(teacherPost._id)} className="text-[#7c3aed] font-semibold">Comment</button>
+              </div>
             </div>
-          )}
+            {showCommentFor === teacherPost._id && (
+              <div className="mt-3 flex gap-2">
+                <input value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Reply…" maxLength={280}
+                  className="flex-1 text-[12px] px-3 py-1.5 rounded-lg border border-[#E5E5EA] outline-none" />
+                <button onClick={() => handleComment(teacherPost._id)} className="px-3 py-1.5 rounded-lg bg-[#7c3aed] text-white text-[11px] font-bold">Send</button>
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* How it works */}
-          <div className="rounded-apple-lg bg-apple-blue/5 border border-apple-blue/20 p-4 space-y-2">
-            <p className="text-[13px] font-semibold text-apple-blue">How uniqueness works</p>
-            <ul className="space-y-1.5">
-              {[
-                "Each student's slot in the class gets a unique seeded question variant.",
-                "Same student, same day → same question (resumable). Different students → different questions.",
-                "Powered by a seeded PRNG — no extra API calls, zero cost.",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2 text-[12px] text-apple-gray">
-                  <span className="text-apple-blue mt-0.5">·</span> {t}
-                </li>
-              ))}
-            </ul>
+        {/* INVITE A CLASSMATE */}
+        <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <p className="text-[13px] font-bold text-[#1c1c1e] mb-1">Invite a classmate</p>
+          <p className="text-[11px] text-[#8e8e93] mb-3">Both of you get 2 weeks of Pro free.</p>
+          <div className="flex gap-2">
+            <input readOnly value={inviteLink}
+              className="flex-1 text-[11px] px-3 py-2 rounded-lg border border-[#E5E5EA] bg-[#FAFAFB] font-mono text-[#3A3A3C]"
+              onClick={(e) => e.target.select()} />
+            <button onClick={() => { navigator.clipboard.writeText(inviteLink); showToast("Link copied"); }}
+              className="px-4 py-2 rounded-lg bg-[#1c1c1e] text-white text-[11px] font-bold">Copy</button>
           </div>
         </div>
+
+        {/* PRIVACY / SETTINGS */}
+        <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+          <p className="text-[10px] font-bold tracking-wider uppercase text-[#8e8e93] mb-3">Privacy</p>
+          <Toggle label="Anonymous mode" value={prefs.anonymousMode} onChange={(v) => handlePrefsUpdate({ anonymousMode: v })}
+            desc="Classmates see 'Anonymous' instead of your name" />
+          <Toggle label="Hide my rank" value={prefs.hideRank} onChange={(v) => handlePrefsUpdate({ hideRank: v })}
+            desc="Hide your row from the leaderboard" />
+        </div>
+      </div>
+
+      {/* Modals */}
+      {kudosTarget && <KudosModal target={kudosTarget} onClose={() => setKudosTarget(null)} onSend={handleKudos} />}
+      {reportTarget && <ReportModal onClose={() => setReportTarget(null)} onSubmit={handleReport} />}
+      {showPrefs && <PrefsDrawer prefs={prefs} onUpdate={handlePrefsUpdate} onClose={() => setShowPrefs(false)} />}
+
+      {toast && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl shadow-lg text-[12px] font-semibold text-white ${
+          toast.kind === "err" ? "bg-[#FF3B30]" : "bg-[#34C759]"
+        }`}>{toast.msg}</div>
       )}
+    </div>
+  );
+}
+
+function ordinalSuffix(n) { const s = ["th","st","nd","rd"], v = n % 100; return s[(v - 20) % 10] || s[v] || s[0]; }
+
+function LeaderboardRow({ row, rank, onKudos, onReport }) {
+  const sparkPath = useMemo(() => generateSpark(row.totalScore), [row.totalScore]);
+  return (
+    <div className={`flex items-center gap-3 px-2 py-3 rounded-xl transition-colors hover:bg-[#FAFAFB] group ${row.isMe ? "bg-[#7c3aed]/6" : ""}`}>
+      <span className="w-5 text-[12px] text-[#8e8e93]">{rank}</span>
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
+        style={{ background: rank === 1 ? "#1c1c1e" : AVATAR_PALETTE[rank % AVATAR_PALETTE.length] }}>
+        {row.initials}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1">
+          <p className="text-[13px] font-semibold text-[#1c1c1e] truncate">{row.name}</p>
+          {rank === 1 && <span className="text-[12px]">👑</span>}
+          {row.isMe && <span className="text-[10px] text-[#7c3aed] font-bold">you</span>}
+        </div>
+        <p className="text-[10px] text-[#8e8e93]">{row.streak} day streak · this week ++{row.pointsGained} pts</p>
+      </div>
+      <svg width="60" height="20" viewBox="0 0 60 20" className="text-[#8e8e93] opacity-50 shrink-0">
+        <path d={sparkPath} stroke="currentColor" strokeWidth="1.2" fill="none" />
+      </svg>
+      <p className="text-[14px] font-bold tabular-nums text-[#1c1c1e] shrink-0">{row.totalScore.toLocaleString()}</p>
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {!row.isMe && (
+          <>
+            <button onClick={onKudos} title="Send kudos" className="text-[12px] hover:scale-110">👏</button>
+            <button onClick={onReport} title="Report" className="text-[10px] text-[#C7C7CC] hover:text-[#FF3B30]">⚑</button>
+          </>
+        )}
+      </div>
+      <span className="text-[#C7C7CC] text-[14px]">›</span>
+    </div>
+  );
+}
+
+function generateSpark(score) {
+  const pts = [];
+  let seed = score % 100;
+  for (let x = 0; x <= 60; x += 6) {
+    seed = (seed * 31 + 7) % 100;
+    const y = 4 + (seed / 100) * 12;
+    pts.push(`${x},${y}`);
+  }
+  return "M" + pts.join(" L");
+}
+
+function ClusterCloud({ cluster, you }) {
+  const positions = [
+    { x: 90,  y: 0 },
+    { x: 160, y: 10 },
+    { x: 230, y: 30 },
+    { x: 60,  y: 70 },
+    { x: 150, y: 95 },
+    { x: 245, y: 95 },
+  ];
+  const initialsYou = (you?.name || "?").split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
+  return (
+    <div className="relative" style={{ width: 290, height: 140 }}>
+      {cluster.map((c, i) => {
+        const p = positions[i] || { x: 0, y: 0 };
+        return (
+          <div key={c.userId} className="absolute" style={{ left: p.x, top: p.y }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[11px] font-bold relative shadow"
+              style={{ background: c.color }}>
+              {c.initials}
+              {c.studying && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#34C759] ring-2 ring-white" />}
+            </div>
+          </div>
+        );
+      })}
+      <div className="absolute" style={{ left: 130, top: 50 }}>
+        <div className="w-14 h-14 rounded-full bg-[#1c1c1e] text-white text-[12px] font-bold flex items-center justify-center ring-4 ring-white shadow-lg">
+          {initialsYou}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({ label, value, onChange, desc }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2 border-b border-[#F2F2F7] last:border-0">
+      <div className="min-w-0">
+        <p className="text-[12px] font-semibold text-[#1c1c1e]">{label}</p>
+        {desc && <p className="text-[10px] text-[#8e8e93]">{desc}</p>}
+      </div>
+      <button onClick={() => onChange(!value)} className="w-10 h-5 rounded-full relative transition-colors shrink-0"
+        style={{ background: value ? "#34C759" : "#E5E5EA" }}>
+        <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all" style={{ left: value ? "calc(100% - 18px)" : "2px" }} />
+      </button>
+    </div>
+  );
+}
+
+function KudosModal({ target, onClose, onSend }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-[16px] font-bold text-[#1c1c1e] mb-1">Send kudos to {target.name}</h3>
+        <p className="text-[12px] text-[#8e8e93] mb-4">Pick an emoji — quick, public to the class.</p>
+        <div className="grid grid-cols-4 gap-2">
+          {["👏","🔥","💪","🎯","🙌","⭐","🚀","💡"].map((e) => (
+            <button key={e} onClick={() => onSend(target.userId, e)}
+              className="aspect-square rounded-xl bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[24px] flex items-center justify-center">{e}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportModal({ onClose, onSubmit }) {
+  const [reason, setReason] = useState("inappropriate");
+  const [note, setNote] = useState("");
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-[15px] font-bold text-[#1c1c1e] mb-3">Report classmate</h3>
+        <div className="space-y-1 mb-3">
+          {["harassment","spam","inappropriate","cheating","other"].map((r) => (
+            <label key={r} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[#FAFAFB] cursor-pointer">
+              <input type="radio" name="rr" checked={reason === r} onChange={() => setReason(r)} className="accent-[#FF3B30]" />
+              <span className="text-[12px] text-[#1c1c1e] capitalize">{r}</span>
+            </label>
+          ))}
+        </div>
+        <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional details…" rows={2} maxLength={500}
+          className="w-full text-[12px] px-3 py-2 rounded-lg border border-[#E5E5EA] resize-none mb-3" />
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg border border-[#E5E5EA] text-[11px] font-semibold">Cancel</button>
+          <button onClick={() => onSubmit(reason, note)} className="flex-1 py-2 rounded-lg bg-[#FF3B30] text-white text-[11px] font-bold">Send</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrefsDrawer({ prefs, onUpdate, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-3" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-[16px] font-bold text-[#1c1c1e]">Class privacy</h3>
+        <Toggle label="Anonymous mode" desc="Classmates see 'Anonymous'" value={prefs.anonymousMode} onChange={(v) => onUpdate({ anonymousMode: v })} />
+        <Toggle label="Hide my rank" desc="Hide your row entirely" value={prefs.hideRank} onChange={(v) => onUpdate({ hideRank: v })} />
+        <button onClick={onClose} className="w-full mt-3 py-2 rounded-lg bg-[#1c1c1e] text-white text-[12px] font-bold">Done</button>
+      </div>
+    </div>
+  );
+}
+
+function CreateClassModal({ onCreate, onClose }) {
+  const [name, setName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const submit = async () => {
+    if (!name.trim()) return;
+    setSubmitting(true);
+    await onCreate(name.trim());
+    setSubmitting(false);
+  };
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-[16px] font-bold text-[#1c1c1e] mb-1">Create your class</h3>
+        <p className="text-[12px] text-[#8e8e93] mb-4">e.g. "Delhi Public School · Class X-B". You'll get a join code to share.</p>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Class name" maxLength={120}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          className="w-full text-[14px] px-3 py-2.5 rounded-lg border border-[#E5E5EA] mb-3" />
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg border border-[#E5E5EA] text-[12px] font-semibold">Cancel</button>
+          <button onClick={submit} disabled={!name.trim() || submitting}
+            className="flex-1 py-2 rounded-lg bg-[#1c1c1e] text-white text-[12px] font-bold disabled:opacity-50">
+            {submitting ? "Creating…" : "Create →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JoinModal({ joinCode, setJoinCode, onJoin, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-[16px] font-bold text-[#1c1c1e] mb-1">Join your class</h3>
+        <p className="text-[12px] text-[#8e8e93] mb-4">Ask your teacher or a classmate for the join code.</p>
+        <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABCD1234" maxLength={12}
+          className="w-full text-[18px] font-mono text-center px-3 py-3 rounded-lg border border-[#E5E5EA] uppercase tracking-widest mb-3" />
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg border border-[#E5E5EA] text-[12px] font-semibold">Cancel</button>
+          <button onClick={onJoin} disabled={!joinCode.trim()} className="flex-1 py-2 rounded-lg bg-[#1c1c1e] text-white text-[12px] font-bold disabled:opacity-50">Join</button>
+        </div>
+      </div>
     </div>
   );
 }

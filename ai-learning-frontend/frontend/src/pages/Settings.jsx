@@ -8,7 +8,7 @@ export default function Settings() {
   const { user, setAuth, activeChild, setActiveChild } = useAuthStore();
   const navigate = useNavigate();
 
-  const [form, setForm]           = useState({ name: "", grade: "10", subjects: ["Math"], weakTopics: [] });
+  const [form, setForm]           = useState({ name: "", grade: "10", subjects: ["Math"], weakTopics: [], examDate: "" });
   const [weakInput, setWeakInput] = useState("");
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
@@ -38,6 +38,7 @@ export default function Settings() {
           grade:      u.grade || "10",
           subjects:   savedSubjects,
           weakTopics: profile?.weakAreas || [],
+          examDate:   u.examDate ? new Date(u.examDate).toISOString().split("T")[0] : "",
         });
         setSub(subRes.data.data);
       })
@@ -49,13 +50,16 @@ export default function Settings() {
     e.preventDefault();
     setError(""); setSuccess(false); setSaving(true);
     try {
-      const { data } = await updateMe({ name: form.name, grade: form.grade, subjects: form.subjects, weakTopics: form.weakTopics });
+      const payload = { name: form.name, grade: form.grade, subjects: form.subjects, weakTopics: form.weakTopics };
+      if (form.examDate) payload.examDate = form.examDate;
+      const { data } = await updateMe(payload);
       setAuth(null, {
         ...user,
         name:     data.user.name,
         grade:    data.user.grade    ?? user.grade,
         subject:  data.user.subject  ?? user.subject,
         subjects: data.user.subjects ?? user.subjects,
+        examDate: data.user.examDate ?? user.examDate,
       });
       setSuccess(true);
     } catch (err) {
@@ -235,6 +239,15 @@ export default function Settings() {
                 <option key={g} value={g}>Class {g}</option>
               ))}
             </select>
+          </Field>
+
+          <Field label="Exam / Board Date" hint="Used to show your countdown timer in the sidebar">
+            <input
+              type="date"
+              className="input"
+              value={form.examDate}
+              onChange={(e) => setForm({ ...form, examDate: e.target.value })}
+            />
           </Field>
 
           <Field label="Subjects" hint="Select one or more subjects for your study plan">

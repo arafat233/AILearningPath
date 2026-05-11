@@ -38,6 +38,8 @@ const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/Practice"));
 const Bookmarks        = lazy(() => import("./pages/Bookmarks"));
+const SharedCollection = lazy(() => import("./pages/SharedCollection"));
+const PublicProfile    = lazy(() => import("./pages/PublicProfile"));
 const Analytics        = lazy(() => import("./pages/Analytics"));
 const Competition      = lazy(() => import("./pages/Competition"));
 const LiveRoom         = lazy(() => import("./pages/LiveRoom"));
@@ -158,6 +160,8 @@ export default function App() {
           <Route path="/forgot-password"           element={<ForgotPassword />} />
           <Route path="/reset-password/:token"      element={<ResetPassword />} />
           <Route path="/shared-plan/:token"         element={<SharedPlan />} />
+          <Route path="/c/:token"                   element={<SharedCollection />} />
+          <Route path="/u/:slug"                    element={<PublicProfile />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
           <Route path="/child-picker"         element={<Protected><ChildPicker /></Protected>} />
           <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />

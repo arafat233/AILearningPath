@@ -29,9 +29,15 @@ jobs:
         if: failure() && env.RESEND_API_KEY != ''
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Server connection details kept out of repo. Set as GitHub Actions secrets.
+          PROD_HOST:     ${{ secrets.PROD_HOST }}
+          PROD_SSH_KEY_NAME: ${{ secrets.PROD_SSH_KEY_NAME }}
         run: |
           STATUS="${{ steps.check.outputs.status }}"
           TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+          # Fall back to a generic hint if secrets aren't configured yet.
+          HOST_HINT="${PROD_HOST:-<configure PROD_HOST secret>}"
+          KEY_HINT="${PROD_SSH_KEY_NAME:-<configure PROD_SSH_KEY_NAME secret>}"
 
           curl -s -X POST https://api.resend.com/emails \
             -H "Authorization: Bearer $RESEND_API_KEY" \
@@ -40,5 +46,5 @@ jobs:
               \"from\": \"alerts@resend.dev\",
               \"to\": \"najeebarafat@gmail.com\",
               \"subject\": \"[Stellar] stellaredu.in is DOWN\",
-              \"html\": \"<div style='font-family:sans-serif;max-width:500px;padding:24px'><h2 style='color:#ff3b30;margin:0 0 16px'>stellaredu.in is not responding</h2><table style='font-size:14px;width:100%'><tr><td style='color:#636366;padding:4px 0'>Time</td><td><strong>$TIMESTAMP</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>HTTP Status</td><td><strong>${STATUS:-timeout}</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>URL</td><td>https://stellaredu.in/api/health</td></tr></table><p style='margin-top:20px;font-size:13px;color:#636366'>SSH: <code>ssh -i ssh-key-2026-05-01.key ubuntu@144.24.154.247</code><br>Then: <code>cd AILearningPath && docker-compose up -d</code></p></div>\"
+              \"html\": \"<div style='font-family:sans-serif;max-width:500px;padding:24px'><h2 style='color:#ff3b30;margin:0 0 16px'>stellaredu.in is not responding</h2><table style='font-size:14px;width:100%'><tr><td style='color:#636366;padding:4px 0'>Time</td><td><strong>$TIMESTAMP</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>HTTP Status</td><td><strong>${STATUS:-timeout}</strong></td></tr><tr><td style='color:#636366;padding:4px 0'>URL</td><td>https://stellaredu.in/api/health</td></tr></table><p style='margin-top:20px;font-size:13px;color:#636366'>SSH: <code>ssh -i ${KEY_HINT} ubuntu@${HOST_HINT}</code><br>Then: <code>cd AILearningPath && docker-compose up -d</code></p></div>\"
             }"

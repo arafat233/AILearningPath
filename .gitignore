@@ -21,3 +21,16 @@ Thumbs.db
 # Vite + Vitest caches
 .vite/
 coverage/
+
+# Playwright artifacts — bloat the repo and leak internal UI flows
+test-results/
+playwright-report/
+**/test-results/
+**/playwright-report/
+**/.auth/
+
+# Local-only security/operations notes (must never go into a public repo)
+SECURITY_CHECKLIST.md
+SECURITY_CHECKLIST.private.md
+e2e-bot/.env
+**/e2e-bot/.env

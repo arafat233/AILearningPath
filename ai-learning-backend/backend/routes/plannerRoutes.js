@@ -8,6 +8,8 @@ import {
 } from "../controllers/plannerController.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+import { smartRedistribute, getClassStats } from "../services/plannerSmartService.js";
+import { sendWeeklyParentEmailForUser } from "../services/weeklyParentEmailService.js";
 
 const r = express.Router();
 
@@ -48,6 +50,25 @@ r.post("/share",        auth, generateShareToken);
 r.post("/complete",     auth, validate(completeDaySchema), markDayComplete);
 r.patch("/reorder",     auth, validate(topicOrderSchema),  saveTopicOrder);
 r.patch("/note",        auth, validate(noteSchema),        saveDayNote);
+
+// ── New: smart redistribute, class stats, parent digest ─────────────
+const smartRebalanceSchema = Joi.object({
+  pinnedTopics: Joi.array().items(Joi.string().max(200)).max(50).optional(),
+});
+r.post("/smart-rebalance", auth, validate(smartRebalanceSchema), async (req, res, next) => {
+  try { res.json({ data: await smartRedistribute(req.user.id, req.body) }); } catch (e) { next(e); }
+});
+
+r.get("/class-stats",  auth, async (req, res, next) => {
+  try { res.json({ data: await getClassStats(req.user.id) }); } catch (e) { next(e); }
+});
+
+r.post("/digest-now",  auth, async (req, res, next) => {
+  try {
+    const result = await sendWeeklyParentEmailForUser(req.user.id);
+    res.json({ data: result });
+  } catch (e) { next(e); }
+});
 
 // Active plan
 r.get("/",              auth, getPlan);

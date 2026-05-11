@@ -222,7 +222,7 @@ export const smartStudyAdvice = async (userId, profile, subject = "Math", passed
 
   // Check daily limit
   const allowed = await checkAndIncrementUsage(userId);
-  if (!allowed) return "Focus on your weak areas with 30 minutes of practice daily. Consistency beats cramming.";
+  if (!allowed) return null;
 
   const advice = await getStudyAdvice(profile, subject, effectiveUserId);
   if (advice) {

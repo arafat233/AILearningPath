@@ -1,7 +1,20 @@
-import { Question, UserProfile, SeenQuestion } from "../models/index.js";
+import { Question, UserProfile, SeenQuestion, User } from "../models/index.js";
 import { generateAIQuestion } from "./aiService.js";
+import { isIcseTopicId } from "../utils/boardFilter.js";
 
-export const getNextQuestion = async (userId, topic) => {
+// excludeIds: question IDs to never serve (e.g. already shown this session).
+// Applied even in the "all seen — reset" fallback so the same question
+// is never returned back-to-back within a session.
+export const getNextQuestion = async (userId, topic, excludeIds = []) => {
+  // Board guard: never serve a question whose topicId doesn't match user's board
+  try {
+    const u = await User.findById(userId).select("examBoard").lean();
+    const userBoard = (u?.examBoard || "CBSE").toUpperCase();
+    const topicIsIcse = isIcseTopicId(topic);
+    if (topicIsIcse && userBoard !== "ICSE") return null;
+    if (!topicIsIcse && userBoard === "ICSE") return null;
+  } catch { /* if board lookup fails, fall through to legacy behaviour */ }
+
   const profile = await UserProfile.findOne({ userId });
 
   let targetDifficulty = 0.5;
@@ -21,7 +34,7 @@ export const getNextQuestion = async (userId, topic) => {
     if (weakness === "concept_error" && (behaviorStats?.concept_error || 0) > 5) {
       try {
         const seenForTopic = await SeenQuestion.find({ userId, topic }).select("questionId").lean();
-        const seenIds = seenForTopic.map((s) => s.questionId);
+        const seenIds = [...new Set([...seenForTopic.map((s) => s.questionId), ...excludeIds])];
 
         const existingAIQ = await Question.findOne({
           topic,
@@ -66,7 +79,8 @@ export const getNextQuestion = async (userId, topic) => {
     .limit(100)
     .select("questionId")
     .lean();
-  const seenIds = seen.map((s) => s.questionId);
+  // Merge DB-seen + caller-supplied exclusions (e.g. shown this session)
+  const seenIds = [...new Set([...seen.map((s) => s.questionId), ...excludeIds])];
 
   // Only serve gradeable questions: MCQ type AND must have at least one option
   const mcqFilter = {
@@ -84,7 +98,7 @@ export const getNextQuestion = async (userId, topic) => {
     ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
   }).lean();
 
-  // If all seen, widen difficulty range
+  // If all seen, widen difficulty range (still honouring excludeIds)
   if (!questions.length) {
     questions = await Question.find({
       topic,
@@ -95,15 +109,28 @@ export const getNextQuestion = async (userId, topic) => {
     }).lean();
   }
 
-  // If truly all seen, reset and serve any
+  // All questions seen — reset SeenQuestion history but still respect excludeIds
+  // so we never serve the question the user JUST answered.
   if (!questions.length) {
-    questions = await Question.find({ topic, ...mcqFilter, isFlagged: { $ne: true }, deletedAt: null }).lean();
+    questions = await Question.find({
+      topic,
+      ...mcqFilter,
+      isFlagged: { $ne: true },
+      deletedAt: null,
+      ...(excludeIds.length ? { _id: { $nin: excludeIds } } : {}),
+    }).lean();
   }
 
   // Fallback: topic param may be a Science topicId (e.g. "sci_ch5_photosynthesis") —
   // retry querying by Question.topicId field since those questions keep chapter-level topic strings.
   if (!questions.length && topic.startsWith("sci_")) {
-    questions = await Question.find({ topicId: topic, ...mcqFilter, isFlagged: { $ne: true }, deletedAt: null }).lean();
+    questions = await Question.find({
+      topicId: topic,
+      ...mcqFilter,
+      isFlagged: { $ne: true },
+      deletedAt: null,
+      ...(excludeIds.length ? { _id: { $nin: excludeIds } } : {}),
+    }).lean();
   }
 
   if (!questions.length) return null;

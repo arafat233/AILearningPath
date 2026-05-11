@@ -53,11 +53,12 @@ async function importChapters() {
   return total;
 }
 
-async function upsertTopic(topicId, chapterNumber, topic) {
+async function upsertTopic(topicId, chapterNumber, topic, subject = "Mathematics") {
   await NcertTopicContent.findOneAndUpdate(
     { topicId },
     {
       topicId,
+      subject,                                  // always written — never left blank
       chapterNumber,
       name:                   topic.name ?? "",
       prerequisite_knowledge: topic.prerequisite_knowledge ?? [],

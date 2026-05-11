@@ -1,4 +1,4 @@
-import { UserProfile, StudyPlan } from "../models/index.js";
+import { UserProfile, StudyPlan, Topic } from "../models/index.js";
 import { getRevisionTopics } from "./revisionService.js";
 
 export const getDailyBrief = async (userId) => {
@@ -44,6 +44,16 @@ export const getDailyBrief = async (userId) => {
       todayPhase:     todayEntry?.phase     || null,
       todayCompleted: todayEntry?.completed || false,
     };
+  }
+
+  // Enrich weak topics and revision items with subject names
+  const allNames = [...weakTopics.map((t) => t.topic), ...revisionTop.map((t) => t.topic)];
+  if (allNames.length > 0) {
+    const docs = await Topic.find({ name: { $in: allNames } }, "name subject").lean();
+    const map  = {};
+    docs.forEach((d) => { map[d.name] = d.subject; });
+    weakTopics.forEach((t)   => { t.subject = map[t.topic]  || null; });
+    revisionTop.forEach((t)  => { t.subject = map[t.topic]  || null; });
   }
 
   return { weakTopics, revisionDue: revisionTop, planProgress };

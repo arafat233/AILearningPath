@@ -270,6 +270,35 @@ const EXPECTED = [
   },
 
   // ══════════════════════════════════════════════════════
+  // MATHEMATICS — ICSE Class 10 (Selina/Concise — 25 chapters, 7 units)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "icse10_ch1",  chapterName: "Value Added Tax",                                 subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch1_vat_intro","icse10_ch1_vat_calculations","icse10_ch1_vat_invoice","icse10_ch1_vat_word_problems"] },
+  { chapterId: "icse10_ch2",  chapterName: "Banking (Recurring Deposit Account)",             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch2_banking_intro","icse10_ch2_banking_si_formula","icse10_ch2_banking_maturity","icse10_ch2_banking_word_problems"] },
+  { chapterId: "icse10_ch3",  chapterName: "Shares and Dividend",                             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch3_shares_basics","icse10_ch3_shares_dividend","icse10_ch3_shares_market_value","icse10_ch3_shares_word_problems"] },
+  { chapterId: "icse10_ch4",  chapterName: "Linear Inequations (In one variable)",            subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch4_inequations_intro","icse10_ch4_inequations_solving","icse10_ch4_inequations_number_line","icse10_ch4_inequations_word"] },
+  { chapterId: "icse10_ch5",  chapterName: "Quadratic Equations",                             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch5_quadratic_intro","icse10_ch5_quadratic_factorization","icse10_ch5_quadratic_formula","icse10_ch5_quadratic_nature"] },
+  { chapterId: "icse10_ch6",  chapterName: "Solving (Simple) Problems on Quadratic Equations",subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch6_word_problems_quad","icse10_ch6_age_problems","icse10_ch6_speed_problems","icse10_ch6_geometry_problems"] },
+  { chapterId: "icse10_ch7",  chapterName: "Ratio and Proportion",                            subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch7_ratio_basics","icse10_ch7_proportion_properties","icse10_ch7_continued_proportion","icse10_ch7_proportion_applications"] },
+  { chapterId: "icse10_ch8",  chapterName: "Remainder and Factor Theorems",                   subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch8_remainder_theorem","icse10_ch8_factor_theorem","icse10_ch8_factorization_cubic","icse10_ch8_polynomial_division"] },
+  { chapterId: "icse10_ch9",  chapterName: "Matrices",                                        subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch9_matrix_basics","icse10_ch9_matrix_operations","icse10_ch9_matrix_multiplication","icse10_ch9_matrix_determinant"] },
+  { chapterId: "icse10_ch10", chapterName: "Arithmetic Progression",                          subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch10_ap_intro","icse10_ch10_ap_nth_term","icse10_ch10_ap_sum","icse10_ch10_ap_applications"] },
+  { chapterId: "icse10_ch11", chapterName: "Geometric Progression",                           subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch11_gp_intro","icse10_ch11_gp_nth_term","icse10_ch11_gp_sum","icse10_ch11_gp_applications"] },
+  { chapterId: "icse10_ch12", chapterName: "Reflection",                                      subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch12_reflection_x_axis","icse10_ch12_reflection_y_axis","icse10_ch12_reflection_origin","icse10_ch12_invariant_points"] },
+  { chapterId: "icse10_ch13", chapterName: "Section and Mid-Point Formula",                   subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch13_section_formula","icse10_ch13_midpoint","icse10_ch13_dividing_line","icse10_ch13_section_applications"] },
+  { chapterId: "icse10_ch14", chapterName: "Equation of a Line",                              subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch14_slope_intercept","icse10_ch14_two_point_form","icse10_ch14_parallel_perpendicular","icse10_ch14_line_problems"] },
+  { chapterId: "icse10_ch15", chapterName: "Similarity (with Maps and Models)",               subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch15_similarity_intro","icse10_ch15_similar_triangles","icse10_ch15_maps_models","icse10_ch15_area_ratio"] },
+  { chapterId: "icse10_ch16", chapterName: "Loci (Locus and Its Constructions)",              subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch16_locus_intro","icse10_ch16_perpendicular_bisector_locus","icse10_ch16_angle_bisector_locus","icse10_ch16_circle_locus"] },
+  { chapterId: "icse10_ch17", chapterName: "Circles",                                         subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch17_chord_properties","icse10_ch17_arcs_angles","icse10_ch17_cyclic_quadrilateral","icse10_ch17_circle_theorems"] },
+  { chapterId: "icse10_ch18", chapterName: "Tangents and Intersecting Chords",                subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch18_tangent_properties","icse10_ch18_two_tangents","icse10_ch18_intersecting_chords","icse10_ch18_alternate_segment"] },
+  { chapterId: "icse10_ch19", chapterName: "Constructions (Circles)",                         subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch19_construct_tangent","icse10_ch19_construct_circumscribe","icse10_ch19_construct_inscribe","icse10_ch19_construct_problems"] },
+  { chapterId: "icse10_ch20", chapterName: "Cylinder, Cone and Sphere (Surface Area & Volume)",subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch20_cylinder_volume","icse10_ch20_cone_surface","icse10_ch20_sphere_area","icse10_ch20_combined_solids"] },
+  { chapterId: "icse10_ch21", chapterName: "Trigonometrical Identities",                      subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch21_basic_identities","icse10_ch21_complementary_angles","icse10_ch21_trig_tables","icse10_ch21_identity_proofs"] },
+  { chapterId: "icse10_ch22", chapterName: "Heights and Distances",                           subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch22_angle_elevation","icse10_ch22_angle_depression","icse10_ch22_height_problems","icse10_ch22_distance_problems"] },
+  { chapterId: "icse10_ch23", chapterName: "Graphical Representation",                        subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch23_histograms","icse10_ch23_frequency_polygon","icse10_ch23_ogives","icse10_ch23_comparison_graphs"] },
+  { chapterId: "icse10_ch24", chapterName: "Measures of Central Tendency",                    subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch24_mean","icse10_ch24_median","icse10_ch24_mode","icse10_ch24_quartiles"] },
+  { chapterId: "icse10_ch25", chapterName: "Probability",                                     subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch25_probability_intro","icse10_ch25_simple_events","icse10_ch25_compound_events","icse10_ch25_probability_problems"] },
+
+  // ══════════════════════════════════════════════════════
   // SOCIAL SCIENCE — Class 10 (CBSE 2023-24)
   // History (Ch1-5) | Geography (Ch6-12) | Economics (Ch13-17) | Political Science (Ch18-22)
   // ══════════════════════════════════════════════════════
@@ -550,6 +579,199 @@ const EXPECTED = [
     expectedTopicIds: ["eng_wb_grammar8"] },
   { chapterId: "eng_wb_unit9", chapterName: "Workbook Unit 9 — Speech Writing", subject: "English", grade: "10", skipDiagram: true,
     expectedTopicIds: ["eng_wb_grammar9"] },
+
+  // ── Hindi Grade 10 (no diagrams required) ────────────────────────────────
+  // Kshitij Bhaag 2
+  { chapterId: "hin_ks_ch1",  chapterName: "सूरदास के पद",                   subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch1"] },
+  { chapterId: "hin_ks_ch2",  chapterName: "तुलसीदास के पद",                 subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch2"] },
+  { chapterId: "hin_ks_ch3",  chapterName: "देव के पद",                      subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch3"] },
+  { chapterId: "hin_ks_ch4",  chapterName: "जयशंकर प्रसाद — आत्मकथ्य",     subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch4"] },
+  { chapterId: "hin_ks_ch5",  chapterName: "निराला — उत्साह, अट नहीं रही",  subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch5"] },
+  { chapterId: "hin_ks_ch6",  chapterName: "नागार्जुन — दंतुरित मुस्कान, फसल", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch6"] },
+  { chapterId: "hin_ks_ch7",  chapterName: "फ़िराक़ — रुबाइयाँ, गज़ल",       subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch7"] },
+  { chapterId: "hin_ks_ch8",  chapterName: "मंगलेश डबराल — संगतकार",        subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch8"] },
+  { chapterId: "hin_ks_ch9",  chapterName: "स्वयं प्रकाश — नेताजी का चश्मा", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch9"] },
+  { chapterId: "hin_ks_ch10", chapterName: "बेनीपुरी — बालगोबिन भगत",       subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch10"] },
+  { chapterId: "hin_ks_ch11", chapterName: "यशपाल — लखनवी अंदाज़",          subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch11"] },
+  { chapterId: "hin_ks_ch12", chapterName: "मन्नू भंडारी — एक कहानी यह भी", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_ks_ch12"] },
+  // Sparsh Bhaag 2
+  { chapterId: "hin_sp_ch13", chapterName: "कबीर की साखियाँ",                subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch13"] },
+  { chapterId: "hin_sp_ch14", chapterName: "मीरा के पद",                     subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch14"] },
+  { chapterId: "hin_sp_ch15", chapterName: "बिहारी के दोहे",                 subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch15"] },
+  { chapterId: "hin_sp_ch16", chapterName: "मैथिलीशरण गुप्त — मनुष्यता",    subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch16"] },
+  { chapterId: "hin_sp_ch17", chapterName: "पंत — पर्वत प्रदेश में पावस",   subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch17"] },
+  { chapterId: "hin_sp_ch18", chapterName: "महादेवी — मधुर-मधुर मेरे दीपक जल", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch18"] },
+  { chapterId: "hin_sp_ch19", chapterName: "वीरेन डंगवाल — तोप",             subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch19"] },
+  { chapterId: "hin_sp_ch20", chapterName: "प्रेमचंद — बड़े भाई साहब",      subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch20"] },
+  { chapterId: "hin_sp_ch21", chapterName: "सेकसरिया — डायरी का एक पन्ना",  subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch21"] },
+  { chapterId: "hin_sp_ch22", chapterName: "लीलाधर — तताँरा-वामीरो कथा",    subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch22"] },
+  { chapterId: "hin_sp_ch23", chapterName: "प्रहलाद — तीसरी कसम के शिल्पकार", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch23"] },
+  { chapterId: "hin_sp_ch24", chapterName: "मंटो — अब कहाँ दूसरे के दुख से", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch24"] },
+  { chapterId: "hin_sp_ch25", chapterName: "सर्वेश्वर — पतझर में टूटी पत्तियाँ", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch25"] },
+  { chapterId: "hin_sp_ch26", chapterName: "हबीब तनवीर — कारतूस",            subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sp_ch26"] },
+  // Kritika Bhaag 2
+  { chapterId: "hin_kr_ch27", chapterName: "शिवपूजन सहाय — माता का आँचल",   subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_kr_ch27"] },
+  { chapterId: "hin_kr_ch28", chapterName: "कमलेश्वर — जॉर्ज पंचम की नाक", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_kr_ch28"] },
+  { chapterId: "hin_kr_ch29", chapterName: "मधु कांकरिया — साना-साना हाथ जोड़ि", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_kr_ch29"] },
+  // Sanchayan Bhaag 2
+  { chapterId: "hin_sy_ch30", chapterName: "मिथिलेश्वर — हरिहर काका",        subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sy_ch30"] },
+  { chapterId: "hin_sy_ch31", chapterName: "गुरदयाल सिंह — सपनों के से दिन", subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sy_ch31"] },
+  { chapterId: "hin_sy_ch32", chapterName: "राही मासूम रज़ा — टोपी शुक्ला",  subject: "Hindi", grade: "10", skipDiagram: true, expectedTopicIds: ["hin_sy_ch32"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 1 v2 (Math Magic, NCERT) — sub-topic expansion
+  // 4 sub-topics per chapter × 13 chapters = 52 topics, ~416 questions
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math1_ch1",  chapterName: "Shapes and Space",                 subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch1_2d_shapes","math1_ch1_comparing_shapes","math1_ch1_position_words","math1_ch1_sorting_shapes"] },
+  { chapterId: "math1_ch2",  chapterName: "Numbers from One to Nine",         subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch2_counting_1_to_5","math1_ch2_counting_6_to_9","math1_ch2_number_names","math1_ch2_ordering_numbers"] },
+  { chapterId: "math1_ch3",  chapterName: "Addition",                         subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch3_joining_sets","math1_ch3_addition_with_pictures","math1_ch3_addition_facts","math1_ch3_addition_word_problems"] },
+  { chapterId: "math1_ch4",  chapterName: "Subtraction",                      subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch4_taking_away","math1_ch4_subtraction_with_pictures","math1_ch4_subtraction_facts","math1_ch4_subtraction_word_problems"] },
+  { chapterId: "math1_ch5",  chapterName: "Numbers from Ten to Twenty",       subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch5_number_ten","math1_ch5_numbers_11_to_15","math1_ch5_numbers_16_to_20","math1_ch5_ordering_to_20"] },
+  { chapterId: "math1_ch6",  chapterName: "Time",                             subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch6_days_of_week","math1_ch6_parts_of_day","math1_ch6_reading_clock","math1_ch6_sequencing_events"] },
+  { chapterId: "math1_ch7",  chapterName: "Measurement",                      subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch7_comparing_lengths","math1_ch7_non_standard_units","math1_ch7_comparing_weights","math1_ch7_comparing_capacities"] },
+  { chapterId: "math1_ch8",  chapterName: "Numbers from Twenty-one to Fifty", subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch8_numbers_21_to_30","math1_ch8_numbers_31_to_40","math1_ch8_numbers_41_to_50","math1_ch8_ordering_to_50"] },
+  { chapterId: "math1_ch9",  chapterName: "Data Handling",                    subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch9_collecting_data","math1_ch9_sorting_and_grouping","math1_ch9_tally_marks","math1_ch9_pictographs"] },
+  { chapterId: "math1_ch10", chapterName: "Patterns",                         subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch10_repeating_patterns","math1_ch10_growing_patterns","math1_ch10_number_patterns","math1_ch10_shape_patterns"] },
+  { chapterId: "math1_ch11", chapterName: "Numbers",                          subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch11_tens_and_ones","math1_ch11_numbers_51_to_75","math1_ch11_numbers_76_to_99","math1_ch11_comparing_two_digit"] },
+  { chapterId: "math1_ch12", chapterName: "Money",                            subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch12_coins_and_notes","math1_ch12_value_of_coins","math1_ch12_making_amounts","math1_ch12_simple_money_problems"] },
+  { chapterId: "math1_ch13", chapterName: "How Many",                         subject: "Mathematics", grade: "1", skipDiagram: true, expectedTopicIds: ["math1_ch13_counting_large_groups","math1_ch13_counting_in_groups","math1_ch13_estimation","math1_ch13_comparing_quantities"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 2 (Math Magic, NCERT)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math2_ch1",  chapterName: "What is Long, What is Round?", subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch1_long_vs_round","math2_ch1_rolling_sliding","math2_ch1_flat_vs_curved","math2_ch1_3d_shapes"] },
+  { chapterId: "math2_ch2",  chapterName: "Counting in Groups",            subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch2_counting_by_2s","math2_ch2_counting_by_5s","math2_ch2_counting_by_10s","math2_ch2_odd_and_even"] },
+  { chapterId: "math2_ch3",  chapterName: "How Much Can You Carry?",       subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch3_heavy_vs_light","math2_ch3_comparing_weights","math2_ch3_standard_units_weight","math2_ch3_estimating_weight"] },
+  { chapterId: "math2_ch4",  chapterName: "Counting in Tens",              subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch4_tens_place","math2_ch4_ones_place","math2_ch4_numbers_to_99","math2_ch4_expanded_form"] },
+  { chapterId: "math2_ch5",  chapterName: "Patterns",                      subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch5_color_patterns","math2_ch5_number_patterns","math2_ch5_growing_patterns","math2_ch5_pattern_rules"] },
+  { chapterId: "math2_ch6",  chapterName: "Footprints",                    subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch6_footprint_shapes","math2_ch6_symmetry","math2_ch6_measuring_length","math2_ch6_comparing_sizes"] },
+  { chapterId: "math2_ch7",  chapterName: "Jugs and Mugs",                 subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch7_full_and_empty","math2_ch7_comparing_capacity","math2_ch7_litres_intro","math2_ch7_measuring_capacity"] },
+  { chapterId: "math2_ch8",  chapterName: "Tens and Ones",                 subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch8_regrouping","math2_ch8_addition_2digit","math2_ch8_subtraction_2digit","math2_ch8_carrying_borrowing"] },
+  { chapterId: "math2_ch9",  chapterName: "My Funbook",                    subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch9_number_puzzles","math2_ch9_magic_squares","math2_ch9_math_games","math2_ch9_crossword_numbers"] },
+  { chapterId: "math2_ch10", chapterName: "Add our Points",                subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch10_adding_scores","math2_ch10_addition_3digit","math2_ch10_word_problems_add","math2_ch10_mental_math_add"] },
+  { chapterId: "math2_ch11", chapterName: "Lines and Lines",               subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch11_straight_curved","math2_ch11_horizontal_vertical","math2_ch11_parallel_lines","math2_ch11_shapes_from_lines"] },
+  { chapterId: "math2_ch12", chapterName: "Give and Take",                 subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch12_subtraction_meaning","math2_ch12_subtraction_word_problems","math2_ch12_mental_math_subtract","math2_ch12_addition_subtraction_link"] },
+  { chapterId: "math2_ch13", chapterName: "The Longest Step",              subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch13_measuring_length","math2_ch13_cm_and_m","math2_ch13_ruler_use","math2_ch13_comparing_lengths"] },
+  { chapterId: "math2_ch14", chapterName: "Birds Come, Birds Go",          subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch14_data_collection","math2_ch14_tally_marks","math2_ch14_bar_graphs","math2_ch14_pictographs"] },
+  { chapterId: "math2_ch15", chapterName: "How Many Ponytails?",           subject: "Mathematics", grade: "2", skipDiagram: true, expectedTopicIds: ["math2_ch15_survey_data","math2_ch15_sorting_data","math2_ch15_interpreting_data","math2_ch15_making_graphs"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 3 (Math Magic, NCERT)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math3_ch1",  chapterName: "Where to Look From",    subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch1_top_view","math3_ch1_front_view","math3_ch1_side_view","math3_ch1_mirror_images"] },
+  { chapterId: "math3_ch2",  chapterName: "Fun with Numbers",       subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch2_three_digit_numbers","math3_ch2_place_value","math3_ch2_comparing_numbers","math3_ch2_expanded_form"] },
+  { chapterId: "math3_ch3",  chapterName: "Give and Take",          subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch3_addition_3digit","math3_ch3_subtraction_3digit","math3_ch3_carrying","math3_ch3_borrowing"] },
+  { chapterId: "math3_ch4",  chapterName: "Long and Short",         subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch4_units_cm_m","math3_ch4_measuring_length","math3_ch4_comparing_lengths","math3_ch4_estimating"] },
+  { chapterId: "math3_ch5",  chapterName: "Shapes and Designs",     subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch5_2d_shapes","math3_ch5_3d_shapes","math3_ch5_tiling","math3_ch5_symmetry"] },
+  { chapterId: "math3_ch6",  chapterName: "Fun with Give and Take", subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch6_word_problems_add","math3_ch6_word_problems_sub","math3_ch6_mental_math","math3_ch6_estimation"] },
+  { chapterId: "math3_ch7",  chapterName: "Time Goes On",           subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch7_reading_clock","math3_ch7_am_pm","math3_ch7_calendar","math3_ch7_duration"] },
+  { chapterId: "math3_ch8",  chapterName: "Who is Heavier?",        subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch8_heavier_lighter","math3_ch8_grams_kilograms","math3_ch8_balance_scale","math3_ch8_weight_word"] },
+  { chapterId: "math3_ch9",  chapterName: "How Many Times?",        subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch9_repeated_addition","math3_ch9_times_tables","math3_ch9_multiplication_word","math3_ch9_arrays"] },
+  { chapterId: "math3_ch10", chapterName: "Play with Patterns",     subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch10_number_patterns","math3_ch10_shape_patterns","math3_ch10_growing_patterns","math3_ch10_pattern_rules"] },
+  { chapterId: "math3_ch11", chapterName: "Jugs and Mugs",          subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch11_ml_litres","math3_ch11_measuring_capacity","math3_ch11_comparing_capacity","math3_ch11_capacity_word"] },
+  { chapterId: "math3_ch12", chapterName: "Can We Share?",          subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch12_sharing_equally","math3_ch12_division_facts","math3_ch12_remainders","math3_ch12_division_word"] },
+  { chapterId: "math3_ch13", chapterName: "Smart Charts!",          subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch13_pictographs","math3_ch13_bar_graphs","math3_ch13_reading_charts","math3_ch13_data_collection"] },
+  { chapterId: "math3_ch14", chapterName: "Rupees and Paise",       subject: "Mathematics", grade: "3", skipDiagram: true, expectedTopicIds: ["math3_ch14_rupees_paise","math3_ch14_money_conversion","math3_ch14_money_addition","math3_ch14_money_problems"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 4 (Math Magic, NCERT)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math4_ch1",  chapterName: "Building with Bricks",              subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch1_brick_patterns","math4_ch1_brick_walls","math4_ch1_top_views","math4_ch1_brick_designs"] },
+  { chapterId: "math4_ch2",  chapterName: "Long and Short",                    subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch2_units_length","math4_ch2_cm_m_km","math4_ch2_measuring_distance","math4_ch2_comparing_long"] },
+  { chapterId: "math4_ch3",  chapterName: "A Trip to Bhopal",                  subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch3_four_digit_numbers","math4_ch3_distances","math4_ch3_travel_problems","math4_ch3_place_value_thousands"] },
+  { chapterId: "math4_ch4",  chapterName: "Tick-Tick-Tick",                    subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch4_reading_time","math4_ch4_24_hour_clock","math4_ch4_time_intervals","math4_ch4_calendar_year"] },
+  { chapterId: "math4_ch5",  chapterName: "The Way The World Looks",           subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch5_top_view","math4_ch5_side_view","math4_ch5_maps","math4_ch5_directions"] },
+  { chapterId: "math4_ch6",  chapterName: "The Junk Seller",                   subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch6_money_calculations","math4_ch6_buying_selling","math4_ch6_change_money","math4_ch6_money_word_problems"] },
+  { chapterId: "math4_ch7",  chapterName: "Jugs and Mugs",                     subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch7_ml_l_conversion","math4_ch7_measuring_capacity","math4_ch7_comparing_capacity","math4_ch7_capacity_problems"] },
+  { chapterId: "math4_ch8",  chapterName: "Carts and Wheels",                  subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch8_circles","math4_ch8_circle_parts","math4_ch8_circular_objects","math4_ch8_rotation"] },
+  { chapterId: "math4_ch9",  chapterName: "Halves and Quarters",               subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch9_fractions_intro","math4_ch9_halves","math4_ch9_quarters","math4_ch9_fraction_word"] },
+  { chapterId: "math4_ch10", chapterName: "Play with Patterns",                subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch10_number_patterns","math4_ch10_shape_patterns","math4_ch10_skipping_patterns","math4_ch10_pattern_rules"] },
+  { chapterId: "math4_ch11", chapterName: "Tables and Shares",                 subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch11_times_tables","math4_ch11_division_tables","math4_ch11_sharing","math4_ch11_grouping"] },
+  { chapterId: "math4_ch12", chapterName: "How Heavy? How Light?",             subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch12_weight_units","math4_ch12_grams_kilograms","math4_ch12_comparing_weights","math4_ch12_weight_problems"] },
+  { chapterId: "math4_ch13", chapterName: "Fields and Fences",                 subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch13_perimeter_intro","math4_ch13_perimeter_shapes","math4_ch13_area_intro","math4_ch13_area_squares"] },
+  { chapterId: "math4_ch14", chapterName: "Smart Charts",                      subject: "Mathematics", grade: "4", skipDiagram: true, expectedTopicIds: ["math4_ch14_pictographs","math4_ch14_bar_graphs","math4_ch14_reading_charts","math4_ch14_data_collection"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 5 (Maths Magic, NCERT)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math5_ch1",  chapterName: "The Fish Tale",                       subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch1_large_numbers","math5_ch1_weight_fish","math5_ch1_money_fish","math5_ch1_scale_distance"] },
+  { chapterId: "math5_ch2",  chapterName: "Shapes and Angles",                   subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch2_angles_intro","math5_ch2_types_angles","math5_ch2_measuring_angles","math5_ch2_shapes_angles"] },
+  { chapterId: "math5_ch3",  chapterName: "How Many Squares?",                   subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch3_area_grids","math5_ch3_area_rectangles","math5_ch3_area_irregular","math5_ch3_perimeter_area"] },
+  { chapterId: "math5_ch4",  chapterName: "Parts and Wholes",                    subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch4_fractions_review","math5_ch4_equivalent_fractions","math5_ch4_comparing_fractions","math5_ch4_fraction_operations"] },
+  { chapterId: "math5_ch5",  chapterName: "Does it Look the Same?",              subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch5_symmetry_intro","math5_ch5_line_symmetry","math5_ch5_rotational_symmetry","math5_ch5_symmetry_designs"] },
+  { chapterId: "math5_ch6",  chapterName: "Be My Multiple, I'll Be Your Factor", subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch6_multiples","math5_ch6_factors","math5_ch6_common_multiples","math5_ch6_common_factors"] },
+  { chapterId: "math5_ch7",  chapterName: "Can You See the Pattern?",            subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch7_number_patterns","math5_ch7_shape_patterns","math5_ch7_growing_patterns","math5_ch7_rotational_patterns"] },
+  { chapterId: "math5_ch8",  chapterName: "Mapping Your Way",                    subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch8_maps_reading","math5_ch8_map_scale","math5_ch8_directions_compass","math5_ch8_route_planning"] },
+  { chapterId: "math5_ch9",  chapterName: "Boxes and Sketches",                  subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch9_3d_shapes","math5_ch9_nets_cube","math5_ch9_views_objects","math5_ch9_building_models"] },
+  { chapterId: "math5_ch10", chapterName: "Tenths and Hundredths",               subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch10_decimals_intro","math5_ch10_tenths","math5_ch10_hundredths","math5_ch10_decimal_operations"] },
+  { chapterId: "math5_ch11", chapterName: "Area and Its Boundary",               subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch11_area_calculation","math5_ch11_perimeter_calculation","math5_ch11_area_vs_perimeter","math5_ch11_real_problems"] },
+  { chapterId: "math5_ch12", chapterName: "Smart Charts",                        subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch12_tables_data","math5_ch12_bar_graphs","math5_ch12_pie_charts","math5_ch12_data_analysis"] },
+  { chapterId: "math5_ch13", chapterName: "Ways to Multiply and Divide",         subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch13_multiplication_strategies","math5_ch13_long_division","math5_ch13_word_problems_mul","math5_ch13_word_problems_div"] },
+  { chapterId: "math5_ch14", chapterName: "How Big? How Heavy?",                 subject: "Mathematics", grade: "5", skipDiagram: true, expectedTopicIds: ["math5_ch14_volume_intro","math5_ch14_weight_review","math5_ch14_capacity_review","math5_ch14_measurement_problems"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 6 (Ganita Prakash, NCERT 2026)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math6_ch1",  chapterName: "Patterns in Mathematics",       subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch1_number_patterns","math6_ch1_shape_patterns","math6_ch1_fibonacci","math6_ch1_pattern_rules"] },
+  { chapterId: "math6_ch2",  chapterName: "Lines and Angles",               subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch2_lines_types","math6_ch2_angles_types","math6_ch2_parallel_perpendicular","math6_ch2_measuring_angles"] },
+  { chapterId: "math6_ch3",  chapterName: "Number Play",                    subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch3_number_properties","math6_ch3_divisibility_rules","math6_ch3_factors_multiples","math6_ch3_number_games"] },
+  { chapterId: "math6_ch4",  chapterName: "Data Handling and Presentation", subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch4_collecting_data","math6_ch4_bar_graphs","math6_ch4_pictographs","math6_ch4_data_interpretation"] },
+  { chapterId: "math6_ch5",  chapterName: "Prime Time",                     subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch5_prime_numbers","math6_ch5_composite_numbers","math6_ch5_prime_factorization","math6_ch5_co_prime"] },
+  { chapterId: "math6_ch6",  chapterName: "Perimeter and Area",             subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch6_perimeter_basics","math6_ch6_area_rectangles","math6_ch6_area_triangles","math6_ch6_real_problems"] },
+  { chapterId: "math6_ch7",  chapterName: "Fractions",                      subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch7_fractions_review","math6_ch7_equivalent_fractions","math6_ch7_fraction_operations","math6_ch7_mixed_numbers"] },
+  { chapterId: "math6_ch8",  chapterName: "Playing with Constructions",     subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch8_basic_constructions","math6_ch8_triangles_construction","math6_ch8_angle_bisector","math6_ch8_perpendicular_bisector"] },
+  { chapterId: "math6_ch9",  chapterName: "Symmetry",                       subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch9_line_symmetry","math6_ch9_rotational_symmetry","math6_ch9_point_symmetry","math6_ch9_symmetric_shapes"] },
+  { chapterId: "math6_ch10", chapterName: "The Other Side of Zero",         subject: "Mathematics", grade: "6", skipDiagram: true, expectedTopicIds: ["math6_ch10_negative_numbers","math6_ch10_number_line","math6_ch10_negative_operations","math6_ch10_real_world_negatives"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 7 (Ganita Prakash, NCERT 2026)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math7_ch1",  chapterName: "Large Numbers Around Us",           subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch1_lakhs_crores","math7_ch1_place_value","math7_ch1_comparing_large","math7_ch1_rounding"] },
+  { chapterId: "math7_ch2",  chapterName: "Arithmetic Expressions",             subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch2_expressions_intro","math7_ch2_order_operations","math7_ch2_brackets","math7_ch2_evaluating"] },
+  { chapterId: "math7_ch3",  chapterName: "A Peek Beyond the Point",            subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch3_decimals_review","math7_ch3_place_value_decimal","math7_ch3_comparing_decimals","math7_ch3_decimal_fractions"] },
+  { chapterId: "math7_ch4",  chapterName: "Letter-Numbers",                     subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch4_variables_intro","math7_ch4_writing_expressions","math7_ch4_simple_equations","math7_ch4_substituting"] },
+  { chapterId: "math7_ch5",  chapterName: "Parallel and Intersecting Lines",    subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch5_parallel_lines","math7_ch5_intersecting_lines","math7_ch5_angles_intersection","math7_ch5_transversal"] },
+  { chapterId: "math7_ch6",  chapterName: "Number Play",                        subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch6_number_patterns","math7_ch6_magic_squares","math7_ch6_number_puzzles","math7_ch6_divisibility"] },
+  { chapterId: "math7_ch7",  chapterName: "A Tale of Three Intersecting Lines", subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch7_triangle_basics","math7_ch7_angle_sum","math7_ch7_triangle_types","math7_ch7_triangle_properties"] },
+  { chapterId: "math7_ch8",  chapterName: "Working with Fractions",             subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch8_fraction_operations","math7_ch8_mixed_numbers","math7_ch8_fraction_word","math7_ch8_fraction_decimal"] },
+  { chapterId: "math7_ch9",  chapterName: "Geometric Twins",                   subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch9_congruence_intro","math7_ch9_congruent_triangles","math7_ch9_sss_sas","math7_ch9_real_congruence"] },
+  { chapterId: "math7_ch10", chapterName: "Operations with Integers",           subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch10_integers_intro","math7_ch10_addition_subtraction","math7_ch10_multiplication","math7_ch10_division"] },
+  { chapterId: "math7_ch11", chapterName: "Finding Common Ground",              subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch11_hcf","math7_ch11_lcm","math7_ch11_hcf_lcm_relation","math7_ch11_word_problems"] },
+  { chapterId: "math7_ch12", chapterName: "Another Peek Beyond the Point",      subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch12_decimal_addition","math7_ch12_decimal_subtraction","math7_ch12_decimal_multiplication","math7_ch12_decimal_division"] },
+  { chapterId: "math7_ch13", chapterName: "Connecting the Dots",                subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch13_collecting_data","math7_ch13_bar_graphs","math7_ch13_mean_median","math7_ch13_mode"] },
+  { chapterId: "math7_ch14", chapterName: "Constructions and Tilings",          subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch14_construction_basics","math7_ch14_construction_triangles","math7_ch14_tilings","math7_ch14_tessellation"] },
+  { chapterId: "math7_ch15", chapterName: "Finding the Unknown",                subject: "Mathematics", grade: "7", skipDiagram: true, expectedTopicIds: ["math7_ch15_equations_intro","math7_ch15_solving_simple","math7_ch15_word_problems","math7_ch15_balance_method"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 8 (Ganita Prakash, NCERT 2026)
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math8_ch1",  chapterName: "A Square and A Cube",                      subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch1_squares","math8_ch1_cubes","math8_ch1_square_roots","math8_ch1_cube_roots"] },
+  { chapterId: "math8_ch2",  chapterName: "Power Play",                               subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch2_exponents","math8_ch2_laws_exponents","math8_ch2_negative_powers","math8_ch2_scientific_notation"] },
+  { chapterId: "math8_ch3",  chapterName: "A Story of Numbers",                       subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch3_number_history","math8_ch3_integers_review","math8_ch3_rational_numbers","math8_ch3_irrational_numbers"] },
+  { chapterId: "math8_ch4",  chapterName: "Quadrilaterals",                           subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch4_quadrilateral_types","math8_ch4_quadrilateral_properties","math8_ch4_quadrilateral_angles","math8_ch4_parallelograms"] },
+  { chapterId: "math8_ch5",  chapterName: "Number Play",                              subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch5_patterns","math8_ch5_primes_composites","math8_ch5_divisibility_rules","math8_ch5_magic_arithmetic"] },
+  { chapterId: "math8_ch6",  chapterName: "We Distribute, Yet Things Multiply",       subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch6_distributive","math8_ch6_factorization","math8_ch6_like_terms","math8_ch6_simplification"] },
+  { chapterId: "math8_ch7",  chapterName: "Proportional Reasoning - 1",              subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch7_ratios","math8_ch7_proportions","math8_ch7_unitary","math8_ch7_percentages"] },
+  { chapterId: "math8_ch8",  chapterName: "Fractions in Disguise",                   subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch8_complex_fractions","math8_ch8_ratios_fractions","math8_ch8_fraction_division","math8_ch8_word_problems"] },
+  { chapterId: "math8_ch9",  chapterName: "The Baudhayana-Pythagoras Theorem",        subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch9_right_triangle","math8_ch9_pythagoras_theorem","math8_ch9_pythagoras_applications","math8_ch9_pythagoras_distances"] },
+  { chapterId: "math8_ch10", chapterName: "Proportional Reasoning - 2",              subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch10_more_proportions","math8_ch10_scale","math8_ch10_similar_shapes","math8_ch10_direct_inverse"] },
+  { chapterId: "math8_ch11", chapterName: "Exploring Some Geometric Themes",         subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch11_angles_polygons","math8_ch11_polygons_types","math8_ch11_symmetry_review","math8_ch11_transformations"] },
+  { chapterId: "math8_ch12", chapterName: "Tales by Dots and Lines",                 subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch12_graph_theory_intro","math8_ch12_paths","math8_ch12_euler","math8_ch12_trees"] },
+  { chapterId: "math8_ch13", chapterName: "Algebra Play",                            subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch13_expressions","math8_ch13_equations","math8_ch13_inequalities","math8_ch13_identities"] },
+  { chapterId: "math8_ch14", chapterName: "Area",                                    subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch14_rectangle_area","math8_ch14_triangle_area","math8_ch14_trapezium_area","math8_ch14_circle_area"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — Class 9 v2 (Ganita Manjari, NCERT 2026) — sub-topic expansion
+  // 4 sub-topics per chapter × 8 chapters = 32 topics, ~256 questions
+  // ══════════════════════════════════════════════════════
+  { chapterId: "math9_ch1", chapterName: "Orienting Yourself: The Use of Coordinates",            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch1_cartesian_plane","math9_ch1_plotting_points","math9_ch1_distance_formula","math9_ch1_section_formula"] },
+  { chapterId: "math9_ch2", chapterName: "Introduction to Linear Polynomials",                     subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch2_poly_basics","math9_ch2_zeroes","math9_ch2_remainder_theorem","math9_ch2_factor_theorem"] },
+  { chapterId: "math9_ch3", chapterName: "The World of Numbers",                                   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch3_number_systems","math9_ch3_irrational_representation","math9_ch3_surds_rationalisation","math9_ch3_laws_of_exponents"] },
+  { chapterId: "math9_ch4", chapterName: "Exploring Algebraic Identities",                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch4_standard_identities","math9_ch4_expansion","math9_ch4_factorisation_identities","math9_ch4_applications"] },
+  { chapterId: "math9_ch5", chapterName: "I'm Up and Down, and Round and Round",                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch5_basic_properties","math9_ch5_angles_in_circle","math9_ch5_cyclic_quadrilateral","math9_ch5_tangents"] },
+  { chapterId: "math9_ch6", chapterName: "Measuring Space: Perimeter and Area",                   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch6_heron_formula","math9_ch6_quadrilateral_area","math9_ch6_surface_area","math9_ch6_volume"] },
+  { chapterId: "math9_ch7", chapterName: "The Mathematics of Maybe: Introduction to Probability", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch7_probability_basics","math9_ch7_experimental_theoretical","math9_ch7_sample_space_events","math9_ch7_probability_rules"] },
+  { chapterId: "math9_ch8", chapterName: "Predicting What Comes Next: Exploring Sequences",       subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch8_sequences_intro","math9_ch8_ap_basics","math9_ch8_nth_term","math9_ch8_sum_of_ap"] },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -606,7 +828,7 @@ const chapters = filterSubject
   : EXPECTED;
 
 if (chapters.length === 0) {
-  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science, English`));
+  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science, English, Hindi`));
   process.exit(1);
 }
 

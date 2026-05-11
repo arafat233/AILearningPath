@@ -19,6 +19,10 @@ export const createSchool = async (req, res, next) => {
     const { schoolName } = req.body;
     if (!schoolName?.trim()) return next(new AppError("schoolName is required", 400));
     const group = await createSchoolGroup(schoolName.trim(), req.user.id);
+    // Auto-enroll the creator + set their schoolGroupId
+    const { SchoolGroup, User } = await import("../models/index.js");
+    await SchoolGroup.updateOne({ _id: group._id }, { $addToSet: { enrolledStudentIds: String(req.user.id) } });
+    await User.findByIdAndUpdate(req.user.id, { $set: { schoolGroupId: group._id } });
     res.status(201).json({ data: group });
   } catch (err) { next(err); }
 };

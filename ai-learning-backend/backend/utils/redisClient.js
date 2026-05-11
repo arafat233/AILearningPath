@@ -93,6 +93,11 @@ export async function incrBy(key, amount, ttlSeconds) {
 
 export function isUsingFallback() { return usingFallback || !client; }
 
+// Raw ioredis client — used by rate-limit-redis (and any other library that
+// needs to issue arbitrary commands). Returns null if Redis isn't connected,
+// in which case callers should fall back to in-memory behaviour.
+export function getRedisClient() { return client; }
+
 export async function pingRedis() {
   if (!client) return false;
   try {

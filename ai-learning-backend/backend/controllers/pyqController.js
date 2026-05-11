@@ -1,9 +1,18 @@
-import { getPYQTopics, getPYQs, getPYQById, getPYQYears } from "../services/pyqService.js";
+import { getPYQTopics, getPYQs, getPYQById, getPYQYears, getPYQChapters } from "../services/pyqService.js";
+import { User } from "../models/index.js";
+
+// Always use the authenticated user's examBoard — ignore any client-supplied value
+async function userBoard(req) {
+  if (!req.user?.id) return "CBSE";
+  const u = await User.findById(req.user.id).select("examBoard").lean();
+  return (u?.examBoard || "CBSE").toUpperCase();
+}
 
 export const listTopics = async (req, res, next) => {
   try {
-    const { subject, grade, examBoard } = req.query;
-    const topics = await getPYQTopics({ subject, grade, examBoard });
+    const { subject, grade, year, years } = req.query;
+    const examBoard = await userBoard(req);
+    const topics = await getPYQTopics({ subject, grade, examBoard, year, years });
     res.json({ topics });
   } catch (err) {
     next(err);
@@ -12,7 +21,8 @@ export const listTopics = async (req, res, next) => {
 
 export const listYears = async (req, res, next) => {
   try {
-    const { subject, grade, examBoard } = req.query;
+    const { subject, grade } = req.query;
+    const examBoard = await userBoard(req);
     const years = await getPYQYears({ subject, grade, examBoard });
     res.json({ years });
   } catch (err) {
@@ -22,9 +32,21 @@ export const listYears = async (req, res, next) => {
 
 export const listQuestions = async (req, res, next) => {
   try {
-    const { topic, year, subject, grade, examBoard, difficulty, page, limit } = req.query;
-    const result = await getPYQs({ topic, year, subject, grade, examBoard, difficulty, page, limit });
+    const { topic, topics, year, years, chapter, chapters, subject, grade, difficulty, page, limit } = req.query;
+    const examBoard = await userBoard(req);
+    const result = await getPYQs({ topic, topics, year, years, chapter, chapters, subject, grade, examBoard, difficulty, page, limit });
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const listChapters = async (req, res, next) => {
+  try {
+    const { subject, grade, year, years } = req.query;
+    const examBoard = await userBoard(req);
+    const chapters = await getPYQChapters({ subject, grade, examBoard, year, years });
+    res.json({ chapters });
   } catch (err) {
     next(err);
   }

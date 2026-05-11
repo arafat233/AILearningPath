@@ -1,4 +1,4 @@
-import { Attempt, UserProfile } from "../models/index.js";
+import { Attempt, UserProfile, Topic } from "../models/index.js";
 import { smartStudyAdvice } from "../services/aiRouter.js";
 import { getStreak } from "../services/streakService.js";
 
@@ -9,11 +9,15 @@ export const getReport = async (req, res, next) => {
     const attempts = await Attempt.find({ userId }).sort({ createdAt: 1 }).lean();
 
     const accuracyHistory = buildAccuracyHistory(attempts);
-    const topicStats = (profile?.topicProgress || []).map((t) => ({
+    const topicProgress   = profile?.topicProgress || [];
+    const topicStats = topicProgress.map((t) => ({
       topic:    t.topic,
       accuracy: Math.round(t.accuracy * 100),
     }));
     const weakness = buildWeaknessMap(profile);
+
+    // Per-subject accuracy breakdown
+    const subjectBreakdown = await buildSubjectBreakdown(topicProgress);
 
     const aiAdvice = profile ? await smartStudyAdvice(userId, profile).catch(() => null) : null;
     const { streak, longestStreak } = await getStreak(userId);
@@ -32,9 +36,35 @@ export const getReport = async (req, res, next) => {
       aiAdvice,
       streak,
       longestStreak,
+      subjectBreakdown,
     });
   } catch (err) { next(err); }
 };
+
+async function buildSubjectBreakdown(topicProgress) {
+  if (!topicProgress.length) return [];
+  const topicNames = topicProgress.map((t) => t.topic);
+  const topicDocs  = await Topic.find({ name: { $in: topicNames } }, "name subject").lean();
+  const subjectMap = {};
+  topicDocs.forEach((t) => { subjectMap[t.name] = t.subject; });
+
+  const agg = {};
+  topicProgress.forEach((tp) => {
+    const subj = subjectMap[tp.topic];
+    if (!subj) return;
+    if (!agg[subj]) agg[subj] = { weighted: 0, attempts: 0, dueCount: 0 };
+    agg[subj].weighted  += (tp.accuracy || 0) * (tp.attempts || 0);
+    agg[subj].attempts  += tp.attempts || 0;
+    if ((tp.accuracy || 0) < 0.7) agg[subj].dueCount++;
+  });
+
+  return Object.entries(agg).map(([subject, v]) => ({
+    subject,
+    accuracy: v.attempts > 0 ? Math.round((v.weighted / v.attempts) * 100) : 0,
+    attempts: v.attempts,
+    dueCount: v.dueCount,
+  }));
+}
 
 function buildAccuracyHistory(attempts) {
   const grouped = {};

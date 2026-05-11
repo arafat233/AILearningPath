@@ -1,4 +1,4 @@
-import { Attempt, ErrorMemory, User } from "../models/index.js";
+import { Attempt, ErrorMemory, User, Question } from "../models/index.js";
 import logger from "../utils/logger.js";
 import { analyzeAnswer } from "../services/analysisService.js";
 import { getNextQuestion } from "../services/adaptiveService.js";
@@ -26,7 +26,7 @@ const safeQuestion = (q) => {
 
 export const startTopic = async (req, res, next) => {
   try {
-    const { topicId } = req.body;
+    const { topicId, excludeCurrentId } = req.body;
     const userId = req.user.id;
 
     // Foundation check
@@ -46,14 +46,26 @@ export const startTopic = async (req, res, next) => {
       });
     }
 
-    const question = await getNextQuestion(userId, topicId);
+    const mcqFilter = {
+      questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+      "options.0": { $exists: true },
+      isFlagged: { $ne: true },
+      deletedAt: null,
+    };
+    const excludeIds = excludeCurrentId ? [excludeCurrentId] : [];
+    const [question, totalAvailable] = await Promise.all([
+      getNextQuestion(userId, topicId, excludeIds),
+      Question.countDocuments({ topic: topicId, ...mcqFilter }),
+    ]);
     if (!question) return next(new AppError("No questions found for this topic yet.", 404));
 
+    const qId = question._id?.toString();
     await sessionSet(sessionKey(userId), {
       topic: topicId,
       sessionCorrect: 0,
       sessionTotal: 0,
       currentQuestion: question.toObject?.() ?? question,
+      seenThisSession: qId ? [qId] : [],
     }, SESSION_TTL);
 
     const profile = await UserProfile.findOne({ userId });
@@ -64,7 +76,7 @@ export const startTopic = async (req, res, next) => {
     const userDoc = await User.findById(userId).select("subject").catch(() => null);
     trackEvent(userId, "practice_start", { topicId, subject: userDoc?.subject || "Math" });
 
-    res.json({ ...safeQuestion(question), teacherMessage: teacherMsg });
+    res.json({ ...safeQuestion(question), teacherMessage: teacherMsg, totalAvailable });
   } catch (err) {
     next(err);
   }
@@ -180,11 +192,15 @@ export const submitAnswer = async (req, res, next) => {
       trackEvent(userId, "explanation_shown", { topicId: session.topic });
     }
 
-    const nextQuestionRaw = await getNextQuestion(userId, session.topic).catch(() => null);
+    // Exclude every question already shown this session so we never repeat within a session
+    const seenThisSession = session.seenThisSession || [];
+    const nextQuestionRaw = await getNextQuestion(userId, session.topic, seenThisSession).catch(() => null);
+    const nextQId = nextQuestionRaw?._id?.toString();
     const nextQuestionSafe = nextQuestionRaw ? safeQuestion(nextQuestionRaw) : null;
     await sessionSet(sessionKey(userId), {
       ...session,
       currentQuestion: nextQuestionRaw?.toObject?.() ?? nextQuestionRaw ?? null,
+      seenThisSession: nextQId ? [...seenThisSession, nextQId] : seenThisSession,
     }, SESSION_TTL);
 
     res.json({

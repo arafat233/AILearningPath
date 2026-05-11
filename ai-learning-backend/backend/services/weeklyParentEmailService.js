@@ -214,3 +214,37 @@ export async function runWeeklyParentEmails() {
   logger.info("Weekly parent emails sent", { sent, total: parents.length });
   return { sent, total: parents.length };
 }
+
+// ── Per-student manual digest (fired by "Send digest now" button) ──
+// Given a student userId, finds all linked parents and sends each a digest
+// containing just that student's summary.
+export async function sendWeeklyParentEmailForUser(studentId) {
+  // Find all parents/teachers who have this student linked
+  const parents = await User.find({
+    role:           { $in: ["parent", "teacher"] },
+    email:          { $exists: true, $ne: "" },
+    linkedStudents: studentId,
+  }).select("_id name email").lean();
+
+  if (!parents.length) return { sent: 0, total: 0, message: "No linked parents found" };
+
+  const summary = await buildStudentSummary(studentId);
+  if (!summary) return { sent: 0, total: parents.length, message: "Could not build summary" };
+
+  let sent = 0;
+  for (const parent of parents) {
+    try {
+      const html = buildEmailHtml(parent.name, [summary]);
+      await sendEmail({
+        to: parent.email,
+        subject: `${summary.name}'s study update — manual send`,
+        html,
+      });
+      sent++;
+    } catch (err) {
+      logger.warn("Manual parent email failed", { to: parent.email, error: err.message });
+    }
+  }
+
+  return { sent, total: parents.length, message: `Sent to ${sent} of ${parents.length} parents.` };
+}

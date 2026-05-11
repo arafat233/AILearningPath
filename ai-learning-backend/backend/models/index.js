@@ -78,7 +78,62 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   // School group membership (for school-aware question variants — no two classmates share a question)
   schoolGroupId: { type: mongoose.Schema.Types.ObjectId, ref: "SchoolGroup", default: null },
+
+  // Profile v2
+  avatarDataUrl:  { type: String, default: null, maxlength: 100 * 1024 }, // base64, ≤100KB
+  manifesto:      { type: String, default: "", maxlength: 200 }, // "why I learn"
+  locale:         { type: String, default: "en", enum: ["en", "hi"] },
+  timezone:       { type: String, default: "Asia/Kolkata" },
+  theme:          { type: String, default: "light", enum: ["light", "dark", "system"] },
+  density:        { type: String, default: "comfortable", enum: ["comfortable", "compact"] },
+  notifPrefs: {
+    push:    { type: Boolean, default: true },
+    email:   { type: Boolean, default: true },
+    streak:  { type: Boolean, default: true },
+    exam:    { type: Boolean, default: true },
+  },
+  twoFactorEnabled: { type: Boolean, default: false }, // UI placeholder for now
+  publicProfileEnabled: { type: Boolean, default: false }, // opt-in /u/:slug
+  publicSlug:           { type: String, default: null }, // e.g. "najeeb-arafat" — unique
+  // Parental controls set BY a parent ON this student account
+  parentalControls: {
+    screenTimeCapMin:   { type: Number, default: null }, // null = no cap
+    pauseAI:            { type: Boolean, default: false },
+    approveAIThreads:   { type: Boolean, default: false },
+    vacationMode:       { type: Boolean, default: false },
+    quietHours: {
+      start: { type: String, default: "" }, // "21:00"
+      end:   { type: String, default: "" }, // "07:00"
+      _id: false,
+    },
+  },
+  parentMessages: [{
+    from:    { type: String },
+    message: { type: String, maxlength: 500 },
+    at:      { type: Date, default: Date.now },
+    read:    { type: Boolean, default: false },
+    _id: false,
+  }],
+  cosignedGoal: {
+    goal:     { type: String, default: "" },
+    parentId: { type: String, default: null },
+    at:       { type: Date, default: null },
+    _id: false,
+  },
+
+  // Per-parent privacy: parent userId → what they can see
+  parentVisibility: {
+    type: Map,
+    of: new mongoose.Schema({
+      scores:     { type: Boolean, default: true },
+      streak:     { type: Boolean, default: true },
+      chats:      { type: Boolean, default: false },
+      _id: false,
+    }, { _id: false }),
+    default: {},
+  },
 });
+userSchema.index({ publicSlug: 1 }, { sparse: true });
 userSchema.index({ "pushSubscription.endpoint": 1 }, { sparse: true });
 userSchema.index({ googleId: 1 }, { sparse: true }); // OAuth login lookup — every Google sign-in
 export const User = mongoose.model("User", userSchema);

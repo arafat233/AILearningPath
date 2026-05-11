@@ -1949,6 +1949,13 @@ To activate push (not yet wired):
 | getStudiedTopics cache-bust (?_=Date.now()) — bypasses 304 stale-empty-response trap | ✅ Complete |
 | Lessons/Chapter/Topic focus + visibilitychange listeners — auto re-fetch studied + dashboard when user returns to tab | ✅ Complete |
 | Rate limiter dev exception — NODE_ENV !== production skips 127.0.0.1/::1; non-localhost dev cap bumped 300 → 5000 per 15-min | ✅ Complete |
+| CI/CD: `.github/workflows/prod-deploy.yml` (workflow_dispatch only initially) — preflight → build frontend in CI → rsync dist → SSH deploy → smoke test → auto-rollback. Requires PROD_SSH_KEY/PROD_USER/PROD_HOST GitHub secrets | ✅ Complete |
+| `scripts/preflight-check.sh` — blocks deploy if any critical file (routes/controllers/services/models/src/) is modified-not-committed or untracked; also warns on un-pushed commits | ✅ Complete |
+| `scripts/smoke-test.sh` — curls 9 endpoints with expected HTTP codes; exits non-zero if any mismatch (triggers auto-rollback) | ✅ Complete |
+| `scripts/prod-deploy.sh` — server-side script: `git reset --hard origin/main` (not pull), tags previous docker image, builds + restarts, polls API health 6×, then deploys dist + reloads nginx | ✅ Complete |
+| `scripts/prod-rollback.sh` — re-tags ailearningpath-api:previous as :latest, force-recreates container, called automatically on smoke-test failure | ✅ Complete |
+| Auto-versioned service worker — `frontend/scripts/bump-sw-cache.mjs` runs as npm postbuild hook, replaces CACHE constant with `stellar-<short-sha>-<YYYY-MM-DD>` so every build invalidates stale browser caches | ✅ Complete |
+| `.gitignore` cleanup — excludes graphify-out/, *.output, .vite/, coverage/, editor metadata; removes ~hundreds of auto-generated noise files from `git status` | ✅ Complete |
 | PYQ (Past Year Questions) browse + filter routes | ✅ Complete |
 | Admin analytics dashboard (DAU/MAU/revenue/30-day charts) | ✅ Complete |
 | Admin coupon CRUD | ✅ Complete |

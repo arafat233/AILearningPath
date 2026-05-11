@@ -43,6 +43,11 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Spaced mastery test (10 MCQs · 3E/4M/3H, 8/10 to pass → 3-day spacing → re-test confirms) | Complete |
 | Server-side mastery test grading (anti-cheat: correct flag stripped, options shuffled) | Complete |
 | Live per-topic / per-chapter status pills on /lessons (Not started / In progress / Due / Mastered) | Complete |
+| CI/CD: GitHub Actions prod-deploy workflow (build → upload → SSH deploy → smoke test → auto-rollback) | Complete |
+| Preflight check — blocks deploy if any tracked file is modified-not-committed or untracked at critical paths | Complete |
+| Smoke-test script — 9 critical endpoints with expected status codes, exits non-zero on first failure | Complete |
+| Auto-versioned service worker — postbuild hook bakes git short SHA + date into the SW cache name | Complete |
+| Server-side deploy script — `git reset --hard` (not `pull`), tags previous image for rollback, polls API health | Complete |
 | Refresh token family tracking (stolen-token detection) | Complete |
 | Voice history persistence (Redis, 7-day TTL) | Complete |
 | Push notifications (VAPID, Web Push — revision + study reminders) | Complete |

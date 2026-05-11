@@ -1,0 +1,105 @@
+name: Production Deploy
+
+# Manual trigger only. Set push trigger after the first successful manual run.
+on:
+  workflow_dispatch:
+    inputs:
+      skip_smoke_test:
+        description: "Skip the post-deploy smoke test (emergency only)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: prod-deploy
+  cancel-in-progress: false  # Never cancel a prod deploy mid-flight
+
+jobs:
+  # ── Job 1: Preflight ──────────────────────────────────────────────────
+  preflight:
+    name: Preflight checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block deploy if critical files are untracked or modified
+        run: bash scripts/preflight-check.sh
+
+  # ── Job 2: Build frontend in CI (clean env, plenty of RAM) ────────────
+  build-frontend:
+    name: Build frontend
+    needs: preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ai-learning-frontend/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ai-learning-frontend/frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Build (auto-bumps SW cache name via postbuild)
+        working-directory: ai-learning-frontend/frontend
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: ai-learning-frontend/frontend/dist
+          retention-days: 7
+
+  # ── Job 3: Deploy ─────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to production
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download frontend dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ./dist
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.PROD_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload frontend dist to server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            ./dist/ \
+            ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/stellar-dist/
+
+      - name: Run server-side deploy script
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} \
+            'bash -s' < scripts/prod-deploy.sh
+
+      - name: Smoke test
+        if: ${{ !inputs.skip_smoke_test }}
+        run: bash scripts/smoke-test.sh https://stellaredu.in
+
+      - name: Auto-rollback on failure
+        if: failure()
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} \
+            'bash -s' < scripts/prod-rollback.sh
+
+      - name: Done
+        run: |
+          echo "============================================"
+          echo " Production deploy complete"
+          echo " URL: https://stellaredu.in"
+          echo " Commit: ${{ github.sha }}"
+          echo "============================================"

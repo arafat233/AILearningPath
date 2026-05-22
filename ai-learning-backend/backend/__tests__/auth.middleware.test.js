@@ -85,12 +85,11 @@ describe("auth middleware", () => {
   });
 
   test("token issued before pwdChangedAt → 401 Password changed", async () => {
-    const issuedAt = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
-    const token    = jwt.sign({ id: "user1", jti: "xyz", iat: issuedAt }, SECRET, { expiresIn: "1d" });
-    const future   = new Date(Date.now() - 1800 * 1000); // 30 min ago (after token issue)
-    mockFindById.mockReturnValue({
-      select: () => ({ lean: () => Promise.resolve({ pwdChangedAt: future }) }),
-    });
+    // pwdChangedAt is embedded in the JWT payload (no DB call) — a token whose
+    // iat predates pwdChangedAt was issued before the password reset → reject.
+    const issuedAt     = Math.floor(Date.now() / 1000) - 3600; // issued 1 hour ago
+    const pwdChangedAt = Math.floor(Date.now() / 1000) - 1800; // password changed 30 min ago
+    const token = jwt.sign({ id: "user1", jti: "xyz", iat: issuedAt, pwdChangedAt }, SECRET, { expiresIn: "1d" });
     const { req, res, next } = mockReqRes({ cookies: { token } });
     await auth(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);

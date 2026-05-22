@@ -107,7 +107,7 @@ export async function getVariantIndex(studentUserId) {
  *   - Returns isDynamic: false, uniquenessGuaranteed: false
  *
  * @param {string} studentUserId
- * @param {string} topicId         e.g. "ch5_s1_c2_t1"
+ * @param {string} topicId         e.g. "cbse_math10_ch5_nth_term"
  * @param {string} difficulty      "easy" | "medium" | "hard"
  * @param {string} assessmentId    e.g. "homework_2026-05-02" or "mock_paper_ch5"
  * @param {string} slotId          e.g. "q1" or "slot_easy_1" (distinguishes multiple questions of same type)

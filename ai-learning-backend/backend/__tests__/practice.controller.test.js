@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 const mockSessionGet       = jest.fn();
 const mockSessionSet       = jest.fn();
@@ -34,6 +35,7 @@ jest.unstable_mockModule("../utils/logger.js", () => ({
 }));
 
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   Attempt:      { create: mockAttemptCreate },
   ErrorMemory:  { findOneAndUpdate: mockErrorMemoryFAU },
   User:         { findById: mockUserFindById },

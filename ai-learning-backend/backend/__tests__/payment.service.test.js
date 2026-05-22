@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 const mockSessionSet  = jest.fn();
 const mockSessionGet  = jest.fn();
@@ -12,11 +13,12 @@ jest.unstable_mockModule("../utils/redisClient.js", () => ({
   sessionDel: mockSessionDel,
 }));
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   User: { findByIdAndUpdate: mockFindByIdAndUpdate, findById: mockFindById },
-  PaymentRecord: { create: jest.fn().mockResolvedValue({}) },
+  PaymentRecord: { create: jest.fn().mockResolvedValue({}), findOneAndUpdate: jest.fn().mockResolvedValue({}) },
 }));
 jest.unstable_mockModule("../utils/logger.js", () => ({
-  default: { info: jest.fn(), warn: jest.fn() },
+  default: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }));
 
 // Mock Razorpay constructor
@@ -25,6 +27,18 @@ jest.unstable_mockModule("razorpay", () => ({
   default: jest.fn().mockImplementation(() => ({
     orders: { create: mockOrdersCreate },
   })),
+}));
+
+// withTransaction() opens a Mongoose session; with no DB connection that hangs.
+// Reject startSession with a standalone-mode error → withTransaction falls back to fn(null).
+jest.unstable_mockModule("mongoose", () => ({
+  default: {
+    connection: {
+      startSession: jest.fn().mockRejectedValue(
+        Object.assign(new Error("Transactions are not supported in standalone mode"), { code: 20 }),
+      ),
+    },
+  },
 }));
 
 const { createOrder, verifyPayment, getSubscription, PLANS } = await import("../services/paymentService.js");
@@ -65,8 +79,10 @@ describe("verifyPayment", () => {
   }
 
   test("correct HMAC + valid Redis key → plan upgraded, Redis key deleted", async () => {
-    mockSessionGet.mockResolvedValue("pro");
+    mockSessionGet.mockResolvedValueOnce("pro").mockResolvedValue(null); // plan key, then no coupon
     mockFindByIdAndUpdate.mockResolvedValue({ name: "Alice", email: "a@b.com", plan: "pro", planExpiry: new Date(), isPaid: true });
+    // verifyPayment also reads the user back via User.findById(...).select(...)
+    mockFindById.mockReturnValue({ select: () => Promise.resolve({ name: "Alice", email: "a@b.com", plan: "pro", planExpiry: new Date(), isPaid: true, referredBy: null }) });
     const sig = makeSignature("order_abc", "pay_xyz");
     const result = await verifyPayment("user1", {
       razorpayOrderId: "order_abc", razorpayPaymentId: "pay_xyz", razorpaySignature: sig,

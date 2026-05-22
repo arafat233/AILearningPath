@@ -7,7 +7,8 @@ jest.unstable_mockModule("../utils/cache.js", () => ({
 }));
 
 jest.unstable_mockModule("../services/aiService.js", () => ({
-  getAIExplanation: jest.fn(async () => "Claude response"),
+  // getAIExplanation resolves to { text, tokens } — smartAIExplanation destructures it
+  getAIExplanation: jest.fn(async () => ({ text: "Claude response", tokens: 42 })),
   getStudyAdvice:   jest.fn(async () => "Study advice"),
 }));
 

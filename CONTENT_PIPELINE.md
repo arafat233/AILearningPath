@@ -305,21 +305,142 @@ node config/auditCoverage.mjs {Subject} --missing-only   # gaps only
 
 ---
 
-## Phase 9 — Frontend Navigation
+## Phase 8b — Math Content Completeness Checklist (MANDATORY for any Math grade/board)
 
-**What:** Make the new subject accessible to students from the navigation.
+**Why this exists:** the generic coverage audit (Phase 8) only checks that topics exist and have ≥4 questions. That isn't enough for Math: a Math topic without `derivation`, `shortcuts_and_tricks`, `edge_cases`, or `svg_diagrams` will render a half-empty Study page in Deep mode and looks broken to students. The checklist below is the **hard gate** for every Math grade × board combination.
 
-**Check these places:**
+**The benchmark is CBSE Class 10 Math** — every Math grade we ship (CBSE 1–12, ICSE 1–12, SSC, State Boards, IB, anything future) must clear the same bar.
 
-1. **Subject selector** on the NCERT chapters page — does the new subject appear in the dropdown?
-2. **Practice page** subject filter — does the new subject appear?
-3. **Dashboard** subject tiles — add the subject if it should appear on the student dashboard
-4. **Admin → Topics** — verify the topic list shows entries for the new subject
+### What "passes the checklist" means
 
-**Where to look:**
-- Subject list: check any `SUBJECTS` or `subjects` constant in `frontend/src/`
-- Nav: check `frontend/src/components/` for subject dropdowns
-- Practice filter: `frontend/src/pages/Practice.jsx` or similar
+Each topic in `NcertTopicContent` must have all 14 of these populated (non-empty):
+
+**Top-level (2):**
+1. `key_formulas` — array of formulas
+2. `prerequisite_knowledge` — array of prerequisite concept names
+
+**`teaching_content` (11):**
+3. `intuition` — object with at least `elevator_pitch` (also `hook`, `real_world_anchors`, `the_pivot_idea`, `wrong_intuitions_to_replace` if Deep mode is to render fully)
+4. `derivation` — proof / why-it-works walkthrough (claim → proof → example)
+5. `worked_example` — object/array of solved examples with `steps`
+6. `visual_description` — prose description of diagrams
+7. `svg_diagrams` — array of `{id, title, svg}` (at least 1)
+8. `common_misconceptions` — array of `{wrong_idea, correction}` (at least 1)
+9. `shortcuts_and_tricks` — array of `{shortcut, rule, example, when_to_use}` (at least 1)
+10. `when_to_use_this_method` — object with "use this when" + "use other when" arrays
+11. `edge_cases` — array of `{case, value, reasoning, where_it_appears}` (at least 1)
+12. `key_takeaway` — single-paragraph summary
+13. `video_script_hooks` — object (for AI video generation)
+
+**Practice (1):**
+14. ≥ 1 `Question` doc whose `topicId` matches
+
+### Running the checklist
+
+```bash
+# Audit a known board/grade
+npm run audit:math --board=CBSE --grade=10
+npm run audit:math --board=ICSE --grade=10
+npm run audit:math --board=CBSE --grade=7
+
+# Audit a custom topicId pattern (e.g. for a new board)
+node config/auditMathChecklist.mjs --prefix='^ssc10_'
+
+# Detailed per-topic breakdown
+node config/auditMathChecklist.mjs --board=ICSE --grade=10 --verbose
+```
+
+Exit code `0` = pass, `1` = at least one topic missing one or more fields. Plug this into CI to refuse PRs that ship a Math grade with gaps.
+
+### What gates this enforces
+
+| Stage | Gate |
+|---|---|
+| Adding a new Math grade for an existing board | Checklist must pass before merging |
+| Adding Math content for a brand-new board (SSC, IB, State Board) | Checklist must pass for every grade you ship; partial shipping not allowed |
+| Patching teaching content | Re-run the checklist after every patch — never assume a field exists |
+| Production release | CI runs the audit; build fails if any topic fails any check |
+
+### Why we don't lower the bar
+
+The checklist mirrors what `NcertTopicView.jsx` actually renders. Lower it and the UI shows blank sections, which look like bugs to students. Every check on this list maps to a real on-screen section described in the "Quick vs Deep" content guide.
+
+---
+
+## Phase 9 — Frontend Wiring (CRITICAL — do not skip)
+
+**What:** Wire the new subject into the Lessons page so students can actually reach the topics.
+
+### Step 9a — Lessons.jsx topic-grouped view (REQUIRED for every subject with NcertTopicContent)
+
+File: `frontend/src/pages/Lessons.jsx`
+
+The Lessons page has two rendering paths for the "Textbook Chapters" tab:
+- **Topic-grouped path** (Science, SST, English): fetches `listNcertTopics(undefined, "Subject")`, groups by `chapterNumber`, renders `TopicsChapterCard` with individual topic "Study →" links → navigates to `/ncert/topics/:topicId` → NcertTopicView
+- **Legacy chapter path** (Math, Hindi): fetches `listNcertChapters`, renders `ChapterCard` → navigates to `/ncert/chapters/:chapterId` → NcertChapterView (no topic drill-down)
+
+**Every subject that has NcertTopicContent seeds MUST use the topic-grouped path.** If you skip this, the 35/55/N topics and all their questions are in the DB but completely unreachable from the UI. This mistake was made for English and cost a full extra session to fix.
+
+**Checklist for adding a new subject to the topic-grouped path:**
+
+1. Add a `SUBJECT_CHAPTER_TITLES` constant (map of chapterNumber → title string)
+2. Add a `SubjectChapterCard` alias:
+   ```js
+   const HindiChapterCard = (props) => (
+     <TopicsChapterCard {...props} color="#FF3B30" titleMap={HINDI_CHAPTER_TITLES} />
+   );
+   ```
+3. Add state: `const [hindiTopics, setHindiTopics] = useState([]);`
+4. Add fetch in `useEffect` Promise.all:
+   ```js
+   activeSubject === "Hindi"
+     ? listNcertTopics(undefined, "Hindi").catch(() => ({ data: { data: [] } }))
+     : Promise.resolve({ data: { data: [] } }),
+   ```
+5. Add to `.then()` destructure: `setHindiTopics(hindi.data?.data ?? []);`
+6. Add `useMemo` to group by chapterNumber (copy the `sstChapterGroups` pattern)
+7. Add a render branch before the generic fallback:
+   ```jsx
+   ) : activeSubject === "Hindi" ? (
+     hindiChapterGroups.length === 0 ? <EmptyCard /> : (
+       <div className="flex flex-col gap-2.5">
+         {hindiChapterGroups.map((g) => (
+           <HindiChapterCard key={g.chapterNumber} chapterNumber={g.chapterNumber} topics={g.topics}
+             onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
+             onPractice={() => navigate("/practice", { state: { mixTopics: g.topics.map(t => t.topicId), autoStart: true } })}
+           />
+         ))}
+       </div>
+     )
+   ```
+
+### Step 9b — NcertTopicView subject detection
+
+File: `frontend/src/pages/NcertTopicView.jsx`
+
+NcertTopicView has two rendering paths based on the topicId prefix:
+- `isSci` = topicId starts with `sci_` → Science path (flat strings, shows diagram)
+- `isSciLike = isSci || isEng` (topicId starts with `eng_`) → flat string path, no diagram
+- Otherwise → Math path (nested intuition object)
+
+**If the new subject stores NcertTopicContent as flat strings** (same as Science/English), add its prefix to `isSciLike`:
+```js
+const isEngTopicId = id => (id || "").startsWith("eng_");
+const isHindiTopicId = id => (id || "").startsWith("hin_") || (id || "").startsWith("hindi_");
+// then:
+const isSciLike = isSci || isEng || isHindi;
+```
+
+Also update the `useEffect` subject detection so siblings are fetched correctly:
+```js
+const subject = isSci ? "Science" : isEng ? "English" : isHindi ? "Hindi" : "Mathematics";
+```
+
+### Step 9c — Other navigation checks
+
+- **Subject selector**: `SUBJECTS` array in `Lessons.jsx` — subject should already be listed if you did Phase 1
+- **Practice page** subject filter — verify the new subject appears
+- **Admin → Topics** — verify topic list shows entries for the new subject
 
 ---
 
@@ -449,7 +570,18 @@ backend/config/
 [ ] 4. Run Phase 6 RAG build
 [ ] 5. Create seed{Subject}All.js convenience runner + add npm scripts to package.json
 [ ] 6. Run: npm run audit:coverage {Subject} → must show ✅ FULLY COVERED
-[ ] 7. Check frontend navigation — subject appears in selectors
+[ ] 7. *** FRONTEND WIRING — Phase 9a (Lessons.jsx topic-grouped path) ***
+        - Add SUBJECT_CHAPTER_TITLES constant
+        - Add SubjectChapterCard alias
+        - Add state + fetch in useEffect Promise.all
+        - Add useMemo groupBy chapterNumber
+        - Add render branch in Textbook Chapters section
+        - TEST: go to Lessons → click subject tab → chapters expand → topics visible → click Study → NcertTopicView loads
+[ ] 7b. *** FRONTEND WIRING — Phase 9b (NcertTopicView subject detection) ***
+        - Add isSubjectTopicId helper
+        - Add subject prefix to isSciLike (if flat-string content format)
+        - Update useEffect subject detection for sibling fetch
+        - TEST: open /ncert/topics/{subject}_ch1_xxx → content renders (not blank page)
 [ ] 8. Verify admin panel + student topic pages
 [ ] 9. Update BLUEPRINT.md with new seed file counts and npm scripts
 [10] Commit: "Feat: add {Subject} Class {N} — {N} topics, {N} diagrams, {N} questions"

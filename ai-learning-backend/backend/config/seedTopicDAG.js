@@ -11,6 +11,13 @@
  * These are separate from the broad chapter-level Topic documents (e.g. "Real Numbers").
  * Safe to re-run — upserts on { topicId }.
  *
+ * ⚠️  STALE FOR CBSE CLASS 10 (2026-05): CBSE 10 topicIds were re-keyed from
+ *     ch{N}_s{S}_c{C}_t{T} → cbse_math10_* by config/migrateCbseMath10TopicIds.mjs.
+ *     The source recommender_prerequisites.json still holds the OLD ch* ids, so
+ *     re-running this script would INSERT duplicate stale-id Topic nodes.
+ *     Do NOT re-run for CBSE 10 until that JSON is regenerated with cbse_math10_* ids.
+ *     The live DAG is already migrated; seedCbseMath9TopicDAG.js is the new-style template.
+ *
  * Usage:
  *   cd ai-learning-backend/backend
  *   node config/seedTopicDAG.js

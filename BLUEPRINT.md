@@ -1608,20 +1608,18 @@ npm run seed:hindi-questions-c         ← Hindi questions — Kritika Ch27–29
 npm run seed:hindi-questions-d         ← Hindi questions — top-up to ≥4 Qs/chapter (42 Qs; total 129 Qs)
 npm run seed:hindi-topic-dag           ← Hindi Topic prerequisite DAG (32 nodes, all level 0)
 npm run seed:hindi-all                 ← convenience: curriculum + NcertChapters + content A/B/C + questions A/B/C/D + DAG
-npm run seed:math9-curriculum          ← Class 9 Math Chapter model (8 chapters, Ganita Manjari NCERT 2026)
-npm run seed:math9-ncert-chapters      ← Class 9 Math NcertChapters bridge (8 chapters, chapterId: math9_ch1…)
-npm run seed:math9-content             ← Class 9 Math NcertTopicContent v1 (8 topics, flat format — superseded by v2)
-npm run seed:math9-questions-a         ← Class 9 Math MCQs v1 ch1–ch4 (20 questions — superseded by v2)
-npm run seed:math9-questions-b         ← Class 9 Math MCQs v1 ch5–ch8 (20 questions — superseded by v2)
-npm run seed:math9-topic-dag           ← Class 9 Math Topic DAG (8 nodes, prerequisite links)
-npm run seed:math9-all                 ← convenience: all 6 Math9 v1 seeds in sequence
-npm run seed:math9-cleanup-v1          ← delete old v1 single-topic math9 NcertTopicContent (math9_ch1–ch8)
-npm run seed:math9-v2-content          ← Class 9 Math NcertTopicContent v2 (32 sub-topics, 4 per chapter)
-npm run seed:math9-v2-questions-a      ← Class 9 Math MCQs v2 ch1–ch2 (64 questions)
-npm run seed:math9-v2-questions-b      ← Class 9 Math MCQs v2 ch3–ch4 (44 questions)
-npm run seed:math9-v2-questions-c      ← Class 9 Math MCQs v2 ch5–ch6 (44 questions)
-npm run seed:math9-v2-questions-d      ← Class 9 Math MCQs v2 ch7–ch8 (48 questions)
-npm run seed:math9-v2-all              ← convenience: cleanup v1 + all 5 v2 seeds in sequence
+npm run seed:cbse-math9-cleanup        ← delete legacy math9_* docs (v1 + v2) — run once before the standardized seeds
+npm run seed:cbse-math9-content        ← Class 9 Math NcertTopicContent — standardized (32 sub-topics, 14-point bar, cbse_math9_* IDs)
+npm run seed:cbse-math9-questions-a    ← Class 9 Math Layer A — standard MCQs (320 questions, 10/sub-topic)
+npm run seed:cbse-math9-questions-b    ← Class 9 Math Layer B — board-style MCQs (128 questions, 4/sub-topic)
+npm run seed:cbse-math9-questions-c    ← Class 9 Math Layer C — PYQ/exemplar (64 questions, 2/sub-topic)
+npm run seed:cbse-math9-topic-dag      ← Class 9 Math Topic DAG (32 nodes, within-chapter prerequisite chains)
+npm run seed:cbse-math9-all            ← convenience: content + questions A/B/C + TopicDAG (512 questions, 32 DAG nodes)
+npm run rag:build-topic-content        ← index standardized NcertTopicContent → NcertChunk (RAG; cbse_math9_* → 301 chunks)
+npm run audit:math:cbse9               ← audit Class 9 Math against the 14-point checklist (must show 32/32 PASS)
+npm run migrate:cbse-math10-rekey      ← re-key CBSE Class 10 Math topicIds ch{N}_s{S}_c{C}_t{T} → cbse_math10_* (pass --dry to preview)
+npm run finalize:cbse-math10-rekey     ← finalize re-key: merge stray topics + re-key ch* ids in services/seeds/tests (--dry to preview)
+npm run audit:math:cbse10              ← audit CBSE Class 10 Math against the 14-point checklist (must show 54/54 PASS)
 npm run audit:coverage:math9           ← audit Math9 coverage (Mathematics filter; must show ✅ FULLY COVERED)
 npm run seed:math7-curriculum          ← Class 7 Math Chapter model (15 chapters, Ganita Prakash Grade 7 NCERT 2026)
 npm run seed:math7-ncert-chapters      ← Class 7 Math NcertChapters bridge (15 chapters, chapterId: math7_ch1…)
@@ -1889,9 +1887,10 @@ To activate push (not yet wired):
 | CBSE Class 10 Hindi curriculum (32 chapters — Kshitij/Sparsh/Kritika/Sanchayan, seed) | ✅ Complete |
 | Hindi full content pipeline — NcertChapters + NcertTopicContent (32 topics, in Hindi) + 129 MCQs + TopicDAG (32 nodes) | ✅ Complete |
 | Hindi UI — HindiSubBar (4 textbook tabs), HindiChapterCard, NcertTopicView Hindi routing (isSciLike pattern) | ✅ Complete |
-| CBSE Class 9 Mathematics — "Ganita Manjari" (NCERT 2026) — 8 chapters, seed pipeline complete | ✅ Complete |
-| Math9 content pipeline v2 — 32 sub-topics (4/chapter) + 200 MCQs + TopicDAG (8 nodes); v1 single-topics cleaned up | ✅ Complete |
-| Math9 UI — MathChapterCard in Lessons.jsx (grade-filtered via topicId prefix), NcertTopicView isMath9 routing (isSciLike) | ✅ Complete |
+| CBSE Class 9 Mathematics — standardized pilot ("Ganita Manjari" NCERT 2026, 8 chapters / 32 sub-topics) — passes 14-point checklist (32/32) | ✅ Complete |
+| Math9 content — NcertTopicContent (32 sub-topics, Class-10-density teaching content + inline SVG) + 512 questions (Layer A/B/C = 320/128/64); legacy math9_* v1+v2 docs cleaned up | ✅ Complete |
+| Math9 wiring — Lessons.jsx + NcertTopicView cbse_math9 routing (rich Class-10 renderer), auditCoverage EXPECTED, TopicDAG (32 nodes), RAG index via buildRagFromTopicContent (301 chunks) | ✅ Complete |
+| CBSE Class 10 Mathematics — re-keyed to standardized cbse_math10_* IDs (54 sub-topics): migrateCbseMath10TopicIds.mjs (DB) + finalizeCbseMath10Rekey.mjs (2 stray topics merged + 193 hard-coded ch* ids re-keyed in questionTemplateService/seeds/tests); audit/coverage/Lessons.jsx updated; 54/54 PASS | ✅ Complete |
 | CBSE Class 7 Mathematics — "Ganita Prakash Grade 7" (NCERT 2026) — 15 chapters, seed pipeline complete | ✅ Complete |
 | Math7 content pipeline — Chapter model + NcertChapters + NcertTopicContent (15 topics) + 75 MCQs + TopicDAG (15 nodes) | ✅ Complete |
 | Math7 UI — grade "7" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath7 routing (isSciLike) | ✅ Complete |

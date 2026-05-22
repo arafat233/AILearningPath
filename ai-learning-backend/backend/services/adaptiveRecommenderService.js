@@ -155,7 +155,7 @@ async function resolveRouting(target, topicId, tm, reason, excludeIds, userId = 
     if (q) return { action: "serve_question", question: stripQuestion(q), reason };
   }
 
-  // Teaching content reference  (e.g. "ch1_s1_c1_t1:concept_video")
+  // Teaching content reference  (e.g. "cbse_math10_ch1_euclid_division_lemma:concept_video")
   if (target?.includes(":")) {
     return { action: "serve_teaching", target, reason };
   }

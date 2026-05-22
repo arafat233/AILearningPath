@@ -74,7 +74,7 @@ function buildResult(templateId, topicId, difficulty, questionType, marks, quest
 // CH1 — HCF of two numbers
 const T_CH1_HCF = {
   templateId: "t_ch1_hcf_v1",
-  topicId:    "ch1_s2_c1_t2",
+  topicId:    "cbse_math10_ch1_lcm_and_hcf",
   difficulty: "easy",
   questionType: "numeric",
   marks: 1,
@@ -89,9 +89,9 @@ const T_CH1_HCF = {
       `Find the HCF of ${a} and ${b}.`,
       correct,
       [
-        { value: lcm(a, b),               misc: "ch1_s2_c1_t2_misc_1" }, // gave LCM
-        { value: a + b,                   misc: "ch1_s2_c1_t2_misc_2" }, // added
-        { value: Math.abs(a - b),         misc: "ch1_s2_c1_t2_misc_3" }, // subtracted
+        { value: lcm(a, b),               misc: "cbse_math10_ch1_lcm_and_hcf_misc_1" }, // gave LCM
+        { value: a + b,                   misc: "cbse_math10_ch1_lcm_and_hcf_misc_2" }, // added
+        { value: Math.abs(a - b),         misc: "cbse_math10_ch1_lcm_and_hcf_misc_3" }, // subtracted
       ],
       { a, b }
     );
@@ -101,7 +101,7 @@ const T_CH1_HCF = {
 // CH1 — LCM of two numbers (medium)
 const T_CH1_LCM = {
   templateId: "t_ch1_lcm_v1",
-  topicId:    "ch1_s2_c1_t2",
+  topicId:    "cbse_math10_ch1_lcm_and_hcf",
   difficulty: "medium",
   questionType: "numeric",
   marks: 1,
@@ -116,9 +116,9 @@ const T_CH1_LCM = {
       `Find the LCM of ${a} and ${b}.`,
       correct,
       [
-        { value: gcd(a, b),         misc: "ch1_s2_c1_t2_misc_1" }, // gave HCF
-        { value: a * b,             misc: "ch1_s2_c1_t2_misc_4" }, // just multiplied
-        { value: a + b,             misc: "ch1_s2_c1_t2_misc_2" },
+        { value: gcd(a, b),         misc: "cbse_math10_ch1_lcm_and_hcf_misc_1" }, // gave HCF
+        { value: a * b,             misc: "cbse_math10_ch1_lcm_and_hcf_misc_4" }, // just multiplied
+        { value: a + b,             misc: "cbse_math10_ch1_lcm_and_hcf_misc_2" },
       ],
       { a, b }
     );
@@ -128,7 +128,7 @@ const T_CH1_LCM = {
 // CH2 — Find smaller zero of quadratic (medium)
 const T_CH2_QUAD_ZEROS = {
   templateId: "t_ch2_quad_zeros_v1",
-  topicId:    "ch2_s3_c1_t1",
+  topicId:    "cbse_math10_ch2_zeroes_and_coefficients",
   difficulty: "medium",
   questionType: "numeric",
   marks: 1,
@@ -145,9 +145,9 @@ const T_CH2_QUAD_ZEROS = {
       `Find the smaller zero of the polynomial x² − ${sumZ}x + ${prodZ}.`,
       correct,
       [
-        { value: Math.max(z1, z2),  misc: "ch2_s3_c1_t1_misc_1" }, // larger zero
-        { value: sumZ,              misc: "ch2_s3_c1_t1_misc_2" }, // sum not root
-        { value: -correct,          misc: "ch2_s3_c1_t1_misc_3" }, // sign flipped
+        { value: Math.max(z1, z2),  misc: "cbse_math10_ch2_zeroes_and_coefficients_misc_1" }, // larger zero
+        { value: sumZ,              misc: "cbse_math10_ch2_zeroes_and_coefficients_misc_2" }, // sum not root
+        { value: -correct,          misc: "cbse_math10_ch2_zeroes_and_coefficients_misc_3" }, // sign flipped
       ],
       { z1, z2, sumZ, prodZ }
     );
@@ -157,7 +157,7 @@ const T_CH2_QUAD_ZEROS = {
 // CH4 — Discriminant (nature of roots)
 const T_CH4_DISCRIMINANT = {
   templateId: "t_ch4_discriminant_v1",
-  topicId:    "ch4_s3_c1_t1",
+  topicId:    "cbse_math10_ch4_discriminant_and_roots",
   difficulty: "easy",
   questionType: "mcq",
   marks: 1,
@@ -205,7 +205,7 @@ const T_CH4_DISCRIMINANT = {
 // CH5 — nth term of AP
 const T_CH5_NTH_TERM = {
   templateId: "t_ch5_nth_term_v1",
-  topicId:    "ch5_s1_c2_t1",
+  topicId:    "cbse_math10_ch5_nth_term",
   difficulty: "easy",
   questionType: "numeric",
   marks: 1,
@@ -220,9 +220,9 @@ const T_CH5_NTH_TERM = {
       `Find the ${n}th term of an AP with first term ${a} and common difference ${d}.`,
       correct,
       [
-        { value: a + n * d,        misc: "ch5_s1_c2_t1_misc_1" }, // off-by-one (used n not n-1)
-        { value: a * n + d,        misc: "ch5_s1_c2_t1_misc_2" }, // wrong operation
-        { value: n * d,            misc: "ch5_s1_c2_t1_misc_3" }, // forgot a
+        { value: a + n * d,        misc: "cbse_math10_ch5_nth_term_misc_1" }, // off-by-one (used n not n-1)
+        { value: a * n + d,        misc: "cbse_math10_ch5_nth_term_misc_2" }, // wrong operation
+        { value: n * d,            misc: "cbse_math10_ch5_nth_term_misc_3" }, // forgot a
       ],
       { a, d, n }
     );
@@ -232,7 +232,7 @@ const T_CH5_NTH_TERM = {
 // CH5 — Sum of n terms of AP (medium)
 const T_CH5_SUM = {
   templateId: "t_ch5_sum_v1",
-  topicId:    "ch5_s2_c1_t1",
+  topicId:    "cbse_math10_ch5_nth_term",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -247,9 +247,9 @@ const T_CH5_SUM = {
       `Find the sum of the first ${n} terms of an AP with first term ${a} and common difference ${d}.`,
       correct,
       [
-        { value: n * a + n * d,        misc: "ch5_s2_c1_t1_misc_1" }, // forgot (n-1)
-        { value: (n / 2) * (a + n * d), misc: "ch5_s2_c1_t1_misc_2" }, // used wrong last term
-        { value: n * a,                 misc: "ch5_s2_c1_t1_misc_3" }, // ignored d
+        { value: n * a + n * d,        misc: "cbse_math10_ch5_nth_term_misc_1" }, // forgot (n-1)
+        { value: (n / 2) * (a + n * d), misc: "cbse_math10_ch5_nth_term_misc_2" }, // used wrong last term
+        { value: n * a,                 misc: "cbse_math10_ch5_nth_term_misc_3" }, // ignored d
       ],
       { a, d, n }
     );
@@ -259,7 +259,7 @@ const T_CH5_SUM = {
 // CH7 — Distance formula
 const T_CH7_DISTANCE = {
   templateId: "t_ch7_distance_v1",
-  topicId:    "ch7_s1_c1_t1",
+  topicId:    "cbse_math10_ch7_distance_formula",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -278,9 +278,9 @@ const T_CH7_DISTANCE = {
       `Find the distance between points P(${x1}, ${y1}) and Q(${x2}, ${y2}). (Round to 2 decimal places.)`,
       correct,
       [
-        { value: parseFloat((Math.abs(dx) + Math.abs(dy)).toFixed(2)), misc: "ch7_s1_c1_t1_misc_1" }, // Manhattan
-        { value: parseFloat(Math.sqrt(Math.abs(dx) + Math.abs(dy)).toFixed(2)), misc: "ch7_s1_c1_t1_misc_2" }, // forgot squares
-        { value: parseFloat((dx + dy).toFixed(2)), misc: "ch7_s1_c1_t1_misc_3" }, // no abs
+        { value: parseFloat((Math.abs(dx) + Math.abs(dy)).toFixed(2)), misc: "cbse_math10_ch7_distance_formula_misc_1" }, // Manhattan
+        { value: parseFloat(Math.sqrt(Math.abs(dx) + Math.abs(dy)).toFixed(2)), misc: "cbse_math10_ch7_distance_formula_misc_2" }, // forgot squares
+        { value: parseFloat((dx + dy).toFixed(2)), misc: "cbse_math10_ch7_distance_formula_misc_3" }, // no abs
       ],
       { x1, y1, x2, y2 }
     );
@@ -290,7 +290,7 @@ const T_CH7_DISTANCE = {
 // CH7 — Section formula (medium)
 const T_CH7_SECTION = {
   templateId: "t_ch7_section_v1",
-  topicId:    "ch7_s2_c1_t1",
+  topicId:    "cbse_math10_ch7_section_formula",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -306,9 +306,9 @@ const T_CH7_SECTION = {
       `A point P divides the segment joining A(${x1}, ${y1}) and B(${x2}, ${y2}) in the ratio ${m}:${nr}. Find the x-coordinate of P. (Round to 2 dp.)`,
       px,
       [
-        { value: parseFloat(((nr * x2 + m * x1) / (m + nr)).toFixed(2)), misc: "ch7_s2_c1_t1_misc_1" }, // swapped m and n
-        { value: parseFloat(((x1 + x2) / 2).toFixed(2)),                 misc: "ch7_s2_c1_t1_misc_2" }, // used midpoint
-        { value: parseFloat(((m * x1 + nr * x2) / (m + nr)).toFixed(2)), misc: "ch7_s2_c1_t1_misc_3" }, // swapped A and B
+        { value: parseFloat(((nr * x2 + m * x1) / (m + nr)).toFixed(2)), misc: "cbse_math10_ch7_section_formula_misc_1" }, // swapped m and n
+        { value: parseFloat(((x1 + x2) / 2).toFixed(2)),                 misc: "cbse_math10_ch7_section_formula_misc_2" }, // used midpoint
+        { value: parseFloat(((m * x1 + nr * x2) / (m + nr)).toFixed(2)), misc: "cbse_math10_ch7_section_formula_misc_3" }, // swapped A and B
       ],
       { x1, y1, x2, y2, m, n: nr }
     );
@@ -318,7 +318,7 @@ const T_CH7_SECTION = {
 // CH13 — Mean of grouped data (medium)
 const T_CH13_MEAN = {
   templateId: "t_ch13_mean_v1",
-  topicId:    "ch13_s1_c1_t1",
+  topicId:    "cbse_math10_ch13_mean_of_grouped_data",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -342,9 +342,9 @@ const T_CH13_MEAN = {
       `Find the mean of: ${clsLabels.join(", ")}. (Round to 2 dp.)`,
       correct,
       [
-        { value: parseFloat((mids.reduce((s, m) => s + m, 0) / nCls).toFixed(2)), misc: "ch13_s1_c1_t1_misc_1" }, // forgot freqs
-        { value: parseFloat((sumFX / nCls).toFixed(2)),                           misc: "ch13_s1_c1_t1_misc_2" }, // divided by n classes
-        { value: sumF,                                                             misc: "ch13_s1_c1_t1_misc_3" }, // returned total freq
+        { value: parseFloat((mids.reduce((s, m) => s + m, 0) / nCls).toFixed(2)), misc: "cbse_math10_ch13_mean_of_grouped_data_misc_1" }, // forgot freqs
+        { value: parseFloat((sumFX / nCls).toFixed(2)),                           misc: "cbse_math10_ch13_mean_of_grouped_data_misc_2" }, // divided by n classes
+        { value: sumF,                                                             misc: "cbse_math10_ch13_mean_of_grouped_data_misc_3" }, // returned total freq
       ],
       { classes: clsLabels, mids, freqs, sumF, sumFX }
     );
@@ -354,7 +354,7 @@ const T_CH13_MEAN = {
 // CH14 — Basic probability (easy)
 const T_CH14_PROBABILITY = {
   templateId: "t_ch14_prob_v1",
-  topicId:    "ch14_s1_c1_t1",
+  topicId:    "cbse_math10_ch14_probability_basics",
   difficulty: "easy",
   questionType: "numeric",
   marks: 1,
@@ -378,9 +378,9 @@ const T_CH14_PROBABILITY = {
       text,
       num, // answer = numerator (assuming denominator is specified in question)
       [
-        { value: den - num,       misc: "ch14_s1_c1_t1_misc_1" }, // complementary
-        { value: den,             misc: "ch14_s1_c1_t1_misc_2" }, // returned total
-        { value: num + 1,         misc: "ch14_s1_c1_t1_misc_3" }, // off-by-one
+        { value: den - num,       misc: "cbse_math10_ch14_probability_basics_misc_1" }, // complementary
+        { value: den,             misc: "cbse_math10_ch14_probability_basics_misc_2" }, // returned total
+        { value: num + 1,         misc: "cbse_math10_ch14_probability_basics_misc_3" }, // off-by-one
       ],
       { num, den }
     );
@@ -394,7 +394,7 @@ const T_CH14_PROBABILITY = {
 // CH3 — Substitution method (easy)
 const T_CH3_SUBST = {
   templateId: "t_ch3_subst_v1",
-  topicId:    "ch3_s1_c1_t2",
+  topicId:    "cbse_math10_ch3_consistency_of_pairs",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -411,9 +411,9 @@ const T_CH3_SUBST = {
       `Solve by substitution: ${a}x + ${b}y = ${c}. If x = ${x}, find y.`,
       y,
       [
-        { value: (c + a * x) / b,             misc: "ch3_s1_c1_t2_misc_1" }, // added instead of subtracted
-        { value: Math.round(c / b),            misc: "ch3_s1_c1_t2_misc_2" }, // ignored x term
-        { value: x,                            misc: "ch3_s1_c1_t2_misc_3" }, // returned x as y
+        { value: (c + a * x) / b,             misc: "cbse_math10_ch3_consistency_of_pairs_misc_1" }, // added instead of subtracted
+        { value: Math.round(c / b),            misc: "cbse_math10_ch3_consistency_of_pairs_misc_2" }, // ignored x term
+        { value: x,                            misc: "cbse_math10_ch3_consistency_of_pairs_misc_3" }, // returned x as y
       ],
       { a, b, c, x, y }
     );
@@ -423,7 +423,7 @@ const T_CH3_SUBST = {
 // CH3 — Elimination method (medium)
 const T_CH3_ELIM = {
   templateId: "t_ch3_elim_v1",
-  topicId:    "ch3_s2_c1_t1",
+  topicId:    "cbse_math10_ch3_substitution_method",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -442,9 +442,9 @@ const T_CH3_ELIM = {
       `Solve by elimination: ${a1}x + ${b1}y = ${c1}  and  ${a2}x + ${b2}y = ${c2}. Find x.`,
       xSol,
       [
-        { value: ySol,         misc: "ch3_s2_c1_t1_misc_1" }, // returned y instead of x
-        { value: xSol + ySol,  misc: "ch3_s2_c1_t1_misc_2" }, // added solutions
-        { value: c1 - c2,      misc: "ch3_s2_c1_t1_misc_3" }, // subtracted constants instead
+        { value: ySol,         misc: "cbse_math10_ch3_substitution_method_misc_1" }, // returned y instead of x
+        { value: xSol + ySol,  misc: "cbse_math10_ch3_substitution_method_misc_2" }, // added solutions
+        { value: c1 - c2,      misc: "cbse_math10_ch3_substitution_method_misc_3" }, // subtracted constants instead
       ],
       { a1, b1, c1, a2, b2, c2, xSol, ySol }
     );
@@ -454,7 +454,7 @@ const T_CH3_ELIM = {
 // CH3 — Word problem: two-number sum/difference (medium)
 const T_CH3_WORDPROBLEM = {
   templateId: "t_ch3_wordproblem_v1",
-  topicId:    "ch3_s3_c1_t1",
+  topicId:    "cbse_math10_ch3_elimination_method",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -469,9 +469,9 @@ const T_CH3_WORDPROBLEM = {
       `Two numbers sum to ${s} and their difference is ${d}. Find the larger number.`,
       large,
       [
-        { value: small,            misc: "ch3_s3_c1_t1_misc_1" }, // returned smaller
-        { value: s,                misc: "ch3_s3_c1_t1_misc_2" }, // returned sum
-        { value: (s - d) / 2,      misc: "ch3_s3_c1_t1_misc_3" }, // formula for smaller applied to larger slot
+        { value: small,            misc: "cbse_math10_ch3_elimination_method_misc_1" }, // returned smaller
+        { value: s,                misc: "cbse_math10_ch3_elimination_method_misc_2" }, // returned sum
+        { value: (s - d) / 2,      misc: "cbse_math10_ch3_elimination_method_misc_3" }, // formula for smaller applied to larger slot
       ],
       { s, d, large, small }
     );
@@ -485,7 +485,7 @@ const T_CH3_WORDPROBLEM = {
 // CH6 — Basic Proportionality Theorem (easy)
 const T_CH6_BPT = {
   templateId: "t_ch6_bpt_v1",
-  topicId:    "ch6_s1_c1_t1",
+  topicId:    "cbse_math10_ch6_similar_figures",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -501,9 +501,9 @@ const T_CH6_BPT = {
       `In △ABC, DE ∥ BC. If AD = ${ad} cm, DB = ${db} cm and AE = ${ae} cm, find EC.`,
       ec,
       [
-        { value: ae,                            misc: "ch6_s1_c1_t1_misc_1" }, // returned AE
-        { value: Math.round((ae * ad) / db),    misc: "ch6_s1_c1_t1_misc_2" }, // inverted ratio
-        { value: ad + ae,                       misc: "ch6_s1_c1_t1_misc_3" }, // added sides
+        { value: ae,                            misc: "cbse_math10_ch6_similar_figures_misc_1" }, // returned AE
+        { value: Math.round((ae * ad) / db),    misc: "cbse_math10_ch6_similar_figures_misc_2" }, // inverted ratio
+        { value: ad + ae,                       misc: "cbse_math10_ch6_similar_figures_misc_3" }, // added sides
       ],
       { ad, db, ae, ec }
     );
@@ -513,7 +513,7 @@ const T_CH6_BPT = {
 // CH6 — Similar triangles: find missing side (medium)
 const T_CH6_SIMILARITY = {
   templateId: "t_ch6_similarity_v1",
-  topicId:    "ch6_s2_c1_t1",
+  topicId:    "cbse_math10_ch6_basic_proportionality",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -529,9 +529,9 @@ const T_CH6_SIMILARITY = {
       `△ABC ~ △PQR. AB = ${ab} cm, PQ = ${pq} cm, BC = ${bc} cm. Find QR.`,
       qr,
       [
-        { value: bc * 2 / scale,      misc: "ch6_s2_c1_t1_misc_1" }, // inverted ratio
-        { value: bc + (pq - ab),      misc: "ch6_s2_c1_t1_misc_2" }, // added difference
-        { value: bc,                  misc: "ch6_s2_c1_t1_misc_3" }, // returned BC as QR
+        { value: bc * 2 / scale,      misc: "cbse_math10_ch6_basic_proportionality_misc_1" }, // inverted ratio
+        { value: bc + (pq - ab),      misc: "cbse_math10_ch6_basic_proportionality_misc_2" }, // added difference
+        { value: bc,                  misc: "cbse_math10_ch6_basic_proportionality_misc_3" }, // returned BC as QR
       ],
       { ab, pq, bc, qr }
     );
@@ -541,7 +541,7 @@ const T_CH6_SIMILARITY = {
 // CH6 — Areas of similar triangles (medium)
 const T_CH6_AREAS_SIMILAR = {
   templateId: "t_ch6_areas_v1",
-  topicId:    "ch6_s3_c1_t1",
+  topicId:    "cbse_math10_ch6_similarity_criteria",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -557,9 +557,9 @@ const T_CH6_AREAS_SIMILAR = {
       `The areas of two similar triangles are in ratio ${a1}:${a2}. If the corresponding side of the first triangle is ${s1} cm, find the corresponding side of the second.`,
       s2,
       [
-        { value: s1 * a2 / a1,     misc: "ch6_s3_c1_t1_misc_1" }, // used area ratio directly on side
-        { value: s1 + (s2 - s1),   misc: "ch6_s3_c1_t1_misc_2" },
-        { value: s1 * p / q,       misc: "ch6_s3_c1_t1_misc_3" }, // inverted ratio
+        { value: s1 * a2 / a1,     misc: "cbse_math10_ch6_similarity_criteria_misc_1" }, // used area ratio directly on side
+        { value: s1 + (s2 - s1),   misc: "cbse_math10_ch6_similarity_criteria_misc_2" },
+        { value: s1 * p / q,       misc: "cbse_math10_ch6_similarity_criteria_misc_3" }, // inverted ratio
       ],
       { areaRatio: `${a1}:${a2}`, sideRatio: `${p}:${q}`, s1, s2 }
     );
@@ -569,7 +569,7 @@ const T_CH6_AREAS_SIMILAR = {
 // CH6 — Pythagoras theorem (easy)
 const T_CH6_PYTHAGORAS = {
   templateId: "t_ch6_pythagoras_v1",
-  topicId:    "ch6_s4_c1_t1",
+  topicId:    "cbse_math10_ch6_pythagoras_theorem",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -586,9 +586,9 @@ const T_CH6_PYTHAGORAS = {
         `In a right triangle, the two legs are ${a} cm and ${b} cm. Find the hypotenuse.`,
         h,
         [
-          { value: a + b,                         misc: "ch6_s4_c1_t1_misc_1" }, // added legs
-          { value: parseFloat(Math.sqrt(a + b).toFixed(2)), misc: "ch6_s4_c1_t1_misc_2" }, // forgot squares
-          { value: Math.abs(a - b),               misc: "ch6_s4_c1_t1_misc_3" }, // subtracted
+          { value: a + b,                         misc: "cbse_math10_ch6_pythagoras_theorem_misc_1" }, // added legs
+          { value: parseFloat(Math.sqrt(a + b).toFixed(2)), misc: "cbse_math10_ch6_pythagoras_theorem_misc_2" }, // forgot squares
+          { value: Math.abs(a - b),               misc: "cbse_math10_ch6_pythagoras_theorem_misc_3" }, // subtracted
         ],
         { a, b, h }
       );
@@ -598,9 +598,9 @@ const T_CH6_PYTHAGORAS = {
         `In a right triangle, hypotenuse = ${h} cm and one leg = ${a} cm. Find the other leg.`,
         b,
         [
-          { value: h - a,                         misc: "ch6_s4_c1_t1_misc_1" }, // subtracted without squares
-          { value: parseFloat(Math.sqrt(h + a).toFixed(2)), misc: "ch6_s4_c1_t1_misc_2" }, // wrong formula
-          { value: h,                             misc: "ch6_s4_c1_t1_misc_3" }, // returned hyp
+          { value: h - a,                         misc: "cbse_math10_ch6_pythagoras_theorem_misc_1" }, // subtracted without squares
+          { value: parseFloat(Math.sqrt(h + a).toFixed(2)), misc: "cbse_math10_ch6_pythagoras_theorem_misc_2" }, // wrong formula
+          { value: h,                             misc: "cbse_math10_ch6_pythagoras_theorem_misc_3" }, // returned hyp
         ],
         { a, b, h }
       );
@@ -615,7 +615,7 @@ const T_CH6_PYTHAGORAS = {
 // CH8 — Trig ratios from right triangle (easy)
 const T_CH8_TRIG_RATIO = {
   templateId: "t_ch8_trig_ratio_v1",
-  topicId:    "ch8_s1_c1_t1",
+  topicId:    "cbse_math10_ch8_trigonometric_ratios",
   difficulty: "easy",
   questionType: "numeric",
   marks: 1,
@@ -641,9 +641,9 @@ const T_CH8_TRIG_RATIO = {
       `In right △ABC, opposite = ${opp}, adjacent = ${adj}, hypotenuse = ${hyp}. Find ${qText}.`,
       correct,
       [
-        { value: wrong1, misc: "ch8_s1_c1_t1_misc_1" },
-        { value: wrong2, misc: "ch8_s1_c1_t1_misc_2" },
-        { value: opp + adj, misc: "ch8_s1_c1_t1_misc_3" },
+        { value: wrong1, misc: "cbse_math10_ch8_trigonometric_ratios_misc_1" },
+        { value: wrong2, misc: "cbse_math10_ch8_trigonometric_ratios_misc_2" },
+        { value: opp + adj, misc: "cbse_math10_ch8_trigonometric_ratios_misc_3" },
       ],
       { opp, adj, hyp, ask }
     );
@@ -653,7 +653,7 @@ const T_CH8_TRIG_RATIO = {
 // CH8 — Complementary angles (easy)
 const T_CH8_COMPLEMENTARY = {
   templateId: "t_ch8_complementary_v1",
-  topicId:    "ch8_s3_c1_t1",
+  topicId:    "cbse_math10_ch8_trigonometric_identities",
   difficulty: "easy",
   questionType: "numeric",
   marks: 1,
@@ -667,9 +667,9 @@ const T_CH8_COMPLEMENTARY = {
       `If sin(${alpha}θ) = cos(θ − ${beta}°), find θ.`,
       theta,
       [
-        { value: 90 - theta,     misc: "ch8_s3_c1_t1_misc_1" },
-        { value: (90 + beta) / alpha, misc: "ch8_s3_c1_t1_misc_2" }, // forgot +1 in denominator
-        { value: 45,             misc: "ch8_s3_c1_t1_misc_3" },
+        { value: 90 - theta,     misc: "cbse_math10_ch8_trigonometric_identities_misc_1" },
+        { value: (90 + beta) / alpha, misc: "cbse_math10_ch8_trigonometric_identities_misc_2" }, // forgot +1 in denominator
+        { value: 45,             misc: "cbse_math10_ch8_trigonometric_identities_misc_3" },
       ],
       { alpha, beta, theta }
     );
@@ -679,7 +679,7 @@ const T_CH8_COMPLEMENTARY = {
 // CH8 — Trig identity: tan + cot (medium)
 const T_CH8_IDENTITY = {
   templateId: "t_ch8_identity_v1",
-  topicId:    "ch8_s2_c1_t1",
+  topicId:    "cbse_math10_ch8_ratios_of_special_angles",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -693,9 +693,9 @@ const T_CH8_IDENTITY = {
       `If tan θ + cot θ = ${k}, find tan²θ + cot²θ.`,
       correct,
       [
-        { value: k * k,          misc: "ch8_s2_c1_t1_misc_1" }, // forgot −2
-        { value: k * k + 2,      misc: "ch8_s2_c1_t1_misc_2" }, // added 2 instead
-        { value: k - 2,          misc: "ch8_s2_c1_t1_misc_3" }, // confused powers
+        { value: k * k,          misc: "cbse_math10_ch8_ratios_of_special_angles_misc_1" }, // forgot −2
+        { value: k * k + 2,      misc: "cbse_math10_ch8_ratios_of_special_angles_misc_2" }, // added 2 instead
+        { value: k - 2,          misc: "cbse_math10_ch8_ratios_of_special_angles_misc_3" }, // confused powers
       ],
       { k }
     );
@@ -709,7 +709,7 @@ const T_CH8_IDENTITY = {
 // CH9 — Angle of elevation 45° (easy)
 const T_CH9_ELEVATION_45 = {
   templateId: "t_ch9_elevation_45_v1",
-  topicId:    "ch9_s1_c1_t1",
+  topicId:    "cbse_math10_ch9_single_triangle_heights",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -722,9 +722,9 @@ const T_CH9_ELEVATION_45 = {
       `From a point ${dist} m away from the base of a vertical tower, the angle of elevation of the top is 45°. Find the height of the tower.`,
       dist,
       [
-        { value: dist / 2,       misc: "ch9_s1_c1_t1_misc_1" }, // used sin 45 without hyp
-        { value: dist * 2,       misc: "ch9_s1_c1_t1_misc_2" }, // doubled distance
-        { value: dist + 45,      misc: "ch9_s1_c1_t1_misc_3" }, // added angle
+        { value: dist / 2,       misc: "cbse_math10_ch9_single_triangle_heights_misc_1" }, // used sin 45 without hyp
+        { value: dist * 2,       misc: "cbse_math10_ch9_single_triangle_heights_misc_2" }, // doubled distance
+        { value: dist + 45,      misc: "cbse_math10_ch9_single_triangle_heights_misc_3" }, // added angle
       ],
       { dist, angle: 45 }
     );
@@ -734,7 +734,7 @@ const T_CH9_ELEVATION_45 = {
 // CH9 — Angle of elevation 30° or 60° (medium)
 const T_CH9_ELEVATION_30_60 = {
   templateId: "t_ch9_elevation_30_60_v1",
-  topicId:    "ch9_s1_c1_t1",
+  topicId:    "cbse_math10_ch9_single_triangle_heights",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -753,9 +753,9 @@ const T_CH9_ELEVATION_30_60 = {
         `From a point ${dist} m away from the base of a tower, the angle of elevation is 60°. Find the height of the tower. (Use √3 = 1.732, round to 2 dp.)`,
         h,
         [
-          { value: parseFloat((dist / Math.sqrt(3)).toFixed(2)), misc: "ch9_s1_c1_t1_misc_1" }, // used 30° instead
-          { value: dist,                                         misc: "ch9_s1_c1_t1_misc_2" }, // tan=1 (45°)
-          { value: parseFloat((dist * 2).toFixed(2)),           misc: "ch9_s1_c1_t1_misc_3" },
+          { value: parseFloat((dist / Math.sqrt(3)).toFixed(2)), misc: "cbse_math10_ch9_single_triangle_heights_misc_1" }, // used 30° instead
+          { value: dist,                                         misc: "cbse_math10_ch9_single_triangle_heights_misc_2" }, // tan=1 (45°)
+          { value: parseFloat((dist * 2).toFixed(2)),           misc: "cbse_math10_ch9_single_triangle_heights_misc_3" },
         ],
         { dist, angle: 60 }
       );
@@ -768,9 +768,9 @@ const T_CH9_ELEVATION_30_60 = {
         `A vertical tower casts a shadow of ${shadow} m when the angle of elevation of the sun is 30°. Find the height of the tower. (Use √3 = 1.732, round to 2 dp.)`,
         h,
         [
-          { value: parseFloat((shadow * Math.sqrt(3)).toFixed(2)), misc: "ch9_s1_c1_t1_misc_1" }, // used tan 60
-          { value: shadow,                                         misc: "ch9_s1_c1_t1_misc_2" }, // ignored tan
-          { value: parseFloat((shadow / 2).toFixed(2)),           misc: "ch9_s1_c1_t1_misc_3" },
+          { value: parseFloat((shadow * Math.sqrt(3)).toFixed(2)), misc: "cbse_math10_ch9_single_triangle_heights_misc_1" }, // used tan 60
+          { value: shadow,                                         misc: "cbse_math10_ch9_single_triangle_heights_misc_2" }, // ignored tan
+          { value: parseFloat((shadow / 2).toFixed(2)),           misc: "cbse_math10_ch9_single_triangle_heights_misc_3" },
         ],
         { shadow, angle: 30 }
       );
@@ -781,7 +781,7 @@ const T_CH9_ELEVATION_30_60 = {
 // CH9 — Two-observation problem (hard)
 const T_CH9_TWO_TRIANGLE = {
   templateId: "t_ch9_two_triangle_v1",
-  topicId:    "ch9_s1_c1_t2",
+  topicId:    "cbse_math10_ch9_two_triangle_heights",
   difficulty: "hard",
   questionType: "numeric",
   marks: 4,
@@ -798,9 +798,9 @@ const T_CH9_TWO_TRIANGLE = {
       `From the top of a ${h} m high cliff, the angles of depression of two boats directly in front are 60° and 30°. Find the distance between the two boats. (Use √3 = 1.732, round to 2 dp.)`,
       gap,
       [
-        { value: d1,    misc: "ch9_s1_c1_t2_misc_1" }, // returned only nearer distance
-        { value: d2,    misc: "ch9_s1_c1_t2_misc_2" }, // returned only farther distance
-        { value: d1 + d2, misc: "ch9_s1_c1_t2_misc_3" }, // added instead of subtracted
+        { value: d1,    misc: "cbse_math10_ch9_two_triangle_heights_misc_1" }, // returned only nearer distance
+        { value: d2,    misc: "cbse_math10_ch9_two_triangle_heights_misc_2" }, // returned only farther distance
+        { value: d1 + d2, misc: "cbse_math10_ch9_two_triangle_heights_misc_3" }, // added instead of subtracted
       ],
       { h, d1, d2, gap }
     );
@@ -814,7 +814,7 @@ const T_CH9_TWO_TRIANGLE = {
 // CH10 — Tangent length from external point (easy)
 const T_CH10_TANGENT_LEN = {
   templateId: "t_ch10_tangent_len_v1",
-  topicId:    "ch10_s1_c1_t1",
+  topicId:    "cbse_math10_ch10_tangent_properties",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -829,9 +829,9 @@ const T_CH10_TANGENT_LEN = {
       `From an external point P, ${op} cm from the centre O of a circle with radius ${r} cm, a tangent PT is drawn. Find the length of tangent PT.`,
       tan,
       [
-        { value: op - r,                                     misc: "ch10_s1_c1_t1_misc_1" }, // subtracted without Pythagoras
-        { value: parseFloat(Math.sqrt(op + r).toFixed(2)),  misc: "ch10_s1_c1_t1_misc_2" }, // forgot squares
-        { value: op,                                         misc: "ch10_s1_c1_t1_misc_3" }, // returned OP
+        { value: op - r,                                     misc: "cbse_math10_ch10_tangent_properties_misc_1" }, // subtracted without Pythagoras
+        { value: parseFloat(Math.sqrt(op + r).toFixed(2)),  misc: "cbse_math10_ch10_tangent_properties_misc_2" }, // forgot squares
+        { value: op,                                         misc: "cbse_math10_ch10_tangent_properties_misc_3" }, // returned OP
       ],
       { r, op, tan }
     );
@@ -841,7 +841,7 @@ const T_CH10_TANGENT_LEN = {
 // CH10 — Angle between two tangents (medium)
 const T_CH10_TANGENT_ANGLE = {
   templateId: "t_ch10_tangent_angle_v1",
-  topicId:    "ch10_s2_c1_t1",
+  topicId:    "cbse_math10_ch10_tangent_lengths",
   difficulty: "medium",
   questionType: "numeric",
   marks: 2,
@@ -854,9 +854,9 @@ const T_CH10_TANGENT_ANGLE = {
       `From an external point P, two tangents PA and PB are drawn to a circle with centre O. If ∠APB = ${apb}°, find ∠AOB.`,
       aob,
       [
-        { value: apb,       misc: "ch10_s2_c1_t1_misc_1" }, // returned ∠APB unchanged
-        { value: 90 - apb,  misc: "ch10_s2_c1_t1_misc_2" },
-        { value: 360 - aob, misc: "ch10_s2_c1_t1_misc_3" }, // reflex angle
+        { value: apb,       misc: "cbse_math10_ch10_tangent_lengths_misc_1" }, // returned ∠APB unchanged
+        { value: 90 - apb,  misc: "cbse_math10_ch10_tangent_lengths_misc_2" },
+        { value: 360 - aob, misc: "cbse_math10_ch10_tangent_lengths_misc_3" }, // reflex angle
       ],
       { apb, aob }
     );
@@ -870,7 +870,7 @@ const T_CH10_TANGENT_ANGLE = {
 // CH11 — Area of sector (easy)
 const T_CH11_SECTOR_AREA = {
   templateId: "t_ch11_sector_area_v1",
-  topicId:    "ch11_s1_c1_t1",
+  topicId:    "cbse_math10_ch11_sectors_and_segments",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -887,9 +887,9 @@ const T_CH11_SECTOR_AREA = {
       `Find the area of a sector with radius ${r} cm and central angle ${theta}°. (Use π = ${piStr}, round to 2 dp.)`,
       area,
       [
-        { value: parseFloat(((theta / 360) * pi * r).toFixed(2)),      misc: "ch11_s1_c1_t1_misc_1" }, // used r not r²
-        { value: parseFloat((pi * r * r).toFixed(2)),                  misc: "ch11_s1_c1_t1_misc_2" }, // full circle area
-        { value: parseFloat(((theta / 180) * pi * r * r).toFixed(2)), misc: "ch11_s1_c1_t1_misc_3" }, // used 180 instead of 360
+        { value: parseFloat(((theta / 360) * pi * r).toFixed(2)),      misc: "cbse_math10_ch11_sectors_and_segments_misc_1" }, // used r not r²
+        { value: parseFloat((pi * r * r).toFixed(2)),                  misc: "cbse_math10_ch11_sectors_and_segments_misc_2" }, // full circle area
+        { value: parseFloat(((theta / 180) * pi * r * r).toFixed(2)), misc: "cbse_math10_ch11_sectors_and_segments_misc_3" }, // used 180 instead of 360
       ],
       { r, theta, pi: piStr, area }
     );
@@ -899,7 +899,7 @@ const T_CH11_SECTOR_AREA = {
 // CH11 — Perimeter of sector (medium)
 const T_CH11_SECTOR_PERIM = {
   templateId: "t_ch11_sector_perim_v1",
-  topicId:    "ch11_s1_c1_t1",
+  topicId:    "cbse_math10_ch11_sectors_and_segments",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -916,9 +916,9 @@ const T_CH11_SECTOR_PERIM = {
       `Find the perimeter of a sector with radius ${r} cm and central angle ${theta}°. (Use π = ${piStr}, round to 2 dp.)`,
       perim,
       [
-        { value: arc,                        misc: "ch11_s1_c1_t1_misc_1" }, // only arc, forgot 2r
-        { value: parseFloat((r + arc).toFixed(2)), misc: "ch11_s1_c1_t1_misc_2" }, // added only one radius
-        { value: parseFloat((2 * r).toFixed(2)),   misc: "ch11_s1_c1_t1_misc_3" }, // forgot arc
+        { value: arc,                        misc: "cbse_math10_ch11_sectors_and_segments_misc_1" }, // only arc, forgot 2r
+        { value: parseFloat((r + arc).toFixed(2)), misc: "cbse_math10_ch11_sectors_and_segments_misc_2" }, // added only one radius
+        { value: parseFloat((2 * r).toFixed(2)),   misc: "cbse_math10_ch11_sectors_and_segments_misc_3" }, // forgot arc
       ],
       { r, theta, arc, perim, pi: piStr }
     );
@@ -932,7 +932,7 @@ const T_CH11_SECTOR_PERIM = {
 // CH12 — Curved surface area of cylinder (easy)
 const T_CH12_CYLINDER_CSA = {
   templateId: "t_ch12_cylinder_csa_v1",
-  topicId:    "ch12_s1_c1_t1",
+  topicId:    "cbse_math10_ch12_surface_area_of_solids",
   difficulty: "easy",
   questionType: "numeric",
   marks: 2,
@@ -946,9 +946,9 @@ const T_CH12_CYLINDER_CSA = {
       `Find the curved surface area of a cylinder with radius ${r} cm and height ${h} cm. (Use π = 22/7, round to nearest integer.)`,
       Math.round(csa),
       [
-        { value: Math.round((22 / 7) * r * r * h), misc: "ch12_s1_c1_t1_misc_1" }, // used πr²h (volume)
-        { value: Math.round(2 * (22 / 7) * r * (h + r)), misc: "ch12_s1_c1_t1_misc_2" }, // used TSA formula
-        { value: Math.round((22 / 7) * r * h),    misc: "ch12_s1_c1_t1_misc_3" }, // forgot 2
+        { value: Math.round((22 / 7) * r * r * h), misc: "cbse_math10_ch12_surface_area_of_solids_misc_1" }, // used πr²h (volume)
+        { value: Math.round(2 * (22 / 7) * r * (h + r)), misc: "cbse_math10_ch12_surface_area_of_solids_misc_2" }, // used TSA formula
+        { value: Math.round((22 / 7) * r * h),    misc: "cbse_math10_ch12_surface_area_of_solids_misc_3" }, // forgot 2
       ],
       { r, h, csa }
     );
@@ -958,7 +958,7 @@ const T_CH12_CYLINDER_CSA = {
 // CH12 — Melt sphere → recast into cones (medium)
 const T_CH12_MELT_SPHERE = {
   templateId: "t_ch12_melt_sphere_v1",
-  topicId:    "ch12_s2_c1_t1",
+  topicId:    "cbse_math10_ch12_volume_of_solids",
   difficulty: "medium",
   questionType: "numeric",
   marks: 3,
@@ -976,9 +976,9 @@ const T_CH12_MELT_SPHERE = {
       `A metallic sphere of radius ${sr} cm is melted and recast into ${n} identical cones, each of base radius ${cr} cm. Find the height of each cone.`,
       h,
       [
-        { value: Math.round((4 * sr * sr * sr) / (n * cr * cr)), misc: "ch12_s2_c1_t1_misc_1" }, // same formula but wrong h (close)
-        { value: Math.round((sr * sr * sr) / (n * cr * cr)),     misc: "ch12_s2_c1_t1_misc_2" }, // forgot factor 4
-        { value: sr,                                             misc: "ch12_s2_c1_t1_misc_3" }, // returned sphere radius
+        { value: Math.round((4 * sr * sr * sr) / (n * cr * cr)), misc: "cbse_math10_ch12_volume_of_solids_misc_1" }, // same formula but wrong h (close)
+        { value: Math.round((sr * sr * sr) / (n * cr * cr)),     misc: "cbse_math10_ch12_volume_of_solids_misc_2" }, // forgot factor 4
+        { value: sr,                                             misc: "cbse_math10_ch12_volume_of_solids_misc_3" }, // returned sphere radius
       ],
       { sr, cr, n, h }
     );
@@ -990,45 +990,45 @@ const T_CH12_MELT_SPHERE = {
 
 const TEMPLATE_REGISTRY = {
   // Ch1 — Real Numbers
-  "ch1_s2_c1_t2": [T_CH1_HCF, T_CH1_LCM],
+  "cbse_math10_ch1_lcm_and_hcf": [T_CH1_HCF, T_CH1_LCM],
   // Ch2 — Polynomials
-  "ch2_s3_c1_t1": [T_CH2_QUAD_ZEROS],
+  "cbse_math10_ch2_zeroes_and_coefficients": [T_CH2_QUAD_ZEROS],
   // Ch3 — Pair of Linear Equations
-  "ch3_s1_c1_t2": [T_CH3_SUBST],
-  "ch3_s2_c1_t1": [T_CH3_ELIM],
-  "ch3_s3_c1_t1": [T_CH3_WORDPROBLEM],
+  "cbse_math10_ch3_consistency_of_pairs": [T_CH3_SUBST],
+  "cbse_math10_ch3_substitution_method": [T_CH3_ELIM],
+  "cbse_math10_ch3_elimination_method": [T_CH3_WORDPROBLEM],
   // Ch4 — Quadratic Equations
-  "ch4_s3_c1_t1": [T_CH4_DISCRIMINANT],
+  "cbse_math10_ch4_discriminant_and_roots": [T_CH4_DISCRIMINANT],
   // Ch5 — Arithmetic Progressions
-  "ch5_s1_c2_t1": [T_CH5_NTH_TERM],
-  "ch5_s2_c1_t1": [T_CH5_SUM],
+  "cbse_math10_ch5_nth_term": [T_CH5_NTH_TERM],
+  "cbse_math10_ch5_nth_term": [T_CH5_SUM],
   // Ch6 — Triangles
-  "ch6_s1_c1_t1": [T_CH6_BPT],
-  "ch6_s2_c1_t1": [T_CH6_SIMILARITY],
-  "ch6_s3_c1_t1": [T_CH6_AREAS_SIMILAR],
-  "ch6_s4_c1_t1": [T_CH6_PYTHAGORAS],
+  "cbse_math10_ch6_similar_figures": [T_CH6_BPT],
+  "cbse_math10_ch6_basic_proportionality": [T_CH6_SIMILARITY],
+  "cbse_math10_ch6_similarity_criteria": [T_CH6_AREAS_SIMILAR],
+  "cbse_math10_ch6_pythagoras_theorem": [T_CH6_PYTHAGORAS],
   // Ch7 — Coordinate Geometry
-  "ch7_s1_c1_t1": [T_CH7_DISTANCE],
-  "ch7_s2_c1_t1": [T_CH7_SECTION],
+  "cbse_math10_ch7_distance_formula": [T_CH7_DISTANCE],
+  "cbse_math10_ch7_section_formula": [T_CH7_SECTION],
   // Ch8 — Introduction to Trigonometry
-  "ch8_s1_c1_t1": [T_CH8_TRIG_RATIO],
-  "ch8_s2_c1_t1": [T_CH8_IDENTITY],
-  "ch8_s3_c1_t1": [T_CH8_COMPLEMENTARY],
+  "cbse_math10_ch8_trigonometric_ratios": [T_CH8_TRIG_RATIO],
+  "cbse_math10_ch8_ratios_of_special_angles": [T_CH8_IDENTITY],
+  "cbse_math10_ch8_trigonometric_identities": [T_CH8_COMPLEMENTARY],
   // Ch9 — Applications of Trigonometry
-  "ch9_s1_c1_t1": [T_CH9_ELEVATION_45, T_CH9_ELEVATION_30_60],
-  "ch9_s1_c1_t2": [T_CH9_TWO_TRIANGLE],
+  "cbse_math10_ch9_single_triangle_heights": [T_CH9_ELEVATION_45, T_CH9_ELEVATION_30_60],
+  "cbse_math10_ch9_two_triangle_heights": [T_CH9_TWO_TRIANGLE],
   // Ch10 — Circles
-  "ch10_s1_c1_t1": [T_CH10_TANGENT_LEN],
-  "ch10_s2_c1_t1": [T_CH10_TANGENT_ANGLE],
+  "cbse_math10_ch10_tangent_properties": [T_CH10_TANGENT_LEN],
+  "cbse_math10_ch10_tangent_lengths": [T_CH10_TANGENT_ANGLE],
   // Ch11 — Areas Related to Circles
-  "ch11_s1_c1_t1": [T_CH11_SECTOR_AREA, T_CH11_SECTOR_PERIM],
+  "cbse_math10_ch11_sectors_and_segments": [T_CH11_SECTOR_AREA, T_CH11_SECTOR_PERIM],
   // Ch12 — Surface Areas & Volumes
-  "ch12_s1_c1_t1": [T_CH12_CYLINDER_CSA],
-  "ch12_s2_c1_t1": [T_CH12_MELT_SPHERE],
+  "cbse_math10_ch12_surface_area_of_solids": [T_CH12_CYLINDER_CSA],
+  "cbse_math10_ch12_volume_of_solids": [T_CH12_MELT_SPHERE],
   // Ch13 — Statistics
-  "ch13_s1_c1_t1": [T_CH13_MEAN],
+  "cbse_math10_ch13_mean_of_grouped_data": [T_CH13_MEAN],
   // Ch14 — Probability
-  "ch14_s1_c1_t1": [T_CH14_PROBABILITY],
+  "cbse_math10_ch14_probability_basics": [T_CH14_PROBABILITY],
 };
 
 // ── Public API ────────────────────────────────────────────────────────────────

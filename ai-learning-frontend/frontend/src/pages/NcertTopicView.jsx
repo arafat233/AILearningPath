@@ -2746,6 +2746,10 @@ export default function NcertTopicView() {
   const isMath3TopicId = id => (id || "").startsWith("math3_");
   const isMath2TopicId = id => (id || "").startsWith("math2_");
   const isMath1TopicId = id => (id || "").startsWith("math1_");
+  // Standardized board-prefixed IDs (SPEC_MATH_STANDARDIZATION) — rich Class-10-style
+  // content, NOT the flat math{N}_ format. Kept out of isSciLike so it renders the
+  // nested intuition / derivation / svg_diagrams path, exactly like CBSE Math 10.
+  const isCbseMath9TopicId = id => (id || "").startsWith("cbse_math9_");
 
   // Fetch all NCERT topics + chapter list once to derive siblings, prereqMap, and chapter title
   useEffect(() => {
@@ -2762,6 +2766,7 @@ export default function NcertTopicView() {
     const isMath3 = isMath3TopicId(topicId);
     const isMath2 = isMath2TopicId(topicId);
     const isMath1 = isMath1TopicId(topicId);
+    const isCbseMath9 = isCbseMath9TopicId(topicId);
     const subject = isSci ? "Science" : isEng ? "English" : isHin ? "Hindi" : "Mathematics";
     // Siblings must come from the same topicId family — otherwise CBSE Math 10
     // (ch{n}_...) and Math 1–9 v2 (math{n}_ch{n}_...) collide on chapterNumber=1
@@ -2779,6 +2784,7 @@ export default function NcertTopicView() {
       : isMath3TopicId(id) ? "math3"
       : isMath2TopicId(id) ? "math2"
       : isMath1TopicId(id) ? "math1"
+      : isCbseMath9TopicId(id) ? "cbse_math9"
       : /^icse\d+_/.test(id || "") ? "icse"
       : "cbse10";
     const here = family(topicId);
@@ -2791,7 +2797,7 @@ export default function NcertTopicView() {
       .catch(() => {});
     if (isSci) {
       setChapterTitle(SCIENCE_CHAPTER_TITLES[topic.chapterNumber] || null);
-    } else if (!isEng && !isHin && !isMath9 && !isMath8 && !isMath7 && !isMath6 && !isMath5 && !isMath4 && !isMath3 && !isMath2 && !isMath1) {
+    } else if (!isEng && !isHin && !isCbseMath9 && !isMath9 && !isMath8 && !isMath7 && !isMath6 && !isMath5 && !isMath4 && !isMath3 && !isMath2 && !isMath1) {
       // Chapter title (e.g. "Real Numbers") is what Question.topic uses for practice questions
       listNcertChapters()
         .then(r => {

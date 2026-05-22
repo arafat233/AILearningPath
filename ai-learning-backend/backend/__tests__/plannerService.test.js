@@ -20,35 +20,36 @@ const mockProfile = {
 };
 
 beforeEach(() => {
-  UserProfile.findOne.mockResolvedValue(mockProfile);
-  Topic.find.mockResolvedValue(mockTopics);
+  // Service chains .lean() on both queries — mocks must return a query-like object.
+  UserProfile.findOne.mockReturnValue({ lean: () => Promise.resolve(mockProfile) });
+  Topic.find.mockReturnValue({ lean: () => Promise.resolve(mockTopics) });
 });
 
 describe("generateStudyPlan", () => {
   it("returns dailyPlan with correct number of days", async () => {
     const examDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString();
-    const plan = await generateStudyPlan("user1", examDate, "distinction");
+    const plan = await generateStudyPlan("user1", { examDate, goal: "distinction" });
     expect(plan.dailyPlan.length).toBeGreaterThan(0);
     expect(plan.dailyPlan.length).toBeLessThanOrEqual(10);
   });
 
   it("scholarship goal produces no skipSuggestions", async () => {
     const examDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    const plan = await generateStudyPlan("user1", examDate, "scholarship");
+    const plan = await generateStudyPlan("user1", { examDate, goal: "scholarship" });
     // scholarship covers all topics, should skip very few or none
     expect(plan.skipSuggestions.length).toBeLessThan(mockTopics.length);
   });
 
   it("pass goal skips low-frequency topics", async () => {
     const examDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    const plan = await generateStudyPlan("user1", examDate, "pass");
+    const plan = await generateStudyPlan("user1", { examDate, goal: "pass" });
     expect(plan.priorityTopics).toBeDefined();
     expect(plan.dailyPlan).toBeDefined();
   });
 
   it("always includes priorityTopics in output", async () => {
     const examDate = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString();
-    const plan = await generateStudyPlan("user1", examDate, "top");
+    const plan = await generateStudyPlan("user1", { examDate, goal: "top" });
     expect(Array.isArray(plan.priorityTopics)).toBe(true);
     expect(plan.priorityTopics[0]).toHaveProperty("topic");
     expect(plan.priorityTopics[0]).toHaveProperty("priority");

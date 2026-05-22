@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 // Set fake VAPID keys before import so ensureVapid() succeeds
 process.env.VAPID_PUBLIC_KEY  = "BIIGtest_public_key_stub";
@@ -20,6 +21,7 @@ jest.unstable_mockModule("web-push", () => ({
 }));
 
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   User: {
     find:            (q) => ({ select: () => ({ lean: () => mockUserFind(q) }) }),
     findById:        (id) => ({ select: () => ({ lean: () => mockUserFindById(id) }) }),

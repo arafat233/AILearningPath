@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const ncertTopicContentSchema = new mongoose.Schema({
-  topicId:                { type: String, required: true, unique: true }, // e.g. "ch1_s1_c1_t1" or "sci_ch1_signs_and_types"
+  topicId:                { type: String, required: true, unique: true }, // e.g. "cbse_math10_ch1_euclid_division_lemma" or "sci_ch1_signs_and_types"
   subject:                { type: String, default: "Mathematics" },       // "Mathematics" | "Science" | etc.
   chapterNumber:          { type: Number, required: true },
   name:                   { type: String, required: true },

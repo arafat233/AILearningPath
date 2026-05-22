@@ -19,7 +19,7 @@ import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 // Import after dotenv so MONGO_URI is available
 const { default: NcertChapterModel } = await import("../models/ncertTopicContentModel.js").catch(() => ({ default: null }));
@@ -138,8 +138,10 @@ async function build() {
   const subjects = [...new Set(chapters.map((c) => c.subject || "Mathematics"))];
 
   for (const subject of subjects) {
-    // Clear existing chunks for this subject to avoid duplicates
-    const deleted = await NcertChunk.deleteMany({ subject });
+    // Clear existing chunks for this subject to avoid duplicates.
+    // Exclude standardized topic-content chunks (^cbse_math9_ etc.) — those are
+    // owned by buildRagFromTopicContent.js and must survive this rebuild.
+    const deleted = await NcertChunk.deleteMany({ subject, topicId: { $not: /^cbse_math9_/ } });
     if (deleted.deletedCount) console.log(`  Cleared ${deleted.deletedCount} old chunks for ${subject}`);
 
     const subjectChapters = chapters.filter((c) => (c.subject || "Mathematics") === subject);

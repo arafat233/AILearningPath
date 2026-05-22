@@ -1,16 +1,24 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 const mockUserProfileFindOne = jest.fn();
-const mockQuestionFindOne    = jest.fn();
+const mockQuestionAggregate  = jest.fn();
+const mockSeenFind           = jest.fn();
 
 jest.unstable_mockModule("../models/index.js", () => ({
-  UserProfile: { findOne: mockUserProfileFindOne },
-  Question:    { findOne: mockQuestionFindOne },
+  ...fullModelMock(),
+  UserProfile:  { findOne: mockUserProfileFindOne },
+  Question:     { aggregate: mockQuestionAggregate },   // service uses Question.aggregate + $sample
+  SeenQuestion: { find: mockSeenFind },
 }));
 
 const { checkFoundation } = await import("../services/foundationService.js");
 
 afterEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  // SeenQuestion.find(...).select(...).lean() → no previously-seen questions
+  mockSeenFind.mockReturnValue({ select: () => ({ lean: () => Promise.resolve([]) }) });
+});
 
 // ── no prerequisites ───────────────────────────────────────────────────────────
 
@@ -23,7 +31,7 @@ describe("checkFoundation — topics with no prerequisites", () => {
   test("does not query Question when topic has no prerequisites", async () => {
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: [] });
     await checkFoundation("u1", "Unknown Topic");
-    expect(mockQuestionFindOne).not.toHaveBeenCalled();
+    expect(mockQuestionAggregate).not.toHaveBeenCalled();
   });
 });
 
@@ -55,7 +63,7 @@ describe("checkFoundation — user profile handling", () => {
 describe("checkFoundation — redirecting to a foundation topic", () => {
   test("returns redirect:true when a prerequisite matches a weakArea", async () => {
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Factorization"] });
-    mockQuestionFindOne.mockResolvedValue({ _id: "q1", questionText: "Factorise x²+2x" });
+    mockQuestionAggregate.mockResolvedValue([{ _id: "q1", questionText: "Factorise x²+2x" }]);
 
     const result = await checkFoundation("u1", "Quadratic Equations");
 
@@ -70,7 +78,7 @@ describe("checkFoundation — redirecting to a foundation topic", () => {
     // Quadratic Equations prereqs in order: ["Linear Equations", "Factorization", "Algebra Basics"]
     // "Linear Equations" not weak; "Factorization" IS weak → should redirect to Factorization
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Factorization", "Algebra Basics"] });
-    mockQuestionFindOne.mockResolvedValue({ _id: "q2" });
+    mockQuestionAggregate.mockResolvedValue([{ _id: "q2" }]);
 
     const result = await checkFoundation("u1", "Quadratic Equations");
 
@@ -80,7 +88,7 @@ describe("checkFoundation — redirecting to a foundation topic", () => {
   test("Trigonometry redirects to Geometry Basics when weak", async () => {
     // Trigonometry prereqs: ["Geometry Basics", "Algebra Basics", "Coordinate Geometry"]
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Geometry Basics"] });
-    mockQuestionFindOne.mockResolvedValue({ _id: "q3" });
+    mockQuestionAggregate.mockResolvedValue([{ _id: "q3" }]);
 
     const result = await checkFoundation("u1", "Trigonometry");
 
@@ -91,7 +99,7 @@ describe("checkFoundation — redirecting to a foundation topic", () => {
   test("Coordinate Geometry redirects to Linear Equations when weak", async () => {
     // Coord Geometry prereqs: ["Geometry Basics", "Linear Equations"]
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Linear Equations"] });
-    mockQuestionFindOne.mockResolvedValue({ _id: "q4" });
+    mockQuestionAggregate.mockResolvedValue([{ _id: "q4" }]);
 
     const result = await checkFoundation("u1", "Coordinate Geometry");
 
@@ -99,28 +107,29 @@ describe("checkFoundation — redirecting to a foundation topic", () => {
     expect(result.foundationTopic).toBe("Linear Equations");
   });
 
-  test("question can be null if no foundation question exists in DB", async () => {
+  test("no unseen foundation question available → no redirect", async () => {
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Algebra Basics"] });
-    mockQuestionFindOne.mockResolvedValue(null);
+    mockQuestionAggregate.mockResolvedValue([]); // $sample found nothing
 
     const result = await checkFoundation("u1", "Quadratic Equations");
 
-    expect(result.redirect).toBe(true);
-    expect(result.question).toBeNull();
+    expect(result).toEqual({ redirect: false });
   });
 });
 
 // ── query correctness ──────────────────────────────────────────────────────────
 
 describe("checkFoundation — DB query correctness", () => {
-  test("queries Question with deletedAt: null filter", async () => {
+  test("aggregates Question with a deletedAt: null match filter", async () => {
     mockUserProfileFindOne.mockResolvedValue({ weakAreas: ["Algebra Basics"] });
-    mockQuestionFindOne.mockResolvedValue({ _id: "q5" });
+    mockQuestionAggregate.mockResolvedValue([{ _id: "q5" }]);
 
     await checkFoundation("u1", "Factorization");
 
-    expect(mockQuestionFindOne).toHaveBeenCalledWith(
-      expect.objectContaining({ deletedAt: null })
+    expect(mockQuestionAggregate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ $match: expect.objectContaining({ deletedAt: null }) }),
+      ]),
     );
   });
 });

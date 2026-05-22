@@ -151,7 +151,7 @@ describe("getAIRetryRate", () => {
     mockEventFind.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: () => Promise.resolve([
-          { userId: "u1", topicId: "ch1_s1_c1_t1", createdAt: explanationTime },
+          { userId: "u1", topicId: "cbse_math10_ch1_euclid_division_lemma", createdAt: explanationTime },
         ]),
       }),
     });
@@ -161,7 +161,7 @@ describe("getAIRetryRate", () => {
 
     const callArgs = mockAttemptExists.mock.calls[0][0];
     expect(callArgs.userId).toBe("u1");
-    expect(callArgs.topic).toBe("ch1_s1_c1_t1");
+    expect(callArgs.topic).toBe("cbse_math10_ch1_euclid_division_lemma");
     // window should start after the explanation
     expect(callArgs.createdAt.$gt).toEqual(explanationTime);
     // window should end 24h later

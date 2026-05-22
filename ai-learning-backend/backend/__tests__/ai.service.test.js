@@ -10,6 +10,11 @@ jest.unstable_mockModule("@anthropic-ai/sdk", () => ({
 jest.unstable_mockModule("../utils/logger.js", () => ({
   default: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }));
+// retrieveContext does a Mongo full-text RAG lookup — stub it so the unit
+// tests never touch the DB (an unmocked call buffers ~10s then times out).
+jest.unstable_mockModule("../utils/ragStore.js", () => ({
+  retrieveContext: jest.fn(async () => ""),
+}));
 
 const {
   getSystemPrompt,

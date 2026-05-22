@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 const mockProfileFindOne   = jest.fn();
 const mockQuestionFind     = jest.fn();
@@ -9,6 +10,7 @@ const mockSeenCreate       = jest.fn();
 const mockGenerateAIQuestion = jest.fn();
 
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   Question: {
     find:      mockQuestionFind,
     findOne:   mockQuestionFindOne,
@@ -26,8 +28,17 @@ const { getNextQuestion } = await import("../services/adaptiveService.js");
 
 // Helper: wrap array in the lean() chain Question.find().lean() expects
 const leanResult = (arr) => ({ lean: () => Promise.resolve(arr) });
-// SeenQuestion.find().select().lean()
-const seenResult = (arr) => ({ select: () => ({ lean: () => Promise.resolve(arr) }) });
+// SeenQuestion.find() chain — service uses .sort().limit().select().lean()
+// (and a shorter .select().lean() on the AI-question path); fully chainable.
+const seenResult = (arr) => {
+  const chain = {
+    sort:   () => chain,
+    limit:  () => chain,
+    select: () => chain,
+    lean:   () => Promise.resolve(arr),
+  };
+  return chain;
+};
 
 const Q = { _id: "q1", questionText: "What is 2+2?", difficultyScore: 0.5 };
 

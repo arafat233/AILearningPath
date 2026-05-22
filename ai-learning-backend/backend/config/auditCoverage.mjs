@@ -167,107 +167,25 @@ const EXPECTED = [
   },
 
   // ══════════════════════════════════════════════════════
-  // MATHEMATICS — Class 10 (CBSE 2023-24)
+  // MATHEMATICS — CBSE Class 10 (re-keyed to cbse_math10_*, SPEC_MATH_STANDARDIZATION §2)
+  // 54 sub-topics / 14 chapters. skipDiagram: diagrams are inline
+  // teaching_content.svg_diagrams (validated by auditMathChecklist item 7),
+  // not via the DiagramLibrary DIAGRAM_MAP scan.
   // ══════════════════════════════════════════════════════
-  {
-    chapterId: "ch1", chapterName: "Real Numbers",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch1_s1_c1_t1", "ch1_s2_c1_t1", "ch1_s2_c1_t2",
-      "ch1_s3_c1_t1", "ch1_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch2", chapterName: "Polynomials",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch2_s1_c1_t1", "ch2_s2_c1_t1",
-      "ch2_s3_c1_t1", "ch2_s3_c1_t2", "ch2_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch3", chapterName: "Pair of Linear Equations",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch3_s1_c1_t1", "ch3_s1_c1_t2",
-      "ch3_s2_c1_t1", "ch3_s3_c1_t1", "ch3_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch4", chapterName: "Quadratic Equations",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch4_s1_c1_t1", "ch4_s1_c1_t2",
-      "ch4_s2_c1_t1", "ch4_s3_c1_t1", "ch4_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch5", chapterName: "Arithmetic Progressions",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch5_s1_c1_t1", "ch5_s2_c1_t1",
-      "ch5_s3_c1_t1", "ch5_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch6", chapterName: "Triangles",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch6_s1_c1_t1", "ch6_s2_c1_t1", "ch6_s3_c1_t1",
-      "ch6_s5_c1_t1", "ch6_s6_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch7", chapterName: "Coordinate Geometry",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch7_s1_c1_t1", "ch7_s2_c1_t1", "ch7_s3_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch8", chapterName: "Introduction to Trigonometry",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch8_s1_c1_t1", "ch8_s2_c1_t1",
-      "ch8_s3_c1_t1", "ch8_s4_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch9", chapterName: "Some Applications of Trigonometry",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [ "ch9_s1_c1_t1", "ch9_s1_c1_t2" ],
-  },
-  {
-    chapterId: "ch10", chapterName: "Circles",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [ "ch10_s1_c1_t1", "ch10_s2_c1_t1" ],
-  },
-  {
-    chapterId: "ch11", chapterName: "Areas Related to Circles",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [ "ch11_s1_c1_t1", "ch11_s2_c1_t1" ],
-  },
-  {
-    chapterId: "ch12", chapterName: "Surface Areas and Volumes",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [ "ch12_s1_c1_t1", "ch12_s2_c1_t1", "ch12_s3_c1_t1" ],
-  },
-  {
-    chapterId: "ch13", chapterName: "Statistics",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch13_s1_c1_t1", "ch13_s2_c1_t1", "ch13_s3_c1_t1",
-      "ch13_s4_c1_t1", "ch13_s5_c1_t1",
-    ],
-  },
-  {
-    chapterId: "ch14", chapterName: "Probability",
-    subject: "Mathematics", grade: "10",
-    expectedTopicIds: [
-      "ch14_s1_c1_t1", "ch14_s1_c1_t2",
-      "ch14_s1_c1_t3", "ch14_s1_c1_t4",
-    ],
-  },
+  { chapterId: "cbse_math10_ch1",  chapterName: "Real Numbers",                       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch1_euclid_division_lemma","cbse_math10_ch1_prime_factorisation","cbse_math10_ch1_lcm_and_hcf","cbse_math10_ch1_proving_irrationality","cbse_math10_ch1_decimal_expansions"] },
+  { chapterId: "cbse_math10_ch2",  chapterName: "Polynomials",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch2_degree_and_types","cbse_math10_ch2_zeroes_from_graphs","cbse_math10_ch2_zeroes_and_coefficients","cbse_math10_ch2_polynomial_from_zeroes","cbse_math10_ch2_division_algorithm"] },
+  { chapterId: "cbse_math10_ch3",  chapterName: "Pair of Linear Equations",           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch3_graphical_method","cbse_math10_ch3_consistency_of_pairs","cbse_math10_ch3_substitution_method","cbse_math10_ch3_elimination_method","cbse_math10_ch3_cross_multiplication"] },
+  { chapterId: "cbse_math10_ch4",  chapterName: "Quadratic Equations",                subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch4_identifying_quadratics","cbse_math10_ch4_forming_quadratics","cbse_math10_ch4_factorisation_method","cbse_math10_ch4_discriminant_and_roots","cbse_math10_ch4_completing_the_square"] },
+  { chapterId: "cbse_math10_ch5",  chapterName: "Arithmetic Progressions",            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch5_identifying_ap","cbse_math10_ch5_nth_term","cbse_math10_ch5_sum_of_ap","cbse_math10_ch5_arithmetic_mean_combined"] },
+  { chapterId: "cbse_math10_ch6",  chapterName: "Triangles",                          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch6_similar_figures","cbse_math10_ch6_basic_proportionality","cbse_math10_ch6_similarity_criteria","cbse_math10_ch6_areas_of_similar_triangles","cbse_math10_ch6_pythagoras_theorem"] },
+  { chapterId: "cbse_math10_ch7",  chapterName: "Coordinate Geometry",                subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch7_distance_formula","cbse_math10_ch7_section_formula","cbse_math10_ch7_area_and_collinearity"] },
+  { chapterId: "cbse_math10_ch8",  chapterName: "Introduction to Trigonometry",       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch8_trigonometric_ratios","cbse_math10_ch8_ratios_of_special_angles","cbse_math10_ch8_trigonometric_identities","cbse_math10_ch8_complementary_angles"] },
+  { chapterId: "cbse_math10_ch9",  chapterName: "Some Applications of Trigonometry",  subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch9_single_triangle_heights","cbse_math10_ch9_two_triangle_heights"] },
+  { chapterId: "cbse_math10_ch10", chapterName: "Circles",                            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch10_tangent_properties","cbse_math10_ch10_tangent_lengths"] },
+  { chapterId: "cbse_math10_ch11", chapterName: "Areas Related to Circles",           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch11_sectors_and_segments","cbse_math10_ch11_combined_plane_figures"] },
+  { chapterId: "cbse_math10_ch12", chapterName: "Surface Areas and Volumes",          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch12_surface_area_of_solids","cbse_math10_ch12_volume_of_solids","cbse_math10_ch12_frustum_of_a_cone"] },
+  { chapterId: "cbse_math10_ch13", chapterName: "Statistics",                         subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch13_mean_of_grouped_data","cbse_math10_ch13_mode_of_grouped_data","cbse_math10_ch13_median_of_grouped_data","cbse_math10_ch13_empirical_relationship","cbse_math10_ch13_ogives"] },
+  { chapterId: "cbse_math10_ch14", chapterName: "Probability",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch14_probability_basics","cbse_math10_ch14_dice_coins_spinners","cbse_math10_ch14_cards_and_balls","cbse_math10_ch14_equally_likely_events"] },
 
   // ══════════════════════════════════════════════════════
   // MATHEMATICS — ICSE Class 10 (Selina/Concise — 25 chapters, 7 units)
@@ -761,17 +679,19 @@ const EXPECTED = [
   { chapterId: "math8_ch14", chapterName: "Area",                                    subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["math8_ch14_rectangle_area","math8_ch14_triangle_area","math8_ch14_trapezium_area","math8_ch14_circle_area"] },
 
   // ══════════════════════════════════════════════════════
-  // MATHEMATICS — Class 9 v2 (Ganita Manjari, NCERT 2026) — sub-topic expansion
-  // 4 sub-topics per chapter × 8 chapters = 32 topics, ~256 questions
+  // MATHEMATICS — CBSE Class 9 (standardized, SPEC_MATH_STANDARDIZATION pilot)
+  // 4 sub-topics per chapter × 8 chapters = 32 topics, 512 questions (16/topic).
+  // skipDiagram: diagrams are inline teaching_content.svg_diagrams — validated by
+  // auditMathChecklist.mjs (item 7), not by the DiagramLibrary DIAGRAM_MAP scan.
   // ══════════════════════════════════════════════════════
-  { chapterId: "math9_ch1", chapterName: "Orienting Yourself: The Use of Coordinates",            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch1_cartesian_plane","math9_ch1_plotting_points","math9_ch1_distance_formula","math9_ch1_section_formula"] },
-  { chapterId: "math9_ch2", chapterName: "Introduction to Linear Polynomials",                     subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch2_poly_basics","math9_ch2_zeroes","math9_ch2_remainder_theorem","math9_ch2_factor_theorem"] },
-  { chapterId: "math9_ch3", chapterName: "The World of Numbers",                                   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch3_number_systems","math9_ch3_irrational_representation","math9_ch3_surds_rationalisation","math9_ch3_laws_of_exponents"] },
-  { chapterId: "math9_ch4", chapterName: "Exploring Algebraic Identities",                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch4_standard_identities","math9_ch4_expansion","math9_ch4_factorisation_identities","math9_ch4_applications"] },
-  { chapterId: "math9_ch5", chapterName: "I'm Up and Down, and Round and Round",                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch5_basic_properties","math9_ch5_angles_in_circle","math9_ch5_cyclic_quadrilateral","math9_ch5_tangents"] },
-  { chapterId: "math9_ch6", chapterName: "Measuring Space: Perimeter and Area",                   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch6_heron_formula","math9_ch6_quadrilateral_area","math9_ch6_surface_area","math9_ch6_volume"] },
-  { chapterId: "math9_ch7", chapterName: "The Mathematics of Maybe: Introduction to Probability", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch7_probability_basics","math9_ch7_experimental_theoretical","math9_ch7_sample_space_events","math9_ch7_probability_rules"] },
-  { chapterId: "math9_ch8", chapterName: "Predicting What Comes Next: Exploring Sequences",       subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["math9_ch8_sequences_intro","math9_ch8_ap_basics","math9_ch8_nth_term","math9_ch8_sum_of_ap"] },
+  { chapterId: "cbse_math9_ch1", chapterName: "Orienting Yourself: The Use of Coordinates",            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch1_cartesian_plane","cbse_math9_ch1_plotting_points","cbse_math9_ch1_distance_formula","cbse_math9_ch1_section_formula"] },
+  { chapterId: "cbse_math9_ch2", chapterName: "Introduction to Linear Polynomials",                    subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch2_poly_basics","cbse_math9_ch2_zeroes","cbse_math9_ch2_remainder_theorem","cbse_math9_ch2_factor_theorem"] },
+  { chapterId: "cbse_math9_ch3", chapterName: "The World of Numbers",                                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch3_number_systems","cbse_math9_ch3_irrational_representation","cbse_math9_ch3_decimal_expansions","cbse_math9_ch3_real_operations"] },
+  { chapterId: "cbse_math9_ch4", chapterName: "Exploring Algebraic Identities",                        subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch4_basic_identities","cbse_math9_ch4_cube_identities","cbse_math9_ch4_three_variable_identities","cbse_math9_ch4_factorising_with_identities"] },
+  { chapterId: "cbse_math9_ch5", chapterName: "Circles",                                              subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch5_circle_basics","cbse_math9_ch5_chord_theorems","cbse_math9_ch5_angle_theorems","cbse_math9_ch5_cyclic_quadrilaterals"] },
+  { chapterId: "cbse_math9_ch6", chapterName: "Perimeter and Area",                                    subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch6_basics_triangle_area","cbse_math9_ch6_herons_formula","cbse_math9_ch6_quadrilateral_areas","cbse_math9_ch6_composite_areas"] },
+  { chapterId: "cbse_math9_ch7", chapterName: "The Mathematics of Maybe: Introduction to Probability", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch7_random_experiments","cbse_math9_ch7_empirical_probability","cbse_math9_ch7_probability_range","cbse_math9_ch7_probability_applications"] },
+  { chapterId: "cbse_math9_ch8", chapterName: "Predicting What Comes Next: Sequences and Progressions", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch8_sequences_basics","cbse_math9_ch8_arithmetic_progressions","cbse_math9_ch8_ap_sum","cbse_math9_ch8_geometric_progressions"] },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

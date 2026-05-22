@@ -1111,12 +1111,12 @@ export default function Lessons() {
   }, [hinTopics]);
 
   // Math topics filtered by user's grade using topicId prefix:
-  //   grade "9"  → math9_*
-  //   grade "8"  → math8_*
-  //   grade "10" → all other Mathematics topics (ch*_s*_c*_t* format)
+  //   grade "9"  → cbse_math9_*  (standardized board-prefixed IDs)
+  //   grade "10" → cbse_math10_* (standardized board-prefixed IDs)
+  //   grade "1-8" → math{grade}_* (legacy v2; awaits standardization plow)
   const mathChapterGroups = useMemo(() => {
     const gradeTopics = grade === "9"
-      ? mathTopics.filter((t) => (t.topicId || "").startsWith("math9_"))
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("cbse_math9_"))
       : grade === "8"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math8_"))
       : grade === "7"
@@ -1133,7 +1133,9 @@ export default function Lessons() {
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math2_"))
       : grade === "1"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math1_"))
-      : mathTopics.filter((t) => !(t.topicId || "").startsWith("math9_") && !(t.topicId || "").startsWith("math8_") && !(t.topicId || "").startsWith("math7_") && !(t.topicId || "").startsWith("math6_") && !(t.topicId || "").startsWith("math5_") && !(t.topicId || "").startsWith("math4_") && !(t.topicId || "").startsWith("math3_") && !(t.topicId || "").startsWith("math2_") && !(t.topicId || "").startsWith("math1_"));
+      : grade === "10"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("cbse_math10_"))
+      : [];
     const groups = {};
     gradeTopics.forEach((t) => {
       if (!groups[t.chapterNumber]) groups[t.chapterNumber] = [];

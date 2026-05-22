@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 // ── Model mocks ───────────────────────────────────────────────────────────────
 const mockUserCountDocuments  = jest.fn();
@@ -10,6 +11,7 @@ const mockPaymentAggregate    = jest.fn();
 const mockGetCacheStats       = jest.fn();
 
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   User: {
     countDocuments: mockUserCountDocuments,
     aggregate:      mockUserAggregate,
@@ -20,6 +22,7 @@ jest.unstable_mockModule("../models/index.js", () => ({
     aggregate:      mockAttemptAggregate,
   },
   PaymentRecord: { aggregate: mockPaymentAggregate },
+  AIUsageStats:  { aggregate: jest.fn().mockResolvedValue([]) },
 }));
 jest.unstable_mockModule("../services/aiRouter.js", () => ({
   getCacheStats: mockGetCacheStats,
@@ -45,6 +48,7 @@ describe("getAdminStats", () => {
     mockQuestionCount.mockResolvedValue(900);
     mockAttemptCount.mockResolvedValue(5000);
     mockGetCacheStats.mockReturnValue({ hitRate: 0.82 });
+    mockPaymentAggregate.mockResolvedValue([]); // revenue + 7-day trend aggregations
     mockUserAggregate.mockResolvedValue([
       { _id: "free", count: 150 },
       { _id: "pro",  count: 40  },
@@ -68,6 +72,7 @@ describe("getAdminStats", () => {
     mockQuestionCount.mockResolvedValue(100);
     mockAttemptCount.mockResolvedValue(100);
     mockGetCacheStats.mockReturnValue({});
+    mockPaymentAggregate.mockResolvedValue([]); // revenue + 7-day trend aggregations
     mockUserAggregate.mockResolvedValue([
       { _id: "free",    count: 70 },
       { _id: "pro",     count: 20 },

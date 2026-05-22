@@ -164,7 +164,7 @@ const topicSchema = new mongoose.Schema({
   whyMatters:     { type: String, default: "" },
   deletedAt:      { type: Date, default: null }, // soft-delete
   // Fine-grained DAG fields (populated by seedTopicDAG)
-  topicId:        { type: String, default: null }, // e.g. "ch1_s1_c1_t1"
+  topicId:        { type: String, default: null }, // e.g. "cbse_math10_ch1_euclid_division_lemma"
   level:          { type: Number, default: null }, // DAG depth 0-7
 });
 // Filtering by subject+grade (onboarding, settings dropdowns) and sorting by frequency
@@ -210,7 +210,7 @@ const questionSchema = new mongoose.Schema({
 
   // ── Adaptive algorithm fields (populated by seedQuestionsAndMockPapers) ──────
   questionId:    { type: String, sparse: true, unique: true }, // JSON id — dedup key
-  topicId:       { type: String },  // e.g. "ch1_s1_c1_t1" — fine-grained topic
+  topicId:       { type: String },  // e.g. "cbse_math10_ch1_euclid_division_lemma" — fine-grained topic
   chapterNumber: { type: Number },  // 1-14
   bloomLevel:    { type: String },  // recall | understand | apply | analyse | evaluate | create
   correctAnswer: { type: String },  // for numeric / free_text / fill_blank / numeric_range
@@ -591,7 +591,7 @@ export const Coupon = mongoose.model("Coupon", couponSchema);
 // ==================== UserTopicMastery (fine-grained adaptive engine state) ====================
 const userTopicMasterySchema = new mongoose.Schema({
   userId:  { type: String, required: true },
-  topicId: { type: String, required: true }, // "ch1_s1_c1_t1"
+  topicId: { type: String, required: true }, // "cbse_math10_ch1_euclid_division_lemma"
   chapterNumber: { type: Number },
   currentDifficulty: { type: String, enum: ["easy", "medium", "hard"], default: "easy" },
   mastery: {

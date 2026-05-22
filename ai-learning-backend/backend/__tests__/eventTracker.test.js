@@ -27,11 +27,11 @@ describe("trackEvent", () => {
 
   test("extra metadata fields go into metadata object, not top level", async () => {
     mockCreate.mockResolvedValue({});
-    trackEvent("user2", "explanation_shown", { topicId: "ch1_s1_c1_t1", extra: "value" });
+    trackEvent("user2", "explanation_shown", { topicId: "cbse_math10_ch1_euclid_division_lemma", extra: "value" });
     await new Promise((r) => setTimeout(r, 0));
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        topicId:  "ch1_s1_c1_t1",
+        topicId:  "cbse_math10_ch1_euclid_division_lemma",
         metadata: { extra: "value" },
       })
     );

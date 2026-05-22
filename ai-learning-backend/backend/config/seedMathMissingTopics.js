@@ -1,8 +1,8 @@
 /**
  * Seed: CBSE Class 10 Mathematics — Missing Topics
  * Adds two topics absent from the DB:
- *   ch5_s4_c1_t1  — Arithmetic Mean of AP and combined sum + nth-term problems
- *   ch13_s4_c1_t1 — Empirical relationship: Mode = 3Median − 2Mean
+ *   cbse_math10_ch5_arithmetic_mean_combined  — Arithmetic Mean of AP and combined sum + nth-term problems
+ *   cbse_math10_ch13_empirical_relationship — Empirical relationship: Mode = 3Median − 2Mean
  *
  * Safe to re-run — upserts on topicId.
  *
@@ -20,7 +20,7 @@ const TOPICS = [
   // CHAPTER 5 — Arithmetic Progressions, Section 4
   // ══════════════════════════════════════════════════════════════════
   {
-    topicId: "ch5_s4_c1_t1",
+    topicId: "cbse_math10_ch5_arithmetic_mean_combined",
     subject: "Mathematics",
     chapterNumber: 5,
     name: "Arithmetic Mean and Combined AP Problems — Sum + nth Term Together",
@@ -205,7 +205,7 @@ const TOPICS = [
   // CHAPTER 13 — Statistics, Section 4
   // ══════════════════════════════════════════════════════════════════
   {
-    topicId: "ch13_s4_c1_t1",
+    topicId: "cbse_math10_ch13_empirical_relationship",
     subject: "Mathematics",
     chapterNumber: 13,
     name: "Empirical Relationship: Mode = 3 Median − 2 Mean",

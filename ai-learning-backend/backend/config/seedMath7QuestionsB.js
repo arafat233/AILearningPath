@@ -1,0 +1,575 @@
+/**
+ * CBSE Class 7 Mathematics — MCQ seed (Ch 9–15)
+ * 5 questions per chapter = 35 questions total.
+ * Usage: node config/seedMath7QuestionsB.js
+ */
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import { Question } from "../models/index.js";
+
+dotenv.config();
+
+const questions = [
+  // ── Ch 9: Geometric Twins (Congruence) ──────────────────────────────────
+  {
+    questionId: "math7_ch9_q1",
+    questionText: "Which congruence criterion requires two sides and the included angle to be equal?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Geometric Twins", topic: "math7_ch9", topicId: "math7_ch9",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "SAS", isCorrect: true,  type: "correct",           logicTag: "Side-Angle-Side, angle between the sides" },
+      { text: "SSS", isCorrect: false, type: "concept_error",     logicTag: "all three sides, no angle required" },
+      { text: "ASA", isCorrect: false, type: "concept_error",     logicTag: "two angles and included side" },
+      { text: "RHS", isCorrect: false, type: "concept_error",     logicTag: "right triangle only" },
+    ],
+    solutionSteps: ["SAS: Side-Angle-Side", "The angle must be INCLUDED (between the two given sides)", "This is the SAS congruence criterion."],
+    shortcut: "SAS = angle sandwiched between the two sides. ASA = side sandwiched between the two angles.",
+  },
+  {
+    questionId: "math7_ch9_q2",
+    questionText: "△ABC ≅ △PQR. If ∠B = 65° and ∠R = 45°, find ∠A.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Geometric Twins", topic: "math7_ch9", topicId: "math7_ch9",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "70°", isCorrect: true,  type: "correct",           logicTag: "∠C=∠R=45°; ∠A=180−65−45=70°" },
+      { text: "65°", isCorrect: false, type: "concept_error",     logicTag: "assumes ∠A=∠B" },
+      { text: "45°", isCorrect: false, type: "calculation_error", logicTag: "assigns ∠R to ∠A directly" },
+      { text: "80°", isCorrect: false, type: "partial_logic",     logicTag: "arithmetic error" },
+    ],
+    solutionSteps: ["△ABC≅△PQR: A↔P, B↔Q, C↔R", "∠B=∠Q=65°, ∠C=∠R=45°", "∠A = 180°−65°−45° = 70°"],
+    shortcut: "Use vertex correspondence to match angles, then apply angle sum property.",
+  },
+  {
+    questionId: "math7_ch9_q3",
+    questionText: "In △ABC and △DEF: AB=DE, BC=EF, AC=DF. Which criterion proves congruence?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Geometric Twins", topic: "math7_ch9", topicId: "math7_ch9",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "SSS", isCorrect: true,  type: "correct",           logicTag: "all three sides given equal" },
+      { text: "SAS", isCorrect: false, type: "concept_error",     logicTag: "no angle information given" },
+      { text: "ASA", isCorrect: false, type: "concept_error",     logicTag: "no angle information given" },
+      { text: "RHS", isCorrect: false, type: "partial_logic",     logicTag: "no right angle specified" },
+    ],
+    solutionSteps: ["AB=DE (side), BC=EF (side), AC=DF (side)", "All three sides equal → SSS criterion", "∴ △ABC ≅ △DEF (SSS)"],
+    shortcut: "Count what's given: 3 sides → SSS, 2 sides + included angle → SAS.",
+  },
+  {
+    questionId: "math7_ch9_q4",
+    questionText: "△ABC ≅ △XYZ by SAS with AB=XY, ∠A=∠X. Which other side must be equal?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Geometric Twins", topic: "math7_ch9", topicId: "math7_ch9",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "AC = XZ", isCorrect: true,  type: "correct",           logicTag: "∠A is between AB and AC; second side must be AC=XZ" },
+      { text: "BC = YZ", isCorrect: false, type: "concept_error",     logicTag: "BC is opposite to ∠A, not adjacent" },
+      { text: "BC = XZ", isCorrect: false, type: "misinterpretation", logicTag: "wrong vertex match" },
+      { text: "AC = XY", isCorrect: false, type: "calculation_error", logicTag: "AB already matched XY" },
+    ],
+    solutionSteps: ["SAS: two sides and INCLUDED angle", "∠A is included between AB and AC", "First side: AB=XY; included angle: ∠A=∠X", "Second side: AC = XZ"],
+    shortcut: "The included angle sits BETWEEN the two sides. ∠A is between AB and AC.",
+  },
+  {
+    questionId: "math7_ch9_q5",
+    questionText: "Can SSA (two sides and non-included angle) always prove congruence?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Geometric Twins", topic: "math7_ch9", topicId: "math7_ch9",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "No — SSA can give two different triangles", isCorrect: true,  type: "correct",           logicTag: "ambiguous case" },
+      { text: "Yes — SSA always works",                    isCorrect: false, type: "concept_error",     logicTag: "incorrect, SSA is ambiguous" },
+      { text: "Yes — if the angle is obtuse",               isCorrect: false, type: "partial_logic",     logicTag: "still not a valid congruence criterion" },
+      { text: "No — SSA never gives any triangle",          isCorrect: false, type: "misinterpretation", logicTag: "SSA can give triangles, just not uniquely" },
+    ],
+    solutionSteps: ["SSA: two sides and a non-included angle", "Given fixed two sides and a non-included angle, it's possible to construct two DIFFERENT triangles", "Therefore SSA is NOT a valid congruence criterion", "Only SSS, SAS, ASA, AAS, RHS are valid criteria"],
+    shortcut: "SSA = 'Side-Side-Angle' = Ambiguous Case. Not a congruence criterion. Mnemonic: 'SSA is a donkey.'",
+  },
+
+  // ── Ch 10: Operations with Integers ─────────────────────────────────────
+  {
+    questionId: "math7_ch10_q1",
+    questionText: "What is (−7) × (−8)?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Operations with Integers", topic: "math7_ch10", topicId: "math7_ch10",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "56",  isCorrect: true,  type: "correct",           logicTag: "negative × negative = positive" },
+      { text: "−56", isCorrect: false, type: "concept_error",     logicTag: "applies negative sign incorrectly" },
+      { text: "15",  isCorrect: false, type: "calculation_error", logicTag: "adds instead of multiplies" },
+      { text: "−15", isCorrect: false, type: "partial_logic",     logicTag: "adds and applies wrong sign" },
+    ],
+    solutionSteps: ["(−7) × (−8): both negative", "Negative × negative = positive", "7 × 8 = 56", "Answer: +56"],
+    shortcut: "Count negatives: 2 (even) → positive. 7×8=56.",
+  },
+  {
+    questionId: "math7_ch10_q2",
+    questionText: "What is (−4) × 3 × (−5)?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Operations with Integers", topic: "math7_ch10", topicId: "math7_ch10",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "60",  isCorrect: true,  type: "correct",           logicTag: "2 negatives (even) → positive; 4×3×5=60" },
+      { text: "−60", isCorrect: false, type: "concept_error",     logicTag: "miscounts negatives" },
+      { text: "20",  isCorrect: false, type: "calculation_error", logicTag: "arithmetic error" },
+      { text: "−12", isCorrect: false, type: "partial_logic",     logicTag: "ignores third factor" },
+    ],
+    solutionSteps: ["Magnitude: 4×3×5 = 60", "Negatives count: 2 (even) → positive", "Answer: 60"],
+    shortcut: "Multiply magnitudes, then sign: even negatives = positive, odd = negative.",
+  },
+  {
+    questionId: "math7_ch10_q3",
+    questionText: "Calculate: (−72) ÷ (−9)",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Operations with Integers", topic: "math7_ch10", topicId: "math7_ch10",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "8",   isCorrect: true,  type: "correct",           logicTag: "same signs → positive; 72÷9=8" },
+      { text: "−8",  isCorrect: false, type: "concept_error",     logicTag: "wrong sign application" },
+      { text: "−63", isCorrect: false, type: "calculation_error", logicTag: "subtracts instead of divides" },
+      { text: "63",  isCorrect: false, type: "partial_logic",     logicTag: "subtracts magnitudes with correct sign" },
+    ],
+    solutionSteps: ["Same signs: (−) ÷ (−) = positive", "72 ÷ 9 = 8", "Answer: +8"],
+    shortcut: "Division sign rule = same as multiplication sign rule.",
+  },
+  {
+    questionId: "math7_ch10_q4",
+    questionText: "The temperature fell 4°C every hour for 6 hours. What is the total change in temperature?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Operations with Integers", topic: "math7_ch10", topicId: "math7_ch10",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "−24°C", isCorrect: true,  type: "correct",           logicTag: "(−4)×6=−24" },
+      { text: "+24°C", isCorrect: false, type: "concept_error",     logicTag: "ignores direction of change" },
+      { text: "−10°C", isCorrect: false, type: "calculation_error", logicTag: "adds instead of multiplies" },
+      { text: "−2°C",  isCorrect: false, type: "partial_logic",     logicTag: "divides 6 by 4 instead" },
+    ],
+    solutionSteps: ["Fall = negative direction: −4°C per hour", "Over 6 hours: (−4) × 6 = −24°C", "Temperature fell by 24°C total"],
+    shortcut: "A 'fall' or 'drop' in temperature = negative integer. Multiply rate by time.",
+  },
+  {
+    questionId: "math7_ch10_q5",
+    questionText: "If a × b = −36 and a = −4, what is b? Also state the sign of b.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Operations with Integers", topic: "math7_ch10", topicId: "math7_ch10",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "b = 9, positive", isCorrect: true,  type: "correct",           logicTag: "(−4)×9=−36; negative×positive=negative ✓" },
+      { text: "b = −9, negative",isCorrect: false, type: "concept_error",     logicTag: "negative×negative would give positive, not −36" },
+      { text: "b = 9, negative", isCorrect: false, type: "partial_logic",     logicTag: "correct magnitude but wrong sign label" },
+      { text: "b = 32, positive",isCorrect: false, type: "calculation_error", logicTag: "subtracts instead of divides" },
+    ],
+    solutionSteps: ["a × b = −36, a = −4", "b = −36 ÷ (−4) = 9", "Sign: (−4)×(+9) = −36 ✓", "b = 9 (positive)"],
+    shortcut: "Divide the product by the known factor. Use sign rules to verify.",
+  },
+
+  // ── Ch 11: Finding Common Ground (HCF & LCM) ────────────────────────────
+  {
+    questionId: "math7_ch11_q1",
+    questionText: "Find the HCF of 24 and 36.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding Common Ground", topic: "math7_ch11", topicId: "math7_ch11",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "12", isCorrect: true,  type: "correct",           logicTag: "24=2³×3, 36=2²×3²; HCF=2²×3=12" },
+      { text: "6",  isCorrect: false, type: "calculation_error", logicTag: "misidentifies common factors" },
+      { text: "72", isCorrect: false, type: "concept_error",     logicTag: "gives LCM instead of HCF" },
+      { text: "8",  isCorrect: false, type: "partial_logic",     logicTag: "only considers powers of 2" },
+    ],
+    solutionSteps: ["24 = 2³ × 3", "36 = 2² × 3²", "Common prime factors with lowest power: 2² × 3 = 4 × 3 = 12"],
+    shortcut: "HCF: common primes, LOWEST powers. LCM: all primes, HIGHEST powers.",
+  },
+  {
+    questionId: "math7_ch11_q2",
+    questionText: "Find the LCM of 15 and 20.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding Common Ground", topic: "math7_ch11", topicId: "math7_ch11",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "60", isCorrect: true,  type: "correct",           logicTag: "15=3×5, 20=2²×5; LCM=2²×3×5=60" },
+      { text: "5",  isCorrect: false, type: "concept_error",     logicTag: "gives HCF instead of LCM" },
+      { text: "300",isCorrect: false, type: "calculation_error", logicTag: "multiplies without considering common factors" },
+      { text: "30", isCorrect: false, type: "partial_logic",     logicTag: "uses 2 instead of 2² for 20" },
+    ],
+    solutionSteps: ["15 = 3 × 5", "20 = 2² × 5", "LCM = 2² × 3 × 5 = 4 × 3 × 5 = 60"],
+    shortcut: "LCM: write all primes with HIGHEST power from either number.",
+  },
+  {
+    questionId: "math7_ch11_q3",
+    questionText: "HCF of two numbers is 8 and their LCM is 96. One number is 24. Find the other.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding Common Ground", topic: "math7_ch11", topicId: "math7_ch11",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "32", isCorrect: true,  type: "correct",           logicTag: "other = HCF×LCM÷first = 8×96÷24 = 32" },
+      { text: "48", isCorrect: false, type: "calculation_error", logicTag: "uses LCM ÷ HCF = 12, then × 4" },
+      { text: "72", isCorrect: false, type: "concept_error",     logicTag: "adds LCM and first number" },
+      { text: "16", isCorrect: false, type: "partial_logic",     logicTag: "LCM ÷ first = 4, then × HCF/2" },
+    ],
+    solutionSteps: ["HCF × LCM = product of two numbers", "8 × 96 = 768 = 24 × other", "other = 768 ÷ 24 = 32"],
+    shortcut: "Other number = (HCF × LCM) ÷ known number.",
+  },
+  {
+    questionId: "math7_ch11_q4",
+    questionText: "Three bells ring at intervals of 6, 8, and 12 minutes. They ring together at 9:00 AM. When will they next ring together?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding Common Ground", topic: "math7_ch11", topicId: "math7_ch11",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "9:24 AM", isCorrect: true,  type: "correct",           logicTag: "LCM(6,8,12)=24 minutes" },
+      { text: "9:12 AM", isCorrect: false, type: "partial_logic",     logicTag: "uses HCF(6,8,12)=2 or mid value" },
+      { text: "9:48 AM", isCorrect: false, type: "calculation_error", logicTag: "doubles LCM" },
+      { text: "9:30 AM", isCorrect: false, type: "concept_error",     logicTag: "averages the intervals" },
+    ],
+    solutionSteps: ["Find LCM(6, 8, 12)", "6=2×3, 8=2³, 12=2²×3", "LCM=2³×3=24 minutes", "9:00 AM + 24 min = 9:24 AM"],
+    shortcut: "Bells ring together after LCM of their intervals.",
+  },
+  {
+    questionId: "math7_ch11_q5",
+    questionText: "What is the greatest number that divides 84 and 126 leaving no remainder?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding Common Ground", topic: "math7_ch11", topicId: "math7_ch11",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "42", isCorrect: true,  type: "correct",           logicTag: "HCF(84,126)=42" },
+      { text: "21", isCorrect: false, type: "calculation_error", logicTag: "HCF without highest power of 2" },
+      { text: "14", isCorrect: false, type: "partial_logic",     logicTag: "common factor but not highest" },
+      { text: "252",isCorrect: false, type: "concept_error",     logicTag: "gives LCM instead" },
+    ],
+    solutionSteps: ["Greatest divisor of both = HCF(84, 126)", "84=2²×3×7", "126=2×3²×7", "HCF=2×3×7=42"],
+    shortcut: "'Greatest number that divides both' = HCF.",
+  },
+
+  // ── Ch 12: Another Peek Beyond the Point ────────────────────────────────
+  {
+    questionId: "math7_ch12_q1",
+    questionText: "What is 2.4 × 3?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Another Peek Beyond the Point", topic: "math7_ch12", topicId: "math7_ch12",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "7.2",  isCorrect: true,  type: "correct",           logicTag: "24×3=72, 1 decimal place → 7.2" },
+      { text: "72",   isCorrect: false, type: "concept_error",     logicTag: "forgets to place decimal point" },
+      { text: "0.72", isCorrect: false, type: "calculation_error", logicTag: "places 2 decimal points" },
+      { text: "7.02", isCorrect: false, type: "partial_logic",     logicTag: "wrong decimal placement" },
+    ],
+    solutionSteps: ["24 × 3 = 72", "2.4 has 1 decimal place → place 1 decimal from right: 7.2"],
+    shortcut: "Multiply as whole numbers, then count decimal places from the right.",
+  },
+  {
+    questionId: "math7_ch12_q2",
+    questionText: "What is 6.3 ÷ 0.9?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Another Peek Beyond the Point", topic: "math7_ch12", topicId: "math7_ch12",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "7",    isCorrect: true,  type: "correct",           logicTag: "63÷9=7, decimals cancel" },
+      { text: "0.7",  isCorrect: false, type: "concept_error",     logicTag: "places extra decimal point" },
+      { text: "70",   isCorrect: false, type: "calculation_error", logicTag: "off by factor of 10" },
+      { text: "5.4",  isCorrect: false, type: "guessing",          logicTag: "subtracts instead" },
+    ],
+    solutionSteps: ["Multiply both by 10: 63 ÷ 9 = 7"],
+    shortcut: "Multiply numerator and denominator by same power of 10 to clear decimals.",
+  },
+  {
+    questionId: "math7_ch12_q3",
+    questionText: "Calculate: 1.25 × 0.4",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Another Peek Beyond the Point", topic: "math7_ch12", topicId: "math7_ch12",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "0.5",  isCorrect: true,  type: "correct",           logicTag: "125×4=500, 3 decimal places → 0.500=0.5" },
+      { text: "5",    isCorrect: false, type: "concept_error",     logicTag: "forgets decimal places" },
+      { text: "0.05", isCorrect: false, type: "calculation_error", logicTag: "places 4 decimal digits" },
+      { text: "1.65", isCorrect: false, type: "partial_logic",     logicTag: "adds instead of multiplies" },
+    ],
+    solutionSteps: ["125 × 4 = 500", "1.25 has 2 decimal places + 0.4 has 1 = 3 total", "Place 3 decimal places: 0.500 = 0.5"],
+    shortcut: "Count decimal places in BOTH factors. Total decimal places in answer.",
+  },
+  {
+    questionId: "math7_ch12_q4",
+    questionText: "A car travels 48.6 km on 5.4 litres of fuel. How many km per litre?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Another Peek Beyond the Point", topic: "math7_ch12", topicId: "math7_ch12",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "9 km/L",    isCorrect: true,  type: "correct",           logicTag: "486÷54=9" },
+      { text: "8.5 km/L",  isCorrect: false, type: "calculation_error", logicTag: "arithmetic error" },
+      { text: "90 km/L",   isCorrect: false, type: "concept_error",     logicTag: "forgets to adjust decimal" },
+      { text: "0.9 km/L",  isCorrect: false, type: "partial_logic",     logicTag: "misplaces decimal in result" },
+    ],
+    solutionSteps: ["km/L = 48.6 ÷ 5.4", "Multiply both by 10: 486 ÷ 54 = 9", "Answer: 9 km/L"],
+    shortcut: "Multiply both by 10 to clear decimals. 486÷54 = 9.",
+  },
+  {
+    questionId: "math7_ch12_q5",
+    questionText: "0.001 × 10,000 = ?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Another Peek Beyond the Point", topic: "math7_ch12", topicId: "math7_ch12",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "10",     isCorrect: true,  type: "correct",           logicTag: "multiply by 10000: shift decimal 4 right → 10.000=10" },
+      { text: "0.1",    isCorrect: false, type: "calculation_error", logicTag: "only shifts 2 places" },
+      { text: "100",    isCorrect: false, type: "concept_error",     logicTag: "shifts 5 places instead of 4" },
+      { text: "1",      isCorrect: false, type: "partial_logic",     logicTag: "shifts 3 places" },
+    ],
+    solutionSteps: ["0.001 × 10,000", "Multiplying by 10,000 shifts decimal 4 places right", "0.001 → 0.0010 → 0.010 → 0.10 → 1.0 → 10.0", "Answer: 10"],
+    shortcut: "Multiplying by 10^n shifts decimal n places RIGHT.",
+  },
+
+  // ── Ch 13: Connecting the Dots (Data Handling) ───────────────────────────
+  {
+    questionId: "math7_ch13_q1",
+    questionText: "The marks of 5 students are: 72, 85, 90, 68, 75. What is the mean?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Connecting the Dots", topic: "math7_ch13", topicId: "math7_ch13",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "78",  isCorrect: true,  type: "correct",           logicTag: "(72+85+90+68+75)/5=390/5=78" },
+      { text: "75",  isCorrect: false, type: "concept_error",     logicTag: "gives median not mean" },
+      { text: "80",  isCorrect: false, type: "calculation_error", logicTag: "arithmetic error in sum" },
+      { text: "90",  isCorrect: false, type: "guessing",          logicTag: "gives maximum value" },
+    ],
+    solutionSteps: ["Sum = 72+85+90+68+75 = 390", "Count = 5", "Mean = 390÷5 = 78"],
+    shortcut: "Mean = sum ÷ count. Always add all values first.",
+  },
+  {
+    questionId: "math7_ch13_q2",
+    questionText: "Find the median of: 3, 7, 1, 9, 5, 2, 8",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Connecting the Dots", topic: "math7_ch13", topicId: "math7_ch13",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "5",  isCorrect: true,  type: "correct",           logicTag: "sorted: 1,2,3,5,7,8,9 → middle is 5" },
+      { text: "3",  isCorrect: false, type: "concept_error",     logicTag: "picks middle of unsorted data" },
+      { text: "7",  isCorrect: false, type: "calculation_error", logicTag: "counts from wrong end" },
+      { text: "5.5",isCorrect: false, type: "partial_logic",     logicTag: "averages 5 and 7 unnecessarily" },
+    ],
+    solutionSteps: ["Sort: 1, 2, 3, 5, 7, 8, 9", "7 values → middle position = 4th", "4th value = 5"],
+    shortcut: "SORT first. Median position = (n+1)/2 for odd n. Here: (7+1)/2 = 4th.",
+  },
+  {
+    questionId: "math7_ch13_q3",
+    questionText: "Data: 4, 7, 7, 9, 4, 7, 4. What is the mode?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Connecting the Dots", topic: "math7_ch13", topicId: "math7_ch13",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "Both 4 and 7", isCorrect: true,  type: "correct",           logicTag: "4 appears 3 times, 7 appears 3 times — bimodal" },
+      { text: "7 only",       isCorrect: false, type: "partial_logic",     logicTag: "misses that 4 also appears 3 times" },
+      { text: "4 only",       isCorrect: false, type: "partial_logic",     logicTag: "misses that 7 also appears 3 times" },
+      { text: "No mode",      isCorrect: false, type: "concept_error",     logicTag: "incorrectly thinks no mode exists" },
+    ],
+    solutionSteps: ["Count: 4→3 times, 7→3 times, 9→1 time", "Both 4 and 7 appear most often (3 times each)", "Bimodal: modes are 4 and 7"],
+    shortcut: "A dataset can have more than one mode (bimodal). Count all frequencies.",
+  },
+  {
+    questionId: "math7_ch13_q4",
+    questionText: "The mean of 6 numbers is 15. One number is removed, and the new mean is 16. What was the removed number?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Connecting the Dots", topic: "math7_ch13", topicId: "math7_ch13",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "10", isCorrect: true,  type: "correct",           logicTag: "original sum=90; new sum=80; removed=90−80=10" },
+      { text: "15", isCorrect: false, type: "concept_error",     logicTag: "assumes removed number = original mean" },
+      { text: "16", isCorrect: false, type: "partial_logic",     logicTag: "uses new mean as answer" },
+      { text: "5",  isCorrect: false, type: "calculation_error", logicTag: "arithmetic error" },
+    ],
+    solutionSteps: ["Original sum = 6×15 = 90", "New sum (5 numbers) = 5×16 = 80", "Removed number = 90−80 = 10"],
+    shortcut: "Sum = mean × count. Find old sum and new sum, their difference is the removed number.",
+  },
+  {
+    questionId: "math7_ch13_q5",
+    questionText: "Scores: 8, 12, 15, 9, 11, 13, 10. Find the range and median.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Connecting the Dots", topic: "math7_ch13", topicId: "math7_ch13",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "Range=7, Median=11", isCorrect: true,  type: "correct",           logicTag: "15−8=7; sorted: 8,9,10,11,12,13,15 → 4th=11" },
+      { text: "Range=7, Median=10", isCorrect: false, type: "calculation_error", logicTag: "correct range, wrong median position" },
+      { text: "Range=6, Median=11", isCorrect: false, type: "partial_logic",     logicTag: "wrong range, correct median" },
+      { text: "Range=8, Median=11", isCorrect: false, type: "concept_error",     logicTag: "counts data points as range" },
+    ],
+    solutionSteps: ["Sort: 8, 9, 10, 11, 12, 13, 15", "Range = max−min = 15−8 = 7", "7 values → median = 4th = 11"],
+    shortcut: "Sort first. Range = max−min. Median = middle value of sorted data.",
+  },
+
+  // ── Ch 14: Constructions and Tilings ─────────────────────────────────────
+  {
+    questionId: "math7_ch14_q1",
+    questionText: "Which regular polygon has an interior angle of exactly 120°, allowing it to tessellate?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Constructions and Tilings", topic: "math7_ch14", topicId: "math7_ch14",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "Regular hexagon",  isCorrect: true,  type: "correct",           logicTag: "120°×3=360°, 3 hexagons meet at a point" },
+      { text: "Regular pentagon", isCorrect: false, type: "concept_error",     logicTag: "interior angle=108°, 360/108 is not whole number" },
+      { text: "Regular octagon",  isCorrect: false, type: "concept_error",     logicTag: "interior angle=135°, 360/135 is not whole number" },
+      { text: "Regular heptagon", isCorrect: false, type: "guessing",          logicTag: "≈128.57°, does not divide 360°" },
+    ],
+    solutionSteps: ["Tessellation condition: interior angle divides 360° evenly", "Regular hexagon interior angle = (6−2)×180°/6 = 120°", "360÷120=3 → 3 hexagons meet at each vertex ✓"],
+    shortcut: "Only equilateral triangle (60°), square (90°), regular hexagon (120°) tessellate alone.",
+  },
+  {
+    questionId: "math7_ch14_q2",
+    questionText: "To construct the perpendicular bisector of a segment, the compass must be set to more than:",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Constructions and Tilings", topic: "math7_ch14", topicId: "math7_ch14",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "Half the length of the segment", isCorrect: true,  type: "correct",           logicTag: "arcs must cross above and below the segment" },
+      { text: "The full length of the segment",  isCorrect: false, type: "concept_error",     logicTag: "too large, arcs still cross but wasteful" },
+      { text: "A quarter of the segment",        isCorrect: false, type: "calculation_error", logicTag: "arcs will not cross" },
+      { text: "Exactly half the segment",        isCorrect: false, type: "partial_logic",     logicTag: "arcs will touch at endpoints only, not cross" },
+    ],
+    solutionSteps: ["Perpendicular bisector: draw arcs from BOTH endpoints with the SAME radius", "The radius must be MORE than half, so arcs cross above AND below the segment", "Connect the two crossing points to get the perpendicular bisector"],
+    shortcut: "Compass = more than half the segment. Equal radius from both endpoints.",
+  },
+  {
+    questionId: "math7_ch14_q3",
+    questionText: "How many equilateral triangles meet at a single vertex in a regular triangular tessellation?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Constructions and Tilings", topic: "math7_ch14", topicId: "math7_ch14",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "6", isCorrect: true,  type: "correct",           logicTag: "60°×6=360°" },
+      { text: "3", isCorrect: false, type: "concept_error",     logicTag: "3×60=180°, not 360°" },
+      { text: "4", isCorrect: false, type: "calculation_error", logicTag: "4×60=240°, not 360°" },
+      { text: "5", isCorrect: false, type: "partial_logic",     logicTag: "5×60=300°, not 360°" },
+    ],
+    solutionSteps: ["Equilateral triangle interior angle = 60°", "At each vertex: 360° ÷ 60° = 6 triangles"],
+    shortcut: "Divide 360° by the interior angle to find how many polygons meet at each vertex.",
+  },
+  {
+    questionId: "math7_ch14_q4",
+    questionText: "To bisect an angle, after drawing the first arc from the vertex, where should the next arcs be drawn from?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Constructions and Tilings", topic: "math7_ch14", topicId: "math7_ch14",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "From the two points where the first arc intersects the angle's sides", isCorrect: true,  type: "correct",           logicTag: "equal arcs from the two intersection points" },
+      { text: "From the vertex again with a larger radius",                           isCorrect: false, type: "concept_error",     logicTag: "this gives a larger arc, not bisecting arcs" },
+      { text: "From the midpoint of the first arc",                                  isCorrect: false, type: "misinterpretation", logicTag: "midpoint of arc is not a defined point" },
+      { text: "From the endpoints of the angle's sides",                              isCorrect: false, type: "partial_logic",     logicTag: "sides may not be of defined length" },
+    ],
+    solutionSteps: ["Step 1: Draw arc from vertex, intersecting both sides at points P and Q", "Step 2: Set equal compass width; draw arcs from P and Q", "Step 3: The intersection of these arcs is on the angle bisector", "Step 4: Connect vertex to intersection point"],
+    shortcut: "Angle bisector: arc from vertex → two points on sides → equal arcs from those points → bisector through intersection.",
+  },
+  {
+    questionId: "math7_ch14_q5",
+    questionText: "Can a regular pentagon alone tile the plane?",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Constructions and Tilings", topic: "math7_ch14", topicId: "math7_ch14",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "No — interior angle 108° does not divide 360° evenly", isCorrect: true,  type: "correct",           logicTag: "360÷108=3.33... not a whole number" },
+      { text: "Yes — pentagons can tile the plane",                    isCorrect: false, type: "concept_error",     logicTag: "REGULAR pentagons cannot; irregular ones sometimes can" },
+      { text: "No — pentagons have too many sides",                    isCorrect: false, type: "misinterpretation", logicTag: "number of sides is not the criterion" },
+      { text: "Yes — if arranged in a specific pattern",               isCorrect: false, type: "partial_logic",     logicTag: "regular pentagons leave gaps regardless of arrangement" },
+    ],
+    solutionSteps: ["Interior angle of regular pentagon = (5−2)×180°/5 = 108°", "360° ÷ 108° = 3.33... (not a whole number)", "Cannot have 3.33 pentagons meet at a vertex", "Regular pentagons CANNOT tile the plane alone"],
+    shortcut: "Only 60°, 90°, 120° interior angles divide 360° evenly. Pentagon's 108° does not.",
+  },
+
+  // ── Ch 15: Finding the Unknown ───────────────────────────────────────────
+  {
+    questionId: "math7_ch15_q1",
+    questionText: "Solve: x + 9 = 17",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding the Unknown", topic: "math7_ch15", topicId: "math7_ch15",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "8",  isCorrect: true,  type: "correct",           logicTag: "x=17−9=8" },
+      { text: "26", isCorrect: false, type: "concept_error",     logicTag: "adds 9 instead of subtracting" },
+      { text: "7",  isCorrect: false, type: "calculation_error", logicTag: "arithmetic error" },
+      { text: "9",  isCorrect: false, type: "guessing",          logicTag: "repeats the constant" },
+    ],
+    solutionSteps: ["x + 9 = 17", "x = 17 − 9 = 8", "Verify: 8 + 9 = 17 ✓"],
+    shortcut: "Transpose: +9 moves to other side as −9.",
+  },
+  {
+    questionId: "math7_ch15_q2",
+    questionText: "Solve: 3x − 4 = 11",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding the Unknown", topic: "math7_ch15", topicId: "math7_ch15",
+    difficulty: "easy", type: "mcq",
+    options: [
+      { text: "5",  isCorrect: true,  type: "correct",           logicTag: "3x=15 → x=5" },
+      { text: "7",  isCorrect: false, type: "calculation_error", logicTag: "3x=15, computes 15÷2 instead" },
+      { text: "2⅓", isCorrect: false, type: "concept_error",     logicTag: "divides 11 by 3 without adding 4" },
+      { text: "9",  isCorrect: false, type: "partial_logic",     logicTag: "adds 4 to 11 then divides by 2" },
+    ],
+    solutionSteps: ["3x − 4 = 11", "3x = 11 + 4 = 15", "x = 15 ÷ 3 = 5", "Verify: 3(5)−4=11 ✓"],
+    shortcut: "Move constants first, then divide by coefficient.",
+  },
+  {
+    questionId: "math7_ch15_q3",
+    questionText: "The sum of three consecutive integers is 51. Find them.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding the Unknown", topic: "math7_ch15", topicId: "math7_ch15",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "16, 17, 18", isCorrect: true,  type: "correct",           logicTag: "3x+3=51 → x=16" },
+      { text: "15, 17, 19", isCorrect: false, type: "concept_error",     logicTag: "uses consecutive odd integers" },
+      { text: "17, 18, 19", isCorrect: false, type: "calculation_error", logicTag: "sum=54≠51" },
+      { text: "15, 16, 17", isCorrect: false, type: "partial_logic",     logicTag: "sum=48≠51" },
+    ],
+    solutionSteps: ["Let integers be n, n+1, n+2", "n+(n+1)+(n+2)=51 → 3n+3=51 → 3n=48 → n=16", "Integers: 16, 17, 18 (sum=51 ✓)"],
+    shortcut: "Three consecutive integers: n, n+1, n+2. Their sum = 3n+3.",
+  },
+  {
+    questionId: "math7_ch15_q4",
+    questionText: "Solve: (2x+1)/3 = 5",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding the Unknown", topic: "math7_ch15", topicId: "math7_ch15",
+    difficulty: "medium", type: "mcq",
+    options: [
+      { text: "7",   isCorrect: true,  type: "correct",           logicTag: "2x+1=15 → 2x=14 → x=7" },
+      { text: "8",   isCorrect: false, type: "calculation_error", logicTag: "divides 15 by 2 and rounds" },
+      { text: "4⅔",  isCorrect: false, type: "concept_error",     logicTag: "divides 5+1=6 by 3 then halves" },
+      { text: "3",   isCorrect: false, type: "partial_logic",     logicTag: "divides 5 by 3 then uses x" },
+    ],
+    solutionSteps: ["(2x+1)/3 = 5", "Multiply both sides by 3: 2x+1 = 15", "2x = 14 → x = 7", "Verify: (2×7+1)/3 = 15/3 = 5 ✓"],
+    shortcut: "Clear the fraction first by multiplying both sides by the denominator.",
+  },
+  {
+    questionId: "math7_ch15_q5",
+    questionText: "Priya is 3 times as old as Riya. In 5 years, the sum of their ages will be 46. Find Priya's current age.",
+    subject: "Mathematics", grade: "7", board: "CBSE",
+    chapter: "Finding the Unknown", topic: "math7_ch15", topicId: "math7_ch15",
+    difficulty: "hard", type: "mcq",
+    options: [
+      { text: "27", isCorrect: true,  type: "correct",           logicTag: "Riya=x, Priya=3x; (3x+5)+(x+5)=46 → x=9, Priya=27" },
+      { text: "24", isCorrect: false, type: "calculation_error", logicTag: "arithmetic error in solving" },
+      { text: "9",  isCorrect: false, type: "partial_logic",     logicTag: "gives Riya's age not Priya's" },
+      { text: "30", isCorrect: false, type: "concept_error",     logicTag: "does not account for the 5 years" },
+    ],
+    solutionSteps: [
+      "Let Riya's age = x, then Priya's age = 3x",
+      "In 5 years: Priya = 3x+5, Riya = x+5",
+      "(3x+5)+(x+5) = 46 → 4x+10 = 46 → 4x = 36 → x = 9",
+      "Priya's current age = 3×9 = 27",
+    ],
+    shortcut: "Set up equation using sum of future ages. Solve for x, then compute the required age.",
+  },
+];
+
+async function seed() {
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log("MongoDB connected");
+
+  for (const q of questions) {
+    await Question.findOneAndUpdate(
+      { questionText: q.questionText, subject: q.subject },
+      q,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    console.log(`  ✓ ${q.questionId}`);
+  }
+
+  console.log(`\nSeeded ${questions.length} questions for Class 7 Math (Ch 9–15).`);
+  await mongoose.disconnect();
+}
+
+seed().catch((err) => { console.error(err); process.exit(1); });

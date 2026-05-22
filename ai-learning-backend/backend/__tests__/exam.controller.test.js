@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { fullModelMock } from "./helpers/modelMock.js";
 
 // ── Model mocks ─────────────────────────────────────────────────────
 const mockExamFindById        = jest.fn();
@@ -10,6 +11,7 @@ const mockAttemptFindByIdAndUpdate = jest.fn();
 const mockLeaderboardFindOneAndUpdate = jest.fn();
 
 jest.unstable_mockModule("../models/index.js", () => ({
+  ...fullModelMock(),
   Exam: { findById: mockExamFindById },
   Question: { aggregate: mockQuestionAggregate },
   ExamAttempt: {
@@ -17,6 +19,7 @@ jest.unstable_mockModule("../models/index.js", () => ({
     find: mockAttemptFind,
     findById: mockAttemptFindById,
     findByIdAndUpdate: mockAttemptFindByIdAndUpdate,
+    bulkWrite: jest.fn().mockResolvedValue({}),
   },
   WeeklyLeaderboard: { findOneAndUpdate: mockLeaderboardFindOneAndUpdate },
 }));
@@ -62,10 +65,11 @@ afterEach(() => jest.clearAllMocks());
 describe("listExams", () => {
   test("returns active exams array", async () => {
     const exams = [{ _id: EXAM_ID, title: "Week 1 Math", isActive: true }];
-    mockExamFindById.mockResolvedValue(exams); // not used here — listExams calls Exam.find
-    // patch Exam.find on the imported module
+    // listExams does Exam.find(...).select(...).limit(...).lean()
     const { Exam } = await import("../models/index.js");
-    Exam.find = jest.fn().mockResolvedValue(exams);
+    Exam.find = jest.fn().mockReturnValue({
+      select: () => ({ limit: () => ({ lean: () => Promise.resolve(exams) }) }),
+    });
 
     const { req, res, next } = mockReqRes();
     await ctrl.listExams(req, res, next);
@@ -169,13 +173,16 @@ describe("submitExam", () => {
     ],
   };
 
-  const ANSWERS = [{ questionId: "q1", selectedType: "correct", timeTaken: 30 }];
+  // Client sends selectedOptionIndex; the server derives correct/wrong from the option's type.
+  // q1 options: [0]=correct, [1]=wrong1.
+  const ANSWERS = [{ questionId: "q1", selectedOptionIndex: 0, timeTaken: 30 }];
 
   beforeEach(() => {
     mockSessionGet.mockResolvedValue(SESSION);
     mockCalcScore.mockReturnValue(1);
     mockAttemptCreate.mockResolvedValue({ _id: "a1", userId: USER_ID });
-    mockAttemptFind.mockResolvedValue([{ _id: "a1", userId: USER_ID, rawScore: 1 }]);
+    // submitExam does ExamAttempt.find(...).select(...).lean()
+    mockAttemptFind.mockReturnValue({ select: () => ({ lean: () => Promise.resolve([{ _id: "a1", userId: USER_ID, rawScore: 1 }]) }) });
     mockNormalize.mockReturnValue([{ _id: "a1", userId: USER_ID, normalizedScore: 75 }]);
     mockAssignRanks.mockReturnValue([{ _id: "a1", userId: USER_ID, normalizedScore: 75, rank: 1, percentile: 100 }]);
     mockAttemptFindByIdAndUpdate.mockResolvedValue({});
@@ -197,7 +204,7 @@ describe("submitExam", () => {
   });
 
   test("wrong answer with negative marking → negative marksAwarded", async () => {
-    const wrongAnswers = [{ questionId: "q1", selectedType: "wrong1", timeTaken: 20 }];
+    const wrongAnswers = [{ questionId: "q1", selectedOptionIndex: 1, timeTaken: 20 }]; // [1] = wrong1
     mockCalcScore.mockReturnValue(-0.25);
     const { req, res, next } = mockReqRes({}, { answers: wrongAnswers });
     await ctrl.submitExam(req, res, next);
@@ -266,21 +273,21 @@ describe("submitExam", () => {
 describe("getExamReview", () => {
   test("returns attempt for owner", async () => {
     const attempt = { _id: ATTEMPT_ID, userId: USER_ID, answers: [] };
-    mockAttemptFindById.mockResolvedValue(attempt);
+    mockAttemptFindById.mockReturnValue({ lean: () => Promise.resolve(attempt) });
     const { req, res, next } = mockReqRes({ attemptId: ATTEMPT_ID }, {}, USER_ID);
     await ctrl.getExamReview(req, res, next);
     expect(res.json).toHaveBeenCalledWith(attempt);
   });
 
   test("attempt not found → 404", async () => {
-    mockAttemptFindById.mockResolvedValue(null);
+    mockAttemptFindById.mockReturnValue({ lean: () => Promise.resolve(null) });
     const { req, res, next } = mockReqRes({ attemptId: ATTEMPT_ID });
     await ctrl.getExamReview(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(404);
   });
 
   test("wrong user → 403", async () => {
-    mockAttemptFindById.mockResolvedValue({ _id: ATTEMPT_ID, userId: "other_user" });
+    mockAttemptFindById.mockReturnValue({ lean: () => Promise.resolve({ _id: ATTEMPT_ID, userId: "other_user" }) });
     const { req, res, next } = mockReqRes({ attemptId: ATTEMPT_ID }, {}, USER_ID);
     await ctrl.getExamReview(req, res, next);
     expect(next.mock.calls[0][0].statusCode).toBe(403);

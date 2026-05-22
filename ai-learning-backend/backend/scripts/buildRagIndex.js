@@ -139,9 +139,10 @@ async function build() {
 
   for (const subject of subjects) {
     // Clear existing chunks for this subject to avoid duplicates.
-    // Exclude standardized topic-content chunks (^cbse_math9_ etc.) — those are
-    // owned by buildRagFromTopicContent.js and must survive this rebuild.
-    const deleted = await NcertChunk.deleteMany({ subject, topicId: { $not: /^cbse_math9_/ } });
+    // Exclude standardized topic-content chunks — any board-prefixed math id
+    // (cbse_math9_*, cbse_math10_*, icse_math10_*, …). Those are owned by
+    // buildRagFromTopicContent.js and must survive this rebuild.
+    const deleted = await NcertChunk.deleteMany({ subject, topicId: { $not: /^[a-z]+_math\d+_/ } });
     if (deleted.deletedCount) console.log(`  Cleared ${deleted.deletedCount} old chunks for ${subject}`);
 
     const subjectChapters = chapters.filter((c) => (c.subject || "Mathematics") === subject);

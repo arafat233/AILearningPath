@@ -33,6 +33,10 @@ const args = Object.fromEntries(
 const prefix = args.prefix || "cbse_math9_";
 const idRegex = new RegExp("^" + prefix);
 
+// Content collections are arrays in the standardized seeds but keyed objects
+// in the legacy CBSE-10 docs (e.g. worked_example) — normalize to an array.
+const asArray = (x) => (Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []));
+
 // Derive grade from a board-prefixed id: cbse_math9_ch1_x -> "9"
 function gradeFromId(id) {
   const m = (id || "").match(/^[a-z]+_[a-z]+(\d+)_/);
@@ -62,7 +66,7 @@ function chunksFor(topic) {
   }
 
   // 2. Formulas
-  for (const f of topic.key_formulas || []) {
+  for (const f of asArray(topic.key_formulas)) {
     const formula = typeof f === "string" ? f : f?.formula;
     const expl    = typeof f === "object" ? f?.explanation : "";
     if (formula?.trim()) {
@@ -72,7 +76,7 @@ function chunksFor(topic) {
   }
 
   // 3. Worked examples → QA chunks
-  for (const ex of tc.worked_example || []) {
+  for (const ex of asArray(tc.worked_example)) {
     if (ex?.problem?.trim()) {
       out.push({ ...base, chunkType: "qa",
         text: `Q (${topic.name}): ${ex.problem.trim()}\nA: ${String(ex.answer || "").trim()}` });
@@ -80,7 +84,7 @@ function chunksFor(topic) {
   }
 
   // 4. Common misconceptions → concept chunks
-  for (const m of tc.common_misconceptions || []) {
+  for (const m of asArray(tc.common_misconceptions)) {
     if (m?.wrong_idea?.trim()) {
       out.push({ ...base, chunkType: "concept",
         text: `Common misconception (${topic.name}): ${m.wrong_idea.trim()} → Correction: ${String(m.correction || "").trim()}` });

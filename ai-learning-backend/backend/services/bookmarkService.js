@@ -101,7 +101,9 @@ export async function getDueQuestions(userId, limit = 20) {
 
   if (!due.length) return [];
 
-  const questions = await Question.find({ _id: { $in: due }, deletedAt: null })
+  const userDoc = await User.findById(userId).select("examBoard").lean();
+  const board   = (userDoc?.examBoard || "CBSE").toUpperCase();
+  const questions = await Question.find({ _id: { $in: due }, examBoard: board, deletedAt: null })
     .select("questionText subject grade conceptTested difficultyScore options topic")
     .lean();
   return questions.map((q) => ({

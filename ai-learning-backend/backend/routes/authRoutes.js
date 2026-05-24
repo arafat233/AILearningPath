@@ -40,6 +40,7 @@ const registerSchema = Joi.object({
   password:     Joi.string().min(8).required(), // raised from 6 to 8
   examDate:     Joi.date().iso().optional(),
   grade:        Joi.string().optional(),
+  examBoard:    Joi.string().valid("CBSE","ICSE","IB","SSC","State Board").optional(),
   referralCode: Joi.string().max(32).uppercase().optional(), // invite/referral code from another user
 });
 

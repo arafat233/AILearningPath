@@ -2734,6 +2734,165 @@ export default function NcertTopicView() {
     11: "Electricity",                     12: "Magnetic Effects of Electric Current",
     13: "Our Environment",
   };
+  // ICSE Class 10 Math chapter titles (Selina/Concise) — NcertChapter collection only has
+  // CBSE chapters, so derive from a static map exactly as Science does above.
+  const ICSE_MATH10_CHAPTER_TITLES = {
+    1:  "Value Added Tax",                           2:  "Banking (Recurring Deposit Account)",
+    3:  "Shares and Dividend",                       4:  "Linear Inequations (In one variable)",
+    5:  "Quadratic Equations",                       6:  "Solving (Simple) Problems on Quadratic Equations",
+    7:  "Ratio and Proportion",                      8:  "Remainder and Factor Theorems",
+    9:  "Matrices",                                  10: "Arithmetic Progression",
+    11: "Geometric Progression",                     12: "Reflection",
+    13: "Section and Mid-Point Formula",             14: "Equation of a Line",
+    15: "Similarity (with Maps and Models)",         16: "Loci (Locus and Its Constructions)",
+    17: "Circles",                                   18: "Tangents and Intersecting Chords",
+    19: "Constructions (Circles)",                   20: "Cylinder, Cone and Sphere (Surface Area & Volume)",
+    21: "Trigonometrical Identities",                22: "Heights and Distances",
+    23: "Graphical Representation",                  24: "Measures of Central Tendency",
+    25: "Probability",
+  };
+  // ICSE Class 9 Math chapter titles (Selina Concise, 28 chapters).
+  // NcertChapter collection only has CBSE 10 chapters — use a static map same as ICSE Math 10.
+  const ICSE_MATH9_CHAPTER_TITLES = {
+    1:  "Rational and Irrational Numbers",        2:  "Compound Interest (Without Formula)",
+    3:  "Compound Interest (Using Formula)",       4:  "Expansions (Identities)",
+    5:  "Factorisation",                           6:  "Simultaneous (Linear) Equations",
+    7:  "Indices (Exponents)",                     8:  "Logarithms",
+    9:  "Triangles (Congruency in Triangles)",     10: "Isosceles Triangles",
+    11: "Inequalities",                            12: "Mid-Point and Its Converse; Equal Intercept Theorem",
+    13: "Pythagoras Theorem",                      14: "Rectilinear Figures (Quadrilaterals: Parallelogram, Rectangle, Rhombus, Square and Trapezium)",
+    15: "Construction of Polygons (Using Ruler and Compass Only)",
+    16: "Area Theorems (Proof and Use)",           17: "Circle",
+    18: "Statistics",                              19: "Mean and Median (For Ungrouped Data Only)",
+    20: "Area and Perimeter of Plane Figures",     21: "Solids (Surface Area and Volume of 3-D Solids)",
+    22: "Trigonometrical Ratios (sin θ, cos θ, tan θ and their Reciprocals)",
+    23: "Trigonometrical Ratios of Standard Angles (Including Evaluation of an Expression Involving Trigonometric Ratios)",
+    24: "Solution of Right Triangles (Simple 2-D Problems Involving One Right-Angled Triangle)",
+    25: "Complementary Angles",
+    26: "Co-ordinate Geometry (In 2-D)",
+    27: "Graphical Solution (Solution of Simultaneous Linear Equations, Graphically)",
+    28: "Distance Formula",
+  };
+  // CBSE Class 9 Math chapter titles (standardized cbse_math9_* seeds, 8 chapters).
+  // NcertChapter collection only has CBSE 10 chapters — use a static map same as Science/ICSE.
+  const CBSE_MATH9_CHAPTER_TITLES = {
+    1: "Coordinate Geometry",         2: "Polynomials",
+    3: "Number Systems",              4: "Algebraic Identities",
+    5: "Circles",                     6: "Heron's Formula and Areas",
+    7: "Probability",                 8: "Sequences and Progressions",
+  };
+  // AP SSC Class 9 Math chapter titles (ap_ssc_math9_* — NCERT rationalized 2024-25, 12 chapters).
+  // NcertChapter collection has no AP SSC entries — use static map same as CBSE/ICSE Math 9.
+  const AP_SSC_MATH9_CHAPTER_TITLES = {
+    1:  "Number Systems",
+    2:  "Polynomials",
+    3:  "Coordinate Geometry",
+    4:  "Linear Equations in Two Variables",
+    5:  "Introduction to Euclid's Geometry",
+    6:  "Lines and Angles",
+    7:  "Triangles",
+    8:  "Quadrilaterals",
+    9:  "Circles",
+    10: "Heron's Formula",
+    11: "Surface Areas and Volumes",
+    12: "Statistics",
+  };
+  // AP SSC Class 10 Math chapter titles (ap_ssc_math10_* — same NCERT curriculum as CBSE 10).
+  // NcertChapter collection has no AP SSC entries — use static map same as ICSE/CBSE Math 9.
+  const AP_SSC_MATH10_CHAPTER_TITLES = {
+    1:  "Real Numbers",
+    2:  "Polynomials",
+    3:  "Pair of Linear Equations in Two Variables",
+    4:  "Quadratic Equations",
+    5:  "Arithmetic Progressions",
+    6:  "Triangles",
+    7:  "Coordinate Geometry",
+    8:  "Introduction to Trigonometry",
+    9:  "Some Applications of Trigonometry",
+    10: "Circles",
+    11: "Areas Related to Circles",
+    12: "Surface Areas and Volumes",
+    13: "Statistics",
+    14: "Probability",
+  };
+  // CBSE Classes 1–8 Math chapter titles (legacy math{N}_ v2 seeds).
+  // NcertChapter collection only has CBSE 10; use static maps mirroring Lessons.jsx.
+  const CBSE_MATH_LEGACY_CHAPTER_TITLES = {
+    "8": {
+      1: "A Square and A Cube",                    2: "Power Play",
+      3: "A Story of Numbers",                     4: "Quadrilaterals",
+      5: "Number Play",                            6: "We Distribute, Yet Things Multiply",
+      7: "Proportional Reasoning - 1",             8: "Fractions in Disguise",
+      9: "The Baudhayana-Pythagoras Theorem",      10: "Proportional Reasoning - 2",
+      11: "Exploring Some Geometric Themes",       12: "Tales by Dots and Lines",
+      13: "Algebra Play",                          14: "Area",
+    },
+    "7": {
+      1: "Large Numbers Around Us",                2: "Arithmetic Expressions",
+      3: "A Peek Beyond the Point",                4: "Letter-Numbers",
+      5: "Parallel and Intersecting Lines",        6: "Number Play",
+      7: "A Tale of Three Intersecting Lines",     8: "Working with Fractions",
+      9: "Geometric Twins",                        10: "Operations with Integers",
+      11: "Finding Common Ground",                 12: "Another Peek Beyond the Point",
+      13: "Connecting the Dots",                   14: "Constructions and Tilings",
+      15: "Finding the Unknown",
+    },
+    "6": {
+      1: "Patterns in Mathematics",               2: "Lines and Angles",
+      3: "Number Play",                           4: "Data Handling and Presentation",
+      5: "Prime Time",                            6: "Perimeter and Area",
+      7: "Fractions",                             8: "Playing with Constructions",
+      9: "Symmetry",                              10: "The Other Side of Zero",
+    },
+    "5": {
+      1: "The Fish Tale",                         2: "Shapes and Angles",
+      3: "How Many Squares?",                     4: "Parts and Wholes",
+      5: "Does it Look the Same?",               6: "Be My Multiple, I'll Be Your Factor",
+      7: "Can You See the Pattern?",             8: "Mapping Your Way",
+      9: "Boxes and Sketches",                   10: "Tenths and Hundredths",
+      11: "Area and Its Boundary",               12: "Smart Charts",
+      13: "Ways to Multiply and Divide",         14: "How Big? How Heavy?",
+    },
+    "4": {
+      1: "Building with Bricks",                 2: "Long and Short",
+      3: "A Trip to Bhopal",                     4: "Tick-Tick-Tick",
+      5: "The Way The World Looks",              6: "The Junk Seller",
+      7: "Jugs and Mugs",                        8: "Carts and Wheels",
+      9: "Halves and Quarters",                  10: "Play with Patterns",
+      11: "Tables and Shares",                   12: "How Heavy? How Light?",
+      13: "Fields and Fences",                   14: "Smart Charts",
+    },
+    "3": {
+      1: "Where to Look From",                   2: "Fun with Numbers",
+      3: "Give and Take",                        4: "Long and Short",
+      5: "Shapes and Designs",                   6: "Fun with Give and Take",
+      7: "Time Goes On",                         8: "Who is Heavier?",
+      9: "How Many Times?",                      10: "Play with Patterns",
+      11: "Jugs and Mugs",                       12: "Can We Share?",
+      13: "Smart Charts!",                       14: "Rupees and Paise",
+    },
+    "2": {
+      1: "What is Long, What is Round?",         2: "Counting in Groups",
+      3: "How Much Can You Carry?",              4: "Counting in Tens",
+      5: "Patterns",                             6: "Footprints",
+      7: "Jugs and Mugs",                        8: "Tens and Ones",
+      9: "My Funbook",                           10: "Add our Points",
+      11: "Lines and Lines",                     12: "Give and Take",
+      13: "The Longest Step",                    14: "Birds Come, Birds Go",
+      15: "How Many Ponytails?",
+    },
+    "1": {
+      1: "Shapes and Space",                     2: "Numbers from One to Nine",
+      3: "Addition",                             4: "Subtraction",
+      5: "Numbers from Ten to Twenty",           6: "Time",
+      7: "Measurement",                          8: "Numbers from Twenty-one to Fifty",
+      9: "Data Handling",                        10: "Patterns",
+      11: "Numbers",                             12: "Money",
+      13: "How Many",
+    },
+  };
+  // Extract grade number from legacy math{N}_ topicId
+  const legacyMathGrade = (id) => { const m = (id || "").match(/^math(\d+)_/); return m ? m[1] : null; };
   const isSciTopicId  = id => (id || "").startsWith("sci_");
   const isEngTopicId  = id => (id || "").startsWith("eng_");
   const isHinTopicId  = id => (id || "").startsWith("hin_");
@@ -2749,7 +2908,11 @@ export default function NcertTopicView() {
   // Standardized board-prefixed IDs (SPEC_MATH_STANDARDIZATION) — rich Class-10-style
   // content, NOT the flat math{N}_ format. Kept out of isSciLike so it renders the
   // nested intuition / derivation / svg_diagrams path, exactly like CBSE Math 10.
-  const isCbseMath9TopicId = id => (id || "").startsWith("cbse_math9_");
+  const isCbseMath9TopicId   = id => (id || "").startsWith("cbse_math9_");
+  const isIcseMath9TopicId   = id => (id || "").startsWith("icse_math9_");
+  const isIcseMath10TopicId  = id => (id || "").startsWith("icse_math10_");
+  const isApSscMath9TopicId  = id => (id || "").startsWith("ap_ssc_math9_");
+  const isApSscMath10TopicId = id => (id || "").startsWith("ap_ssc_math10_");
 
   // Fetch all NCERT topics + chapter list once to derive siblings, prereqMap, and chapter title
   useEffect(() => {
@@ -2766,26 +2929,34 @@ export default function NcertTopicView() {
     const isMath3 = isMath3TopicId(topicId);
     const isMath2 = isMath2TopicId(topicId);
     const isMath1 = isMath1TopicId(topicId);
-    const isCbseMath9 = isCbseMath9TopicId(topicId);
+    const isCbseMath9    = isCbseMath9TopicId(topicId);
+    const isIcseMath9    = isIcseMath9TopicId(topicId);
+    const isIcseMath10   = isIcseMath10TopicId(topicId);
+    const isApSscMath9   = isApSscMath9TopicId(topicId);
+    const isApSscMath10  = isApSscMath10TopicId(topicId);
     const subject = isSci ? "Science" : isEng ? "English" : isHin ? "Hindi" : "Mathematics";
     // Siblings must come from the same topicId family — otherwise CBSE Math 10
     // (ch{n}_...) and Math 1–9 v2 (math{n}_ch{n}_...) collide on chapterNumber=1
     // and the nav crashes because v2 records have no `name` field.
     const family = (id) =>
-      isSciTopicId(id)   ? "sci"
-      : isEngTopicId(id) ? "eng"
-      : isHinTopicId(id) ? "hin"
-      : isMath9TopicId(id) ? "math9"
-      : isMath8TopicId(id) ? "math8"
-      : isMath7TopicId(id) ? "math7"
-      : isMath6TopicId(id) ? "math6"
-      : isMath5TopicId(id) ? "math5"
-      : isMath4TopicId(id) ? "math4"
-      : isMath3TopicId(id) ? "math3"
-      : isMath2TopicId(id) ? "math2"
-      : isMath1TopicId(id) ? "math1"
-      : isCbseMath9TopicId(id) ? "cbse_math9"
-      : /^icse\d+_/.test(id || "") ? "icse"
+      isSciTopicId(id)          ? "sci"
+      : isEngTopicId(id)        ? "eng"
+      : isHinTopicId(id)        ? "hin"
+      : isMath9TopicId(id)      ? "math9"
+      : isMath8TopicId(id)      ? "math8"
+      : isMath7TopicId(id)      ? "math7"
+      : isMath6TopicId(id)      ? "math6"
+      : isMath5TopicId(id)      ? "math5"
+      : isMath4TopicId(id)      ? "math4"
+      : isMath3TopicId(id)      ? "math3"
+      : isMath2TopicId(id)      ? "math2"
+      : isMath1TopicId(id)      ? "math1"
+      : isCbseMath9TopicId(id)    ? "cbse_math9"
+      : isIcseMath9TopicId(id)    ? "icse_math9"     // board-prefixed: icse_math9_*
+      : isIcseMath10TopicId(id)   ? "icse_math10"    // board-prefixed: icse_math10_*
+      : isApSscMath9TopicId(id)   ? "ap_ssc_math9"   // board-prefixed: ap_ssc_math9_*
+      : isApSscMath10TopicId(id)  ? "ap_ssc_math10"  // board-prefixed: ap_ssc_math10_*
+      : /^icse\d+_/.test(id || "") ? "icse"          // legacy format: icse10_* (kept for safety)
       : "cbse10";
     const here = family(topicId);
     listNcertTopics(undefined, subject)
@@ -2797,7 +2968,28 @@ export default function NcertTopicView() {
       .catch(() => {});
     if (isSci) {
       setChapterTitle(SCIENCE_CHAPTER_TITLES[topic.chapterNumber] || null);
-    } else if (!isEng && !isHin && !isCbseMath9 && !isMath9 && !isMath8 && !isMath7 && !isMath6 && !isMath5 && !isMath4 && !isMath3 && !isMath2 && !isMath1) {
+    } else if (isIcseMath9) {
+      // ICSE Math 9 has 28 chapters not in the NcertChapter collection (CBSE only) —
+      // use the static Selina Concise Class 9 chapter titles map.
+      setChapterTitle(ICSE_MATH9_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else if (isIcseMath10) {
+      // ICSE Math 10 has 25 chapters not in the NcertChapter collection (CBSE only) —
+      // use the static Selina chapter titles map, same pattern as Science above.
+      setChapterTitle(ICSE_MATH10_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else if (isApSscMath9) {
+      // AP SSC Math 9 — 12 NCERT rationalized chapters; not in NcertChapter collection.
+      setChapterTitle(AP_SSC_MATH9_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else if (isApSscMath10) {
+      // AP SSC Math 10 — same 14 NCERT chapters as CBSE 10; not in NcertChapter collection.
+      setChapterTitle(AP_SSC_MATH10_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else if (isCbseMath9) {
+      // CBSE Math 9 standardized (cbse_math9_*) — NcertChapter collection only has CBSE 10.
+      setChapterTitle(CBSE_MATH9_CHAPTER_TITLES[topic.chapterNumber] || null);
+    } else if (isMath8 || isMath7 || isMath6 || isMath5 || isMath4 || isMath3 || isMath2 || isMath1) {
+      // CBSE Math grades 1–8 (legacy math{N}_ v2 seeds) — use static maps, no NcertChapter entry.
+      const g = legacyMathGrade(topicId);
+      setChapterTitle(CBSE_MATH_LEGACY_CHAPTER_TITLES[g]?.[topic.chapterNumber] || null);
+    } else if (!isEng && !isHin && !isMath9) {
       // Chapter title (e.g. "Real Numbers") is what Question.topic uses for practice questions
       listNcertChapters()
         .then(r => {

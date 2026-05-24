@@ -9,6 +9,7 @@ import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
 import { getDailyBrief } from "../services/dailyBriefService.js";
 import { getStreakStatus } from "../services/streakService.js";
+import { getCachedBoard } from "../services/adaptiveService.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -38,7 +39,8 @@ const updateMeSchema = Joi.object({
 // SEC-16: requires auth — topics list is product IP, not public data
 r.get("/topics", auth, async (req, res, next) => {
   try {
-    const filter = { deletedAt: null };
+    const board  = await getCachedBoard(req.user.id);
+    const filter = { deletedAt: null, examBoard: board };
     if (req.query.subject) filter.subject = req.query.subject;
     if (req.query.grade)   filter.grade   = req.query.grade;
     if (req.query.q) {
@@ -76,10 +78,14 @@ r.post("/bookmarks/:questionId", auth, async (req, res, next) => {
 
 r.get("/bookmarks", auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("savedQuestions").lean();
+    const [user, board] = await Promise.all([
+      User.findById(req.user.id).select("savedQuestions").lean(),
+      getCachedBoard(req.user.id),
+    ]);
     if (!user) return next(new AppError("User not found", 404));
     const questions = await Question.find({
       _id: { $in: user.savedQuestions || [] },
+      examBoard: board,
       deletedAt: null,
     })
       .select("questionText subject grade conceptTested difficultyScore options")

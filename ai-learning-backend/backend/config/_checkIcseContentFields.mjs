@@ -1,0 +1,17 @@
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, '../.env') });
+import mongoose from 'mongoose';
+await mongoose.connect(process.env.MONGO_URI);
+const db = mongoose.connection.db;
+const sample = await db.collection('ncerttopiccontents').findOne({ topicId: /^icse_math10_/ });
+console.log('NcertTopicContent keys:', Object.keys(sample));
+console.log('name:', sample.name);
+console.log('chapterNumber:', sample.chapterNumber);
+const topicSample = await db.collection('topics').findOne({ topicId: /^icse_math10_/ });
+console.log('\nTopic (topics coll) keys:', Object.keys(topicSample));
+console.log('name:', topicSample.name);
+console.log('chapterNumber:', topicSample.chapterNumber);
+await mongoose.disconnect();

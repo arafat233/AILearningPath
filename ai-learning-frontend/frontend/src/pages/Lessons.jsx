@@ -84,11 +84,10 @@ const MATH_CHAPTER_TITLES_CBSE = {
     12: "Surface Areas and Volumes", 13: "Statistics", 14: "Probability",
   },
   "9": {
-    1: "Orienting Yourself: The Use of Coordinates", 2: "Introduction to Linear Polynomials",
-    3: "The World of Numbers", 4: "Exploring Algebraic Identities",
-    5: "I'm Up and Down, and Round and Round", 6: "Measuring Space: Perimeter and Area",
-    7: "The Mathematics of Maybe: Introduction to Probability",
-    8: "Predicting What Comes Next: Sequences and Progressions",
+    1: "Coordinate Geometry",  2: "Polynomials",
+    3: "Number Systems",       4: "Algebraic Identities",
+    5: "Circles",              6: "Heron's Formula and Areas",
+    7: "Probability",          8: "Sequences and Progressions",
   },
   "8": {
     1: "A Square and A Cube", 2: "Power Play", 3: "A Story of Numbers",
@@ -170,9 +169,45 @@ const MATH_CHAPTER_TITLES_ICSE = {
   },
 };
 
+// AP SSC Class 9 & 10 chapter titles (NCERT rationalized 2024-25 curriculum, Telugu-medium)
+const MATH_CHAPTER_TITLES_AP_SSC = {
+  "9": {
+    1:  "Number Systems",
+    2:  "Polynomials",
+    3:  "Coordinate Geometry",
+    4:  "Linear Equations in Two Variables",
+    5:  "Introduction to Euclid's Geometry",
+    6:  "Lines and Angles",
+    7:  "Triangles",
+    8:  "Quadrilaterals",
+    9:  "Circles",
+    10: "Heron's Formula",
+    11: "Surface Areas and Volumes",
+    12: "Statistics",
+  },
+  "10": {
+    1: "Real Numbers",
+    2: "Polynomials",
+    3: "Pair of Linear Equations in Two Variables",
+    4: "Quadratic Equations",
+    5: "Arithmetic Progressions",
+    6: "Triangles",
+    7: "Coordinate Geometry",
+    8: "Introduction to Trigonometry",
+    9: "Some Applications of Trigonometry",
+    10: "Circles",
+    11: "Areas Related to Circles",
+    12: "Surface Areas and Volumes",
+    13: "Statistics",
+    14: "Probability",
+  },
+};
+
 function mathChapterTitles(grade, examBoard) {
   const board = (examBoard || "CBSE").toUpperCase();
-  const table = board === "ICSE" ? MATH_CHAPTER_TITLES_ICSE : MATH_CHAPTER_TITLES_CBSE;
+  const table = board === "ICSE"   ? MATH_CHAPTER_TITLES_ICSE
+              : board === "AP_SSC" ? MATH_CHAPTER_TITLES_AP_SSC
+              : MATH_CHAPTER_TITLES_CBSE;
   return table[String(grade)] || {};
 }
 
@@ -1111,11 +1146,19 @@ export default function Lessons() {
   }, [hinTopics]);
 
   // Math topics filtered by user's grade using topicId prefix:
-  //   grade "9"  → cbse_math9_*  (standardized board-prefixed IDs)
-  //   grade "10" → cbse_math10_* (standardized board-prefixed IDs)
-  //   grade "1-8" → math{grade}_* (legacy v2; awaits standardization plow)
+  //   grade "9" ICSE      → icse_math9_*       (standardized board-prefixed IDs)
+  //   grade "9" CBSE      → cbse_math9_*       (standardized board-prefixed IDs)
+  //   grade "10" CBSE     → cbse_math10_*      (standardized board-prefixed IDs)
+  //   grade "10" ICSE     → icse_math10_*      (standardized board-prefixed IDs)
+  //   grade "10" AP_SSC   → ap_ssc_math10_*    (cloned from CBSE 10; same NCERT curriculum)
+  //   grade "1-8"         → math{grade}_*      (legacy v2; awaits standardization plow)
   const mathChapterGroups = useMemo(() => {
-    const gradeTopics = grade === "9"
+    const board = (user?.examBoard || "CBSE").toUpperCase();
+    const gradeTopics = grade === "9" && board === "ICSE"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("icse_math9_"))
+      : grade === "9" && board === "AP_SSC"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("ap_ssc_math9_"))
+      : grade === "9"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("cbse_math9_"))
       : grade === "8"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math8_"))
@@ -1133,6 +1176,10 @@ export default function Lessons() {
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math2_"))
       : grade === "1"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math1_"))
+      : grade === "10" && board === "ICSE"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("icse_math10_"))
+      : grade === "10" && board === "AP_SSC"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("ap_ssc_math10_"))
       : grade === "10"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("cbse_math10_"))
       : [];
@@ -1144,7 +1191,7 @@ export default function Lessons() {
     return Object.keys(groups)
       .map((n) => ({ chapterNumber: Number(n), topics: groups[n] }))
       .sort((a, b) => a.chapterNumber - b.chapterNumber);
-  }, [mathTopics, grade]);
+  }, [mathTopics, grade, user?.examBoard]);
 
   // Merge three signals into a single per-topic state:
   //   1. masteryMap (from practice attempts — server-side)

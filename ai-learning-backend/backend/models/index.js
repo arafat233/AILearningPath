@@ -163,12 +163,13 @@ const topicSchema = new mongoose.Schema({
   realWorldUse:   { type: String, default: "" },
   whyMatters:     { type: String, default: "" },
   deletedAt:      { type: Date, default: null }, // soft-delete
+  examBoard:      { type: String, default: "CBSE" },
   // Fine-grained DAG fields (populated by seedTopicDAG)
   topicId:        { type: String, default: null }, // e.g. "cbse_math10_ch1_euclid_division_lemma"
   level:          { type: Number, default: null }, // DAG depth 0-7
 });
 // Filtering by subject+grade (onboarding, settings dropdowns) and sorting by frequency
-topicSchema.index({ subject: 1, grade: 1 });
+topicSchema.index({ examBoard: 1, subject: 1, grade: 1 });
 topicSchema.index({ examFrequency: -1 });
 topicSchema.index({ topicId: 1 }, { sparse: true });
 export const Topic = mongoose.model("Topic", topicSchema);

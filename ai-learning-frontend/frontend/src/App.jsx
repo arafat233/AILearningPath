@@ -100,6 +100,23 @@ const PublicOnly = ({ children }) => {
   return user ? <Navigate to="/" replace /> : children;
 };
 
+/**
+ * BoardGated — wraps content routes that require board+grade to be set.
+ * Uses `activeChild || user` as the effective identity (parent-as-child flow).
+ * If the effective account has no examBoard or grade, redirects to /start.
+ */
+const BoardGated = ({ children }) => {
+  const { user, activeChild } = useAuthStore((s) => ({
+    user:        s.user,
+    activeChild: s.activeChild,
+  }));
+  const effective = activeChild || user;
+  if (!effective?.examBoard || !effective?.grade) {
+    return <Navigate to="/start" replace />;
+  }
+  return children;
+};
+
 // Shows Landing for guests at "/"; deep-links to app routes redirect to "/" for guests
 const RootElement = () => {
   const user = useAuthStore((s) => s.user);
@@ -154,7 +171,8 @@ export default function App() {
           <Route path="/company-login" element={<CompanyLogin />} />
           <Route path="/company"       element={<CompanyDashboard />} />
 
-          <Route path="/start"                element={<PublicOnly><StartOnboarding /></PublicOnly>} />
+          {/* /start is open to everyone — handles all three states internally */}
+          <Route path="/start"                element={<StartOnboarding />} />
           <Route path="/login"                element={<PublicOnly><Login /></PublicOnly>} />
           <Route path="/register"             element={<PublicOnly><Register /></PublicOnly>} />
           <Route path="/forgot-password"           element={<ForgotPassword />} />
@@ -183,31 +201,36 @@ export default function App() {
           </Route>
 
           <Route path="/" element={<RootElement />}>
+            {/* Dashboard is always accessible — shows empty state when board/grade not set */}
             <Route index                          element={<Dashboard />} />
-            <Route path="lessons"                 element={<Lessons />} />
-            <Route path="lessons/:topic"          element={<LessonView />} />
-            <Route path="practice"                element={<Practice />} />
+
+            {/* ── Board-gated content — only visible after board+grade are set ── */}
+            <Route path="lessons"                 element={<BoardGated><Lessons /></BoardGated>} />
+            <Route path="lessons/:topic"          element={<BoardGated><LessonView /></BoardGated>} />
+            <Route path="practice"                element={<BoardGated><Practice /></BoardGated>} />
+            <Route path="analytics"               element={<BoardGated><Analytics /></BoardGated>} />
+            <Route path="competition"             element={<BoardGated><Competition /></BoardGated>} />
+            <Route path="live"                    element={<BoardGated><LiveRoom /></BoardGated>} />
+            <Route path="planner"                 element={<BoardGated><Planner /></BoardGated>} />
+            <Route path="pyq"                     element={<BoardGated><PYQBank /></BoardGated>} />
+            <Route path="voice-tutor"             element={<BoardGated><VoiceTutor /></BoardGated>} />
+            <Route path="exam-review"             element={<BoardGated><ExamReview /></BoardGated>} />
+            <Route path="mock-paper"              element={<BoardGated><MockPaper /></BoardGated>} />
+            <Route path="chapters/:chapterNumber"      element={<BoardGated><ChapterView /></BoardGated>} />
+            <Route path="ncert/chapters/:chapterId"    element={<BoardGated><NcertChapterView /></BoardGated>} />
+            <Route path="ncert/topics/:topicId"        element={<BoardGated><NcertTopicView /></BoardGated>} />
+
+            {/* ── Always accessible after login (account / misc) ── */}
             <Route path="bookmarks"               element={<Bookmarks />} />
-            <Route path="analytics"               element={<Analytics />} />
-            <Route path="competition"             element={<Competition />} />
-            <Route path="live"                    element={<LiveRoom />} />
-            <Route path="planner"                 element={<Planner />} />
-            <Route path="pyq"                     element={<PYQBank />} />
-            <Route path="voice-tutor"             element={<VoiceTutor />} />
-            <Route path="profile"                 element={<Profile />} />
-            <Route path="settings"                element={<Settings />} />
-            <Route path="exam-review"             element={<ExamReview />} />
-            <Route path="mock-paper"              element={<MockPaper />} />
             <Route path="portal"                  element={<Portal />} />
             <Route path="parent"                  element={<ParentDashboard />} />
-            <Route path="chapters/:chapterNumber"      element={<ChapterView />} />
-            <Route path="ncert/chapters/:chapterId"   element={<NcertChapterView />} />
-            <Route path="ncert/topics/:topicId"       element={<NcertTopicView />} />
-            <Route path="pricing"                     element={<Pricing />} />
-            <Route path="terms"                       element={<TermsOfService />} />
-            <Route path="privacy"                     element={<PrivacyPolicy />} />
-            <Route path="certificate"                 element={<Certificate />} />
-            <Route path="school"                      element={<SchoolGroups />} />
+            <Route path="profile"                 element={<Profile />} />
+            <Route path="settings"                element={<Settings />} />
+            <Route path="pricing"                 element={<Pricing />} />
+            <Route path="terms"                   element={<TermsOfService />} />
+            <Route path="privacy"                 element={<PrivacyPolicy />} />
+            <Route path="certificate"             element={<Certificate />} />
+            <Route path="school"                  element={<SchoolGroups />} />
           </Route>
         </Routes>
       </Suspense>

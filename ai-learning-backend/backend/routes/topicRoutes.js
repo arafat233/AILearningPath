@@ -1,15 +1,25 @@
 import express from "express";
 import { Topic } from "../models/index.js";
+import { optionalAuth } from "../middleware/auth.js";
+import { User } from "../models/index.js";
+import { getCachedBoard } from "../services/adaptiveService.js";
 
 const r = express.Router();
 
-// Public — no auth required so onboarding (pre-login) can call it too.
-// Supports ?grade=10&subject=Math query filters.
-r.get("/", async (req, res, next) => {
+// Supports ?grade=10&subject=Math&board=CBSE query filters.
+// When the user is logged in their board is read from Redis/DB and overrides the query param.
+r.get("/", optionalAuth, async (req, res, next) => {
   try {
     const filter = { deletedAt: null };
     if (req.query.grade)   filter.grade   = req.query.grade;
     if (req.query.subject) filter.subject = req.query.subject;
+
+    // Board filter: prefer user's stored board (auth), else query param, else default CBSE
+    let board = (req.query.board || "CBSE").toUpperCase();
+    if (req.user?.id) {
+      try { board = await getCachedBoard(req.user.id); } catch { /* keep default */ }
+    }
+    filter.examBoard = board;
 
     const topics = await Topic.find(filter).sort({ examFrequency: -1 });
     res.json(topics);
@@ -18,12 +28,16 @@ r.get("/", async (req, res, next) => {
   }
 });
 
-// Public — returns unique subjects and grades present in the DB.
-r.get("/meta", async (req, res, next) => {
+// Returns unique subjects and grades for a given board (?board=CBSE or ICSE).
+r.get("/meta", optionalAuth, async (req, res, next) => {
   try {
+    let board = (req.query.board || "CBSE").toUpperCase();
+    if (req.user?.id) {
+      try { board = await getCachedBoard(req.user.id); } catch { /* keep default */ }
+    }
     const [subjects, grades] = await Promise.all([
-      Topic.distinct("subject"),
-      Topic.distinct("grade"),
+      Topic.distinct("subject", { examBoard: board }),
+      Topic.distinct("grade",   { examBoard: board }),
     ]);
     res.json({
       subjects: subjects.filter(Boolean).sort(),

@@ -3,6 +3,7 @@ import { NcertChapter } from "../models/ncertChapterModel.js";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
 import { User, NcertNote, Question } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
+import { boardIdFilter, boardFromTopicId } from "../utils/boardFilter.js";
 
 // GET /api/v1/ncert/chapters
 export async function listNcertChapters(req, res, next) {
@@ -59,12 +60,8 @@ export async function listNcertTopics(req, res, next) {
       }
     }
 
-    // Board scoping: ICSE topics carry an `icse{grade}_` prefix
-    if (userBoard === "ICSE") {
-      conditions.push({ topicId: { $regex: /^icse\d+_/ } });
-    } else {
-      conditions.push({ topicId: { $not: /^icse\d+_/ } });
-    }
+    // Board scoping: use boardIdFilter so icse_math10_* and icse10_* (legacy) are both handled
+    conditions.push(boardIdFilter(userBoard, "topicId"));
 
     const filter = conditions.length === 1 ? conditions[0] : { $and: conditions };
     const topics = await NcertTopicContent.find(filter)
@@ -87,11 +84,9 @@ export async function getNcertTopicContent(req, res, next) {
       ? await User.findById(req.user.id).select("examBoard").lean()
       : null;
     const userBoard = (userDoc?.examBoard || "CBSE").toUpperCase();
-    const topicIsIcse = /^icse\d+_/.test(topicId);
-    if (topicIsIcse && userBoard !== "ICSE") {
-      return next(new AppError("Topic content not found", 404));
-    }
-    if (!topicIsIcse && userBoard === "ICSE") {
+    // Use boardFromTopicId so icse_math10_* and icse10_* (legacy) are both detected
+    const topicBoard = boardFromTopicId(topicId) || "CBSE";
+    if (topicBoard !== userBoard) {
       return next(new AppError("Topic content not found", 404));
     }
 

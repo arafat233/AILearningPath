@@ -1,15 +1,27 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
-> Last updated: May 2026 — engagement-gated "Mark as studied" (5 min active + 80% scroll + 2 sections viewed + AI-graded note ≥70/100), spaced mastery test (10 MCQs · 3E/4M/3H, 8/10 to pass → "pending" → 3-day spacing → second pass confirms "Mastered", 30-min cooldown, question-pool rotation, server-side anti-cheat grading), localhost-skip rate limiter for dev (max bumped to 5000), per-topic + per-chapter live status pills on /lessons (Not started / In progress / Due / Mastered), focus-event re-fetch for cross-page progress sync, getStudiedTopics cache-bust, dark-mode polish across Dashboard/Bookmarks/Planner/Analytics/Competition/PYQBank/Profile/Practice/Certificate/ParentDashboard (white-pill toolbar pattern, global bg-[#1c1c1e] CTA inversion, certificate-light-only override, invite-card + predscore-card dark gradients). Previous: streak grace period, trial-expiry-soon email, retry wrong questions (ExamReview→Practice), YouTube video embed (NcertTopicView), planner auto-reschedule (3+ missed days), AdminRagHealth page, SMTP test email, 120 new practice questions (Science/English/Hindi/Social Science), multi-subject RAG index scripts, Flutter CI/CD, certificate nav link, notification bell. English pipeline complete: 35 fine-grained topics, 256 MCQs (4 seed files), NcertTopicContent, TopicDAG, RAG index (156 chunks), skipDiagram audit flag.
+> Last updated: 2026-05-24 — AP SSC Math 9 + Math 10 Ph1 NcertChapter docs added (seedApSscMath9NcertChapters.js: 12 chapters ap_ssc_math9_ch1–ch12; seedApSscMath10NcertChapters.js: 14 chapters ap_ssc_math10_ch1–ch14; board=AP_SSC; npm scripts seed:ap-ssc-math9-chapters + seed:ap-ssc-math10-chapters; both prepended to seed:xxx-all). AP SSC Math 9 Ph4 SVG diagrams: 35 DIAGRAM_MAP entries (27 reused from CBSE Math 9 / ICSE 9 / ICSE 10 + 8 new SVG component functions for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). CBSE Math 9 Ph4 SVG diagrams: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns, Ch1–Ch8 fully covered). DiagramLibrary total entries: ~502 across all boards. AP SSC Math 9 + 10: ALL PHASES COMPLETE (Ph1–Ph9 + Audit). CBSE Math 9: ALL PHASES COMPLETE. Previous: CBSE Math 8 ALL PHASES COMPLETE (56 topics, 627 Qs, 397 RAG chunks, 56 SVG diagrams). Previous: AP SSC Class 9 Mathematics pipeline complete: 35 topics, 560 Qs, 229 RAG chunks, 35/35 audit PASS. Previous: ICSE Class 9 Mathematics ALL PHASES COMPLETE (28 ch, 112 topics, 1792 Qs, 48 SVG diagrams). Previous: AP SSC board added, CBSE Math 8 v3 standardized, ICSE Math 10 complete, CBSE Math 9 Ph9 wiring.
 
 ---
 
 ## 1. WHAT THIS IS
 
-An AI-powered CBSE Class 10 exam preparation platform. Students practice questions,
-get AI-generated explanations for mistakes, follow a smart study planner, compete
-live against each other, and receive personalised lessons — all driven by a
-behavioural analysis engine that tracks HOW they think, not just whether they're right.
+An AI-powered exam preparation platform for Indian school students. Supports CBSE
+(grades 1–10), ICSE (Classes 9–10), and AP SSC (Andhra Pradesh SSC, Classes 9–10) boards.
+Students practice questions, get AI-generated explanations for mistakes, follow a
+smart study planner, compete live against each other, and receive personalised
+lessons — all driven by a behavioural analysis engine that tracks HOW they think,
+not just whether they're right. Board isolation is enforced throughout: every content
+endpoint filters by the student's `examBoard`, powered by `utils/boardFilter.js`.
+
+**Supported boards and topicId prefixes:**
+| Board    | topicId prefix    | Status                  |
+|----------|-------------------|-------------------------|
+| CBSE     | `cbse_*`, `math*_`, `sci_*`, `eng_*`, `hin_*`, `sst_*` | Grades 1–10, Math + Science + English + Hindi + SST |
+| ICSE     | `icse_math10_*`, `icse_math9_*` | Class 10 Math ALL PHASES COMPLETE (25 ch, 100 topics, 1600 Qs, 60 SVG diagrams); Class 9 Math ALL PHASES COMPLETE (28 ch, 112 topics, 1792 Qs, 48 SVG diagrams) |
+| AP_SSC   | `ap_ssc_math9_*`, `ap_ssc_math10_*` | Class 9 Math ALL PHASES COMPLETE (Ph1 12 NcertChapters, 35 topics, 560 Qs, 35 SVG diagrams, 229 RAG chunks, 35/35 audit); Class 10 Math ALL PHASES COMPLETE (Ph1 14 NcertChapters, 54 topics, 1140 Qs, 884 RAG chunks, 54/54 audit) |
+| SSC      | `ssc_*`           | Planned |
+| IB       | `ib_*`            | Planned |
 
 Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 
@@ -1620,6 +1632,14 @@ npm run audit:math:cbse9               ← audit Class 9 Math against the 14-poi
 npm run migrate:cbse-math10-rekey      ← re-key CBSE Class 10 Math topicIds ch{N}_s{S}_c{C}_t{T} → cbse_math10_* (pass --dry to preview)
 npm run finalize:cbse-math10-rekey     ← finalize re-key: merge stray topics + re-key ch* ids in services/seeds/tests (--dry to preview)
 npm run audit:math:cbse10              ← audit CBSE Class 10 Math against the 14-point checklist (must show 54/54 PASS)
+npm run seed:icse-math10-all           ← Ph7 runner: content → QuestionsA/B/C → TopicDAG → RAG (full re-seed from scratch)
+npm run seed:icse-math10-topic-dag     ← Ph5 only: seed Topic DAG (100 nodes, linear chain per chapter, examBoard ICSE)
+npm run rag:build-icse-math10          ← Ph6 only: build RAG chunks (100 topics → 623 NcertChunk docs)
+npm run audit:math:icse10              ← Ph8: audit ICSE Class 10 Math against the 14-point checklist (100/100 PASS)
+npm run seed:icse-math9-all            ← Ph7 runner: curriculum → content → QuestionsA/B/C → TopicDAG → RAG (ICSE Class 9)
+npm run seed:icse-math9-topic-dag      ← Ph5 only: seed Topic DAG (112 nodes, 24 cross-chapter edges, examBoard ICSE)
+npm run rag:build-icse-math9           ← Ph6 only: build RAG chunks (112 topics, --prefix=icse_math9_)
+npm run audit:math:icse9               ← Ph8: audit ICSE Class 9 Math against the 15-point checklist
 npm run audit:coverage:math9           ← audit Math9 coverage (Mathematics filter; must show ✅ FULLY COVERED)
 npm run seed:math7-curriculum          ← Class 7 Math Chapter model (15 chapters, Ganita Prakash Grade 7 NCERT 2026)
 npm run seed:math7-ncert-chapters      ← Class 7 Math NcertChapters bridge (15 chapters, chapterId: math7_ch1…)
@@ -1629,14 +1649,31 @@ npm run seed:math7-questions-b         ← Class 7 Math MCQs ch9–ch15 (35 ques
 npm run seed:math7-topic-dag           ← Class 7 Math Topic DAG (15 nodes, prerequisite links)
 npm run seed:math7-all                 ← convenience: all 6 Math7 seeds in sequence
 npm run audit:coverage:math7           ← audit Math7 coverage (Mathematics filter; must show ✅ FULLY COVERED)
-npm run seed:math8-curriculum          ← Class 8 Math Chapter model (14 chapters, Ganita Prakash Grade 8 NCERT 2026)
-npm run seed:math8-ncert-chapters      ← Class 8 Math NcertChapters bridge (14 chapters, chapterId: math8_ch1…)
-npm run seed:math8-content             ← Class 8 Math NcertTopicContent (14 topics, flat format)
-npm run seed:math8-questions-a         ← Class 8 Math MCQs ch1–ch7 (35 questions)
-npm run seed:math8-questions-b         ← Class 8 Math MCQs ch8–ch14 (35 questions)
-npm run seed:math8-topic-dag           ← Class 8 Math Topic DAG (14 nodes, prerequisite links)
-npm run seed:math8-all                 ← convenience: all 6 Math8 seeds in sequence
+npm run seed:math8-curriculum          ← Class 8 Math Chapter model (14 chapters, Ganita Prakash Grade 8 NCERT 2026) [legacy v2]
+npm run seed:math8-ncert-chapters      ← Class 8 Math NcertChapters bridge (14 chapters, chapterId: math8_ch1…) [legacy v2]
+npm run seed:math8-content             ← Class 8 Math NcertTopicContent (14 topics, flat format) [legacy v2]
+npm run seed:math8-questions-a         ← Class 8 Math MCQs ch1–ch7 (35 questions) [legacy v2]
+npm run seed:math8-questions-b         ← Class 8 Math MCQs ch8–ch14 (35 questions) [legacy v2]
+npm run seed:math8-topic-dag           ← Class 8 Math Topic DAG (14 nodes, prerequisite links) [legacy v2]
+npm run seed:math8-all                 ← convenience: all 6 Math8 seeds in sequence [legacy v2]
 npm run audit:coverage:math8           ← audit Math8 coverage (Mathematics filter; must show ✅ FULLY COVERED)
+# CBSE Math 8 — v3 Standardized (topicId: cbse_math8_*, 56 topics × 15/15 audit checks, 2026-05-24)
+npm run seed:cbse-math8-cleanup        ← delete legacy math8_* docs before v3 re-seed
+npm run seed:cbse-math8-content        ← 56 topics (14 ch × 4) with all 13 content fields + inline SVG
+npm run seed:cbse-math8-questions-a    ← Layer A: 360 MCQs (10/topic) with {text,type,logicTag} options
+npm run seed:cbse-math8-questions-b    ← Layer B: 155 free_text board-style questions (4/topic)
+npm run seed:cbse-math8-questions-c    ← Layer C: 112 PYQ questions (2/topic) with pyqYear
+npm run seed:cbse-math8-topic-dag      ← 56 Topic DAG nodes (linear chain within each chapter)
+npm run seed:cbse-math8-all            ← convenience: cleanup → content → A/B/C → DAG in sequence
+npm run rag:build-cbse-math8           ← build 397 RAG chunks (buildRagFromTopicContent --prefix=cbse_math8_)
+npm run audit:math:cbse8               ← 15-check completeness gate; must exit 0 (56/56 ✅ as of 2026-05-24)
+npm run seed:ap-ssc-math10             ← AP SSC Math 10: clone 54 NcertTopicContent + 1140 Questions from cbse_math10_* → ap_ssc_math10_*, examBoard=AP_SSC
+npm run seed:ap-ssc-math10-dag         ← AP SSC Math 10 Topic DAG: 54 nodes (14 ch), linear chain + cross-chapter prereqs
+npm run seed:ap-ssc-math10-all         ← convenience: content clone + DAG in sequence
+npm run rag:build-ap-ssc-math10        ← build 884 RAG chunks (buildRagFromTopicContent --prefix=ap_ssc_math10_)
+npm run audit:math:ap-ssc-10           ← 15-check completeness gate; must exit 0 (54/54 ✅ as of 2026-05-24)
+npm run audit:coverage:ap-ssc-math     ← coverage audit for AP SSC Mathematics only
+npm run audit:coverage:ap-ssc-all      ← coverage audit for all AP SSC subjects
 npm run seed:math6-curriculum          ← Class 6 Math Chapter model (10 chapters, Ganita Prakash Grade 6 NCERT 2026)
 npm run seed:math6-ncert-chapters      ← Class 6 Math NcertChapters bridge (10 chapters, chapterId: math6_ch1…)
 npm run seed:math6-content             ← Class 6 Math NcertTopicContent (10 topics, flat format)
@@ -1889,14 +1926,23 @@ To activate push (not yet wired):
 | Hindi UI — HindiSubBar (4 textbook tabs), HindiChapterCard, NcertTopicView Hindi routing (isSciLike pattern) | ✅ Complete |
 | CBSE Class 9 Mathematics — standardized pilot ("Ganita Manjari" NCERT 2026, 8 chapters / 32 sub-topics) — passes 14-point checklist (32/32) | ✅ Complete |
 | Math9 content — NcertTopicContent (32 sub-topics, Class-10-density teaching content + inline SVG) + 512 questions (Layer A/B/C = 320/128/64); legacy math9_* v1+v2 docs cleaned up | ✅ Complete |
-| Math9 wiring — Lessons.jsx + NcertTopicView cbse_math9 routing (rich Class-10 renderer), auditCoverage EXPECTED, TopicDAG (32 nodes), RAG index via buildRagFromTopicContent (301 chunks) | ✅ Complete |
+| Math9 wiring — Lessons.jsx + NcertTopicView cbse_math9 routing (rich Class-10 renderer), auditCoverage EXPECTED, TopicDAG (32 nodes), RAG index via buildRagFromTopicContent (301 chunks). Ph9 complete (2026-05-23): CBSE_MATH9_CHAPTER_TITLES added to NcertTopicView (8 chapters), chapter titles in Lessons.jsx cleaned up to match seeded content. All 11 phases ✅ | ✅ Complete |
+| CBSE Class 9 Mathematics — Ph4 SVG diagrams (2026-05-24): 32 DIAGRAM_MAP entries (8 reused ICSE 9 components + 24 new SVG fns covering Ch1 coords, Ch2 polynomials, Ch3 number systems, Ch4 identities, Ch5 circles, Ch6 area, Ch7 probability, Ch8 sequences). All 11 phases now complete. | ✅ Complete |
 | CBSE Class 10 Mathematics — re-keyed to standardized cbse_math10_* IDs (54 sub-topics): migrateCbseMath10TopicIds.mjs (DB) + finalizeCbseMath10Rekey.mjs (2 stray topics merged + 193 hard-coded ch* ids re-keyed in questionTemplateService/seeds/tests); audit/coverage/Lessons.jsx updated; 54/54 PASS | ✅ Complete |
+| ICSE Class 10 Mathematics — standardized board-prefixed pipeline (icse_math10_ch{N}_* IDs, Selina/Concise syllabus, all 25 chapters complete). 100 sub-topics, 1600 questions (Layer A/B/C = 1000/400/200, +2 patch ch18); audit:math:icse10 → 100/100 PASS; Ph4 60 SVG diagrams (Ch4+Ch10–Ch23); Ph5 TopicDAG 100 nodes (seedIcseMath10TopicDAG.js, 28 name-overrides, examBoard ICSE); Ph6 RAG 623 chunks (buildRagFromTopicContent.js --prefix=icse_math10_, nameMap fallback added); NcertTopicView.jsx family()/chapter-title fixed for icse_math10_* prefix. All 9 phases complete. | ✅ Complete |
+| ICSE Class 9 Mathematics — standardized board-prefixed pipeline (icse_math9_ch{N}_* IDs, Selina Concise Class 9 syllabus, all 28 chapters). 112 sub-topics (4/chapter), 1792 questions (Layer A 1120 MCQ + B 448 short + C 224 long-answer PYQ); Ph4 48 SVG diagrams (Ch9–Ch17, Ch20–Ch21, Ch26 — 12 chapters × 4 diagrams); Ph5 TopicDAG 112 nodes + 24 cross-chapter edges; Ph6 RAG 589 chunks; Ph8 audit 112/112 PASS (patchIcseMath9Content.mjs migrated legacy field names + added svg_diagrams for 100 topics); Lessons.jsx ICSE grade-9 branch; NcertTopicView.jsx isIcseMath9TopicId + ICSE_MATH9_CHAPTER_TITLES (28 chapters). All 11 phases complete. | ✅ Complete |
+| AP SSC board — new board added (Andhra Pradesh State Secondary Certificate). Board identifier: AP_SSC. boardFilter.js rule: /^ap_ssc_/ → AP_SSC. auditMathChecklist.mjs + auditCoverage.mjs updated. Onboarding.jsx + StartOnboarding.jsx BOARDS arrays include AP_SSC. | ✅ Complete |
+| AP SSC Class 10 Mathematics — content cloned from CBSE Math 10 (curriculum confirmed identical — NCERT textbook with Telugu translation, verified by PDF cross-check of Ch1/Ch4/Ch8/Ch13). 54 topics, 1140 questions (examBoard: AP_SSC), 884 RAG chunks, 54 DAG nodes. audit:math:ap-ssc-10 → 54/54 PASS (100%). Lessons.jsx wired: ap_ssc_math10_* filter + MATH_CHAPTER_TITLES_AP_SSC. seed:ap-ssc-math10-all runner in package.json. | ✅ Complete |
+| AP SSC Class 10 Mathematics — Ph1 NcertChapter docs (2026-05-24): seedApSscMath10NcertChapters.js — 14 NcertChapter docs (ap_ssc_math10_ch1–ch14, board=AP_SSC, grade=10). npm script: seed:ap-ssc-math10-chapters. Prepended to seed:ap-ssc-math10-all. ALL PHASES COMPLETE. | ✅ Complete |
+| AP SSC Class 9 Mathematics — full pipeline (2026-05-24): 12 chapters (NCERT Class 9 rationalized), 35 topics (ap_ssc_math9_* IDs), 560 Qs (Layer A 350 MCQ + B 140 + C 70 PYQ), TopicDAG 35 nodes, RAG 229 chunks, 35/35 audit PASS, Lessons.jsx + NcertTopicView.jsx wired. Ph1: seedApSscMath9NcertChapters.js (12 docs, ap_ssc_math9_ch1–ch12, board=AP_SSC). Ph4: 35 DIAGRAM_MAP entries (27 reused CBSE Math 9/ICSE 9/ICSE 10 + 8 new SVG fns for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). ALL 11 PHASES COMPLETE. | ✅ Complete |
 | CBSE Class 7 Mathematics — "Ganita Prakash Grade 7" (NCERT 2026) — 15 chapters, seed pipeline complete | ✅ Complete |
 | Math7 content pipeline — Chapter model + NcertChapters + NcertTopicContent (15 topics) + 75 MCQs + TopicDAG (15 nodes) | ✅ Complete |
 | Math7 UI — grade "7" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath7 routing (isSciLike) | ✅ Complete |
-| CBSE Class 8 Mathematics — "Ganita Prakash Grade 8" (NCERT 2026) — 14 chapters, seed pipeline complete | ✅ Complete |
-| Math8 content pipeline — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
+| CBSE Class 8 Mathematics — "Ganita Prakash Grade 8" (NCERT 2026) — 14 chapters, seed pipeline complete (legacy v2) | ✅ Complete |
+| Math8 content pipeline (legacy v2) — Chapter model + NcertChapters + NcertTopicContent (14 topics) + 70 MCQs + TopicDAG (14 nodes) | ✅ Complete |
 | Math8 UI — grade "8" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath8 routing (isSciLike) | ✅ Complete |
+| CBSE Class 8 Mathematics — v3 standardization (cbse_math8_* IDs, 56 topics × 4 sub-topics across 14 chapters, all 15/15 audit checks pass). 627 questions (Layer A 360 MCQ + B 155 free_text + C 112 PYQ), 397 RAG chunks, 56 DAG nodes. seed:cbse-math8-all runner. audit:math:cbse8 → 56/56 PASS. | ✅ Complete |
+| CBSE Class 8 Mathematics — Ph4 SVG diagrams (2026-05-24): 56 component functions (Ch1–Ch14, 4 per chapter) + 56 DIAGRAM_MAP entries added to DiagramLibrary.jsx. DiagramLibrary total: 402 entries across all boards. All 11 phases complete. | ✅ Complete |
 | CBSE Class 6 Mathematics — "Ganita Prakash Grade 6" (NCERT 2026) — 10 chapters, seed pipeline complete | ✅ Complete |
 | Math6 content pipeline — Chapter model + NcertChapters + NcertTopicContent (10 topics) + 50 MCQs + TopicDAG (10 nodes) | ✅ Complete |
 | Math6 UI — grade "6" filter in Lessons.jsx mathChapterGroups, NcertTopicView isMath6 routing (isSciLike) | ✅ Complete |

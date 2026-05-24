@@ -593,11 +593,17 @@ const topics = [
   },
 ];
 
+const toSchema = (t) => ({
+  topicId: t.topicId, chapterNumber: t.chapterNumber, subject: t.subject || "Mathematics",
+  name: t.title || t.name || t.topicId,
+  teaching_content: { intuition: t.intuition || "", derivation: t.process_explanation || "", process_explanation: t.process_explanation || "", worked_example: t.worked_example || "", common_misconceptions: t.common_misconceptions || "", shortcuts_and_tricks: t.shortcuts_and_tricks || "", key_takeaway: t.key_takeaway || "" },
+});
+
 async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log(`Seeding ${topics.length} Class 4 Math v2 sub-topics...`);
   for (const t of topics) {
-    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, t, { upsert: true, new: true });
+    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, { $set: toSchema(t) }, { upsert: true, new: true });
   }
   console.log(`Seeded ${topics.length} Class 4 Math v2 sub-topics.`);
   await mongoose.disconnect();

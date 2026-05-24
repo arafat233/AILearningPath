@@ -1,0 +1,53 @@
+name: Content Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ai-learning-backend/backend/config/seed*.js'
+      - 'ai-learning-backend/backend/config/audit*.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ai-learning-backend/backend/config/seed*.js'
+      - 'ai-learning-backend/backend/config/audit*.mjs'
+  workflow_dispatch: # allow manual runs
+
+defaults:
+  run:
+    working-directory: ai-learning-backend/backend
+
+jobs:
+  audit:
+    name: Coverage & Math Audit
+    runs-on: ubuntu-latest
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ai-learning-backend/backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run coverage audit (all boards)
+        run: npm run audit:coverage
+
+      - name: Run math audit — CBSE 10
+        run: npm run audit:math -- --board=CBSE --grade=10
+
+      - name: Run math audit — CBSE 9
+        run: npm run audit:math -- --board=CBSE --grade=9
+
+      - name: Run math audit — ICSE 10
+        run: npm run audit:math -- --board=ICSE --grade=10
+
+      - name: Run board isolation check
+        run: npm run validate:board-isolation

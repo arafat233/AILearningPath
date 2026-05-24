@@ -1,5 +1,6 @@
 import { Exam, Question, Topic, User } from "../models/index.js";
 import { applyPlacementResults } from "../services/adaptiveRecommenderService.js";
+import { getCachedBoard } from "../services/adaptiveService.js";
 import { AppError } from "../utils/AppError.js";
 
 // GET /api/v1/placement-quiz
@@ -91,8 +92,9 @@ export const scorePlacementQuiz = async (req, res, next) => {
       }
     }
 
-    // Load full topic DAG so we can map chapter → all topicIds
-    const allTopics = await Topic.find({ topicId: { $ne: null } }).lean();
+    // Load full topic DAG so we can map chapter → all topicIds (board-scoped)
+    const board     = await getCachedBoard(userId);
+    const allTopics = await Topic.find({ topicId: { $ne: null }, examBoard: board }).lean();
 
     // Assign per-topic placement label
     const placementByTopic = {};

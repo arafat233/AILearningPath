@@ -24,7 +24,9 @@ const flagLimiter = rateLimit({
 });
 
 const startSchema = Joi.object({
-  topicId: Joi.string().required(),
+  topicId:          Joi.string().required(),
+  excludeCurrentId: Joi.string().optional(),
+  mode:             Joi.string().valid("easy", "mixed", "challenge", "mock").optional(),
 });
 
 // Client sends selected option index; backend derives selectedType server-side

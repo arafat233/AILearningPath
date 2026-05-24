@@ -220,7 +220,7 @@ export const getLesson         = (topic) => api.get(`/lessons/${encodeURICompone
 export const saveProgress      = (data)  => api.post("/lessons/progress", data);
 export const getCompletedLessons = ()    => api.get("/lessons/completed");
 
-export const startTopic         = (topicId, excludeCurrentId) => api.post("/practice/start", { topicId, ...(excludeCurrentId ? { excludeCurrentId } : {}) });
+export const startTopic         = (topicId, excludeCurrentId, mode) => api.post("/practice/start", { topicId, ...(excludeCurrentId ? { excludeCurrentId } : {}), ...(mode ? { mode } : {}) });
 export const submitAnswer       = (data)       => api.post("/practice/submit", data);
 export const startMixedPractice = (topics)     => api.post("/practice/mixed", { topics });
 export const flagQuestion           = (questionId) => api.post("/practice/flag", { questionId });

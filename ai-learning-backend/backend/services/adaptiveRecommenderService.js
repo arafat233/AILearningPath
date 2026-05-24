@@ -10,7 +10,7 @@
  *   Topic            — topicId, prerequisites, level (DAG)
  */
 
-import { Question, Topic, UserTopicMastery } from "../models/index.js";
+import { Question, Topic, User, UserTopicMastery } from "../models/index.js";
 import { getDynamicQuestion, hasDynamicTemplate } from "./questionTemplateService.js";
 
 // ── Mastery thresholds (from recommender_config.json) ────────────────────────
@@ -274,14 +274,18 @@ export async function nextQuestion(userId, topicId) {
  *   all_complete      — all 43 topics mastered
  */
 export async function nextTopic(userId) {
-  const allMastery = await UserTopicMastery.find({ userId }).lean();
+  const [allMastery, userDoc] = await Promise.all([
+    UserTopicMastery.find({ userId }).lean(),
+    User.findById(userId).select("examBoard").lean(),
+  ]);
+  const board = (userDoc?.examBoard || "CBSE").toUpperCase();
 
   const masteredSet    = new Set(allMastery.filter((tm) => tm.mastery.easy && tm.mastery.medium && tm.mastery.hard).map((tm) => tm.topicId));
   const inProgressTids = allMastery.filter((tm) => (tm.mastery.easy || tm.mastery.medium) && !(tm.mastery.easy && tm.mastery.medium && tm.mastery.hard)).map((tm) => tm.topicId);
 
   // 1. Continue in-progress topic (lowest DAG level first)
   if (inProgressTids.length > 0) {
-    const topics = await Topic.find({ topicId: { $in: inProgressTids } }).lean();
+    const topics = await Topic.find({ topicId: { $in: inProgressTids }, examBoard: board }).lean();
     topics.sort((a, b) => (a.level ?? 99) - (b.level ?? 99));
     if (topics[0]) {
       const t = topics[0];
@@ -291,7 +295,7 @@ export async function nextTopic(userId) {
   }
 
   // 2. Find eligible new topics (all prereqs mastered, not yet started or mastered)
-  const allTopics = await Topic.find({ topicId: { $ne: null } }).lean();
+  const allTopics = await Topic.find({ topicId: { $ne: null }, examBoard: board }).lean();
   const startedSet = new Set(allMastery.map((tm) => tm.topicId));
 
   const eligible = allTopics.filter((t) =>

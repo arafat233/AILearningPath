@@ -89,11 +89,17 @@ const topics = [
   { topicId: "math5_ch14_measurement_problems", chapterNumber: 14, sectionNumber: "14.4", title: "Measurement Problems", subject: "Mathematics", intuition: "Real problems combine length, weight, capacity, time.", process_explanation: "Identify all units. Convert. Calculate. Label answer.", worked_example: "Bucket holds 10 L. 3 buckets = 30 L. 30 L water at 1 kg/L = 30 kg.", common_misconceptions: "Mixing units within a calculation.", shortcuts_and_tricks: "Always label units throughout.", key_takeaway: "Measurement problems: convert units, calculate, label." },
 ];
 
+const toSchema = (t) => ({
+  topicId: t.topicId, chapterNumber: t.chapterNumber, subject: t.subject || "Mathematics",
+  name: t.title || t.name || t.topicId,
+  teaching_content: { intuition: t.intuition || "", derivation: t.process_explanation || "", process_explanation: t.process_explanation || "", worked_example: t.worked_example || "", common_misconceptions: t.common_misconceptions || "", shortcuts_and_tricks: t.shortcuts_and_tricks || "", key_takeaway: t.key_takeaway || "" },
+});
+
 async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log(`Seeding ${topics.length} Class 5 Math v2 sub-topics...`);
   for (const t of topics) {
-    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, t, { upsert: true, new: true });
+    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, { $set: toSchema(t) }, { upsert: true, new: true });
   }
   console.log(`Seeded ${topics.length} Class 5 Math v2 sub-topics.`);
   await mongoose.disconnect();

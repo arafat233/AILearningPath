@@ -64,3 +64,21 @@ export const auth = async (req, res, next) => {
   req.user = decoded;
   next();
 };
+
+// Sets req.user if a valid token is present, but never blocks the request.
+// Used on routes that are public but personalised when logged in.
+export const optionalAuth = async (req, _res, next) => {
+  const token =
+    req.cookies?.[TOKEN_COOKIE] ||
+    req.headers.authorization?.split(" ")[1];
+  if (!token) return next();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.jti) {
+      const blacklisted = await sessionGet(`token_blacklist:${decoded.jti}`).catch(() => null);
+      if (blacklisted) return next();
+    }
+    req.user = decoded;
+  } catch { /* invalid token — treat as unauthenticated */ }
+  next();
+};

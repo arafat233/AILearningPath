@@ -20,6 +20,8 @@
  *    13. video_script_hooks
  *  Practice:
  *    14. ≥ 1 Question in DB matching the topicId
+ *  RAG:
+ *    15. ≥ 1 NcertChunk in DB matching the topicId (RAG not stale/unbuilt)
  *
  * Usage:
  *   node config/auditMathChecklist.mjs --board=CBSE --grade=10
@@ -32,7 +34,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
-import { Question } from "../models/index.js";
+import { Question, NcertChunk } from "../models/index.js";
 dotenv.config();
 
 /* ── Arg parsing ─────────────────────────────────────────────────────────── */
@@ -54,11 +56,14 @@ function buildTopicIdRegex() {
   // See SPEC_MATH_STANDARDIZATION.md §2.
   // Legacy prefixes (kept until migration completes):
   //   CBSE 1-8 — old `math{grade}_` (still v2 expansion; awaits standardization plow)
-  //   ICSE 10  — old `icse10_` (awaits rename to icse_math10_)
-  if (board === "CBSE" && grade === "9")  return /^cbse_math9_/;                       // ← standardised (pilot)
-  if (board === "CBSE" && grade === "10") return /^cbse_math10_/;                      // ← standardised (re-keyed from ch\d+_)
-  if (board === "ICSE" && grade === "10") return /^icse10_/;                           // legacy; flips to /^icse_math10_/ after standardization
-  if (board === "CBSE" && /^[1-8]$/.test(grade)) return new RegExp(`^math${grade}_`);  // legacy v2
+  if (board === "CBSE"   && grade === "8")  return /^cbse_math8_/;                       // ← standardised (v3 upgrade)
+  if (board === "CBSE"   && grade === "9")  return /^cbse_math9_/;                       // ← standardised (pilot)
+  if (board === "CBSE"   && grade === "10") return /^cbse_math10_/;                      // ← standardised (re-keyed from ch\d+_)
+  if (board === "ICSE"   && grade === "9")  return /^icse_math9_/;                        // ← standardised (Selina Concise Class 9)
+  if (board === "ICSE"   && grade === "10") return /^icse_math10_/;                      // ← standardised (re-keyed from icse10_)
+  if (board === "AP_SSC" && grade === "10") return /^ap_ssc_math10_/;                    // ← Andhra Pradesh SSC (cloned from CBSE 10)
+  if (board === "AP_SSC" && grade === "9")  return /^ap_ssc_math9_/;                     // ← Andhra Pradesh SSC (traditional NCERT Class 9)
+  if (board === "CBSE"   && /^[1-7]$/.test(grade)) return new RegExp(`^math${grade}_`); // legacy v2 (grades 1-7)
   throw new Error(`No topicId mapping for board=${board} grade=${grade}. Pass --prefix=<regex> instead.`);
 }
 
@@ -117,10 +122,18 @@ async function run() {
   ]);
   const qCount = new Map(qAgg.map((x) => [x._id, x.count]));
 
+  // RAG chunk counts per topicId — 0 chunks means RAG is stale / never built
+  const chunkAgg = await NcertChunk.aggregate([
+    { $match: { topicId: { $regex: idRegex } } },
+    { $group: { _id: "$topicId", count: { $sum: 1 } } },
+  ]);
+  const chunkCount = new Map(chunkAgg.map((x) => [x._id, x.count]));
+
   const fieldFailCount = Object.fromEntries(CHECKLIST.map((c) => [c.key, 0]));
-  let topicsWithGaps = 0;
-  let topicsWithNoQs = 0;
-  const failingTopics = [];
+  let topicsWithGaps   = 0;
+  let topicsWithNoQs   = 0;
+  let topicsWithNoChunks = 0;
+  const failingTopics  = [];
 
   for (const t of topics) {
     const failed = [];
@@ -130,24 +143,27 @@ async function run() {
         fieldFailCount[c.key]++;
       }
     }
-    const qs = qCount.get(t.topicId) || 0;
-    if (qs === 0) { failed.push("questions"); topicsWithNoQs++; }
+    const qs     = qCount.get(t.topicId) || 0;
+    const chunks = chunkCount.get(t.topicId) || 0;
+    if (qs === 0)     { failed.push("questions");  topicsWithNoQs++; }
+    if (chunks === 0) { failed.push("rag_chunks");  topicsWithNoChunks++; }
     if (failed.length) {
       topicsWithGaps++;
-      failingTopics.push({ topicId: t.topicId, name: t.name, failed, qs });
+      failingTopics.push({ topicId: t.topicId, name: t.name, failed, qs, chunks });
     }
   }
 
-  const total = topics.length;
+  const total   = topics.length;
   const passing = total - topicsWithGaps;
 
   console.log("═".repeat(78));
   console.log(`MATH CONTENT CHECKLIST — ${scope}`);
   console.log("═".repeat(78));
   console.log(`Topics audited: ${total}`);
-  console.log(`Passing all 14 checks: ${passing} / ${total}  (${Math.round(passing/total*100)}%)`);
+  console.log(`Passing all 15 checks: ${passing} / ${total}  (${Math.round(passing/total*100)}%)`);
   console.log(`Topics with at least one gap: ${topicsWithGaps}`);
   console.log(`Topics with 0 questions: ${topicsWithNoQs}`);
+  console.log(`Topics with 0 RAG chunks (stale): ${topicsWithNoChunks}`);
   console.log("");
   console.log("Per-check failure count:");
   console.log("─".repeat(78));
@@ -156,24 +172,26 @@ async function run() {
     const mark = f === 0 ? "✓" : "✗";
     console.log(`  ${mark}  ${c.key.padEnd(28)} failing on ${String(f).padStart(3)} topic${f === 1 ? "" : "s"}`);
   }
-  const qMark = topicsWithNoQs === 0 ? "✓" : "✗";
+  const qMark  = topicsWithNoQs === 0     ? "✓" : "✗";
+  const ragMark = topicsWithNoChunks === 0 ? "✓" : "✗";
   console.log(`  ${qMark}  ${"questions (≥1)".padEnd(28)} failing on ${String(topicsWithNoQs).padStart(3)} topic${topicsWithNoQs === 1 ? "" : "s"}`);
+  console.log(`  ${ragMark}  ${"rag_chunks (≥1)".padEnd(28)} failing on ${String(topicsWithNoChunks).padStart(3)} topic${topicsWithNoChunks === 1 ? "" : "s"}  ← rebuild: npm run rag:build-<board>-<grade>`);
 
   if (verbose && failingTopics.length) {
     console.log("\nFailing topics (detailed):");
     console.log("─".repeat(78));
     for (const f of failingTopics.slice(0, 100)) {
       console.log(`  ${f.topicId}  (${(f.name || "").slice(0, 50)})`);
-      console.log(`    qs: ${f.qs}  ·  missing: ${f.failed.join(", ")}`);
+      console.log(`    qs: ${f.qs}  chunks: ${f.chunks}  ·  missing: ${f.failed.join(", ")}`);
     }
     if (failingTopics.length > 100) console.log(`  ... + ${failingTopics.length - 100} more`);
   }
 
   console.log("═".repeat(78));
   if (topicsWithGaps === 0) {
-    console.log("RESULT: ✓ PASS — every topic clears all 14 checks.");
+    console.log("RESULT: ✓ PASS — every topic clears all 15 checks.");
   } else {
-    console.log(`RESULT: ✗ FAIL — ${topicsWithGaps} topic${topicsWithGaps === 1 ? "" : "s"} need${topicsWithGaps === 1 ? "s" : ""} content/questions before shipping.`);
+    console.log(`RESULT: ✗ FAIL — ${topicsWithGaps} topic${topicsWithGaps === 1 ? "" : "s"} need${topicsWithGaps === 1 ? "s" : ""} content/questions/RAG before shipping.`);
     if (!verbose) console.log("Run with --verbose to see exactly which topics + fields.");
   }
   console.log("═".repeat(78));

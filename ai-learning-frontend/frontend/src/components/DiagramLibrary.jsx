@@ -5751,6 +5751,4143 @@ function PressureGroups() {
   );
 }
 
+/* ── ICSE MATH 10 ────────────────────────────────────────────────── */
+
+// Ch12 — Reflection
+function IcseReflectionBasics() {
+  return (
+    <svg viewBox="0 0 300 260" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="150" y1="10" x2="150" y2="250" stroke="#E5E5EA" strokeWidth="1"/>
+      <line x1="10" y1="130" x2="290" y2="130" stroke="#E5E5EA" strokeWidth="1"/>
+      <line x1="150" y1="10" x2="150" y2="250" stroke="#3A3A3C" strokeWidth="1.5" markerEnd="url(#arr)"/>
+      <line x1="10" y1="130" x2="290" y2="130" stroke="#3A3A3C" strokeWidth="1.5" markerEnd="url(#arr)"/>
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3A3A3C"/></marker></defs>
+      <T x={286} y={125} size={9}>x</T><T x={153} y={14} size={9}>y</T>
+      {/* P(3,2) */}
+      <circle cx="210" cy="90" r="5" fill="#007AFF"/>
+      <T x={216} y={87} size={9} bold color="#007AFF">P(3,2)</T>
+      {/* P' reflection in x-axis P'(3,-2) */}
+      <circle cx="210" cy="170" r="5" fill="#FF3B30"/>
+      <T x={216} y={174} size={9} bold color="#FF3B30">P′(3,−2)</T>
+      <line x1="210" y1="90" x2="210" y2="170" stroke="#FF3B30" strokeWidth="1" strokeDasharray="4,2"/>
+      <T x={215} y={132} size={8} color="#FF3B30">Mx: y→−y</T>
+      {/* P'' reflection in y-axis P''(-3,2) */}
+      <circle cx="90" cy="90" r="5" fill="#34C759"/>
+      <T x={36} y={87} size={9} bold color="#34C759">P″(−3,2)</T>
+      <line x1="90" y1="90" x2="210" y2="90" stroke="#34C759" strokeWidth="1" strokeDasharray="4,2"/>
+      <T x={138} y={82} size={8} color="#34C759">My: x→−x</T>
+      <T x={6} y={248} size={8} color="#8E8E93">Mx: reflection in x-axis (y changes sign)</T>
+      <T x={6} y={260} size={8} color="#8E8E93">My: reflection in y-axis (x changes sign)</T>
+    </svg>
+  );
+}
+function IcseReflectionAxes() {
+  return (
+    <svg viewBox="0 0 300 260" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="150" y1="8" x2="150" y2="252" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="8" y1="130" x2="292" y2="130" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <T x={286} y={125} size={9}>x</T><T x={153} y={12} size={9}>y</T>
+      {[1,2,3].forEach(()=>{})}
+      <circle cx="210" cy="80" r="5" fill="#007AFF"/>
+      <T x={215} y={77} size={9} bold color="#007AFF">P(3,3)</T>
+      <circle cx="210" cy="180" r="5" fill="#FF3B30"/>
+      <T x={215} y={184} size={9} bold color="#FF3B30">Mx P′(3,−3)</T>
+      <circle cx="90" cy="80" r="5" fill="#34C759"/>
+      <T x={20} y={77} size={9} bold color="#34C759">My P″(−3,3)</T>
+      <circle cx="90" cy="180" r="5" fill="#AF52DE"/>
+      <T x={20} y={184} size={9} bold color="#AF52DE">MO P‴(−3,−3)</T>
+      <line x1="210" y1="80" x2="210" y2="180" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="90" y1="80" x2="210" y2="80" stroke="#34C759" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="90" y1="80" x2="90" y2="180" stroke="#AF52DE" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="90" y1="180" x2="210" y2="180" stroke="#AF52DE" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={6} y={248} size={8} color="#FF3B30">Mx: (x,y)→(x,−y)</T>
+      <T x={6} y={260} size={8} color="#34C759">My: (x,y)→(−x,y)   </T>
+      <T x={155} y={260} size={8} color="#AF52DE">MO: (x,y)→(−x,−y)</T>
+    </svg>
+  );
+}
+function IcseReflectionLines() {
+  return (
+    <svg viewBox="0 0 300 260" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="150" y1="8" x2="150" y2="252" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="8" y1="130" x2="292" y2="130" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="30" y1="230" x2="270" y2="30" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <T x={240} y={28} size={9} color="#FF9500">y=x</T>
+      <line x1="30" y1="30" x2="270" y2="230" stroke="#AF52DE" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <T x={240} y={232} size={9} color="#AF52DE">y=−x</T>
+      <circle cx="220" cy="80" r="5" fill="#007AFF"/>
+      <T x={225} y={77} size={9} bold color="#007AFF">P(a,b)</T>
+      <circle cx="80" cy="220" r="5" fill="#FF9500"/>
+      <T x={30} y={218} size={9} bold color="#FF9500">P′(b,a)</T>
+      <line x1="220" y1="80" x2="80" y2="220" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <circle cx="80" cy="80" r="5" fill="#AF52DE"/>
+      <T x={24} y={77} size={9} bold color="#AF52DE">P″(−b,−a)</T>
+      <line x1="220" y1="80" x2="80" y2="80" stroke="#AF52DE" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="80" y1="80" x2="80" y2="220" stroke="#AF52DE" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={6} y={248} size={8} color="#FF9500">M(y=x): (a,b)→(b,a)</T>
+      <T x={6} y={260} size={8} color="#AF52DE">M(y=−x): (a,b)→(−b,−a)</T>
+    </svg>
+  );
+}
+function IcseReflectionProblems() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="150" y1="8" x2="150" y2="212" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="8" y1="110" x2="292" y2="110" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <T x={286} y={106} size={9}>x</T><T x={153} y={12} size={9}>y</T>
+      <circle cx="220" cy="60" r="5" fill="#007AFF"/>
+      <T x={225} y={57} size={9} bold color="#007AFF">A(3,2)</T>
+      <circle cx="220" cy="160" r="5" fill="#FF3B30"/>
+      <T x={225} y={164} size={9} bold color="#FF3B30">A′ Mx</T>
+      <circle cx="80" cy="60" r="5" fill="#34C759"/>
+      <T x={24} y={57} size={9} bold color="#34C759">A″ My</T>
+      <circle cx="60" cy="160" r="5" fill="#FF9500"/>
+      <T x={4} y={164} size={9} bold color="#FF9500">A‴ y=x</T>
+      <line x1="220" y1="60" x2="220" y2="160" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="80" y1="60" x2="220" y2="60" stroke="#34C759" strokeWidth="1" strokeDasharray="3,2"/>
+      <polygon points="220,60 220,160 80,60 60,160" fill="none" stroke="#8E8E93" strokeWidth="1" strokeDasharray="2,2"/>
+      <T x={6} y={196} size={8} color="#8E8E93">Composite: apply reflections in sequence</T>
+      <T x={6} y={208} size={8} color="#8E8E93">Order matters: Mx then My ≠ My then Mx</T>
+    </svg>
+  );
+}
+
+// Ch13 — Section Formula
+function IcseSectionInternal() {
+  return (
+    <svg viewBox="0 0 300 160" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="30" y1="80" x2="270" y2="80" stroke="#3A3A3C" strokeWidth="2"/>
+      <circle cx="30" cy="80" r="5" fill="#007AFF"/><T x={18} y={72} size={9} bold color="#007AFF">A</T><T x={14} y={96} size={8}>(x₁,y₁)</T>
+      <circle cx="270" cy="80" r="5" fill="#007AFF"/><T x={262} y={72} size={9} bold color="#007AFF">B</T><T x={255} y={96} size={8}>(x₂,y₂)</T>
+      <circle cx="150" cy="80" r="6" fill="#FF3B30"/>
+      <T x={144} y={68} size={9} bold color="#FF3B30">P</T>
+      <line x1="30" y1="96" x2="150" y2="96" stroke="#FF3B30" strokeWidth="1.5" markerEnd="url(#a2)"/>
+      <defs><marker id="a2" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#FF3B30"/></marker></defs>
+      <T x={82} y={110} size={9} color="#FF3B30">m</T>
+      <line x1="150" y1="96" x2="270" y2="96" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={202} y={110} size={9} color="#34C759">n</T>
+      <rect x="20" y="120" width="260" height="34" rx="6" fill="#F2F2F7"/>
+      <T x={150} y={133} size={9} bold color="#1C1C1E" align="middle">P = ( mx₂+nx₁ , my₂+ny₁ )</T>
+      <T x={150} y={148} size={9} color="#8E8E93" align="middle">m+n         m+n</T>
+    </svg>
+  );
+}
+function IcseSectionExternal() {
+  return (
+    <svg viewBox="0 0 300 160" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="20" y1="80" x2="280" y2="80" stroke="#3A3A3C" strokeWidth="2"/>
+      <circle cx="80" cy="80" r="5" fill="#007AFF"/><T x={68} y={70} size={9} bold color="#007AFF">A(x₁,y₁)</T>
+      <circle cx="200" cy="80" r="5" fill="#007AFF"/><T x={188} y={70} size={9} bold color="#007AFF">B(x₂,y₂)</T>
+      <circle cx="260" cy="80" r="7" fill="#FF9500"/>
+      <T x={260} y={66} size={9} bold color="#FF9500" align="middle">P (external)</T>
+      <line x1="80" y1="96" x2="260" y2="96" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={168} y={110} size={9} color="#FF9500">m (AP)</T>
+      <line x1="200" y1="108" x2="260" y2="108" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={224} y={122} size={9} color="#34C759">n (BP)</T>
+      <rect x="20" y="124" width="260" height="30" rx="6" fill="#F2F2F7"/>
+      <T x={150} y={137} size={9} bold color="#1C1C1E" align="middle">P = ( mx₂−nx₁ , my₂−ny₁ )</T>
+      <T x={150} y={150} size={9} color="#8E8E93" align="middle">m−n         m−n</T>
+    </svg>
+  );
+}
+function IcseMidpoint() {
+  return (
+    <svg viewBox="0 0 300 180" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="30" y1="90" x2="270" y2="90" stroke="#3A3A3C" strokeWidth="2"/>
+      <circle cx="30" cy="90" r="5" fill="#007AFF"/><T x={20} y={80} size={9} bold color="#007AFF">A</T><T x={14} y={104} size={8}>(x₁,y₁)</T>
+      <circle cx="270" cy="90" r="5" fill="#007AFF"/><T x={260} y={80} size={9} bold color="#007AFF">B</T><T x={254} y={104} size={8}>(x₂,y₂)</T>
+      <circle cx="150" cy="90" r="6" fill="#34C759"/>
+      <T x={144} y={78} size={9} bold color="#34C759">M</T>
+      <line x1="30" y1="106" x2="150" y2="106" stroke="#34C759" strokeWidth="1.5"/>
+      <line x1="150" y1="106" x2="270" y2="106" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={82} y={120} size={9} color="#34C759">equal</T>
+      <T x={202} y={120} size={9} color="#34C759">equal</T>
+      <rect x="40" y="136" width="220" height="36" rx="6" fill="#F2F2F7"/>
+      <T x={150} y={150} size={9} bold color="#1C1C1E" align="middle">M = ( x₁+x₂  ,  y₁+y₂ )</T>
+      <T x={150} y={166} size={9} color="#8E8E93" align="middle">     2            2</T>
+    </svg>
+  );
+}
+function IcseSectionProblems() {
+  return (
+    <svg viewBox="0 0 280 240" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,20 30,200 250,200" fill="#EEF2FF" stroke="#6366F1" strokeWidth="2"/>
+      <circle cx="140" cy="20" r="5" fill="#6366F1"/><T x={144} y={18} size={9} bold color="#6366F1">A(x₁,y₁)</T>
+      <circle cx="30" cy="200" r="5" fill="#6366F1"/><T x={4} y={214} size={9} bold color="#6366F1">B(x₂,y₂)</T>
+      <circle cx="250" cy="200" r="5" fill="#6366F1"/><T x={218} y={214} size={9} bold color="#6366F1">C(x₃,y₃)</T>
+      <circle cx="140" cy="140" r="6" fill="#FF3B30"/>
+      <T x={144} y={138} size={9} bold color="#FF3B30">G</T>
+      <line x1="140" y1="20" x2="140" y2="200" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="30" y1="200" x2="250" y2="200" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="250" y1="200" x2="140" y2="20" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <rect x="20" y="216" width="240" height="20" rx="5" fill="#F2F2F7"/>
+      <T x={140} y={230} size={9} bold color="#FF3B30" align="middle">Centroid G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)</T>
+    </svg>
+  );
+}
+
+// Ch14 — Equation of a Line
+function IcseSlope() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="20" y1="200" x2="280" y2="200" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="40" y1="210" x2="40" y2="10" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <T x={276} y={196} size={9}>x</T><T x={43} y={14} size={9}>y</T>
+      <line x1="60" y1="180" x2="240" y2="60" stroke="#007AFF" strokeWidth="2.5"/>
+      <circle cx="80" cy="168" r="4" fill="#007AFF"/><T x={84} y={165} size={8}>(x₁,y₁)</T>
+      <circle cx="200" cy="88" r="4" fill="#007AFF"/><T x={204} y={85} size={8}>(x₂,y₂)</T>
+      <line x1="80" y1="168" x2="200" y2="168" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="200" y1="168" x2="200" y2="88" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={134} y={182} size={9} color="#FF3B30">Run = x₂−x₁</T>
+      <T x={204} y={132} size={9} color="#34C759">Rise = y₂−y₁</T>
+      <rect x="60" y="192" width="180" height="18" rx="5" fill="#F2F2F7"/>
+      <T x={150} y={205} size={9} bold color="#1C1C1E" align="middle">m = Rise/Run = (y₂−y₁)/(x₂−x₁)</T>
+    </svg>
+  );
+}
+function IcseLineForms() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="20" y1="160" x2="280" y2="160" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="60" y1="210" x2="60" y2="10" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <T x={276} y={156} size={9}>x</T><T x={63} y={14} size={9}>y</T>
+      <line x1="60" y1="200" x2="250" y2="40" stroke="#007AFF" strokeWidth="2.5"/>
+      <circle cx="60" cy="200" r="5" fill="#FF3B30"/>
+      <T x={64} y={212} size={9} bold color="#FF3B30">y-int (0,c)</T>
+      <line x1="60" y1="200" x2="228" y2="200" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <circle cx="228" cy="160" r="5" fill="#34C759"/>
+      <T x={210} y={154} size={9} bold color="#34C759">x-int (−c/m, 0)</T>
+      <line x1="228" y1="160" x2="228" y2="200" stroke="#34C759" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={110} y={90} size={11} bold color="#007AFF">y = mx + c</T>
+      <T x={6} y={208} size={8} color="#8E8E93">m = slope (tan of angle with x-axis)</T>
+      <T x={6} y={220} size={8} color="#8E8E93">c = y-intercept (value of y when x=0)</T>
+    </svg>
+  );
+}
+function IcseSpecialLines() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="10" y1="100" x2="290" y2="100" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="150" y1="10" x2="150" y2="190" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="20" y1="50" x2="280" y2="50" stroke="#007AFF" strokeWidth="2"/>
+      <T x={140} y={44} size={9} bold color="#007AFF">y = k (horizontal, m=0)</T>
+      <line x1="200" y1="10" x2="200" y2="190" stroke="#34C759" strokeWidth="2"/>
+      <T x={204} y={20} size={9} bold color="#34C759">x = h (vertical, m=∞)</T>
+      <line x1="40" y1="170" x2="260" y2="40" stroke="#FF9500" strokeWidth="2"/>
+      <T x={210} y={36} size={9} bold color="#FF9500">y=mx+c</T>
+      <line x1="40" y1="40" x2="240" y2="170" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={198} y={170} size={9} bold color="#FF3B30">y=m′x+c′</T>
+      <T x={100} y={112} size={8} color="#8E8E93">m·m′ = −1 (perpendicular)</T>
+      <T x={6} y={192} size={8} color="#8E8E93">Parallel lines: same slope m. Perpendicular: m₁×m₂ = −1</T>
+    </svg>
+  );
+}
+function IcseLineProblems() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="10" y1="100" x2="290" y2="100" stroke="#E5E5EA" strokeWidth="1"/>
+      <line x1="150" y1="10" x2="150" y2="190" stroke="#E5E5EA" strokeWidth="1"/>
+      <line x1="30" y1="170" x2="250" y2="30" stroke="#007AFF" strokeWidth="2"/>
+      <T x={220} y={28} size={9} bold color="#007AFF">L₁: y=2x+1</T>
+      <line x1="40" y1="40" x2="220" y2="180" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={198} y={180} size={9} bold color="#FF3B30">L₂: y=−½x+3</T>
+      <circle cx="138" cy="62" r="5" fill="#FF9500"/>
+      <T x={112} y={56} size={9} bold color="#FF9500">intersection</T>
+      <line x1="138" y1="62" x2="138" y2="100" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="138" y1="62" x2="150" y2="62" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={6} y={188} size={8} color="#8E8E93">Slopes: 2 × (−½) = −1 ✓ Lines are perpendicular</T>
+      <T x={6} y={200} size={8} color="#8E8E93">Perp bisector passes through midpoint ⊥ to given line</T>
+    </svg>
+  );
+}
+
+// Ch15 — Similarity
+function IcseSimilarityBasics() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <polygon points="30,170 80,40 130,170" fill="#EEF2FF" stroke="#6366F1" strokeWidth="2"/>
+      <T x={26} y={184} size={9} bold color="#6366F1">A</T><T x={76} y={34} size={9} bold color="#6366F1">B</T><T x={126} y={184} size={9} bold color="#6366F1">C</T>
+      <polygon points="170,170 240,20 310,170" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <T x={166} y={184} size={9} bold color="#D97706">P</T><T x={236} y={14} size={9} bold color="#D97706">Q</T><T x={302} y={184} size={9} bold color="#D97706">R</T>
+      <T x={75} y={196} size={8} color="#6366F1">△ABC</T>
+      <T x={227} y={196} size={8} color="#D97706">△PQR (scaled by k)</T>
+      <line x1="134" y1="100" x2="166" y2="100" stroke="#8E8E93" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={138} y={118} size={8} color="#8E8E93">~</T>
+      <T x={6} y={210} size={8} color="#8E8E93">∠A=∠P, ∠B=∠Q, ∠C=∠R  |  AB/PQ = BC/QR = AC/PR = k</T>
+    </svg>
+  );
+}
+function IcseSimilarityCriteria() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <rect x="10" y="10" width="82" height="64" rx="6" fill="#EEF2FF" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={51} y={30} size={9} bold color="#6366F1" align="middle">AA</T>
+      <T x={51} y={46} size={8} color="#6366F1" align="middle">Two angles</T>
+      <T x={51} y={58} size={8} color="#6366F1" align="middle">equal → ~</T>
+      <rect x="109" y="10" width="82" height="64" rx="6" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <T x={150} y={30} size={9} bold color="#D97706" align="middle">SAS~</T>
+      <T x={150} y={46} size={8} color="#D97706" align="middle">2 sides prop,</T>
+      <T x={150} y={58} size={8} color="#D97706" align="middle">included ∠ =</T>
+      <rect x="208" y="10" width="82" height="64" rx="6" fill="#DCFCE7" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={249} y={30} size={9} bold color="#16A34A" align="middle">SSS~</T>
+      <T x={249} y={46} size={8} color="#16A34A" align="middle">All 3 sides</T>
+      <T x={249} y={58} size={8} color="#16A34A" align="middle">proportional</T>
+      <polygon points="20,160 80,90 140,160" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <line x1="20" y1="160" x2="58" y2="160" stroke="#6366F1" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="80" y1="90" x2="80" y2="110" stroke="#6366F1" strokeWidth="2.5" strokeLinecap="round"/>
+      <polygon points="160,160 220,90 280,160" fill="none" stroke="#D97706" strokeWidth="1.5"/>
+      <line x1="160" y1="160" x2="195" y2="160" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="220" y1="90" x2="220" y2="110" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <T x={75} y={180} size={9} color="#6366F1" align="middle">△ 1</T><T x={220} y={180} size={9} color="#D97706" align="middle">△ 2 ~ △1</T>
+      <T x={150} y={210} size={8} color="#8E8E93" align="middle">Areas ratio = k² (square of side ratio)</T>
+    </svg>
+  );
+}
+function IcseSimilarityBPT() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,20 30,190 250,190" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={136} y={14} size={9} bold color="#16A34A">A</T>
+      <T x={20} y={200} size={9} bold color="#16A34A">B</T>
+      <T x={248} y={200} size={9} bold color="#16A34A">C</T>
+      <line x1="75" y1="114" x2="205" y2="114" stroke="#FF3B30" strokeWidth="2"/>
+      <circle cx="75" cy="114" r="4" fill="#FF3B30"/><T x={57} y={110} size={9} bold color="#FF3B30">D</T>
+      <circle cx="205" cy="114" r="4" fill="#FF3B30"/><T x={208} y={110} size={9} bold color="#FF3B30">E</T>
+      <T x={100} y={106} size={9} color="#FF3B30">DE ∥ BC</T>
+      <T x={6} y={190} size={8} color="#8E8E93">AD/DB = AE/EC</T>
+      <rect x="6" y="200" width="268" height="18" rx="5" fill="#F0FDF4"/>
+      <T x={140} y={213} size={8} bold color="#16A34A" align="middle">BPT: A line ∥ to base divides sides proportionally</T>
+    </svg>
+  );
+}
+function IcseSimilarityProblems() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <polygon points="60,170 110,50 160,170" fill="#EEF2FF" stroke="#6366F1" strokeWidth="2"/>
+      <T x={56} y={184} size={9} bold color="#6366F1">A</T><T x={106} y={44} size={9} bold color="#6366F1">B</T><T x={156} y={184} size={9} bold color="#6366F1">C</T>
+      <T x={95} y={120} size={9} color="#6366F1">3 cm</T><T x={116} y={120} size={9} color="#6366F1">4 cm</T><T x={104} y={180} size={9} color="#6366F1">5 cm</T>
+      <polygon points="190,170 255,20 320,170" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <T x={186} y={184} size={9} bold color="#D97706">P</T><T x={251} y={14} size={9} bold color="#D97706">Q</T><T x={314} y={184} size={9} bold color="#D97706">R</T>
+      <T x={218} y={100} size={9} color="#D97706">6 cm</T><T x={270} y={100} size={9} color="#D97706">8 cm</T><T x={244} y={180} size={9} color="#D97706">10 cm</T>
+      <T x={150} y={196} size={8} bold color="#FF3B30" align="middle">k = 2  |  Area ratio = k² = 4</T>
+    </svg>
+  );
+}
+
+// Ch16 — Loci
+function IcseLocusConcepts() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="70" fill="#EEF2FF" stroke="#6366F1" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="4" fill="#1C1C1E"/>
+      <T x={144} y={108} size={9} bold>O</T>
+      {[0,45,90,135,180,225,270,315].map((a,i)=>{
+        const r=70, x=140+r*Math.cos(a*Math.PI/180), y=110+r*Math.sin(a*Math.PI/180);
+        return <g key={i}><circle cx={x} cy={y} r={3} fill="#6366F1"/><line x1="140" y1="110" x2={x} y2={y} stroke="#6366F1" strokeWidth="1" strokeDasharray="3,2"/></g>;
+      })}
+      <T x={140} y={126} size={8} color="#6366F1" align="middle">r</T>
+      <T x={140} y={194} size={9} bold color="#6366F1" align="middle">Circle: locus of points at distance r from O</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Every point on circle satisfies OP = r (constant)</T>
+    </svg>
+  );
+}
+function IcseLocusProperties() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <circle cx="80" cy="100" r="5" fill="#007AFF"/><T x={72} y={88} size={9} bold color="#007AFF">A</T>
+      <circle cx="220" cy="100" r="5" fill="#007AFF"/><T x={218} y={88} size={9} bold color="#007AFF">B</T>
+      <line x1="80" y1="100" x2="220" y2="100" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="150" y1="10" x2="150" y2="210" stroke="#FF3B30" strokeWidth="2" strokeDasharray="6,3"/>
+      <T x={154} y={18} size={9} bold color="#FF3B30">Perp. bisector of AB</T>
+      {[30,60,90,120,150,170].map((y,i)=>{
+        const px=150;
+        return <g key={i}><circle cx={px} cy={y} r={3} fill="#FF3B30"/><line x1={80} y1={100} x2={px} y2={y} stroke="#8E8E93" strokeWidth="1" strokeDasharray="2,2"/><line x1={220} y1={100} x2={px} y2={y} stroke="#8E8E93" strokeWidth="1" strokeDasharray="2,2"/></g>;
+      })}
+      <T x={6} y={208} size={8} color="#8E8E93">Locus equidistant from A and B = perpendicular bisector of AB</T>
+    </svg>
+  );
+}
+function IcseLocusConstructions() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <line x1="40" y1="150" x2="240" y2="150" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="40" y1="150" x2="140" y2="30" stroke="#3A3A3C" strokeWidth="2"/>
+      <T x={36} y={162} size={9} bold>B</T><T x={236} y={162} size={9} bold>C</T><T x={136} y={24} size={9} bold>A</T>
+      <line x1="140" y1="30" x2="140" y2="150" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <line x1="40" y1="150" x2="190" y2="90" stroke="#34C759" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <line x1="240" y1="150" x2="90" y2="90" stroke="#007AFF" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <circle cx="140" cy="115" r="4" fill="#FF9500"/>
+      <T x={144} y={112} size={9} bold color="#FF9500">I</T>
+      <T x={6} y={196} size={8} color="#FF3B30">— Bisector of ∠A</T>
+      <T x={6} y={208} size={8} color="#34C759">— Bisector of ∠B</T>
+      <T x={6} y={220} size={8} color="#007AFF">— Bisector of ∠C  → meet at incenter I</T>
+    </svg>
+  );
+}
+function IcseLocusProblems() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="60" fill="none" stroke="#6366F1" strokeWidth="2" strokeDasharray="5,3"/>
+      <T x={185} y={56} size={8} color="#6366F1">Locus 1: circle</T>
+      <line x1="10" y1="110" x2="270" y2="110" stroke="#FF3B30" strokeWidth="2" strokeDasharray="5,3"/>
+      <T x={170} y={104} size={8} color="#FF3B30">Locus 2: line</T>
+      <circle cx="80" cy="110" r="6" fill="#FF9500"/>
+      <T x={56} y={104} size={9} bold color="#FF9500">P₁</T>
+      <circle cx="200" cy="110" r="6" fill="#FF9500"/>
+      <T x={204} y={104} size={9} bold color="#FF9500">P₂</T>
+      <T x={140} y={196} size={9} bold color="#FF9500" align="middle">Two intersection points = solution set</T>
+      <T x={140} y={210} size={8} color="#8E8E93" align="middle">Intersection of two loci gives required point(s)</T>
+    </svg>
+  );
+}
+
+// Ch17 — Circles
+function IcseCircleTheorems() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="80" fill="#F0F9FF" stroke="#0284C7" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="4" fill="#0284C7"/><T x={144} y={108} size={9} bold color="#0284C7">O</T>
+      <line x1="60" y1="110" x2="220" y2="110" stroke="#0284C7" strokeWidth="2"/>
+      <T x={50} y={118} size={9} bold color="#0284C7">A</T><T x={220} y={118} size={9} bold color="#0284C7">B</T>
+      <T x={100} y={102} size={8} color="#8E8E93">diameter</T>
+      <circle cx="140" cy="30" r="4" fill="#FF3B30"/>
+      <T x={144} y={28} size={9} bold color="#FF3B30">P</T>
+      <line x1="60" y1="110" x2="140" y2="30" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="220" y1="110" x2="140" y2="30" stroke="#FF3B30" strokeWidth="1.5"/>
+      <rect x="132" y="30" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={140} y={190} size={9} bold color="#FF3B30" align="middle">∠APB = 90° (angle in semicircle)</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Angle subtended by diameter at circumference = 90°</T>
+    </svg>
+  );
+}
+function IcseCircleChords() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="80" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="4" fill="#16A34A"/><T x={144} y={108} size={9} bold color="#16A34A">O</T>
+      <line x1="70" y1="70" x2="210" y2="150" stroke="#16A34A" strokeWidth="2"/>
+      <T x={60} y={68} size={9} bold color="#16A34A">A</T><T x={212} y={152} size={9} bold color="#16A34A">B</T>
+      <circle cx="140" cy="110" r="4" fill="#16A34A"/>
+      <line x1="140" y1="110" x2="140" y2="110" stroke="none"/>
+      {/* midpoint M of chord */}
+      <circle cx="140" cy="110" r="3" fill="#FF3B30"/>
+      <T x={144} y={108} size={8} color="#FF3B30">M</T>
+      <line x1="140" y1="110" x2="140" y2="110"/>
+      {/* perpendicular from O to chord */}
+      <line x1="140" y1="110" x2="140" y2="110"/>
+      <circle cx="140" cy="110" r="80" fill="none"/>
+      {/* OM perpendicular to AB */}
+      <line x1="140" y1="30" x2="140" y2="190" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={144} y={28} size={8} color="#FF3B30">OM ⊥ AB</T>
+      <T x={140} y={204} size={9} bold color="#16A34A" align="middle">Perp from centre bisects chord: AM = MB</T>
+      <T x={140} y={216} size={8} color="#8E8E93" align="middle">Equal chords are equidistant from centre</T>
+    </svg>
+  );
+}
+function IcseCircleArcAngle() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="120" r="80" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <circle cx="140" cy="120" r="4" fill="#EA580C"/><T x={144} y={118} size={9} bold color="#EA580C">O</T>
+      <circle cx="80" cy="60" r="4" fill="#1C1C1E"/><T x={72} y={54} size={9} bold>A</T>
+      <circle cx="200" cy="60" r="4" fill="#1C1C1E"/><T x={202} y={54} size={9} bold>B</T>
+      <circle cx="140" cy="200" r="4" fill="#6366F1"/><T x={130} y={214} size={9} bold color="#6366F1">P</T>
+      <line x1="80" y1="60" x2="140" y2="120" stroke="#EA580C" strokeWidth="1.5"/>
+      <line x1="200" y1="60" x2="140" y2="120" stroke="#EA580C" strokeWidth="1.5"/>
+      <path d="M 104 120 A 20 20 0 0 1 176 120" fill="none" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={140} y={116} size={8} bold color="#EA580C" align="middle">2θ</T>
+      <line x1="80" y1="60" x2="140" y2="200" stroke="#6366F1" strokeWidth="1.5"/>
+      <line x1="200" y1="60" x2="140" y2="200" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={140} y={196} size={8} bold color="#6366F1" align="middle">θ</T>
+      <T x={140} y={208} size={9} bold color="#EA580C" align="middle">∠AOB = 2 × ∠APB (central = 2 × inscribed)</T>
+    </svg>
+  );
+}
+function IcseCircleCyclicQuad() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="80" fill="#FDF4FF" stroke="#9333EA" strokeWidth="2"/>
+      <circle cx="80" cy="50" r="4" fill="#9333EA"/><T x={70} y={44} size={9} bold color="#9333EA">A</T>
+      <circle cx="210" cy="60" r="4" fill="#9333EA"/><T x={212} y={58} size={9} bold color="#9333EA">B</T>
+      <circle cx="220" cy="170" r="4" fill="#9333EA"/><T x={222} y={172} size={9} bold color="#9333EA">C</T>
+      <circle cx="70" cy="180" r="4" fill="#9333EA"/><T x={50} y={182} size={9} bold color="#9333EA">D</T>
+      <polygon points="80,50 210,60 220,170 70,180" fill="none" stroke="#9333EA" strokeWidth="2"/>
+      <T x={130} y={100} size={9} color="#9333EA">∠A+∠C=180°</T>
+      <T x={130} y={114} size={9} color="#9333EA">∠B+∠D=180°</T>
+      <T x={140} y={204} size={9} bold color="#9333EA" align="middle">Cyclic quad: opposite angles supplementary</T>
+      <T x={140} y={216} size={8} color="#8E8E93" align="middle">Exterior ∠ = interior opposite ∠</T>
+    </svg>
+  );
+}
+
+// Ch18 — Tangents and Intersecting Chords
+function IcseTangentBasics() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="120" cy="100" r="70" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="120" cy="100" r="4" fill="#2563EB"/><T x={124} y={98} size={9} bold color="#2563EB">O</T>
+      <circle cx="190" cy="100" r="5" fill="#FF3B30"/>
+      <T x={192} y={92} size={9} bold color="#FF3B30">T</T>
+      <line x1="120" y1="100" x2="190" y2="100" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={150} y={92} size={8} color="#2563EB">r</T>
+      <line x1="190" y1="20" x2="190" y2="180" stroke="#FF3B30" strokeWidth="2.5"/>
+      <T x={194} y={24} size={9} bold color="#FF3B30">Tangent</T>
+      <rect x="182" y="92" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={140} y={188} size={9} bold color="#FF3B30" align="middle">OT ⊥ Tangent at T (radius ⊥ tangent)</T>
+    </svg>
+  );
+}
+function IcseTangentProperties() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="120" cy="110" r="65" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="120" cy="110" r="4" fill="#2563EB"/><T x={110} y={108} size={9} bold color="#2563EB">O</T>
+      <circle cx="256" cy="110" r="4" fill="#FF3B30"/>
+      <T x={260} y={108} size={9} bold color="#FF3B30">P</T>
+      <circle cx="120" cy="45" r="4" fill="#34C759"/>
+      <T x={124} y={43} size={9} bold color="#34C759">A</T>
+      <circle cx="120" cy="175" r="4" fill="#34C759"/>
+      <T x={124} y={180} size={9} bold color="#34C759">B</T>
+      <line x1="120" y1="45" x2="256" y2="110" stroke="#34C759" strokeWidth="2"/>
+      <line x1="120" y1="175" x2="256" y2="110" stroke="#34C759" strokeWidth="2"/>
+      <line x1="120" y1="110" x2="120" y2="45" stroke="#2563EB" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <line x1="120" y1="110" x2="120" y2="175" stroke="#2563EB" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <line x1="120" y1="110" x2="256" y2="110" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={170} y={72} size={8} color="#34C759">PA</T>
+      <T x={170} y={152} size={8} color="#34C759">PB</T>
+      <T x={140} y={204} size={9} bold color="#34C759" align="middle">PA = PB (tangents from external point equal)</T>
+      <T x={140} y={216} size={8} color="#8E8E93" align="middle">OAPB is a kite: ∠OAP=∠OBP=90°, ∠APO=∠BPO</T>
+    </svg>
+  );
+}
+function IcseTangentChordAngle() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="130" cy="110" r="75" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <circle cx="205" cy="110" r="4" fill="#1C1C1E"/>
+      <T x={209} y={108} size={9} bold>T</T>
+      <line x1="205" y1="40" x2="205" y2="180" stroke="#EA580C" strokeWidth="2.5"/>
+      <T x={208} y={38} size={9} bold color="#EA580C">Tangent</T>
+      <circle cx="80" cy="60" r="4" fill="#6366F1"/>
+      <T x={72} y={54} size={9} bold color="#6366F1">A</T>
+      <circle cx="80" cy="160" r="4" fill="#34C759"/>
+      <T x={66} y={162} size={9} bold color="#34C759">P</T>
+      <line x1="80" y1="60" x2="205" y2="110" stroke="#6366F1" strokeWidth="1.5"/>
+      <line x1="80" y1="160" x2="205" y2="110" stroke="#34C759" strokeWidth="1.5"/>
+      <path d="M 205 130 A 20 20 0 0 0 190 110" fill="none" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={180} y={130} size={8} color="#EA580C">α</T>
+      <path d="M 88 152 A 18 18 0 0 0 96 138" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={100} y={152} size={8} color="#6366F1">α</T>
+      <T x={140} y={204} size={9} bold color="#EA580C" align="middle">Tangent-chord ∠ = inscribed ∠ in alternate segment</T>
+    </svg>
+  );
+}
+function IcseIntersectingChords() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="80" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="80" cy="60" r="4" fill="#1C1C1E"/><T x={72} y={54} size={9} bold>A</T>
+      <circle cx="200" cy="160" r="4" fill="#1C1C1E"/><T x={202} y={164} size={9} bold>B</T>
+      <circle cx="60" cy="160" r="4" fill="#1C1C1E"/><T x={46} y={164} size={9} bold>C</T>
+      <circle cx="210" cy="70" r="4" fill="#1C1C1E"/><T x={214} y={68} size={9} bold>D</T>
+      <line x1="80" y1="60" x2="200" y2="160" stroke="#007AFF" strokeWidth="2"/>
+      <line x1="60" y1="160" x2="210" y2="70" stroke="#FF3B30" strokeWidth="2"/>
+      <circle cx="138" cy="112" r="5" fill="#FF9500"/>
+      <T x={142} y={110} size={9} bold color="#FF9500">P</T>
+      <rect x="20" y="190" width="240" height="26" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={204} size={9} bold color="#16A34A" align="middle">PA × PB = PC × PD</T>
+      <T x={140} y={214} size={8} color="#8E8E93" align="middle">(intersecting chords theorem)</T>
+    </svg>
+  );
+}
+
+// Ch19 — Constructions
+function IcseConstructionsBasics() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="130" cy="110" r="70" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="130" cy="110" r="4" fill="#2563EB"/><T x={134} y={108} size={9} bold color="#2563EB">O</T>
+      <circle cx="200" cy="110" r="5" fill="#FF3B30"/>
+      <T x={204} y={108} size={9} bold color="#FF3B30">T</T>
+      <line x1="130" y1="110" x2="200" y2="110" stroke="#2563EB" strokeWidth="1.5"/>
+      <line x1="200" y1="30" x2="200" y2="190" stroke="#FF3B30" strokeWidth="2.5"/>
+      <rect x="192" y="102" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={10} y={194} size={8} color="#8E8E93">Steps: (1) Mark T on circle</T>
+      <T x={10} y={206} size={8} color="#8E8E93">(2) Draw OT  (3) Draw ⊥ to OT at T → tangent</T>
+    </svg>
+  );
+}
+function IcseConstructionsTangents() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="110" cy="110" r="60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="110" cy="110" r="4" fill="#2563EB"/><T x={114} y={108} size={9} bold color="#2563EB">O</T>
+      <circle cx="240" cy="110" r="5" fill="#FF3B30"/><T x={244} y={108} size={9} bold color="#FF3B30">P</T>
+      <circle cx="175" cy="110" r="3" fill="#8E8E93"/>
+      <circle cx="175" cy="110" r="30" fill="none" stroke="#8E8E93" strokeWidth="1" strokeDasharray="4,2"/>
+      <T x={175} y={84} size={8} color="#8E8E93">mid-circle (OP)</T>
+      <circle cx="110" cy="80" r="4" fill="#34C759"/><T x={114} y={78} size={9} bold color="#34C759">T₁</T>
+      <circle cx="110" cy="140" r="4" fill="#34C759"/><T x={114} y={152} size={9} bold color="#34C759">T₂</T>
+      <line x1="110" y1="80" x2="240" y2="110" stroke="#34C759" strokeWidth="2"/>
+      <line x1="110" y1="140" x2="240" y2="110" stroke="#34C759" strokeWidth="2"/>
+      <T x={10} y={196} size={8} color="#8E8E93">Steps: bisect OP → semicircle cuts circle at T₁,T₂</T>
+      <T x={10} y={208} size={8} color="#8E8E93">PT₁ and PT₂ are the two tangents from P</T>
+    </svg>
+  );
+}
+function IcseConstructionsInscribed() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,20 30,190 250,190" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={136} y={14} size={9} bold>A</T><T x={20} y={200} size={9} bold>B</T><T x={248} y={200} size={9} bold>C</T>
+      <line x1="140" y1="20" x2="140" y2="190" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="30" y1="190" x2="185" y2="105" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <circle cx="140" cy="152" r="38" fill="none" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="140" cy="152" r="4" fill="#2563EB"/><T x={144} y={150} size={9} bold color="#2563EB">I</T>
+      <T x={140} y={208} size={9} bold color="#2563EB" align="middle">Incircle — centre at angle bisector intersection</T>
+    </svg>
+  );
+}
+function IcseConstructionsCircumscribed() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,30 40,180 240,180" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={136} y={24} size={9} bold>A</T><T x={30} y={190} size={9} bold>B</T><T x={238} y={190} size={9} bold>C</T>
+      <circle cx="140" cy="126" r="96" fill="none" stroke="#9333EA" strokeWidth="2"/>
+      <circle cx="140" cy="126" r="4" fill="#9333EA"/><T x={144} y={124} size={9} bold color="#9333EA">S</T>
+      <line x1="140" y1="30" x2="240" y2="180" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="140" y1="180" x2="140" y2="126" stroke="#9333EA" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={140} y={208} size={9} bold color="#9333EA" align="middle">Circumcircle — centre at perp bisector intersection</T>
+    </svg>
+  );
+}
+
+// Ch20 — Cylinder, Cone, Sphere
+function IcseCylinder() {
+  return (
+    <svg viewBox="0 0 240 220" style={{ width:"100%", maxWidth:240, height:"auto" }}>
+      <ellipse cx="120" cy="50" rx="70" ry="18" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      <ellipse cx="120" cy="170" rx="70" ry="18" fill="#BFDBFE" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="50" y1="50" x2="50" y2="170" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="190" y1="50" x2="190" y2="170" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="120" y1="50" x2="120" y2="170" stroke="#2563EB" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="120" y1="50" x2="190" y2="50" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={150} y={44} size={9} bold color="#FF3B30">r</T>
+      <line x1="196" y1="50" x2="196" y2="170" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={200} y={114} size={9} bold color="#34C759">h</T>
+      <rect x="10" y="188" width="220" height="28" rx="6" fill="#EFF6FF"/>
+      <T x={120} y={200} size={8} bold color="#2563EB" align="middle">CSA = 2πrh   TSA = 2πr(r+h)</T>
+      <T x={120} y={212} size={8} bold color="#2563EB" align="middle">Volume = πr²h</T>
+    </svg>
+  );
+}
+function IcseCone() {
+  return (
+    <svg viewBox="0 0 240 220" style={{ width:"100%", maxWidth:240, height:"auto" }}>
+      <ellipse cx="120" cy="170" rx="70" ry="18" fill="#DCFCE7" stroke="#16A34A" strokeWidth="2"/>
+      <line x1="50" y1="170" x2="120" y2="30" stroke="#16A34A" strokeWidth="2"/>
+      <line x1="190" y1="170" x2="120" y2="30" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="120" cy="30" r="4" fill="#16A34A"/>
+      <line x1="120" y1="30" x2="120" y2="170" stroke="#16A34A" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="120" y1="170" x2="190" y2="170" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={150} y={166} size={9} bold color="#FF3B30">r</T>
+      <line x1="114" y1="30" x2="114" y2="170" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={100} y={106} size={9} bold color="#34C759">h</T>
+      <line x1="190" y1="170" x2="120" y2="30" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={165} y={96} size={9} bold color="#FF9500">l</T>
+      <T x={90} y={6} size={8} color="#8E8E93" align="middle">l² = h²+r²</T>
+      <rect x="10" y="190" width="220" height="26" rx="6" fill="#F0FDF4"/>
+      <T x={120} y={202} size={8} bold color="#16A34A" align="middle">CSA = πrl   TSA = πr(r+l)</T>
+      <T x={120} y={214} size={8} bold color="#16A34A" align="middle">Volume = ⅓πr²h</T>
+    </svg>
+  );
+}
+function IcseSphere() {
+  return (
+    <svg viewBox="0 0 240 200" style={{ width:"100%", maxWidth:240, height:"auto" }}>
+      <circle cx="120" cy="100" r="80" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <ellipse cx="120" cy="100" rx="80" ry="20" fill="none" stroke="#D97706" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="120" y1="100" x2="200" y2="100" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={156} y={94} size={10} bold color="#FF3B30">r</T>
+      <circle cx="120" cy="100" r="4" fill="#D97706"/>
+      <T x={124} y={98} size={9} bold color="#D97706">O</T>
+      <rect x="20" y="186" width="200" height="12" rx="4" fill="#FEF3C7"/>
+      <T x={120} y={196} size={8} bold color="#D97706" align="middle">SA = 4πr²   Volume = (4/3)πr³</T>
+    </svg>
+  );
+}
+function IcseCombinedSolid() {
+  return (
+    <svg viewBox="0 0 240 240" style={{ width:"100%", maxWidth:240, height:"auto" }}>
+      <ellipse cx="120" cy="160" rx="60" ry="16" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      <ellipse cx="120" cy="80" rx="60" ry="16" fill="#BFDBFE" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="60" y1="80" x2="60" y2="160" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="180" y1="80" x2="180" y2="160" stroke="#2563EB" strokeWidth="2"/>
+      <T x={184} y={124} size={8} color="#2563EB">h₁</T>
+      <line x1="60" y1="80" x2="120" y2="20" stroke="#16A34A" strokeWidth="2"/>
+      <line x1="180" y1="80" x2="120" y2="20" stroke="#16A34A" strokeWidth="2"/>
+      <T x={124} y={18} size={8} color="#16A34A">apex</T>
+      <line x1="186" y1="80" x2="186" y2="20" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={190} y={54} size={8} color="#34C759">h₂</T>
+      <T x={120} y={218} size={8} bold color="#1C1C1E" align="middle">Vol = πr²h₁ + ⅓πr²h₂</T>
+      <T x={120} y={230} size={8} color="#8E8E93" align="middle">Add/subtract volumes of component solids</T>
+    </svg>
+  );
+}
+
+// Ch21 — Trigonometrical Identities
+function IcseTrigRatios() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="40,170 220,170 220,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <rect x="212" y="162" width="8" height="8" fill="none" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={30} y={180} size={9} bold>A</T><T x={218} y={180} size={9} bold>B</T><T x={224} y={58} size={9} bold>C</T>
+      <T x={124} y={180} size={9} color="#FF3B30">Adjacent (AB)</T>
+      <T x={226} y={118} size={9} color="#34C759">Opposite (BC)</T>
+      <line x1="40" y1="170" x2="220" y2="60" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={112} y={104} size={9} color="#FF9500">Hypotenuse (AC)</T>
+      <path d="M 68 170 A 28 28 0 0 1 57 148" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={72} y={158} size={9} bold color="#6366F1">θ</T>
+      <rect x="10" y="172" width="260" height="26" rx="5" fill="#F2F2F7"/>
+      <T x={140} y={183} size={8} bold color="#2563EB" align="middle">sin θ = Opp/Hyp   cos θ = Adj/Hyp</T>
+      <T x={140} y={194} size={8} bold color="#2563EB" align="middle">tan θ = Opp/Adj = sin θ/cos θ</T>
+    </svg>
+  );
+}
+function IcseUnitCircle() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <line x1="20" y1="110" x2="260" y2="110" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <line x1="140" y1="10" x2="140" y2="210" stroke="#3A3A3C" strokeWidth="1.5"/>
+      <circle cx="140" cy="110" r="80" fill="none" stroke="#6366F1" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="4" fill="#6366F1"/>
+      <circle cx="200" cy="72" r="4" fill="#FF3B30"/>
+      <line x1="140" y1="110" x2="200" y2="72" stroke="#FF9500" strokeWidth="2"/>
+      <T x={164} y={88} size={9} bold color="#FF9500">1</T>
+      <line x1="200" y1="72" x2="200" y2="110" stroke="#34C759" strokeWidth="2"/>
+      <T x={204} y={94} size={9} bold color="#34C759">sin θ</T>
+      <line x1="140" y1="110" x2="200" y2="110" stroke="#007AFF" strokeWidth="2"/>
+      <T x={166} y={122} size={9} bold color="#007AFF">cos θ</T>
+      <path d="M 160 110 A 20 20 0 0 0 153 96" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={162} y={102} size={8} color="#6366F1">θ</T>
+      <rect x="20" y="194" width="240" height="22" rx="5" fill="#EEF2FF"/>
+      <T x={140} y={206} size={9} bold color="#6366F1" align="middle">sin²θ + cos²θ = 1 (Pythagorean identity)</T>
+      <T x={140} y={216} size={8} color="#8E8E93" align="middle">1+tan²θ=sec²θ   1+cot²θ=cosec²θ</T>
+    </svg>
+  );
+}
+function IcseTrigProofs() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="50,160 230,160 230,60" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <rect x="222" y="152" width="8" height="8" fill="none" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={40} y={172} size={9} bold>A θ</T><T x={228} y={172} size={9} bold>B</T><T x={234} y={58} size={9} bold>C</T>
+      <path d="M 72 160 A 22 22 0 0 1 66 142" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={78} y={152} size={8} color="#6366F1">θ</T>
+      <line x1="50" y1="160" x2="230" y2="60" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={126} y={100} size={8} bold color="#FF9500">h (hyp)</T>
+      <T x={132} y={168} size={8} color="#007AFF">b (base)</T>
+      <T x={234} y={114} size={8} color="#34C759">p (perp)</T>
+      <T x={6} y={182} size={8} color="#8E8E93">Proof: sin²θ+cos²θ = p²/h² + b²/h² = (p²+b²)/h² = h²/h² = 1</T>
+      <T x={6} y={196} size={8} color="#8E8E93">by Pythagoras: p² + b² = h²</T>
+    </svg>
+  );
+}
+function IcseComplementaryAngles() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="50,160 230,160 230,60" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <rect x="222" y="152" width="8" height="8" fill="none" stroke="#16A34A" strokeWidth="1.5"/>
+      <path d="M 72 160 A 22 22 0 0 1 66 142" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={78} y={152} size={8} color="#6366F1">θ</T>
+      <path d="M 222 78 A 18 18 0 0 0 208 66" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={204} y={78} size={8} color="#FF3B30">90°−θ</T>
+      <T x={40} y={172} size={9} bold>A</T><T x={228} y={172} size={9} bold>B</T><T x={234} y={58} size={9} bold>C</T>
+      <T x={6} y={178} size={8} color="#8E8E93">sin(90°−θ) = cos θ       cos(90°−θ) = sin θ</T>
+      <T x={6} y={190} size={8} color="#8E8E93">tan(90°−θ) = cot θ       sec(90°−θ) = cosec θ</T>
+      <T x={6} y={200} size={8} color="#8E8E93">At A: opposite=BC (for θ). At C: opposite=AB (for 90°−θ)</T>
+    </svg>
+  );
+}
+
+// Ch22 — Heights and Distances
+function IcseElevationDepression() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="10" y1="170" x2="290" y2="170" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="220" y1="170" x2="220" y2="30" stroke="#2563EB" strokeWidth="2.5"/>
+      <T x={224} y={100} size={9} bold color="#2563EB">h</T>
+      <circle cx="50" cy="170" r="5" fill="#FF3B30"/>
+      <T x={36} y={166} size={9} bold color="#FF3B30">O</T>
+      <line x1="50" y1="170" x2="220" y2="30" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="50" y1="170" x2="200" y2="170" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M 80 170 A 30 30 0 0 1 67 148" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={88} y={158} size={9} bold color="#FF3B30">α (elev.)</T>
+      <circle cx="220" cy="30" r="4" fill="#34C759"/>
+      <line x1="220" y1="30" x2="280" y2="30" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M 248 30 A 28 28 0 0 1 240 50" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={248} y={46} size={9} bold color="#34C759">α (dep.)</T>
+      <line x1="50" y1="170" x2="220" y2="170" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={128} y={182} size={9} color="#FF9500">d</T>
+      <T x={6} y={196} size={8} color="#8E8E93">tan α = h/d  |  Angle of elevation = angle of depression (alternate angles)</T>
+    </svg>
+  );
+}
+function IcseSingleObserver() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <line x1="10" y1="170" x2="270" y2="170" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="200" y1="170" x2="200" y2="40" stroke="#2563EB" strokeWidth="3"/>
+      <T x={204} y={108} size={9} bold color="#2563EB">h = ?</T>
+      <circle cx="50" cy="170" r="5" fill="#FF3B30"/>
+      <T x={36} y={166} size={9} bold color="#FF3B30">O</T>
+      <line x1="50" y1="170" x2="200" y2="40" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="50" y1="170" x2="200" y2="170" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={118} y={182} size={9} bold color="#FF9500">d (given)</T>
+      <line x1="200" y1="170" x2="200" y2="40" stroke="#34C759" strokeWidth="1.5"/>
+      <rect x="192" y="162" width="8" height="8" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <path d="M 78 170 A 28 28 0 0 1 67 150" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={84} y={156} size={9} bold color="#6366F1">θ</T>
+      <T x={6} y={192} size={9} bold color="#6366F1" align="left">tan θ = h/d  →  h = d·tan θ</T>
+    </svg>
+  );
+}
+function IcseTwoPositions() {
+  return (
+    <svg viewBox="0 0 300 210" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="10" y1="180" x2="290" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="230" y1="180" x2="230" y2="30" stroke="#2563EB" strokeWidth="3"/>
+      <T x={234} y={108} size={9} bold color="#2563EB">h</T>
+      <circle cx="40" cy="180" r="5" fill="#FF3B30"/><T x={28} y={175} size={9} bold color="#FF3B30">A</T>
+      <circle cx="130" cy="180" r="5" fill="#34C759"/><T x={118} y={175} size={9} bold color="#34C759">B</T>
+      <line x1="40" y1="180" x2="230" y2="30" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="130" y1="180" x2="230" y2="30" stroke="#34C759" strokeWidth="1.5"/>
+      <path d="M 65 180 A 25 25 0 0 1 57 162" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={70} y={168} size={8} bold color="#FF3B30">α</T>
+      <path d="M 152 180 A 22 22 0 0 1 146 162" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={156} y={166} size={8} bold color="#34C759">β</T>
+      <line x1="40" y1="180" x2="130" y2="180" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={82} y={194} size={9} color="#FF9500">d</T>
+      <rect x="10" y="196" width="280" height="12" rx="4" fill="#F2F2F7"/>
+      <T x={150} y={206} size={8} bold color="#1C1C1E" align="middle">h = d·tan α·tan β / (tan β − tan α)</T>
+    </svg>
+  );
+}
+function IcseBuildingsTowers() {
+  return (
+    <svg viewBox="0 0 300 210" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="10" y1="190" x2="290" y2="190" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="60" y1="190" x2="60" y2="50" stroke="#2563EB" strokeWidth="3"/>
+      <T x={38} y={124} size={9} bold color="#2563EB">H</T>
+      <line x1="220" y1="190" x2="220" y2="100" stroke="#34C759" strokeWidth="3"/>
+      <T x={224} y={148} size={9} bold color="#34C759">h</T>
+      <line x1="60" y1="100" x2="220" y2="190" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <line x1="60" y1="50" x2="220" y2="100" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="60" y1="50" x2="220" y2="190" stroke="#8E8E93" strokeWidth="1" strokeDasharray="2,2"/>
+      <path d="M 84 50 A 24 24 0 0 1 76 70" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={88} y={66} size={8} color="#FF3B30">β</T>
+      <path d="M 84 100 A 20 20 0 0 0 80 118" fill="none" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={88} y={115} size={8} color="#FF9500">α</T>
+      <line x1="60" y1="190" x2="220" y2="190" stroke="#8E8E93" strokeWidth="1.5"/>
+      <T x={134} y={200} size={8} color="#8E8E93">d</T>
+      <T x={6} y={206} size={8} color="#8E8E93">tan β=(H−h)/d  |  tan α=H/d  |  solve for H, h, or d</T>
+    </svg>
+  );
+}
+
+// Ch23 — Graphical Representation
+function IcseHistogram() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="40" y1="10" x2="40" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="40" y1="180" x2="280" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <T x={8} y={14} size={8}>f.d.</T><T x={270} y={192} size={8}>Class</T>
+      {[[0,80],[1,120],[2,150],[3,100],[4,60]].map(([i,h])=>(
+        <g key={i}>
+          <rect x={40+i*46} y={180-h} width={46} height={h} fill="#DBEAFE" stroke="#2563EB" strokeWidth="1.5"/>
+          <T x={63+i*46} y={193} size={8} align="middle">{10+i*5}–{15+i*5}</T>
+        </g>
+      ))}
+      <T x={6} y={100} size={8} color="#8E8E93">freq.</T>
+      <T x={6} y={112} size={8} color="#8E8E93">density</T>
+      <T x={150} y={210} size={8} bold color="#2563EB" align="middle">Histogram — no gaps, area = frequency</T>
+    </svg>
+  );
+}
+function IcseOgive() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="40" y1="10" x2="40" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="40" y1="180" x2="280" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <T x={8} y={14} size={8}>c.f.</T><T x={270} y={192} size={8}>u.c.b.</T>
+      <path d="M 40 180 C 80 178 100 160 140 130 C 180 100 210 50 260 20" fill="none" stroke="#FF3B30" strokeWidth="2.5"/>
+      {[[40,180],[80,175],[120,155],[160,125],[200,80],[240,30],[260,20]].map(([x,y],i)=>(
+        <circle key={i} cx={x} cy={y} r={3} fill="#FF3B30"/>
+      ))}
+      <T x={240} y={16} size={8} color="#FF3B30">Less-than ogive</T>
+      <line x1="40" y1="100" x2="160" y2="100" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="160" y1="100" x2="160" y2="180" stroke="#8E8E93" strokeWidth="1" strokeDasharray="3,2"/>
+      <circle cx="160" cy="100" r="4" fill="#34C759"/>
+      <T x={106} y={95} size={8} bold color="#34C759">n/2 → Median</T>
+      <T x={150} y={210} size={8} bold color="#FF3B30" align="middle">Ogive — cumulative frequency curve (S-shape)</T>
+    </svg>
+  );
+}
+function IcseFrequencyPolygon() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="40" y1="10" x2="40" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="40" y1="180" x2="280" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      {[[0,80],[1,120],[2,150],[3,100],[4,60]].map(([i,h])=>(
+        <rect key={i} x={40+i*44} y={180-h} width={44} height={h} fill="#DBEAFE" stroke="#2563EB" strokeWidth="1" opacity="0.5"/>
+      ))}
+      <polyline points="18,180 62,100 106,60 150,30 194,80 238,120 262,180" fill="none" stroke="#FF3B30" strokeWidth="2.5"/>
+      {[[18,180],[62,100],[106,60],[150,30],[194,80],[238,120],[262,180]].map(([x,y],i)=>(
+        <circle key={i} cx={x} cy={y} r={4} fill="#FF3B30"/>
+      ))}
+      <T x={150} y={200} size={8} bold color="#FF3B30" align="middle">Frequency Polygon — connect midpoints of histogram bars</T>
+      <T x={150} y={212} size={8} color="#8E8E93" align="middle">Extend to midpoints of adjacent empty classes at both ends</T>
+    </svg>
+  );
+}
+function IcseOgiveStatistics() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="40" y1="10" x2="40" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <line x1="40" y1="180" x2="280" y2="180" stroke="#3A3A3C" strokeWidth="2"/>
+      <T x={6} y={14} size={8}>c.f.</T>
+      <path d="M 40 178 C 80 176 110 155 150 120 C 190 85 220 40 265 18" fill="none" stroke="#6366F1" strokeWidth="2"/>
+      <line x1="40" y1="48" x2="265" y2="48" stroke="#8E8E93" strokeWidth="1" strokeDasharray="2,2"/>
+      <T x={6} y={46} size={7}>n</T>
+      <line x1="40" y1="84" x2="265" y2="84" stroke="#34C759" strokeWidth="1" strokeDasharray="2,2"/>
+      <T x={2} y={82} size={7} color="#34C759">3n/4</T>
+      <line x1="40" y1="120" x2="265" y2="120" stroke="#FF9500" strokeWidth="1" strokeDasharray="2,2"/>
+      <T x={2} y={118} size={7} color="#FF9500">n/2</T>
+      <line x1="40" y1="156" x2="265" y2="156" stroke="#FF3B30" strokeWidth="1" strokeDasharray="2,2"/>
+      <T x={2} y={154} size={7} color="#FF3B30">n/4</T>
+      <line x1="122" y1="156" x2="122" y2="180" stroke="#FF3B30" strokeWidth="1.5"/><T x={108} y={194} size={7} bold color="#FF3B30">Q₁</T>
+      <line x1="158" y1="120" x2="158" y2="180" stroke="#FF9500" strokeWidth="1.5"/><T x={146} y={194} size={7} bold color="#FF9500">Med</T>
+      <line x1="196" y1="84" x2="196" y2="180" stroke="#34C759" strokeWidth="1.5"/><T x={186} y={194} size={7} bold color="#34C759">Q₃</T>
+      <T x={150} y={208} size={8} bold color="#6366F1" align="middle">Read Q₁ at n/4, Median at n/2, Q₃ at 3n/4</T>
+    </svg>
+  );
+}
+
+// Ch4 — Linear Inequations (number line)
+function IcseNumberLine() {
+  return (
+    <svg viewBox="0 0 300 120" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      <line x1="20" y1="60" x2="280" y2="60" stroke="#3A3A3C" strokeWidth="2" markerEnd="url(#nl)"/>
+      <defs><marker id="nl" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3A3A3C"/></marker></defs>
+      {[-3,-2,-1,0,1,2,3].map((n,i)=>{
+        const x=150+n*36;
+        return <g key={i}><line x1={x} y1="54" x2={x} y2="66" stroke="#3A3A3C" strokeWidth="1.5"/><T x={x} y={78} size={9} align="middle">{n}</T></g>;
+      })}
+      <line x1="150" y1="60" x2="258" y2="60" stroke="#007AFF" strokeWidth="4" strokeLinecap="round"/>
+      <circle cx="150" cy="60" r="6" fill="white" stroke="#007AFF" strokeWidth="2.5"/>
+      <circle cx="258" cy="60" r="6" fill="#007AFF"/>
+      <T x={148} y={46} size={8} color="#007AFF" align="middle">open: x &gt; 0</T>
+      <T x={258} y={46} size={8} color="#007AFF" align="middle">closed: x ≤ 3</T>
+      <T x={150} y={100} size={8} color="#8E8E93" align="middle">○ = excluded (strict)   ● = included (≤ or ≥)</T>
+      <T x={150} y={112} size={8} color="#8E8E93" align="middle">Flip inequality sign when multiplying/dividing by negative</T>
+    </svg>
+  );
+}
+
+// Ch10 — Arithmetic Progression
+function IcseAPSequence() {
+  return (
+    <svg viewBox="0 0 300 160" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {[0,1,2,3,4].map((i)=>{
+        const x=30+i*52, val=3+i*4;
+        return (
+          <g key={i}>
+            <circle cx={x} cy={60} r={22} fill="#EEF2FF" stroke="#6366F1" strokeWidth="2"/>
+            <T x={x} y={65} size={11} bold color="#6366F1" align="middle">{val}</T>
+            {i<4 && <>
+              <line x1={x+22} y1="60" x2={x+30} y2="60" stroke="#FF9500" strokeWidth="2" markerEnd="url(#ap)"/>
+              <T x={x+27} y={52} size={8} color="#FF9500">+d</T>
+            </>}
+          </g>
+        );
+      })}
+      <defs><marker id="ap" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#FF9500"/></marker></defs>
+      <T x={30} y={95} size={8} color="#8E8E93" align="middle">a</T>
+      <T x={82} y={95} size={8} color="#8E8E93" align="middle">a+d</T>
+      <T x={134} y={95} size={8} color="#8E8E93" align="middle">a+2d</T>
+      <T x={186} y={95} size={8} color="#8E8E93" align="middle">a+3d</T>
+      <T x={238} y={95} size={8} color="#8E8E93" align="middle">a+4d</T>
+      <rect x="10" y="108" width="280" height="44" rx="6" fill="#EEF2FF"/>
+      <T x={150} y={122} size={9} bold color="#6366F1" align="middle">aₙ = a + (n−1)d</T>
+      <T x={150} y={136} size={9} bold color="#6366F1" align="middle">Sₙ = n/2 × [2a + (n−1)d]  =  n/2 × (a + l)</T>
+      <T x={150} y={148} size={8} color="#8E8E93" align="middle">d = common difference  |  a = first term  |  l = last term</T>
+    </svg>
+  );
+}
+
+// Ch11 — Geometric Progression
+function IcseGPSequence() {
+  return (
+    <svg viewBox="0 0 300 160" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {[0,1,2,3,4].map((i)=>{
+        const x=30+i*52, val=Math.pow(2,i+1);
+        return (
+          <g key={i}>
+            <circle cx={x} cy={60} r={22} fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+            <T x={x} y={65} size={11} bold color="#D97706" align="middle">{val}</T>
+            {i<4 && <>
+              <line x1={x+22} y1="60" x2={x+30} y2="60" stroke="#FF3B30" strokeWidth="2" markerEnd="url(#gp)"/>
+              <T x={x+27} y={52} size={8} color="#FF3B30">×r</T>
+            </>}
+          </g>
+        );
+      })}
+      <defs><marker id="gp" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#FF3B30"/></marker></defs>
+      <T x={30} y={95} size={8} color="#8E8E93" align="middle">a</T>
+      <T x={82} y={95} size={8} color="#8E8E93" align="middle">ar</T>
+      <T x={134} y={95} size={8} color="#8E8E93" align="middle">ar²</T>
+      <T x={186} y={95} size={8} color="#8E8E93" align="middle">ar³</T>
+      <T x={238} y={95} size={8} color="#8E8E93" align="middle">ar⁴</T>
+      <rect x="10" y="108" width="280" height="44" rx="6" fill="#FEF3C7"/>
+      <T x={150} y={122} size={9} bold color="#D97706" align="middle">aₙ = arⁿ⁻¹</T>
+      <T x={150} y={136} size={9} bold color="#D97706" align="middle">Sₙ = a(rⁿ−1)/(r−1)  |  S∞ = a/(1−r)  for |r|&lt;1</T>
+      <T x={150} y={148} size={8} color="#8E8E93" align="middle">r = common ratio = aₙ₊₁/aₙ  |  3-term GP: a/r, a, ar</T>
+    </svg>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ICSE CLASS 9 MATHEMATICS — Selina Concise
+// 12 geometric chapters × 4 topics = 48 SVG diagrams
+// Chapters: Ch9–Ch17, Ch20–Ch21, Ch26
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Ch9 — Triangles (Congruency) ──────────────────────────────────────────────
+function Icse9CongruenceIntro() {
+  return (
+    <svg viewBox="0 0 300 200" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {/* Triangle 1 */}
+      <polygon points="30,170 110,170 70,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={20} y={183} size={9} bold color="#2563EB">A</T><T x={112} y={183} size={9} bold color="#2563EB">B</T><T x={66} y={54} size={9} bold color="#2563EB">C</T>
+      {/* tick marks on equal sides */}
+      <line x1="46" y1="118" x2="52" y2="112" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="88" y1="112" x2="94" y2="118" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="65" y1="168" x2="75" y2="168" stroke="#34C759" strokeWidth="2.5"/>
+      {/* Triangle 2 — congruent copy */}
+      <polygon points="170,170 250,170 210,60" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={160} y={183} size={9} bold color="#16A34A">P</T><T x={252} y={183} size={9} bold color="#16A34A">Q</T><T x={206} y={54} size={9} bold color="#16A34A">R</T>
+      <line x1="186" y1="118" x2="192" y2="112" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="228" y1="112" x2="234" y2="118" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="205" y1="168" x2="215" y2="168" stroke="#34C759" strokeWidth="2.5"/>
+      <T x={150} y={10} size={10} bold color="#1C1C1E" align="middle">△ABC ≅ △PQR</T>
+      <T x={150} y={197} size={9} color="#8E8E93" align="middle">Congruent: same shape AND size — all 6 parts equal</T>
+    </svg>
+  );
+}
+function Icse9CongruenceCriteria() {
+  return (
+    <svg viewBox="0 0 300 220" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {/* SAS */}
+      <polygon points="20,80 80,80 60,30" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={50} y={96} size={8} bold color="#2563EB" align="middle">SAS</T>
+      <line x1="38" y1="57" x2="44" y2="51" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="68" y1="51" x2="74" y2="57" stroke="#FF3B30" strokeWidth="2"/>
+      <path d="M34 80 A12 12 0 0 1 30 68" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      {/* ASA */}
+      <polygon points="100,80 160,80 140,30" fill="#FFF7ED" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={130} y={96} size={8} bold color="#EA580C" align="middle">ASA</T>
+      <path d="M108 80 A12 12 0 0 1 104 68" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <path d="M150 68 A12 12 0 0 1 154 80" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <line x1="116" y1="56" x2="122" y2="50" stroke="#34C759" strokeWidth="2"/>
+      {/* SSS */}
+      <polygon points="180,80 240,80 220,30" fill="#F0FDF4" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={210} y={96} size={8} bold color="#16A34A" align="middle">SSS</T>
+      <line x1="197" y1="57" x2="203" y2="51" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="227" y1="51" x2="233" y2="57" stroke="#FF3B30" strokeWidth="2"/>
+      <line x1="205" y1="78" x2="215" y2="78" stroke="#34C759" strokeWidth="2.5"/>
+      {/* RHS */}
+      <polygon points="260,80 300,80 300,30" fill="#FDF4FF" stroke="#9333EA" strokeWidth="1.5"/>
+      <T x={280} y={96} size={8} bold color="#9333EA" align="middle">RHS</T>
+      <rect x="292" y="72" width="8" height="8" fill="none" stroke="#9333EA" strokeWidth="1.5"/>
+      <line x1="272" y1="56" x2="278" y2="50" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={150} y={116} size={9} bold color="#1C1C1E" align="middle">Congruence Criteria</T>
+      <T x={150} y={132} size={8} color="#8E8E93" align="middle">SAS — Side Angle Side (included angle)</T>
+      <T x={150} y={146} size={8} color="#8E8E93" align="middle">ASA — Angle Side Angle (included side)</T>
+      <T x={150} y={160} size={8} color="#8E8E93" align="middle">SSS — Side Side Side (all three sides equal)</T>
+      <T x={150} y={174} size={8} color="#8E8E93" align="middle">RHS — Right angle, Hypotenuse, Side</T>
+      <T x={150} y={192} size={9} bold color="#FF3B30" align="middle">CPCT: Corresponding Parts of Congruent Triangles</T>
+    </svg>
+  );
+}
+function Icse9TriangleProperties() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Triangle ABC */}
+      <polygon points="40,160 200,160 120,40" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={30} y={175} size={9} bold color="#2563EB">A</T>
+      <T x={202} y={175} size={9} bold color="#2563EB">B</T>
+      <T x={116} y={34} size={9} bold color="#2563EB">C</T>
+      {/* Extend BC to D */}
+      <line x1="200" y1="160" x2="260" y2="160" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={262} y={168} size={9} bold color="#FF3B30">D</T>
+      {/* Angle arcs */}
+      <path d="M60 160 A22 22 0 0 1 55 138" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={66} y={148} size={8} bold color="#6366F1">∠A</T>
+      <path d="M175 160 A22 22 0 0 0 180 138" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={158} y={148} size={8} bold color="#34C759">∠B</T>
+      {/* Exterior angle CBD */}
+      <path d="M210 160 A20 20 0 0 0 220 145" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={224} y={150} size={8} bold color="#FF3B30">ext∠</T>
+      <T x={140} y={188} size={9} bold color="#FF3B30" align="middle">Exterior ∠CBD = ∠A + ∠B</T>
+      <T x={140} y={202} size={8} color="#8E8E93" align="middle">Exterior angle = sum of two non-adjacent interior angles</T>
+    </svg>
+  );
+}
+function Icse9CongruenceProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Parallelogram ABCD with diagonals — congruent triangles */}
+      <polygon points="60,160 220,160 260,60 100,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={48} y={173} size={9} bold color="#2563EB">A</T>
+      <T x={222} y={173} size={9} bold color="#2563EB">B</T>
+      <T x={262} y={56} size={9} bold color="#2563EB">C</T>
+      <T x={88} y={54} size={9} bold color="#2563EB">D</T>
+      {/* Diagonals */}
+      <line x1="60" y1="160" x2="260" y2="60" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="220" y1="160" x2="100" y2="60" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      {/* Center O */}
+      <circle cx="160" cy="110" r="4" fill="#FF9500"/>
+      <T x={164} y={108} size={9} bold color="#FF9500">O</T>
+      <T x={140} y={190} size={9} bold color="#FF3B30" align="middle">△AOB ≅ △COD  (AAS)</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Diagonals of a parallelogram bisect each other</T>
+    </svg>
+  );
+}
+
+// ── Ch10 — Isosceles Triangles ────────────────────────────────────────────────
+function Icse9IsoscelesBase() {
+  return (
+    <svg viewBox="0 0 260 210" style={{ width:"100%", maxWidth:260, height:"auto" }}>
+      <polygon points="130,30 30,170 230,170" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={124} y={24} size={9} bold color="#16A34A">A</T>
+      <T x={18} y={183} size={9} bold color="#16A34A">B</T>
+      <T x={232} y={183} size={9} bold color="#16A34A">C</T>
+      {/* Equal sides AB = AC tick marks */}
+      <line x1="74" y1="97" x2="82" y2="91" stroke="#FF3B30" strokeWidth="2.5"/>
+      <line x1="182" y1="91" x2="190" y2="97" stroke="#FF3B30" strokeWidth="2.5"/>
+      {/* AB = AC label */}
+      <T x={60} y={102} size={8} color="#FF3B30">AB=AC</T>
+      {/* equal base angles */}
+      <path d="M50 170 A24 24 0 0 1 45 146" fill="none" stroke="#6366F1" strokeWidth="2"/>
+      <T x={58} y={155} size={8} bold color="#6366F1">∠B</T>
+      <path d="M208 146 A24 24 0 0 1 210 170" fill="none" stroke="#6366F1" strokeWidth="2"/>
+      <T x={192} y={155} size={8} bold color="#6366F1">∠C</T>
+      <T x={130} y={188} size={9} bold color="#FF3B30" align="middle">AB = AC  ⟹  ∠B = ∠C</T>
+      <T x={130} y={202} size={8} color="#8E8E93" align="middle">Angles opp. equal sides are equal</T>
+    </svg>
+  );
+}
+function Icse9IsoscelesAngles() {
+  return (
+    <svg viewBox="0 0 260 210" style={{ width:"100%", maxWidth:260, height:"auto" }}>
+      <polygon points="130,30 30,170 230,170" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={124} y={24} size={9} bold color="#EA580C">A</T>
+      <T x={18} y={183} size={9} bold color="#EA580C">B</T>
+      <T x={232} y={183} size={9} bold color="#EA580C">C</T>
+      {/* Equal base angles */}
+      <path d="M50 170 A24 24 0 0 1 45 146" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <T x={58} y={155} size={8} bold color="#FF9500">θ</T>
+      <path d="M208 146 A24 24 0 0 1 210 170" fill="none" stroke="#FF9500" strokeWidth="2"/>
+      <T x={192} y={155} size={8} bold color="#FF9500">θ</T>
+      {/* Perpendicular bisector from A */}
+      <line x1="130" y1="30" x2="130" y2="170" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={134} y={100} size={8} color="#16A34A">bisector</T>
+      <rect x="122" y="162" width="8" height="8" fill="none" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={130} y={188} size={9} bold color="#FF9500" align="middle">∠B = ∠C  ⟹  AB = AC</T>
+      <T x={130} y={202} size={8} color="#8E8E93" align="middle">Converse: Equal angles → equal sides opp. them</T>
+    </svg>
+  );
+}
+function Icse9EquilateralTriangle() {
+  return (
+    <svg viewBox="0 0 260 220" style={{ width:"100%", maxWidth:260, height:"auto" }}>
+      <polygon points="130,20 20,188 240,188" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={124} y={14} size={9} bold color="#2563EB">A</T>
+      <T x={8} y={200} size={9} bold color="#2563EB">B</T>
+      <T x={242} y={200} size={9} bold color="#2563EB">C</T>
+      {/* tick marks on all three sides */}
+      <line x1="70" y1="107" x2="78" y2="101" stroke="#FF3B30" strokeWidth="2.5"/>
+      <line x1="130" y1="188" x2="130" y2="182" stroke="#FF3B30" strokeWidth="2.5"/>
+      <line x1="185" y1="101" x2="193" y2="107" stroke="#FF3B30" strokeWidth="2.5"/>
+      {/* 60° angle arcs */}
+      <path d="M40 188 A22 22 0 0 1 36 166" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={48} y={174} size={8} bold color="#34C759">60°</T>
+      <path d="M218 166 A22 22 0 0 1 220 188" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={196} y={174} size={8} bold color="#34C759">60°</T>
+      <path d="M115 26 A22 22 0 0 1 148 27" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={122} y={46} size={8} bold color="#34C759">60°</T>
+      <T x={130} y={206} size={9} bold color="#FF3B30" align="middle">AB = BC = CA  |  ∠A = ∠B = ∠C = 60°</T>
+    </svg>
+  );
+}
+function Icse9IsoscelesProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Isosceles triangle with altitude bisecting base */}
+      <polygon points="140,25 30,175 250,175" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={134} y={20} size={9} bold color="#16A34A">A</T>
+      <T x={18} y={185} size={9} bold color="#16A34A">B</T>
+      <T x={252} y={185} size={9} bold color="#16A34A">C</T>
+      {/* Altitude from A to midpoint D of BC */}
+      <line x1="140" y1="25" x2="140" y2="175" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <circle cx="140" cy="175" r="4" fill="#FF3B30"/>
+      <T x={144} y={185} size={9} bold color="#FF3B30">D</T>
+      <rect x="132" y="167" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      {/* BD = DC ticks */}
+      <line x1="80" y1="175" x2="85" y2="170" stroke="#6366F1" strokeWidth="2"/>
+      <line x1="193" y1="170" x2="198" y2="175" stroke="#6366F1" strokeWidth="2"/>
+      <T x={140} y={196} size={9} bold color="#FF3B30" align="middle">Altitude AD ⊥ BC  and  BD = DC</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">The median, altitude and perp. bisector from apex coincide</T>
+    </svg>
+  );
+}
+
+// ── Ch11 — Inequalities ───────────────────────────────────────────────────────
+function Icse9InequalityBasics() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Scalene triangle with sides labeled */}
+      <polygon points="60,160 230,160 130,40" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={48} y={173} size={9} bold color="#EA580C">A</T>
+      <T x={232} y={173} size={9} bold color="#EA580C">B</T>
+      <T x={126} y={34} size={9} bold color="#EA580C">C</T>
+      {/* side labels */}
+      <T x={80} y={100} size={9} bold color="#FF3B30">a</T>
+      <T x={186} y={100} size={9} bold color="#FF3B30">b</T>
+      <T x={144} y={170} size={9} bold color="#FF3B30">c</T>
+      {/* angle arcs */}
+      <path d="M80 160 A22 22 0 0 1 76 138" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={88} y={148} size={8} bold color="#6366F1">A</T>
+      <path d="M207 138 A22 22 0 0 1 212 160" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={192} y={148} size={8} bold color="#6366F1">B</T>
+      <T x={140} y={180} size={9} bold color="#FF3B30" align="middle">If a &gt; b &gt; c  then  A &gt; B &gt; C</T>
+      <T x={140} y={194} size={8} color="#8E8E93" align="middle">Angle opposite longer side is greater</T>
+    </svg>
+  );
+}
+function Icse9TriangleIneq() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Triangle with direct path vs two-sides path */}
+      <polygon points="40,160 240,160 150,50" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={28} y={173} size={9} bold color="#2563EB">A</T>
+      <T x={242} y={173} size={9} bold color="#2563EB">B</T>
+      <T x={146} y={44} size={9} bold color="#2563EB">C</T>
+      {/* AB direct */}
+      <T x={136} y={172} size={9} bold color="#34C759">AB (direct)</T>
+      {/* AC + CB */}
+      <T x={76} y={98} size={9} color="#FF3B30">AC</T>
+      <T x={196} y={98} size={9} color="#FF3B30">CB</T>
+      <T x={140} y={186} size={9} bold color="#FF3B30" align="middle">AC + CB &gt; AB  (triangle inequality)</T>
+      <T x={140} y={198} size={8} color="#8E8E93" align="middle">Sum of any two sides &gt; third side</T>
+    </svg>
+  );
+}
+function Icse9InequalityTheorem() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Exterior angle theorem */}
+      <polygon points="40,160 200,160 120,50" fill="#FDF4FF" stroke="#9333EA" strokeWidth="2"/>
+      <T x={28} y={173} size={9} bold color="#9333EA">A</T>
+      <T x={202} y={173} size={9} bold color="#9333EA">B</T>
+      <T x={116} y={44} size={9} bold color="#9333EA">C</T>
+      <line x1="200" y1="160" x2="268" y2="160" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={270} y={168} size={9} bold color="#FF3B30">D</T>
+      <path d="M212 160 A18 18 0 0 0 222 146" fill="none" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={226} y={152} size={9} bold color="#FF3B30">ext∠</T>
+      <path d="M60 160 A22 22 0 0 1 56 138" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={68} y={148} size={8} bold color="#6366F1">∠A</T>
+      <path d="M175 140 A22 22 0 0 1 180 160" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={158} y={148} size={8} bold color="#34C759">∠C</T>
+      <T x={154} y={190} size={9} bold color="#FF3B30" align="middle">ext∠CBD &gt; ∠A  and  ext∠CBD &gt; ∠C</T>
+      <T x={154} y={204} size={8} color="#8E8E93" align="middle">Exterior angle &gt; each non-adjacent interior angle</T>
+    </svg>
+  );
+}
+function Icse9InequalityProblems() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Two triangles — median inequality */}
+      <polygon points="50,160 240,160 100,50" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={38} y={173} size={9} bold color="#2563EB">A</T>
+      <T x={242} y={173} size={9} bold color="#2563EB">B</T>
+      <T x={96} y={44} size={9} bold color="#2563EB">C</T>
+      {/* Median from C to midpoint M of AB */}
+      <circle cx="145" cy="160" r="4" fill="#FF3B30"/>
+      <T x={149} y={173} size={9} bold color="#FF3B30">M</T>
+      <line x1="100" y1="50" x2="145" y2="160" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      {/* AB/2 ticks */}
+      <line x1="87" y1="160" x2="92" y2="155" stroke="#34C759" strokeWidth="2"/>
+      <line x1="196" y1="155" x2="201" y2="160" stroke="#34C759" strokeWidth="2"/>
+      <T x={140} y={184} size={9} bold color="#FF3B30" align="middle">Median CM &lt; ½(CA + CB)</T>
+      <T x={140} y={197} size={8} color="#8E8E93" align="middle">Median &lt; average of the two sides enclosing it</T>
+    </svg>
+  );
+}
+
+// ── Ch12 — Mid-Point Theorem ──────────────────────────────────────────────────
+function Icse9MidpointThm() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,20 30,180 250,180" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={134} y={14} size={9} bold color="#2563EB">A</T>
+      <T x={18} y={192} size={9} bold color="#2563EB">B</T>
+      <T x={252} y={192} size={9} bold color="#2563EB">C</T>
+      {/* Midpoints M (of AB) and N (of AC) */}
+      <circle cx="85" cy="100" r="4" fill="#FF3B30"/>
+      <T x={68} y={98} size={9} bold color="#FF3B30">M</T>
+      <circle cx="195" cy="100" r="4" fill="#FF3B30"/>
+      <T x={198} y={98} size={9} bold color="#FF3B30">N</T>
+      {/* MN segment */}
+      <line x1="85" y1="100" x2="195" y2="100" stroke="#FF3B30" strokeWidth="2.5"/>
+      {/* Tick marks: AM=MB, AN=NC */}
+      <line x1="105" y1="58" x2="113" y2="52" stroke="#34C759" strokeWidth="2"/>
+      <line x1="55" y1="148" x2="63" y2="142" stroke="#34C759" strokeWidth="2"/>
+      <line x1="171" y1="52" x2="179" y2="58" stroke="#6366F1" strokeWidth="2"/>
+      <line x1="219" y1="142" x2="227" y2="148" stroke="#6366F1" strokeWidth="2"/>
+      <T x={140} y={190} size={9} bold color="#FF3B30" align="middle">MN ∥ BC  and  MN = ½ BC</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Mid-Point Theorem: M, N are midpoints of AB, AC</T>
+    </svg>
+  );
+}
+function Icse9ConverseMP() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="140,20 30,180 250,180" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={134} y={14} size={9} bold color="#16A34A">A</T>
+      <T x={18} y={192} size={9} bold color="#16A34A">B</T>
+      <T x={252} y={192} size={9} bold color="#16A34A">C</T>
+      {/* M = midpoint of AB */}
+      <circle cx="85" cy="100" r="4" fill="#FF3B30"/>
+      <T x={68} y={98} size={9} bold color="#FF3B30">M</T>
+      {/* Line through M parallel to BC hits AC at N */}
+      <line x1="60" y1="100" x2="220" y2="100" stroke="#FF3B30" strokeWidth="2" strokeDasharray="5,3"/>
+      <circle cx="195" cy="100" r="4" fill="#FF9500"/>
+      <T x={198} y={98} size={9} bold color="#FF9500">N</T>
+      {/* Tick marks: AM=MB */}
+      <line x1="105" y1="58" x2="113" y2="52" stroke="#34C759" strokeWidth="2"/>
+      <line x1="55" y1="148" x2="63" y2="142" stroke="#34C759" strokeWidth="2"/>
+      {/* AN=NC */}
+      <line x1="171" y1="52" x2="179" y2="58" stroke="#6366F1" strokeWidth="2"/>
+      <line x1="219" y1="142" x2="227" y2="148" stroke="#6366F1" strokeWidth="2"/>
+      <T x={140} y={190} size={9} bold color="#FF3B30" align="middle">M midpoint of AB, MN ∥ BC  ⟹  N midpoint of AC</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Converse of Mid-Point Theorem</T>
+    </svg>
+  );
+}
+function Icse9InterceptThm() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Three parallel lines */}
+      <line x1="20" y1="50" x2="260" y2="50" stroke="#9333EA" strokeWidth="1.5" strokeDasharray="6,3"/>
+      <line x1="20" y1="120" x2="260" y2="120" stroke="#9333EA" strokeWidth="1.5" strokeDasharray="6,3"/>
+      <line x1="20" y1="190" x2="260" y2="190" stroke="#9333EA" strokeWidth="1.5" strokeDasharray="6,3"/>
+      <T x={4} y={54} size={8} color="#9333EA">l₁</T>
+      <T x={4} y={124} size={8} color="#9333EA">l₂</T>
+      <T x={4} y={194} size={8} color="#9333EA">l₃</T>
+      {/* Transversal 1 */}
+      <line x1="80" y1="30" x2="80" y2="200" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="80" cy="50" r="3" fill="#2563EB"/><T x={84} y={48} size={8} bold color="#2563EB">A</T>
+      <circle cx="80" cy="120" r="3" fill="#2563EB"/><T x={84} y={118} size={8} bold color="#2563EB">B</T>
+      <circle cx="80" cy="190" r="3" fill="#2563EB"/><T x={84} y={188} size={8} bold color="#2563EB">C</T>
+      {/* Transversal 2 */}
+      <line x1="180" y1="30" x2="180" y2="200" stroke="#FF3B30" strokeWidth="2"/>
+      <circle cx="180" cy="50" r="3" fill="#FF3B30"/><T x={184} y={48} size={8} bold color="#FF3B30">P</T>
+      <circle cx="180" cy="120" r="3" fill="#FF3B30"/><T x={184} y={118} size={8} bold color="#FF3B30">Q</T>
+      <circle cx="180" cy="190" r="3" fill="#FF3B30"/><T x={184} y={188} size={8} bold color="#FF3B30">R</T>
+      {/* AB = BC ticks */}
+      <line x1="71" y1="84" x2="77" y2="88" stroke="#34C759" strokeWidth="2"/>
+      <line x1="71" y1="156" x2="77" y2="160" stroke="#34C759" strokeWidth="2"/>
+      <T x={140} y={10} size={9} bold color="#9333EA" align="middle">l₁ ∥ l₂ ∥ l₃  and  AB = BC  ⟹  PQ = QR</T>
+      <T x={140} y={22} size={8} color="#8E8E93" align="middle">Equal intercepts on one transversal ⟹ equal on all</T>
+    </svg>
+  );
+}
+function Icse9MidpointProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Trapezium ABCD with EF as mid-segment */}
+      <polygon points="80,40 200,40 250,170 30,170" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={68} y={34} size={9} bold color="#EA580C">A</T>
+      <T x={202} y={34} size={9} bold color="#EA580C">B</T>
+      <T x={252} y={178} size={9} bold color="#EA580C">C</T>
+      <T x={18} y={178} size={9} bold color="#EA580C">D</T>
+      {/* Mid-segment EF (midpoints of AD and BC) */}
+      <circle cx="55" cy="105" r="4" fill="#FF3B30"/><T x={38} y={103} size={8} bold color="#FF3B30">E</T>
+      <circle cx="225" cy="105" r="4" fill="#FF3B30"/><T x={228} y={103} size={8} bold color="#FF3B30">F</T>
+      <line x1="55" y1="105" x2="225" y2="105" stroke="#FF3B30" strokeWidth="2.5"/>
+      <T x={140} y={96} size={8} bold color="#FF3B30" align="middle">EF = ½(AB + CD)</T>
+      <T x={140} y={190} size={9} bold color="#FF3B30" align="middle">EF ∥ AB ∥ DC  and  EF = ½(AB + DC)</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Trapezium mid-segment theorem</T>
+    </svg>
+  );
+}
+
+// ── Ch13 — Pythagoras Theorem ─────────────────────────────────────────────────
+function Icse9PythagorasBasic() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <polygon points="50,170 200,170 200,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <rect x="192" y="162" width="8" height="8" fill="none" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={38} y={183} size={9} bold>A</T><T x={202} y={183} size={9} bold>B</T><T x={206} y={58} size={9} bold>C</T>
+      {/* side labels */}
+      <T x={118} y={183} size={9} bold color="#34C759">b (adj)</T>
+      <T x={208} y={118} size={9} bold color="#FF3B30">a (opp)</T>
+      <T x={108} y={112} size={9} bold color="#FF9500">c (hyp)</T>
+      {/* squares on sides */}
+      <rect x="50" y="170" width="150" height="30" fill="none" stroke="#34C759" strokeWidth="1" strokeDasharray="3,2"/>
+      <rect x="200" y="60" width="30" height="110" fill="none" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <rect x="28" y="192" width="22" height="22" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={140} y={192} size={8} bold color="#34C759" align="middle">b²</T>
+      <T x={218} y={118} size={8} bold color="#FF3B30">a²</T>
+      <T x={138} y={40} size={9} bold color="#2563EB" align="middle">a² + b² = c²</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Square on hyp = sum of squares on other two sides</T>
+    </svg>
+  );
+}
+function Icse9PythagorasConverse() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Three triangles: acute, right, obtuse */}
+      <polygon points="20,160 90,160 55,80" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={52} y={174} size={8} bold color="#2563EB" align="middle">a²+b²&gt;c²</T>
+      <T x={52} y={184} size={8} color="#34C759" align="middle">Acute</T>
+      <polygon points="100,160 200,160 200,60" fill="#F0FDF4" stroke="#16A34A" strokeWidth="1.5"/>
+      <rect x="192" y="152" width="8" height="8" fill="none" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={150} y={174} size={8} bold color="#16A34A" align="middle">a²+b²=c²</T>
+      <T x={150} y={184} size={8} color="#16A34A" align="middle">Right ✓</T>
+      <polygon points="210,160 270,160 220,80" fill="#FFF7ED" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={240} y={174} size={8} bold color="#EA580C" align="middle">a²+b²&lt;c²</T>
+      <T x={240} y={184} size={8} color="#EA580C" align="middle">Obtuse</T>
+      <T x={140} y={16} size={10} bold color="#1C1C1E" align="middle">Converse of Pythagoras</T>
+      <T x={140} y={30} size={9} color="#8E8E93" align="middle">If a²+b²=c² then the angle opposite c is 90°</T>
+    </svg>
+  );
+}
+function Icse9PythagorasApp() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Ladder against wall */}
+      <line x1="80" y1="20" x2="80" y2="170" stroke="#8E8E93" strokeWidth="3"/>
+      <line x1="20" y1="170" x2="260" y2="170" stroke="#8E8E93" strokeWidth="3"/>
+      <rect x="72" y="162" width="8" height="8" fill="none" stroke="#8E8E93" strokeWidth="1.5"/>
+      {/* Ladder */}
+      <line x1="80" y1="40" x2="180" y2="170" stroke="#FF9500" strokeWidth="3"/>
+      <T x={152} y={100} size={9} bold color="#FF9500">Ladder (c)</T>
+      {/* vertical height */}
+      <line x1="64" y1="40" x2="76" y2="40" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="64" y1="170" x2="76" y2="170" stroke="#FF3B30" strokeWidth="1.5"/>
+      <line x1="70" y1="40" x2="70" y2="170" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={30} y={110} size={9} bold color="#FF3B30">h (a)</T>
+      {/* horizontal base */}
+      <T x={130} y={184} size={9} bold color="#34C759">d (b)</T>
+      <T x={140} y={12} size={9} bold color="#FF9500" align="middle">c² = a² + b²  ⟹  find c, a, or b</T>
+      <T x={140} y={196} size={8} color="#8E8E93" align="middle">Diagonal of rectangle, height of pole, ladder problems</T>
+    </svg>
+  );
+}
+function Icse9PythagorasProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Right triangle in coordinate grid */}
+      <line x1="30" y1="20" x2="30" y2="190" stroke="#D1D5DB" strokeWidth="1"/>
+      <line x1="30" y1="190" x2="270" y2="190" stroke="#D1D5DB" strokeWidth="1"/>
+      {/* Grid lines */}
+      {[70,110,150,190,230].map(x=><line key={x} x1={x} y1={20} x2={x} y2={190} stroke="#F3F4F6" strokeWidth="1"/>)}
+      {[60,100,140,180].map(y=><line key={y} x1={30} y1={y} x2={270} y2={y} stroke="#F3F4F6" strokeWidth="1"/>)}
+      <polygon points="70,60 70,180 230,180" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <rect x="62" y="172" width="8" height="8" fill="none" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={58} y={52} size={9} bold color="#2563EB">A(1,4)</T>
+      <T x={58} y={192} size={9} bold color="#2563EB">B(1,0)</T>
+      <T x={232} y={192} size={9} bold color="#2563EB">C(5,0)</T>
+      <T x={42} y={122} size={9} bold color="#FF3B30">4</T>
+      <T x={148} y={191} size={9} bold color="#34C759">4</T>
+      <T x={162} y={115} size={9} bold color="#FF9500">c=4√2</T>
+      <T x={140} y={208} size={9} bold color="#2563EB" align="middle">AB=4, BC=4 ⟹ AC=√(16+16)=4√2</T>
+    </svg>
+  );
+}
+
+// ── Ch14 — Rectilinear Figures (Quadrilaterals) ───────────────────────────────
+function Icse9QuadProperties() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* General quadrilateral ABCD with diagonal */}
+      <polygon points="60,40 230,60 210,170 40,160" fill="#F0F9FF" stroke="#0284C7" strokeWidth="2"/>
+      <T x={48} y={34} size={9} bold color="#0284C7">A</T>
+      <T x={232} y={58} size={9} bold color="#0284C7">B</T>
+      <T x={212} y={180} size={9} bold color="#0284C7">C</T>
+      <T x={28} y={164} size={9} bold color="#0284C7">D</T>
+      {/* Diagonal AC */}
+      <line x1="60" y1="40" x2="210" y2="170" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      {/* Angle arcs at all 4 vertices */}
+      <path d="M78 44 A18 18 0 0 1 74 62" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={82} y={58} size={8} bold color="#6366F1">A</T>
+      <path d="M215 68 A18 18 0 0 1 228 66" fill="none" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={206} y={82} size={8} bold color="#34C759">B</T>
+      <path d="M194 162 A18 18 0 0 1 210 158" fill="none" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={192} y={178} size={8} bold color="#FF9500">C</T>
+      <path d="M54 142 A18 18 0 0 1 60 158" fill="none" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={46} y={145} size={8} bold color="#EA580C">D</T>
+      <T x={140} y={192} size={9} bold color="#0284C7" align="middle">∠A + ∠B + ∠C + ∠D = 360°</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">Angle sum property of any quadrilateral</T>
+    </svg>
+  );
+}
+function Icse9Parallelogram() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Parallelogram ABCD */}
+      <polygon points="60,50 230,50 260,150 90,150" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={48} y={44} size={9} bold color="#16A34A">A</T>
+      <T x={232} y={44} size={9} bold color="#16A34A">B</T>
+      <T x={262} y={158} size={9} bold color="#16A34A">C</T>
+      <T x={78} y={162} size={9} bold color="#16A34A">D</T>
+      {/* Diagonals */}
+      <line x1="60" y1="50" x2="260" y2="150" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="230" y1="50" x2="90" y2="150" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <circle cx="160" cy="100" r="4" fill="#FF9500"/><T x={164} y={98} size={9} bold color="#FF9500">O</T>
+      {/* Tick marks: AB=DC, AD=BC */}
+      <line x1="140" y1="48" x2="145" y2="53" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="171" y1="152" x2="176" y2="148" stroke="#2563EB" strokeWidth="2"/>
+      <T x={140} y={178} size={9} bold color="#16A34A" align="middle">AB ∥ DC, AD ∥ BC  |  AB=DC, AD=BC</T>
+      <T x={140} y={192} size={8} color="#8E8E93" align="middle">Opposite sides equal & parallel; diagonals bisect each other</T>
+    </svg>
+  );
+}
+function Icse9SpecialQuads() {
+  return (
+    <svg viewBox="0 0 300 210" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {/* Rectangle */}
+      <rect x="10" y="40" width="80" height="50" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <rect x="10" y="40" width="8" height="8" fill="none" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={50} y={105} size={8} bold color="#2563EB" align="middle">Rectangle</T>
+      <T x={50} y={116} size={7} color="#8E8E93" align="middle">All ∠=90°, diags=</T>
+      {/* Rhombus */}
+      <polygon points="155,30 190,70 155,110 120,70" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={155} y={125} size={8} bold color="#16A34A" align="middle">Rhombus</T>
+      <T x={155} y={136} size={7} color="#8E8E93" align="middle">All sides =, ⊥ diags</T>
+      {/* Square */}
+      <rect x="215" y="40" width="65" height="65" fill="#FDF4FF" stroke="#9333EA" strokeWidth="2"/>
+      <rect x="215" y="40" width="8" height="8" fill="none" stroke="#9333EA" strokeWidth="1.5"/>
+      <T x={248} y={120} size={8} bold color="#9333EA" align="middle">Square</T>
+      <T x={248} y={131} size={7} color="#8E8E93" align="middle">All =, all 90°</T>
+      {/* Trapezium */}
+      <polygon points="10,175 90,175 75,145 25,145" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={50} y={190} size={8} bold color="#EA580C" align="middle">Trapezium</T>
+      {/* Kite */}
+      <polygon points="155,138 180,168 155,195 130,168" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <T x={155} y={208} size={8} bold color="#D97706" align="middle">Kite</T>
+      <T x={150} y={16} size={9} bold color="#1C1C1E" align="middle">Special Quadrilaterals</T>
+    </svg>
+  );
+}
+function Icse9RectilinearProblems() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Trapezium ABCD with parallel sides AB ∥ DC */}
+      <polygon points="60,50 220,50 250,160 30,160" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={48} y={44} size={9} bold color="#EA580C">A</T>
+      <T x={222} y={44} size={9} bold color="#EA580C">B</T>
+      <T x={252} y={168} size={9} bold color="#EA580C">C</T>
+      <T x={18} y={168} size={9} bold color="#EA580C">D</T>
+      {/* Arrows on parallel sides */}
+      <T x={140} y={44} size={8} color="#FF3B30" align="middle">→ AB ∥ DC →</T>
+      <T x={140} y={168} size={8} color="#FF3B30" align="middle">→→→→→→→→</T>
+      {/* Height */}
+      <line x1="140" y1="50" x2="140" y2="160" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="132" y="152" width="8" height="8" fill="none" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={148} y={108} size={8} bold color="#16A34A">h</T>
+      <T x={140} y={184} size={9} bold color="#FF3B30" align="middle">Area = ½(AB + DC) × h</T>
+      <T x={140} y={197} size={8} color="#8E8E93" align="middle">Trapezium area formula using parallel sides and height</T>
+    </svg>
+  );
+}
+
+// ── Ch15 — Construction of Polygons ──────────────────────────────────────────
+function Icse9BasicConstructions() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Perpendicular bisector of segment AB */}
+      <line x1="50" y1="100" x2="230" y2="100" stroke="#2563EB" strokeWidth="2.5"/>
+      <circle cx="50" cy="100" r="4" fill="#2563EB"/><T x={34} y={98} size={9} bold color="#2563EB">A</T>
+      <circle cx="230" cy="100" r="4" fill="#2563EB"/><T x={234} y={98} size={9} bold color="#2563EB">B</T>
+      {/* Midpoint M */}
+      <circle cx="140" cy="100" r="4" fill="#FF3B30"/><T x={144} y={98} size={9} bold color="#FF3B30">M</T>
+      {/* Perpendicular line */}
+      <line x1="140" y1="10" x2="140" y2="190" stroke="#16A34A" strokeWidth="2"/>
+      <rect x="132" y="92" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      {/* Arc construction marks */}
+      <path d="M50 100 A60 60 0 0 1 110 40" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M50 100 A60 60 0 0 0 110 160" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M230 100 A60 60 0 0 0 170 40" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M230 100 A60 60 0 0 1 170 160" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={140} y={188} size={9} bold color="#16A34A" align="middle">⊥ bisector: MA = MB, green line ⊥ AB</T>
+    </svg>
+  );
+}
+function Icse9TriangleConstruction() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Triangle constructed with labeled given data */}
+      <polygon points="60,170 220,170 130,40" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={48} y={183} size={9} bold color="#2563EB">B</T>
+      <T x={222} y={183} size={9} bold color="#2563EB">C</T>
+      <T x={126} y={34} size={9} bold color="#2563EB">A</T>
+      {/* Construction arcs */}
+      <path d="M60 170 A120 120 0 0 1 180 80" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      <path d="M220 170 A100 100 0 0 0 80 80" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      {/* Labels */}
+      <T x={67} y={106} size={9} bold color="#FF3B30">c=AB</T>
+      <T x={188} y={106} size={9} bold color="#FF3B30">b=AC</T>
+      <T x={136} y={176} size={9} bold color="#34C759">a=BC (base)</T>
+      {/* Angle at B */}
+      <path d="M78 170 A20 20 0 0 1 74 150" fill="none" stroke="#6366F1" strokeWidth="1.5"/>
+      <T x={86} y={158} size={8} bold color="#6366F1">∠B</T>
+      <T x={140} y={12} size={9} bold color="#2563EB" align="middle">Construct △ given 3 sides (SSS) or SAS or ASA</T>
+      <T x={140} y={194} size={8} color="#8E8E93" align="middle">Draw base, set compass to given lengths, mark arcs</T>
+    </svg>
+  );
+}
+function Icse9QuadConstruction() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Quadrilateral construction — divide into two triangles */}
+      <polygon points="50,40 230,60 210,170 30,160" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={38} y={34} size={9} bold color="#16A34A">A</T>
+      <T x={232} y={58} size={9} bold color="#16A34A">B</T>
+      <T x={212} y={180} size={9} bold color="#16A34A">C</T>
+      <T x={18} y={164} size={9} bold color="#16A34A">D</T>
+      {/* Diagonal AC divides into 2 triangles */}
+      <line x1="50" y1="40" x2="210" y2="170" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={145} y={110} size={8} bold color="#FF3B30">diagonal</T>
+      <T x={140} y={188} size={9} bold color="#FF3B30" align="middle">Draw diagonal AC, construct △ABC, then △ACD</T>
+      <T x={140} y={200} size={8} color="#8E8E93" align="middle">Quadrilateral = 2 triangles sharing a diagonal</T>
+    </svg>
+  );
+}
+function Icse9PolygonConstruction() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Regular hexagon with construction circle */}
+      <circle cx="140" cy="105" r="80" fill="none" stroke="#FF9500" strokeWidth="1" strokeDasharray="4,2"/>
+      <polygon points="220,105 180,174 100,174 60,105 100,36 180,36" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      {/* Vertices */}
+      {[[220,105],[180,174],[100,174],[60,105],[100,36],[180,36]].map(([x,y],i)=>(
+        <circle key={i} cx={x} cy={y} r={4} fill="#D97706"/>
+      ))}
+      {/* Radii */}
+      {[[220,105],[180,174],[100,174],[60,105],[100,36],[180,36]].map(([x,y],i)=>(
+        <line key={i} x1={140} y1={105} x2={x} y2={y} stroke="#FF9500" strokeWidth="1" strokeDasharray="3,2"/>
+      ))}
+      <circle cx="140" cy="105" r="4" fill="#FF9500"/>
+      <T x={144} y={103} size={8} bold color="#FF9500">O</T>
+      <T x={140} y={192} size={9} bold color="#D97706" align="middle">Regular hexagon: side = radius</T>
+      <T x={140} y={205} size={8} color="#8E8E93" align="middle">Step off radius 6 times around the circle with compass</T>
+    </svg>
+  );
+}
+
+// ── Ch16 — Area Theorems ──────────────────────────────────────────────────────
+function Icse9AreaParallelogram() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Parallelogram and rectangle on same base, same parallels */}
+      <line x1="20" y1="60" x2="260" y2="60" stroke="#9333EA" strokeWidth="1" strokeDasharray="5,3"/>
+      <line x1="20" y1="170" x2="260" y2="170" stroke="#9333EA" strokeWidth="1" strokeDasharray="5,3"/>
+      {/* Parallelogram ABCD */}
+      <polygon points="40,170 180,170 220,60 80,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={28} y={183} size={8} bold color="#2563EB">A</T>
+      <T x={182} y={183} size={8} bold color="#2563EB">B</T>
+      <T x={222} y={56} size={8} bold color="#2563EB">C</T>
+      <T x={68} y={56} size={8} bold color="#2563EB">D</T>
+      {/* Height */}
+      <line x1="80" y1="60" x2="80" y2="170" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="72" y="162" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={86} y={118} size={9} bold color="#FF3B30">h</T>
+      {/* Base */}
+      <T x={108} y={183} size={9} bold color="#34C759">base (b)</T>
+      <T x={140} y={196} size={9} bold color="#2563EB" align="middle">Area = base × height = b × h</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Parallelograms on same base and between same parallels are equal</T>
+    </svg>
+  );
+}
+function Icse9AreaTriangle() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Parallelogram and its half triangle */}
+      <polygon points="40,170 220,170 260,70 80,70" fill="#DCFCE7" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <polygon points="40,170 220,170 130,70" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={28} y={183} size={9} bold color="#16A34A">A</T>
+      <T x={222} y={183} size={9} bold color="#16A34A">B</T>
+      <T x={126} y={64} size={9} bold color="#16A34A">C</T>
+      {/* Height */}
+      <line x1="130" y1="70" x2="130" y2="170" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="122" y="162" width="8" height="8" fill="none" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={136} y={122} size={9} bold color="#FF3B30">h</T>
+      <T x={130} y={183} size={9} bold color="#34C759">b</T>
+      <T x={140} y={196} size={9} bold color="#16A34A" align="middle">Area of △ = ½ × base × height = ½bh</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Triangle is half the parallelogram on same base + parallels</T>
+    </svg>
+  );
+}
+function Icse9AreaProof() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Two triangles on same base between same parallels */}
+      <line x1="20" y1="60" x2="260" y2="60" stroke="#9333EA" strokeWidth="1" strokeDasharray="5,3"/>
+      <line x1="20" y1="170" x2="260" y2="170" stroke="#9333EA" strokeWidth="1" strokeDasharray="5,3"/>
+      {/* Triangle 1: △ABP */}
+      <polygon points="40,170 200,170 100,60" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={28} y={183} size={8} bold color="#2563EB">A</T>
+      <T x={202} y={183} size={8} bold color="#2563EB">B</T>
+      <T x={96} y={54} size={8} bold color="#2563EB">P</T>
+      {/* Triangle 2: △ABQ */}
+      <polygon points="40,170 200,170 180,60" fill="#FEF3C7" stroke="#D97706" strokeWidth="2" strokeDasharray="4,2" fill-opacity="0.4"/>
+      <T x={182} y={54} size={8} bold color="#D97706">Q</T>
+      {/* Same base AB */}
+      <T x={120} y={183} size={9} bold color="#34C759">base AB</T>
+      <T x={140} y={196} size={9} bold color="#FF3B30" align="middle">ar(△ABP) = ar(△ABQ)</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Same base AB, same height (between ∥ lines)</T>
+    </svg>
+  );
+}
+function Icse9AreaProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Quadrilateral divided into triangles via diagonal */}
+      <polygon points="50,50 230,70 200,170 30,160" fill="#F0F9FF" stroke="#0284C7" strokeWidth="2"/>
+      <T x={38} y={44} size={9} bold color="#0284C7">A</T>
+      <T x={232} y={68} size={9} bold color="#0284C7">B</T>
+      <T x={202} y={180} size={9} bold color="#0284C7">C</T>
+      <T x={18} y={164} size={9} bold color="#0284C7">D</T>
+      {/* Diagonal AC */}
+      <line x1="50" y1="50" x2="200" y2="170" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      {/* Heights from B and D to AC */}
+      <line x1="230" y1="70" x2="150" y2="118" stroke="#34C759" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={196} y={88} size={8} bold color="#34C759">h₁</T>
+      <line x1="30" y1="160" x2="100" y2="108" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={52} y={128} size={8} bold color="#FF9500">h₂</T>
+      <T x={140} y={192} size={9} bold color="#FF3B30" align="middle">ar(ABCD) = ½ × AC × (h₁ + h₂)</T>
+      <T x={140} y={205} size={8} color="#8E8E93" align="middle">Quadrilateral area = diagonal × sum of perpendiculars ÷ 2</T>
+    </svg>
+  );
+}
+
+// ── Ch17 — Circle (Chord Properties) ─────────────────────────────────────────
+function Icse9CircleBasicsComp() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="105" r="80" fill="#F0F9FF" stroke="#0284C7" strokeWidth="2"/>
+      <circle cx="140" cy="105" r="4" fill="#0284C7"/><T x={144} y={103} size={9} bold color="#0284C7">O</T>
+      {/* Radius OA */}
+      <line x1="140" y1="105" x2="220" y2="105" stroke="#FF3B30" strokeWidth="2"/>
+      <circle cx="220" cy="105" r="4" fill="#FF3B30"/><T x={224} y={103} size={9} bold color="#FF3B30">A</T>
+      <T x={176} y={98} size={9} bold color="#FF3B30">r</T>
+      {/* Diameter through centre */}
+      <line x1="60" y1="105" x2="220" y2="105" stroke="#9333EA" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <circle cx="60" cy="105" r="4" fill="#9333EA"/><T x={44} y={103} size={9} bold color="#9333EA">B</T>
+      <T x={140} y={126} size={9} bold color="#9333EA" align="middle">BA = diameter = 2r</T>
+      {/* Chord PQ */}
+      <line x1="80" y1="60" x2="210" y2="150" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="80" cy="60" r="4" fill="#16A34A"/><T x={66} y={56} size={9} bold color="#16A34A">P</T>
+      <circle cx="210" cy="150" r="4" fill="#16A34A"/><T x={214} y={152} size={9} bold color="#16A34A">Q</T>
+      <T x={124} y={100} size={8} bold color="#16A34A">chord PQ</T>
+      <T x={140} y={196} size={9} bold color="#0284C7" align="middle">Radius r, Diameter d=2r, Chord &lt; diameter</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Circumference = 2πr  |  Area = πr²</T>
+    </svg>
+  );
+}
+function Icse9ChordProp() {
+  return (
+    <svg viewBox="0 0 280 220" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="110" r="80" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="4" fill="#16A34A"/><T x={144} y={108} size={9} bold color="#16A34A">O</T>
+      {/* Chord AB */}
+      <line x1="70" y1="70" x2="210" y2="150" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="70" cy="70" r="4" fill="#2563EB"/><T x={56} y={66} size={9} bold color="#2563EB">A</T>
+      <circle cx="210" cy="150" r="4" fill="#2563EB"/><T x={214} y={152} size={9} bold color="#2563EB">B</T>
+      {/* Midpoint M of AB */}
+      <circle cx="140" cy="110" r="3" fill="#FF3B30"/>
+      {/* perpendicular from O to M on AB */}
+      <line x1="140" y1="110" x2="140" y2="110"/>
+      <circle cx="140" cy="110" r="3" fill="none"/>
+      {/* OM to chord midpoint */}
+      <circle cx="139" cy="110" r="3" fill="#FF3B30"/>
+      <line x1="140" y1="20" x2="140" y2="200" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={144} y={18} size={8} bold color="#FF3B30">OM ⊥ AB</T>
+      <T x={140} y={210} size={9} bold color="#16A34A" align="middle">Perp from centre bisects chord: AM = MB</T>
+      <T x={140} y={222} size={8} color="#8E8E93" align="middle">Equal chords are equidistant from the centre</T>
+    </svg>
+  );
+}
+function Icse9ArcProp() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      <circle cx="140" cy="105" r="80" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <circle cx="140" cy="105" r="4" fill="#EA580C"/><T x={144} y={103} size={9} bold color="#EA580C">O</T>
+      {/* Points A and B on circle */}
+      <circle cx="80" cy="60" r="4" fill="#2563EB"/><T x={66} y={56} size={9} bold color="#2563EB">A</T>
+      <circle cx="200" cy="60" r="4" fill="#2563EB"/><T x={204} y={56} size={9} bold color="#2563EB">B</T>
+      {/* Minor arc AB */}
+      <path d="M80 60 A80 80 0 0 1 200 60" fill="none" stroke="#FF3B30" strokeWidth="3"/>
+      <T x={140} y={40} size={9} bold color="#FF3B30" align="middle">minor arc</T>
+      {/* Major arc AB */}
+      <path d="M80 60 A80 80 0 0 0 200 60" fill="none" stroke="#34C759" strokeWidth="2" strokeDasharray="4,2"/>
+      <T x={140} y={185} size={8} bold color="#34C759" align="middle">major arc</T>
+      {/* Central angle */}
+      <line x1="140" y1="105" x2="80" y2="60" stroke="#EA580C" strokeWidth="1.5"/>
+      <line x1="140" y1="105" x2="200" y2="60" stroke="#EA580C" strokeWidth="1.5"/>
+      <path d="M118 98 A24 24 0 0 1 162 98" fill="none" stroke="#EA580C" strokeWidth="1.5"/>
+      <T x={140} y={94} size={9} bold color="#EA580C" align="middle">∠AOB</T>
+      <T x={140} y={200} size={9} bold color="#FF3B30" align="middle">Equal arcs ↔ Equal chords ↔ Equal central angles</T>
+    </svg>
+  );
+}
+function Icse9CircleProbComp() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Two equal chords equidistant from centre */}
+      <circle cx="140" cy="105" r="80" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="140" cy="105" r="4" fill="#2563EB"/><T x={144} y={103} size={9} bold color="#2563EB">O</T>
+      {/* Chord AB */}
+      <line x1="76" y1="70" x2="204" y2="70" stroke="#FF3B30" strokeWidth="2"/>
+      <circle cx="76" cy="70" r="3" fill="#FF3B30"/><T x={62} y={66} size={8} bold color="#FF3B30">A</T>
+      <circle cx="204" cy="70" r="3" fill="#FF3B30"/><T x={208} y={66} size={8} bold color="#FF3B30">B</T>
+      {/* Chord CD */}
+      <line x1="76" y1="140" x2="204" y2="140" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="76" cy="140" r="3" fill="#16A34A"/><T x={62} y={138} size={8} bold color="#16A34A">C</T>
+      <circle cx="204" cy="140" r="3" fill="#16A34A"/><T x={208} y={138} size={8} bold color="#16A34A">D</T>
+      {/* OM and ON perpendiculars */}
+      <line x1="140" y1="105" x2="140" y2="70" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={144} y={88} size={8} color="#FF9500">d₁</T>
+      <line x1="140" y1="105" x2="140" y2="140" stroke="#FF9500" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={144} y={126} size={8} color="#FF9500">d₂</T>
+      <T x={140} y={196} size={9} bold color="#FF3B30" align="middle">AB = CD  ⟺  d₁ = d₂</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Equal chords are equidistant from the centre</T>
+    </svg>
+  );
+}
+
+// ── Ch20 — Area and Perimeter of Plane Figures ────────────────────────────────
+function Icse9AreaPlane() {
+  return (
+    <svg viewBox="0 0 300 210" style={{ width:"100%", maxWidth:300, height:"auto" }}>
+      {/* Rectangle */}
+      <rect x="10" y="30" width="80" height="50" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={50} y={52} size={8} bold color="#2563EB" align="middle">l × b</T>
+      <T x={50} y={90} size={7} color="#8E8E93" align="middle">Rectangle</T>
+      {/* Triangle */}
+      <polygon points="120,80 200,80 160,30" fill="#F0FDF4" stroke="#16A34A" strokeWidth="2"/>
+      <T x={160} y={62} size={8} bold color="#16A34A" align="middle">½bh</T>
+      <T x={160} y={92} size={7} color="#8E8E93" align="middle">Triangle</T>
+      {/* Parallelogram */}
+      <polygon points="220,80 290,80 300,30 230,30" fill="#FFF7ED" stroke="#EA580C" strokeWidth="2"/>
+      <T x={258} y={58} size={8} bold color="#EA580C" align="middle">b×h</T>
+      <T x={258} y={92} size={7} color="#8E8E93" align="middle">Parallelogram</T>
+      {/* Trapezium */}
+      <polygon points="20,160 120,160 100,110 40,110" fill="#FDF4FF" stroke="#9333EA" strokeWidth="2"/>
+      <T x={70} y={138} size={8} bold color="#9333EA" align="middle">½(a+b)h</T>
+      <T x={70} y={172} size={7} color="#8E8E93" align="middle">Trapezium</T>
+      {/* Rhombus */}
+      <polygon points="200,110 230,140 200,170 170,140" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <T x={200} y={143} size={8} bold color="#D97706" align="middle">½d₁d₂</T>
+      <T x={200} y={181} size={7} color="#8E8E93" align="middle">Rhombus</T>
+      <T x={150} y={198} size={9} bold color="#1C1C1E" align="middle">Area formulae for plane figures</T>
+    </svg>
+  );
+}
+function Icse9PerimeterPlane() {
+  return (
+    <svg viewBox="0 0 280 200" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Rectangle with perimeter highlighted */}
+      <rect x="50" y="40" width="180" height="100" fill="#EFF6FF" stroke="#2563EB" strokeWidth="3"/>
+      <T x={50} y={32} size={9} bold color="#2563EB">l = 9 cm</T>
+      <T x={236} y={96} size={9} bold color="#FF3B30">b = 5 cm</T>
+      {/* Arrows showing perimeter path */}
+      <T x={140} y={58} size={8} color="#FF3B30" align="middle">→→→→→ l →→→→→</T>
+      <T x={140} y={152} size={8} color="#FF3B30" align="middle">←←←←← l ←←←←←</T>
+      <T x={36} y={96} size={8} color="#34C759">b↕</T>
+      <T x={244} y={96} size={8} color="#34C759">↕b</T>
+      <rect x="10" y="156" width="260" height="38" rx="6" fill="#F0F9FF"/>
+      <T x={140} y={170} size={9} bold color="#2563EB" align="middle">Perimeter = 2(l + b) = 2(9+5) = 28 cm</T>
+      <T x={140} y={184} size={8} color="#8E8E93" align="middle">Perimeter = total distance around the boundary</T>
+    </svg>
+  );
+}
+function Icse9CircleAreaPerim() {
+  return (
+    <svg viewBox="0 0 260 210" style={{ width:"100%", maxWidth:260, height:"auto" }}>
+      <circle cx="130" cy="100" r="80" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <ellipse cx="130" cy="100" rx="80" ry="18" fill="none" stroke="#D97706" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="130" y1="100" x2="210" y2="100" stroke="#FF3B30" strokeWidth="2.5"/>
+      <T x={166} y={94} size={10} bold color="#FF3B30">r</T>
+      <circle cx="130" cy="100" r="4" fill="#D97706"/>
+      <T x={134} y={98} size={9} bold color="#D97706">O</T>
+      {/* Circumference arc label */}
+      <path d="M210 100 A80 80 0 0 1 130 20" fill="none" stroke="#9333EA" strokeWidth="2.5"/>
+      <T x={196} y={55} size={8} bold color="#9333EA">C = 2πr</T>
+      <rect x="20" y="186" width="220" height="22" rx="5" fill="#FEF3C7"/>
+      <T x={130} y={198} size={9} bold color="#D97706" align="middle">Area = πr²  |  Circumference = 2πr</T>
+    </svg>
+  );
+}
+function Icse9AreaPerimProblems() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Combined figure: rectangle + semicircle on top */}
+      <rect x="70" y="90" width="140" height="100" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <path d="M70 90 A70 70 0 0 1 210 90" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      {/* Dimensions */}
+      <T x={140} y={143} size={9} bold color="#2563EB" align="middle">l = 140 m</T>
+      <T x={218} y={143} size={9} bold color="#FF3B30">b</T>
+      <line x1="60" y1="90" x2="60" y2="190" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={40} y={143} size={9} bold color="#FF3B30">b</T>
+      <T x={140} y={56} size={8} color="#9333EA" align="middle">r = l/2 = 70 m</T>
+      <T x={140} y={196} size={9} bold color="#FF3B30" align="middle">Total Area = l×b + ½πr²</T>
+      <T x={140} y={208} size={8} color="#8E8E93" align="middle">Perimeter = 2b + l + πr (semicircle on rectangle)</T>
+    </svg>
+  );
+}
+
+// ── Ch21 — Solids (Surface Area and Volume) ───────────────────────────────────
+function Icse9Cuboid() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Cuboid in 3D perspective */}
+      <polygon points="50,160 200,160 200,80 50,80" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      <polygon points="200,80 240,40 240,120 200,160" fill="#BFDBFE" stroke="#2563EB" strokeWidth="2"/>
+      <polygon points="50,80 90,40 240,40 200,80" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      {/* Labels */}
+      <line x1="50" y1="160" x2="50" y2="80" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={30} y={124} size={9} bold color="#FF3B30">h</T>
+      <line x1="50" y1="160" x2="200" y2="160" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={122} y={172} size={9} bold color="#34C759">l</T>
+      <line x1="200" y1="160" x2="240" y2="120" stroke="#FF9500" strokeWidth="1.5"/>
+      <T x={230} y={146} size={9} bold color="#FF9500">w</T>
+      <rect x="10" y="180" width="260" height="26" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={192} size={8} bold color="#2563EB" align="middle">LSA = 2h(l+w)  TSA = 2(lw+wh+hl)</T>
+      <T x={140} y={203} size={8} bold color="#2563EB" align="middle">Volume = l × w × h</T>
+    </svg>
+  );
+}
+function Icse9ConePyramid() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Cone on left */}
+      <ellipse cx="70" cy="160" rx="50" ry="14" fill="#DCFCE7" stroke="#16A34A" strokeWidth="1.5"/>
+      <line x1="20" y1="160" x2="70" y2="50" stroke="#16A34A" strokeWidth="2"/>
+      <line x1="120" y1="160" x2="70" y2="50" stroke="#16A34A" strokeWidth="2"/>
+      <circle cx="70" cy="50" r="3" fill="#16A34A"/>
+      <line x1="70" y1="50" x2="70" y2="160" stroke="#16A34A" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={74} y={108} size={8} color="#16A34A">h</T>
+      <T x={90} y={158} size={8} color="#FF3B30">r</T>
+      <T x={70} y={185} size={8} bold color="#16A34A" align="middle">Cone</T>
+      <T x={70} y={196} size={7} color="#8E8E93" align="middle">V=⅓πr²h</T>
+      {/* Pyramid on right */}
+      <polygon points="165,160 255,160 255,160 165,160" fill="none"/>
+      <polygon points="155,160 265,160 240,80 180,80" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <polygon points="155,160 180,80 210,50" fill="#FDE68A" stroke="#D97706" strokeWidth="1.5"/>
+      <polygon points="265,160 240,80 210,50" fill="#FFFBEB" stroke="#D97706" strokeWidth="1.5"/>
+      <polygon points="180,80 240,80 210,50" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <line x1="210" y1="50" x2="210" y2="160" stroke="#D97706" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={214} y={108} size={8} color="#D97706">h</T>
+      <T x={210} y={185} size={8} bold color="#D97706" align="middle">Pyramid</T>
+      <T x={210} y={196} size={7} color="#8E8E93" align="middle">V=⅓×base×h</T>
+      <T x={140} y={208} size={9} bold color="#1C1C1E" align="middle">Both: V = ⅓ × Base Area × height</T>
+    </svg>
+  );
+}
+function Icse9SphereHemisphere() {
+  return (
+    <svg viewBox="0 0 280 210" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Sphere on left */}
+      <circle cx="70" cy="95" r="65" fill="#FEF3C7" stroke="#D97706" strokeWidth="2"/>
+      <ellipse cx="70" cy="95" rx="65" ry="16" fill="none" stroke="#D97706" strokeWidth="1" strokeDasharray="4,2"/>
+      <line x1="70" y1="95" x2="135" y2="95" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={98} y={89} size={9} bold color="#FF3B30">r</T>
+      <circle cx="70" cy="95" r="3" fill="#D97706"/>
+      <T x={70} y={174} size={8} bold color="#D97706" align="middle">Sphere</T>
+      <T x={70} y={185} size={7} color="#8E8E93" align="middle">SA=4πr²  V=⁴⁄₃πr³</T>
+      {/* Hemisphere on right */}
+      <path d="M145 125 A65 65 0 0 1 275 125" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      <ellipse cx="210" cy="125" rx="65" ry="16" fill="#BFDBFE" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="210" y1="125" x2="275" y2="125" stroke="#FF3B30" strokeWidth="2"/>
+      <T x={238} y={119} size={9} bold color="#FF3B30">r</T>
+      <circle cx="210" cy="125" r="3" fill="#2563EB"/>
+      <T x={210} y={174} size={8} bold color="#2563EB" align="middle">Hemisphere</T>
+      <T x={210} y={185} size={7} color="#8E8E93" align="middle">CSA=2πr²  TSA=3πr²</T>
+      <T x={140} y={200} size={7} color="#8E8E93" align="middle">Hemisphere Vol = ²⁄₃πr³</T>
+    </svg>
+  );
+}
+function Icse9SolidProblems() {
+  return (
+    <svg viewBox="0 0 260 220" style={{ width:"100%", maxWidth:260, height:"auto" }}>
+      {/* Cylinder with hemisphere on top */}
+      <ellipse cx="130" cy="150" rx="60" ry="16" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2"/>
+      <ellipse cx="130" cy="80" rx="60" ry="16" fill="#BFDBFE" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="70" y1="80" x2="70" y2="150" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="190" y1="80" x2="190" y2="150" stroke="#2563EB" strokeWidth="2"/>
+      {/* Hemisphere on top */}
+      <path d="M70 80 A60 60 0 0 1 190 80" fill="#DCFCE7" stroke="#16A34A" strokeWidth="2"/>
+      {/* Labels */}
+      <line x1="195" y1="80" x2="195" y2="150" stroke="#34C759" strokeWidth="1.5"/>
+      <T x={200} y={118} size={9} bold color="#34C759">h</T>
+      <line x1="130" y1="80" x2="190" y2="80" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={156} y={74} size={9} bold color="#FF3B30">r</T>
+      <T x={130} y={172} size={8} bold color="#2563EB" align="middle">Total Vol = πr²h + ²⁄₃πr³</T>
+      <T x={130} y={184} size={8} bold color="#16A34A" align="middle">Total SA = 2πrh + 2πr² (bottom + side + dome)</T>
+      <T x={130} y={206} size={8} color="#8E8E93" align="middle">Combine: add volumes, careful with shared face</T>
+    </svg>
+  );
+}
+
+// ── Ch26 — Co-ordinate Geometry ───────────────────────────────────────────────
+function Icse9CartesianPlane() {
+  return (
+    <svg viewBox="0 0 280 260" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Axes */}
+      <line x1="20" y1="130" x2="260" y2="130" stroke="#1C1C1E" strokeWidth="2"/>
+      <line x1="140" y1="10" x2="140" y2="250" stroke="#1C1C1E" strokeWidth="2"/>
+      <T x={256} y={124} size={9} bold>x</T>
+      <T x={134} y={8} size={9} bold>y</T>
+      {/* Quadrant labels */}
+      <T x={190} y={80} size={10} bold color="#2563EB">I (+,+)</T>
+      <T x={60} y={80} size={10} bold color="#16A34A">II (−,+)</T>
+      <T x={60} y={180} size={10} bold color="#EA580C">III (−,−)</T>
+      <T x={180} y={180} size={10} bold color="#9333EA">IV (+,−)</T>
+      {/* Tick marks on axes */}
+      {[-2,-1,1,2].map(n => (
+        <g key={n}>
+          <line x1={140+n*40} y1={126} x2={140+n*40} y2={134} stroke="#8E8E93" strokeWidth="1"/>
+          <T x={140+n*40} y={144} size={8} color="#8E8E93" align="middle">{n}</T>
+          <line x1={136} y1={130-n*40} x2={144} y2={130-n*40} stroke="#8E8E93" strokeWidth="1"/>
+          <T x={126} y={134-n*40} size={8} color="#8E8E93" align="middle">{n}</T>
+        </g>
+      ))}
+      <T x={140} y={248} size={9} bold color="#1C1C1E" align="middle">Cartesian plane: 2 perpendicular axes, 4 quadrants</T>
+    </svg>
+  );
+}
+function Icse9PlottingPoints() {
+  return (
+    <svg viewBox="0 0 280 260" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Axes */}
+      <line x1="20" y1="140" x2="260" y2="140" stroke="#D1D5DB" strokeWidth="1.5"/>
+      <line x1="140" y1="10" x2="140" y2="260" stroke="#D1D5DB" strokeWidth="1.5"/>
+      {/* Grid */}
+      {[-3,-2,-1,1,2,3].map(n=>(
+        <g key={n}>
+          <line x1={140+n*35} y1={10} x2={140+n*35} y2={260} stroke="#F3F4F6" strokeWidth="1"/>
+          <line x1={20} y1={140-n*35} x2={260} y2={140-n*35} stroke="#F3F4F6" strokeWidth="1"/>
+        </g>
+      ))}
+      <T x={256} y={134} size={8} bold>x</T>
+      <T x={134} y={8} size={8} bold>y</T>
+      {/* Points */}
+      <circle cx="210" cy="105" r="5" fill="#FF3B30"/>
+      <T x={215} y={100} size={8} bold color="#FF3B30">A(2,1)</T>
+      <circle cx="105" cy="70" r="5" fill="#16A34A"/>
+      <T x={60} y={65} size={8} bold color="#16A34A">B(−1,2)</T>
+      <circle cx="70" cy="210" r="5" fill="#EA580C"/>
+      <T x={20} y={218} size={8} bold color="#EA580C">C(−2,−2)</T>
+      <circle cx="210" cy="210" r="5" fill="#9333EA"/>
+      <T x={214} y={218} size={8} bold color="#9333EA">D(2,−2)</T>
+      {/* Dashed reference lines for A */}
+      <line x1="210" y1="105" x2="210" y2="140" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="140" y1="105" x2="210" y2="105" stroke="#FF3B30" strokeWidth="1" strokeDasharray="3,2"/>
+      <T x={140} y={252} size={9} bold color="#1C1C1E" align="middle">Plot P(x,y): move x right/left, y up/down from O</T>
+    </svg>
+  );
+}
+function Icse9DistanceMidpoint() {
+  return (
+    <svg viewBox="0 0 280 240" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Axes */}
+      <line x1="20" y1="160" x2="260" y2="160" stroke="#D1D5DB" strokeWidth="1.5"/>
+      <line x1="60" y1="10" x2="60" y2="230" stroke="#D1D5DB" strokeWidth="1.5"/>
+      {/* Points P and Q */}
+      <circle cx="100" cy="60" r="5" fill="#2563EB"/>
+      <T x={86} y={52} size={9} bold color="#2563EB">P(x₁,y₁)</T>
+      <circle cx="240" cy="140" r="5" fill="#FF3B30"/>
+      <T x={224} y={132} size={9} bold color="#FF3B30">Q(x₂,y₂)</T>
+      {/* Line PQ */}
+      <line x1="100" y1="60" x2="240" y2="140" stroke="#9333EA" strokeWidth="2"/>
+      {/* Right angle triangle */}
+      <line x1="100" y1="60" x2="240" y2="60" stroke="#34C759" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="240" y1="60" x2="240" y2="140" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="232" y="52" width="8" height="8" fill="none" stroke="#8E8E93" strokeWidth="1.5"/>
+      <T x={170} y={52} size={8} color="#34C759">|x₂−x₁|</T>
+      <T x={248} y={102} size={8} color="#EA580C">|y₂−y₁|</T>
+      {/* Midpoint M */}
+      <circle cx="170" cy="100" r="4" fill="#FF9500"/>
+      <T x={174} y={98} size={8} bold color="#FF9500">M</T>
+      <rect x="10" y="190" width="260" height="44" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={204} size={8} bold color="#9333EA" align="middle">PQ = √[(x₂−x₁)² + (y₂−y₁)²]</T>
+      <T x={140} y={218} size={8} bold color="#FF9500" align="middle">M = ((x₁+x₂)/2 , (y₁+y₂)/2)</T>
+      <T x={140} y={230} size={7} color="#8E8E93" align="middle">Distance formula | Midpoint formula</T>
+    </svg>
+  );
+}
+function Icse9CoordProblems() {
+  return (
+    <svg viewBox="0 0 280 260" style={{ width:"100%", maxWidth:280, height:"auto" }}>
+      {/* Triangle in coordinate plane */}
+      <line x1="20" y1="190" x2="260" y2="190" stroke="#D1D5DB" strokeWidth="1.5"/>
+      <line x1="60" y1="10" x2="60" y2="240" stroke="#D1D5DB" strokeWidth="1.5"/>
+      {/* Grid */}
+      {[1,2,3,4].map(n=>(
+        <g key={n}>
+          <line x1={60+n*44} y1={10} x2={60+n*44} y2={240} stroke="#F3F4F6" strokeWidth="1"/>
+          <line x1={20} y1={190-n*40} x2={260} y2={190-n*40} stroke="#F3F4F6" strokeWidth="1"/>
+        </g>
+      ))}
+      <T x={256} y={184} size={8} bold>x</T>
+      <T x={54} y={8} size={8} bold>y</T>
+      {/* Triangle ABC */}
+      <polygon points="104,190 236,190 170,70" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="104" cy="190" r="4" fill="#2563EB"/>
+      <T x={88} y={203} size={8} bold color="#2563EB">A(1,0)</T>
+      <circle cx="236" cy="190" r="4" fill="#FF3B30"/>
+      <T x={222} y={203} size={8} bold color="#FF3B30">B(4,0)</T>
+      <circle cx="170" cy="70" r="4" fill="#16A34A"/>
+      <T x={174} y={64} size={8} bold color="#16A34A">C(3,3)</T>
+      {/* Distances */}
+      <T x={170} y={195} size={7} color="#34C759">AB=3</T>
+      <T x={216} y={132} size={7} color="#9333EA">BC=√10</T>
+      <T x={108} y={132} size={7} color="#FF9500">CA=√8</T>
+      <T x={140} y={225} size={9} bold color="#2563EB" align="middle">Find sides, perimeter, type of triangle</T>
+      <T x={140} y={238} size={8} color="#8E8E93" align="middle">Use distance formula for each side, then compare</T>
+    </svg>
+  );
+}
+
+// ── CBSE CLASS 9 MATHEMATICS ─────────────────────────────────────────────────
+// Ch2 — Linear Polynomials
+function CbseMath9PolyBasics() {
+  return (
+    <svg viewBox="0 0 280 200" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="10" width="260" height="42" rx="8" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={140} y={30} size={11} bold color="#1C1C1E" align="middle">p(x) = 3x³ − 5x² + 2x − 7</T>
+      <T x={140} y={46} size={8} color="#8E8E93" align="middle">A polynomial in one variable</T>
+      <rect x="10" y="60" width="120" height="52" rx="6" fill="#F0FDF4"/>
+      <T x={70} y={78} size={9} bold color="#16A34A" align="middle">Degree</T>
+      <T x={70} y={100} size={14} bold color="#16A34A" align="middle">3</T>
+      <rect x="150" y="60" width="120" height="52" rx="6" fill="#FEF3C7"/>
+      <T x={210} y={78} size={9} bold color="#D97706" align="middle">Leading coeff</T>
+      <T x={210} y={100} size={14} bold color="#D97706" align="middle">3</T>
+      <rect x="10" y="120" width="120" height="52" rx="6" fill="#FFF0F0"/>
+      <T x={70} y={138} size={9} bold color="#FF3B30" align="middle">Constant term</T>
+      <T x={70} y={160} size={14} bold color="#FF3B30" align="middle">−7</T>
+      <rect x="150" y="120" width="120" height="52" rx="6" fill="#F5F0FF"/>
+      <T x={210} y={138} size={9} bold color="#9333EA" align="middle">No. of terms</T>
+      <T x={210} y={160} size={14} bold color="#9333EA" align="middle">4</T>
+      <T x={140} y={190} size={8} color="#8E8E93" align="middle">Degree = highest power of x in the polynomial</T>
+    </svg>
+  );
+}
+function CbseMath9PolyZeroes() {
+  return (
+    <svg viewBox="0 0 280 220" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <line x1="20" y1="130" x2="260" y2="130" stroke="#D1D5DB" strokeWidth="1.5"/>
+      <line x1="140" y1="10" x2="140" y2="210" stroke="#D1D5DB" strokeWidth="1.5"/>
+      <T x={253} y={124} size={8} bold>x</T>
+      <T x={134} y={8} size={8} bold>y</T>
+      {[-2,-1,1,2].map(n=>(
+        <g key={n}>
+          <line x1={140+n*40} y1={10} x2={140+n*40} y2={210} stroke="#F3F4F6" strokeWidth="1"/>
+          <T x={136+n*40} y={144} size={7} color="#8E8E93">{n}</T>
+        </g>
+      ))}
+      <path d="M 56,28 Q 140,220 240,28" fill="none" stroke="#007AFF" strokeWidth="2.5"/>
+      <circle cx="100" cy="130" r="5" fill="#FF3B30"/>
+      <T x={72} y={148} size={9} bold color="#FF3B30">x = −1</T>
+      <circle cx="220" cy="130" r="5" fill="#FF3B30"/>
+      <T x={198} y={148} size={9} bold color="#FF3B30">x = 2</T>
+      <T x={140} y={172} size={8} color="#007AFF" align="middle">p(x) = (x + 1)(x − 2)</T>
+      <T x={140} y={188} size={9} bold color="#FF3B30" align="middle">Zeroes = x-intercepts of the graph</T>
+      <T x={140} y={204} size={8} color="#8E8E93" align="middle">p(−1) = 0  and  p(2) = 0</T>
+    </svg>
+  );
+}
+function CbseMath9RemainderThm() {
+  return (
+    <svg viewBox="0 0 280 210" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="10" width="260" height="56" rx="8" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={140} y={30} size={10} bold color="#2563EB" align="middle">Remainder Theorem</T>
+      <T x={140} y={48} size={9} color="#1C1C1E" align="middle">When p(x) ÷ (x − a),</T>
+      <T x={140} y={62} size={10} bold color="#9333EA" align="middle">remainder = p(a)</T>
+      <line x1="20" y1="78" x2="260" y2="78" stroke="#E5E7EB" strokeWidth="1"/>
+      <T x={30} y={98} size={9} color="#1C1C1E">p(x) = x³ − 2x² + x − 5,  divide by (x − 2)</T>
+      <T x={30} y={116} size={9} color="#1C1C1E">Remainder = p(2)</T>
+      <rect x="10" y="126" width="260" height="46" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={146} size={9} color="#16A34A" align="middle">p(2) = 8 − 8 + 2 − 5 = −3</T>
+      <T x={140} y={164} size={10} bold color="#16A34A" align="middle">∴ Remainder = −3</T>
+      <rect x="10" y="182" width="260" height="22" rx="6" fill="#FFF7ED"/>
+      <T x={140} y={197} size={8} color="#D97706" align="middle">No long division needed — just substitute x = a</T>
+    </svg>
+  );
+}
+function CbseMath9FactorThm() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="10" width="260" height="54" rx="8" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={140} y={30} size={10} bold color="#2563EB" align="middle">Factor Theorem</T>
+      <T x={140} y={48} size={9} color="#1C1C1E" align="middle">(x − a) is a factor of p(x)</T>
+      <T x={140} y={62} size={10} bold color="#9333EA" align="middle">⟺  p(a) = 0</T>
+      <T x={140} y={82} size={12} color="#8E8E93" align="middle">↕</T>
+      <rect x="10" y="92" width="122" height="60" rx="6" fill="#F0FDF4"/>
+      <T x={71} y={112} size={8} bold color="#16A34A" align="middle">p(a) = 0</T>
+      <T x={71} y={128} size={8} color="#16A34A" align="middle">⟹ (x−a)</T>
+      <T x={71} y={144} size={8} color="#16A34A" align="middle">is a factor</T>
+      <rect x="148" y="92" width="122" height="60" rx="6" fill="#FFF0F0"/>
+      <T x={209} y={112} size={8} bold color="#FF3B30" align="middle">(x−a) is factor</T>
+      <T x={209} y={128} size={8} color="#FF3B30" align="middle">⟹ p(a) = 0</T>
+      <T x={209} y={144} size={8} color="#FF3B30" align="middle">(always)</T>
+      <T x={140} y={182} size={8} color="#8E8E93" align="middle">Example: p(2)=0 ⟹ (x−2) divides p(x) exactly</T>
+    </svg>
+  );
+}
+// Ch3 — The World of Numbers
+function CbseMath9NumberHierarchy() {
+  return (
+    <svg viewBox="0 0 280 236" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <ellipse cx="140" cy="116" rx="128" ry="100" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={22} y={30} size={9} bold color="#2563EB">ℝ Real Numbers</T>
+      <ellipse cx="122" cy="126" rx="84" ry="72" fill="#F0FDF4" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={44} y={62} size={8} bold color="#16A34A">ℚ Rational</T>
+      <ellipse cx="114" cy="134" rx="56" ry="50" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <T x={64} y={90} size={8} bold color="#D97706">ℤ Integers</T>
+      <ellipse cx="108" cy="142" rx="34" ry="32" fill="#FFF0F0" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={78} y={116} size={7} bold color="#FF3B30">W Whole</T>
+      <ellipse cx="104" cy="148" rx="18" ry="18" fill="#F5F0FF" stroke="#9333EA" strokeWidth="1.5"/>
+      <T x={96} y={151} size={7} bold color="#9333EA">ℕ</T>
+      <T x={188} y={96} size={8} bold color="#2563EB">Irrationals</T>
+      <T x={190} y={110} size={7} color="#2563EB">√2, π, e…</T>
+      <T x={140} y={226} size={8} color="#8E8E93" align="middle">ℕ ⊂ W ⊂ ℤ ⊂ ℚ ⊂ ℝ  ·  Irrationals ⊂ ℝ, ∉ ℚ</T>
+    </svg>
+  );
+}
+function CbseMath9IrrationalLine() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <line x1="20" y1="96" x2="260" y2="96" stroke="#1C1C1E" strokeWidth="2"/>
+      {[0,1,2].map(n=>(
+        <g key={n}>
+          <line x1={70+n*74} y1={91} x2={70+n*74} y2={101} stroke="#1C1C1E" strokeWidth="1.5"/>
+          <T x={67+n*74} y={114} size={9} bold>{n}</T>
+        </g>
+      ))}
+      <circle cx="175" cy="96" r="5" fill="#FF3B30"/>
+      <T x={160} y={82} size={9} bold color="#FF3B30">√2</T>
+      <line x1="70" y1="96" x2="144" y2="96" stroke="#34C759" strokeWidth="2"/>
+      <line x1="144" y1="96" x2="144" y2="30" stroke="#34C759" strokeWidth="2"/>
+      <line x1="70" y1="96" x2="144" y2="30" stroke="#EA580C" strokeWidth="2"/>
+      <rect x="136" y="88" width="8" height="8" fill="none" stroke="#8E8E93" strokeWidth="1.5"/>
+      <T x={104} y={110} size={8} color="#34C759" align="middle">1</T>
+      <T x={148} y={66} size={8} color="#34C759">1</T>
+      <T x={96} y={54} size={9} bold color="#EA580C">hyp=√2</T>
+      <path d="M 144 30 A 74 74 0 0 1 175 96" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="10" y="136" width="260" height="52" rx="6" fill="#FFF7ED"/>
+      <T x={140} y={154} size={9} bold color="#D97706" align="middle">√2 cannot be written as p/q (p,q∈ℤ, q≠0)</T>
+      <T x={140} y={170} size={8} color="#8E8E93" align="middle">Proof: assume √2 = p/q in lowest terms</T>
+      <T x={140} y={184} size={8} color="#8E8E93" align="middle">→ both p and q are even → contradiction</T>
+    </svg>
+  );
+}
+function CbseMath9DecimalTypes() {
+  return (
+    <svg viewBox="0 0 280 216" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Types of Decimal Expansions</T>
+      <rect x="10" y="42" width="124" height="160" rx="6" fill="#F0FDF4" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={72} y={62} size={9} bold color="#16A34A" align="middle">Terminating</T>
+      <T x={72} y={78} size={7} color="#16A34A" align="middle">Rational · ends</T>
+      <T x={72} y={100} size={9} color="#1C1C1E" align="middle">3/4 = 0.75</T>
+      <T x={72} y={116} size={9} color="#1C1C1E" align="middle">1/8 = 0.125</T>
+      <T x={72} y={132} size={9} color="#1C1C1E" align="middle">7/20 = 0.35</T>
+      <T x={72} y={156} size={7} bold color="#16A34A" align="middle">Denom = 2ᵃ · 5ᵇ</T>
+      <T x={72} y={170} size={7} color="#16A34A" align="middle">only 2s and 5s</T>
+      <rect x="146" y="42" width="124" height="160" rx="6" fill="#FFF0F0" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={208} y={62} size={9} bold color="#FF3B30" align="middle">Non-Terminating</T>
+      <T x={208} y={78} size={7} color="#FF3B30" align="middle">Recurring · Rational</T>
+      <T x={208} y={100} size={9} color="#1C1C1E" align="middle">1/3 = 0.333…</T>
+      <T x={208} y={116} size={9} color="#1C1C1E" align="middle">2/7 = 0.285714…</T>
+      <T x={208} y={132} size={9} color="#1C1C1E" align="middle">5/6 = 0.8333…</T>
+      <T x={208} y={156} size={7} bold color="#FF3B30" align="middle">Denom has prime</T>
+      <T x={208} y={170} size={7} bold color="#FF3B30" align="middle">other than 2 or 5</T>
+      <T x={140} y={208} size={7} color="#8E8E93" align="middle">Non-terminating non-recurring → Irrational (√2, π…)</T>
+    </svg>
+  );
+}
+function CbseMath9RealOps() {
+  return (
+    <svg viewBox="0 0 280 218" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Laws of Exponents  (a, b &gt; 0)</T>
+      {[
+        ["aᵐ × aⁿ = aᵐ⁺ⁿ",    "#2563EB",  52],
+        ["aᵐ ÷ aⁿ = aᵐ⁻ⁿ",    "#16A34A",  84],
+        ["(aᵐ)ⁿ = aᵐⁿ",       "#9333EA", 116],
+        ["(ab)ᵐ = aᵐ · bᵐ",   "#D97706", 148],
+        ["a⁰ = 1",             "#FF3B30", 180],
+        ["a⁻ⁿ = 1 / aⁿ",      "#EA580C", 210],
+      ].map(([rule,color,y])=>(
+        <g key={rule}>
+          <rect x="20" y={y-18} width="240" height="28" rx="5" fill={color+"18"}/>
+          <T x={140} y={y+4} size={10} bold color={color} align="middle">{rule}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+// Ch4 — Algebraic Identities
+function CbseMath9BasicIdentities() {
+  return (
+    <svg viewBox="0 0 280 238" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <T x={140} y={14} size={9} bold color="#1C1C1E" align="middle">Geometric Proof: (a+b)² = a²+2ab+b²</T>
+      <rect x="30" y="22" width="156" height="156" fill="none" stroke="#1C1C1E" strokeWidth="2"/>
+      <line x1="136" y1="22" x2="136" y2="178" stroke="#8E8E93" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="30" y1="128" x2="186" y2="128" stroke="#8E8E93" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <rect x="30" y="22" width="106" height="106" fill="#EFF6FF"/>
+      <T x={83} y={76} size={14} bold color="#2563EB" align="middle">a²</T>
+      <rect x="136" y="22" width="50" height="106" fill="#F0FDF4"/>
+      <T x={161} y={76} size={11} bold color="#16A34A" align="middle">ab</T>
+      <rect x="30" y="128" width="106" height="50" fill="#F0FDF4"/>
+      <T x={83} y={155} size={11} bold color="#16A34A" align="middle">ab</T>
+      <rect x="136" y="128" width="50" height="50" fill="#FEF3C7"/>
+      <T x={161} y={155} size={11} bold color="#D97706" align="middle">b²</T>
+      <T x={83} y={16} size={9} bold color="#2563EB" align="middle">a</T>
+      <T x={161} y={16} size={9} bold color="#D97706" align="middle">b</T>
+      <T x={22} y={78} size={9} bold color="#2563EB">a</T>
+      <T x={22} y={155} size={9} bold color="#D97706">b</T>
+      <rect x="10" y="190" width="260" height="40" rx="6" fill="#F5F0FF"/>
+      <T x={140} y={206} size={10} bold color="#9333EA" align="middle">(a+b)² = a² + 2ab + b²</T>
+      <T x={140} y={224} size={8} color="#8E8E93" align="middle">(a−b)²=a²−2ab+b²  ·  (a+b)(a−b)=a²−b²</T>
+    </svg>
+  );
+}
+function CbseMath9CubeIdentities() {
+  return (
+    <svg viewBox="0 0 280 212" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Cube Identities</T>
+      <rect x="10" y="42" width="260" height="76" rx="6" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={140} y={60} size={10} bold color="#2563EB" align="middle">(a + b)³</T>
+      <T x={140} y={78} size={10} bold color="#1C1C1E" align="middle">= a³ + 3a²b + 3ab² + b³</T>
+      <T x={140} y={96} size={8} color="#8E8E93" align="middle">= a³ + b³ + 3ab(a + b)</T>
+      <T x={140} y={111} size={7} color="#8E8E93" align="middle">Pascal row: 1 · 3 · 3 · 1</T>
+      <rect x="10" y="126" width="260" height="76" rx="6" fill="#FFF0F0" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={140} y={144} size={10} bold color="#FF3B30" align="middle">(a − b)³</T>
+      <T x={140} y={162} size={10} bold color="#1C1C1E" align="middle">= a³ − 3a²b + 3ab² − b³</T>
+      <T x={140} y={180} size={8} color="#8E8E93" align="middle">= a³ − b³ − 3ab(a − b)  · Signs: + − + −</T>
+      <T x={140} y={196} size={7} color="#8E8E93" align="middle">a³+b³=(a+b)(a²−ab+b²)  ·  a³−b³=(a−b)(a²+ab+b²)</T>
+    </svg>
+  );
+}
+function CbseMath9ThreeVarId() {
+  return (
+    <svg viewBox="0 0 280 206" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Three-Variable Identities</T>
+      <rect x="10" y="42" width="260" height="50" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={60} size={9} bold color="#2563EB" align="middle">(a + b + c)²</T>
+      <T x={140} y={80} size={9} bold color="#1C1C1E" align="middle">= a² + b² + c² + 2ab + 2bc + 2ca</T>
+      <rect x="10" y="100" width="260" height="74" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={118} size={9} bold color="#16A34A" align="middle">a³ + b³ + c³ − 3abc</T>
+      <T x={140} y={136} size={9} color="#1C1C1E" align="middle">= (a+b+c)(a²+b²+c²−ab−bc−ca)</T>
+      <T x={140} y={158} size={9} bold color="#16A34A" align="middle">Special: if a + b + c = 0</T>
+      <T x={140} y={175} size={10} bold color="#16A34A" align="middle">→  a³ + b³ + c³ = 3abc</T>
+      <rect x="10" y="182" width="260" height="20" rx="6" fill="#FFF7ED"/>
+      <T x={140} y={196} size={8} color="#D97706" align="middle">Check a+b+c=0 first — saves expanding cubes</T>
+    </svg>
+  );
+}
+function CbseMath9Factorising() {
+  return (
+    <svg viewBox="0 0 280 212" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Factorising with Identities</T>
+      {[
+        ["① Recognise form", "Is it (a±b)², (a+b)(a−b), a³±b³?", "#2563EB",  62],
+        ["② Map a and b",    "4x²−9 → a=2x, b=3",                 "#9333EA", 108],
+        ["③ Apply identity", "4x²−9 = (2x+3)(2x−3)",              "#16A34A", 154],
+        ["④ Verify",         "(2x+3)(2x−3) = 4x²−9 ✓",           "#D97706", 200],
+      ].map(([title,sub,color,y])=>(
+        <g key={title}>
+          <rect x="20" y={y-28} width="240" height="40" rx="6" fill={color+"14"} stroke={color+"30"} strokeWidth="1"/>
+          <T x={34} y={y-12} size={9} bold color={color}>{title}</T>
+          <T x={34} y={y+4} size={8} color="#4B5563">{sub}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+// Ch5 — Circles (2 new)
+function CbseMath9AngleTheorems() {
+  return (
+    <svg viewBox="0 0 280 240" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <circle cx="140" cy="110" r="85" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="140" cy="110" r="3" fill="#1C1C1E"/>
+      <T x={144} y={107} size={8} bold>O</T>
+      <circle cx="82" cy="48" r="4" fill="#FF3B30"/>
+      <T x={66} y={44} size={9} bold color="#FF3B30">P</T>
+      <circle cx="198" cy="48" r="4" fill="#FF3B30"/>
+      <T x={202} y={44} size={9} bold color="#FF3B30">Q</T>
+      <line x1="140" y1="110" x2="82" y2="48" stroke="#9333EA" strokeWidth="2"/>
+      <line x1="140" y1="110" x2="198" y2="48" stroke="#9333EA" strokeWidth="2"/>
+      <T x={140} y={74} size={10} bold color="#9333EA" align="middle">2θ</T>
+      <circle cx="140" cy="194" r="4" fill="#16A34A"/>
+      <T x={144} y={196} size={9} bold color="#16A34A">R</T>
+      <line x1="82" y1="48" x2="140" y2="194" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <line x1="198" y1="48" x2="140" y2="194" stroke="#16A34A" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={140} y={178} size={10} bold color="#16A34A" align="middle">θ</T>
+      <rect x="10" y="210" width="260" height="24" rx="6" fill="#F5F0FF"/>
+      <T x={140} y={226} size={9} bold color="#9333EA" align="middle">Central ∠POQ = 2 × Inscribed ∠PRQ (same arc)</T>
+    </svg>
+  );
+}
+function CbseMath9CyclicQuad() {
+  return (
+    <svg viewBox="0 0 280 236" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <circle cx="140" cy="106" r="84" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <circle cx="98" cy="34" r="4" fill="#FF3B30"/>
+      <T x={82} y={30} size={9} bold color="#FF3B30">A</T>
+      <circle cx="210" cy="74" r="4" fill="#16A34A"/>
+      <T x={214} y={72} size={9} bold color="#16A34A">B</T>
+      <circle cx="192" cy="176" r="4" fill="#9333EA"/>
+      <T x={196} y={182} size={9} bold color="#9333EA">C</T>
+      <circle cx="68" cy="158" r="4" fill="#EA580C"/>
+      <T x={50} y={160} size={9} bold color="#EA580C">D</T>
+      <polygon points="98,34 210,74 192,176 68,158" fill="none" stroke="#1C1C1E" strokeWidth="2"/>
+      <T x={104} y={54} size={8} bold color="#FF3B30">∠A</T>
+      <T x={190} y={136} size={8} bold color="#9333EA">∠C</T>
+      <T x={80} y={126} size={8} bold color="#EA580C">∠D</T>
+      <T x={190} y={100} size={8} bold color="#16A34A">∠B</T>
+      <rect x="10" y="204" width="260" height="28" rx="6" fill="#F5F0FF"/>
+      <T x={140} y={216} size={9} bold color="#9333EA" align="middle">∠A + ∠C = 180°  (opposite angles)</T>
+      <T x={140} y={228} size={8} color="#8E8E93" align="middle">∠B + ∠D = 180°</T>
+    </svg>
+  );
+}
+// Ch6 — Area (2 new)
+function CbseMath9HeronsFormula() {
+  return (
+    <svg viewBox="0 0 280 226" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <polygon points="50,164 230,164 126,64" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <T x={34} y={174} size={9} bold>A</T>
+      <T x={232} y={174} size={9} bold>B</T>
+      <T x={122} y={56} size={9} bold>C</T>
+      <T x={140} y={180} size={9} bold color="#FF3B30" align="middle">c  (side AB)</T>
+      <T x={72} y={120} size={9} bold color="#16A34A">b (CA)</T>
+      <T x={186} y={116} size={9} bold color="#9333EA">a (BC)</T>
+      <rect x="10" y="190" width="260" height="32" rx="6" fill="#FEF3C7"/>
+      <T x={140} y={206} size={9} bold color="#D97706" align="middle">s = (a + b + c) / 2   (semi-perimeter)</T>
+      <T x={140} y={220} size={9} bold color="#D97706" align="middle">Area = √[s(s−a)(s−b)(s−c)]</T>
+    </svg>
+  );
+}
+function CbseMath9CompositeArea() {
+  return (
+    <svg viewBox="0 0 280 218" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <T x={140} y={14} size={9} bold color="#1C1C1E" align="middle">Composite Figure = Sum of Parts</T>
+      <polygon points="30,182 30,82 130,82 130,132 200,132 200,182" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2"/>
+      <line x1="130" y1="82" x2="130" y2="182" stroke="#FF3B30" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <T x={80} y={136} size={9} bold color="#2563EB" align="middle">Rect 1</T>
+      <T x={80} y={152} size={8} color="#2563EB" align="middle">100 × 100</T>
+      <T x={165} y={160} size={9} bold color="#16A34A" align="middle">Rect 2</T>
+      <T x={165} y={174} size={8} color="#16A34A" align="middle">70 × 50</T>
+      <T x={80} y={78} size={8} color="#8E8E93">100 u</T>
+      <T x={150} y={78} size={8} color="#8E8E93">70 u</T>
+      <T x={14} y={134} size={7} color="#8E8E93">100</T>
+      <T x={14} y={164} size={7} color="#8E8E93">50</T>
+      <rect x="10" y="192" width="260" height="22" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={202} size={9} bold color="#16A34A" align="middle">Total Area = A₁ + A₂</T>
+      <T x={140} y={214} size={8} color="#8E8E93" align="middle">Divide → compute each part → add (or subtract holes)</T>
+    </svg>
+  );
+}
+// Ch7 — Probability
+function CbseMath9RandomExperiment() {
+  return (
+    <svg viewBox="0 0 280 216" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Random Experiments — Sample Space</T>
+      <rect x="10" y="42" width="120" height="80" rx="6" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+      <T x={70} y={60} size={9} bold color="#2563EB" align="middle">Coin toss</T>
+      <circle cx="46" cy="94" r="18" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <T x={46} y={98} size={10} bold color="#D97706" align="middle">H</T>
+      <circle cx="94" cy="94" r="18" fill="#FFF0F0" stroke="#FF3B30" strokeWidth="1.5"/>
+      <T x={94} y={98} size={10} bold color="#FF3B30" align="middle">T</T>
+      <T x={70} y={116} size={8} color="#8E8E93" align="middle">S = {"{H, T}"}</T>
+      <rect x="150" y="42" width="120" height="80" rx="6" fill="#F0FDF4" stroke="#16A34A" strokeWidth="1.5"/>
+      <T x={210} y={60} size={9} bold color="#16A34A" align="middle">Die roll</T>
+      <T x={210} y={84} size={11} bold color="#1C1C1E" align="middle">1  2  3</T>
+      <T x={210} y={102} size={11} bold color="#1C1C1E" align="middle">4  5  6</T>
+      <T x={210} y={116} size={8} color="#8E8E93" align="middle">S = {"{1,2,3,4,5,6}"}</T>
+      <rect x="10" y="130" width="260" height="80" rx="6" fill="#FFF7ED"/>
+      <T x={140} y={148} size={9} bold color="#D97706" align="middle">Key Terms</T>
+      <T x={30} y={164} size={8} color="#1C1C1E">• Trial — one performance of the experiment</T>
+      <T x={30} y={180} size={8} color="#1C1C1E">• Outcome — result of one trial</T>
+      <T x={30} y={196} size={8} color="#1C1C1E">• Sample space S — set of all possible outcomes</T>
+      <T x={30} y={210} size={8} color="#1C1C1E">• Event E — a subset of S</T>
+    </svg>
+  );
+}
+function CbseMath9EmpiricalProb() {
+  return (
+    <svg viewBox="0 0 280 216" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Empirical (Experimental) Probability</T>
+      <rect x="10" y="42" width="260" height="120" rx="6" fill="#F8FAFF" stroke="#D1D5DB" strokeWidth="1"/>
+      <rect x="10" y="42" width="260" height="24" rx="6" fill="#EFF6FF"/>
+      <T x={90} y={58} size={8} bold color="#2563EB" align="middle">Outcome</T>
+      <T x={200} y={58} size={8} bold color="#2563EB" align="middle">Frequency</T>
+      <T x={90} y={82} size={8} color="#1C1C1E" align="middle">Head</T>
+      <T x={200} y={82} size={8} color="#1C1C1E" align="middle">42</T>
+      <line x1="10" y1="90" x2="270" y2="90" stroke="#E5E7EB" strokeWidth="1"/>
+      <T x={90} y={106} size={8} color="#1C1C1E" align="middle">Tail</T>
+      <T x={200} y={106} size={8} color="#1C1C1E" align="middle">58</T>
+      <line x1="10" y1="114" x2="270" y2="114" stroke="#E5E7EB" strokeWidth="1"/>
+      <T x={90} y={130} size={8} bold color="#1C1C1E" align="middle">Total</T>
+      <T x={200} y={130} size={8} bold color="#1C1C1E" align="middle">100</T>
+      <rect x="10" y="170" width="260" height="40" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={186} size={9} bold color="#16A34A" align="middle">P(Head) = 42 / 100 = 0.42</T>
+      <T x={140} y={204} size={9} bold color="#9333EA" align="middle">P(E) = (Times E occurs) / (Total trials)</T>
+    </svg>
+  );
+}
+function CbseMath9ProbRange() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <T x={140} y={16} size={9} bold color="#1C1C1E" align="middle">Range of Probability</T>
+      <line x1="30" y1="80" x2="250" y2="80" stroke="#1C1C1E" strokeWidth="2.5"/>
+      <circle cx="30" cy="80" r="5" fill="#FF3B30"/>
+      <T x={18} y={70} size={9} bold color="#FF3B30">0</T>
+      <circle cx="250" cy="80" r="5" fill="#16A34A"/>
+      <T x={244} y={70} size={9} bold color="#16A34A">1</T>
+      <circle cx="140" cy="80" r="4" fill="#9333EA"/>
+      <T x={134} y={70} size={9} bold color="#9333EA">½</T>
+      <T x={30} y={100} size={8} bold color="#FF3B30" align="middle">Impossible</T>
+      <T x={30} y={112} size={7} color="#FF3B30" align="middle">P(E)=0</T>
+      <T x={250} y={100} size={8} bold color="#16A34A" align="middle">Certain</T>
+      <T x={250} y={112} size={7} color="#16A34A" align="middle">P(E)=1</T>
+      <T x={140} y={100} size={8} bold color="#9333EA" align="middle">Equal chance</T>
+      <rect x="10" y="128" width="260" height="62" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={146} size={9} bold color="#2563EB" align="middle">Key Properties</T>
+      <T x={30} y={162} size={8} color="#1C1C1E">• 0 ≤ P(E) ≤ 1  for any event E</T>
+      <T x={30} y={178} size={8} color="#1C1C1E">• P(E) + P(Ē) = 1  (complementary events)</T>
+      <T x={30} y={192} size={8} color="#1C1C1E">• P(S) = 1,  P(∅) = 0</T>
+    </svg>
+  );
+}
+function CbseMath9ProbApps() {
+  return (
+    <svg viewBox="0 0 280 216" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Probability — Standard Deck (52 cards)</T>
+      {[
+        ["♠ Spades",   "13 cards", "#1C1C1E", "#F8FAFF",  60],
+        ["♥ Hearts",   "13 cards", "#FF3B30", "#FFF0F0",  90],
+        ["♦ Diamonds", "13 cards", "#FF3B30", "#FFF0F0", 120],
+        ["♣ Clubs",    "13 cards", "#1C1C1E", "#F8FAFF", 150],
+      ].map(([suit,count,color,bg,y])=>(
+        <g key={suit}>
+          <rect x="20" y={y-16} width="240" height="26" rx="4" fill={bg}/>
+          <T x={36} y={y+2} size={10} bold color={color}>{suit}</T>
+          <T x={230} y={y+2} size={9} bold color={color} align="end">{count}</T>
+        </g>
+      ))}
+      <rect x="10" y="168" width="260" height="42" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={184} size={9} bold color="#16A34A" align="middle">P(King) = 4/52 = 1/13</T>
+      <T x={140} y={200} size={8} color="#8E8E93" align="middle">P(Red) = 26/52 = 1/2  ·  P(Ace) = 4/52 = 1/13</T>
+    </svg>
+  );
+}
+// Ch8 — Sequences and Progressions
+function CbseMath9SequenceBasics() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Sequences — Patterns in Numbers</T>
+      {[
+        ["2, 5, 8, 11, 14…",  "+3 each time",    "#2563EB",  58],
+        ["1, 4, 9, 16, 25…",  "Perfect squares", "#16A34A",  92],
+        ["2, 4, 8, 16, 32…",  "×2 each time",    "#9333EA", 126],
+        ["1, 1, 2, 3, 5, 8…", "Fibonacci sum",   "#D97706", 160],
+      ].map(([seq,rule,color,y])=>(
+        <g key={seq}>
+          <rect x="20" y={y-18} width="240" height="30" rx="5" fill={color+"14"}/>
+          <T x={30} y={y-2} size={9} bold color={color}>{seq}</T>
+          <T x={246} y={y-2} size={8} color={color} align="end">{rule}</T>
+        </g>
+      ))}
+      <T x={140} y={188} size={8} color="#8E8E93" align="middle">Each number in a sequence is called a term (t₁, t₂, t₃…)</T>
+    </svg>
+  );
+}
+function CbseMath9AP() {
+  return (
+    <svg viewBox="0 0 280 210" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Arithmetic Progression (AP)</T>
+      {["a","a+d","a+2d","a+3d"].map((term,i)=>(
+        <g key={term}>
+          <rect x={18+i*62} y="42" width="54" height="40" rx="6" fill="#EFF6FF" stroke="#2563EB" strokeWidth="1.5"/>
+          <T x={45+i*62} y={66} size={9} bold color="#2563EB" align="middle">{term}</T>
+          {i < 3 && (
+            <g>
+              <line x1={74+i*62} y1={62} x2={78+i*62} y2={62} stroke="#FF3B30" strokeWidth="1.5"/>
+              <T x={77+i*62} y={56} size={7} bold color="#FF3B30">+d</T>
+            </g>
+          )}
+        </g>
+      ))}
+      <T x={140} y={102} size={8} color="#8E8E93" align="middle">d = aₙ₊₁ − aₙ = constant (common difference)</T>
+      <rect x="10" y="112" width="260" height="36" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={128} size={9} bold color="#16A34A" align="middle">nth term:  aₙ = a + (n − 1)d</T>
+      <T x={140} y={144} size={8} color="#8E8E93" align="middle">a = first term,  d = common difference</T>
+      <rect x="10" y="156" width="260" height="48" rx="6" fill="#FEF3C7"/>
+      <T x={140} y={172} size={9} bold color="#D97706" align="middle">Example: 3, 7, 11, 15…   (a=3, d=4)</T>
+      <T x={140} y={190} size={9} color="#D97706" align="middle">a₁₀ = 3 + 9 × 4 = 39</T>
+    </svg>
+  );
+}
+function CbseMath9APSum() {
+  return (
+    <svg viewBox="0 0 280 210" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Sum of AP — Gauss Pairing Trick</T>
+      <rect x="20" y="42" width="240" height="52" rx="6" fill="#EFF6FF"/>
+      <T x={30} y={60} size={9} bold color="#2563EB">S = a + (a+d) + … + (l−d) + l</T>
+      <T x={30} y={80} size={9} bold color="#FF3B30">S = l + (l−d) + … + (a+d) + a</T>
+      <T x={140} y={88} size={7} color="#8E8E93" align="middle">↑ add both rows: each pair = (a+l), n pairs → 2S = n(a+l)</T>
+      <rect x="10" y="104" width="260" height="38" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={120} size={10} bold color="#16A34A" align="middle">Sₙ = n/2 × (a + l)</T>
+      <T x={140} y={136} size={9} bold color="#16A34A" align="middle">   = n/2 × [2a + (n−1)d]</T>
+      <rect x="10" y="150" width="260" height="54" rx="6" fill="#FEF3C7"/>
+      <T x={140} y={168} size={9} bold color="#D97706" align="middle">Example: 1 + 2 + 3 + … + 100</T>
+      <T x={140} y={186} size={9} color="#D97706" align="middle">S₁₀₀ = 100/2 × (1 + 100) = 5050</T>
+      <T x={140} y={200} size={8} color="#8E8E93" align="middle">(Gauss's famous calculation, age 10)</T>
+    </svg>
+  );
+}
+function CbseMath9GP() {
+  return (
+    <svg viewBox="0 0 280 210" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="8" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={25} size={10} bold color="#FFFFFF" align="middle">Geometric Progression (GP)</T>
+      {["a","ar","ar²","ar³"].map((term,i)=>(
+        <g key={term}>
+          <rect x={18+i*62} y="42" width="54" height="40" rx="6" fill="#F5F0FF" stroke="#9333EA" strokeWidth="1.5"/>
+          <T x={45+i*62} y={66} size={9} bold color="#9333EA" align="middle">{term}</T>
+          {i < 3 && (
+            <g>
+              <line x1={74+i*62} y1={62} x2={78+i*62} y2={62} stroke="#16A34A" strokeWidth="1.5"/>
+              <T x={77+i*62} y={56} size={7} bold color="#16A34A">×r</T>
+            </g>
+          )}
+        </g>
+      ))}
+      <T x={140} y={102} size={8} color="#8E8E93" align="middle">r = aₙ₊₁ / aₙ = constant (common ratio, r ≠ 0)</T>
+      <rect x="10" y="112" width="260" height="36" rx="6" fill="#F5F0FF"/>
+      <T x={140} y={128} size={9} bold color="#9333EA" align="middle">nth term:  aₙ = a · rⁿ⁻¹</T>
+      <T x={140} y={144} size={8} color="#8E8E93" align="middle">a = first term,  r = common ratio</T>
+      <rect x="10" y="156" width="260" height="48" rx="6" fill="#FEF3C7"/>
+      <T x={140} y={172} size={9} bold color="#D97706" align="middle">Example: 2, 6, 18, 54…   (a=2, r=3)</T>
+      <T x={140} y={190} size={9} color="#D97706" align="middle">a₅ = 2 × 3⁴ = 2 × 81 = 162</T>
+    </svg>
+  );
+}
+
+// ── AP SSC CLASS 9 MATHEMATICS — new components ───────────────────────────
+
+function ApSscMath9LinearEqSolutions() {
+  return (
+    <svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 220 }}>
+      <rect width="320" height="210" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={18} size={11} bold color="#1E3A5F" align="middle">Linear Equation in Two Variables: 2x + y = 4</T>
+      {/* Table */}
+      <rect x="15" y="28" width="130" height="100" rx="4" fill="#fff" stroke="#CBD5E1" strokeWidth="1"/>
+      <rect x="15" y="28" width="130" height="20" rx="4" fill="#3B82F6"/>
+      <T x={80} y={42} size={10} bold color="#fff" align="middle">Solution Table</T>
+      <line x1="15" y1="48" x2="145" y2="48" stroke="#CBD5E1" strokeWidth="1"/>
+      <line x1="80" y1="28" x2="80" y2="128" stroke="#CBD5E1" strokeWidth="1"/>
+      <T x={47} y={62} size={10} bold color="#1E3A5F" align="middle">x</T>
+      <T x={112} y={62} size={10} bold color="#1E3A5F" align="middle">y = 4−2x</T>
+      <line x1="15" y1="66" x2="145" y2="66" stroke="#E2E8F0" strokeWidth="0.5"/>
+      <T x={47} y={80} size={10} color="#333" align="middle">0</T>
+      <T x={112} y={80} size={10} color="#E91E63" align="middle">4</T>
+      <line x1="15" y1="83" x2="145" y2="83" stroke="#E2E8F0" strokeWidth="0.5"/>
+      <T x={47} y={97} size={10} color="#333" align="middle">1</T>
+      <T x={112} y={97} size={10} color="#E91E63" align="middle">2</T>
+      <line x1="15" y1="100" x2="145" y2="100" stroke="#E2E8F0" strokeWidth="0.5"/>
+      <T x={47} y={114} size={10} color="#333" align="middle">2</T>
+      <T x={112} y={114} size={10} color="#E91E63" align="middle">0</T>
+      {/* Coordinate axes */}
+      <line x1="170" y1="175" x2="310" y2="175" stroke="#555" strokeWidth="1.5"/>
+      <line x1="210" y1="30" x2="210" y2="182" stroke="#555" strokeWidth="1.5"/>
+      <polygon points="310,171 315,175 310,179" fill="#555"/>
+      <polygon points="206,30 210,24 214,30" fill="#555"/>
+      <T x={312} y={178} size={9} color="#555">x</T>
+      <T x={213} y={26} size={9} color="#555">y</T>
+      {/* line 2x+y=4: (0,4)→(2,0). Scale: 35px/unit. Origin at (210,175) */}
+      {/* (0,4): x=210, y=175-4*35=35. (2,0): x=210+2*35=280, y=175 */}
+      <line x1="192" y1="48" x2="295" y2="183" stroke="#2196F3" strokeWidth="2" strokeDasharray="none"/>
+      <circle cx="210" cy="35" r="4" fill="#E91E63"/>
+      <circle cx="280" cy="175" r="4" fill="#E91E63"/>
+      <circle cx="245" cy="105" r="4" fill="#E91E63"/>
+      <T x={214} y={33} size={9} color="#E91E63">(0,4)</T>
+      <T x={283} y={172} size={9} color="#E91E63">(2,0)</T>
+      <T x={249} y={103} size={9} color="#E91E63">(1,2)</T>
+      <T x={160} y={200} size={10} bold color="#1E3A5F" align="middle">Every point on the line is a solution — infinitely many!</T>
+    </svg>
+  );
+}
+
+function ApSscMath9LinearEqGraph() {
+  return (
+    <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 210 }}>
+      <rect width="320" height="200" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Intercept Method — x + 2y = 6</T>
+      {/* Step boxes */}
+      <rect x="10" y="24" width="140" height="48" rx="5" fill="#DBEAFE"/>
+      <T x={80} y={38} size={10} bold color="#1D4ED8" align="middle">Step 1 — y-intercept</T>
+      <T x={80} y={52} size={9} color="#1D4ED8" align="middle">Put x = 0 → 2y = 6</T>
+      <T x={80} y={64} size={9} bold color="#1D4ED8" align="middle">y = 3  →  Point (0, 3)</T>
+      <rect x="170" y="24" width="140" height="48" rx="5" fill="#FEF3C7"/>
+      <T x={240} y={38} size={10} bold color="#D97706" align="middle">Step 2 — x-intercept</T>
+      <T x={240} y={52} size={9} color="#D97706" align="middle">Put y = 0 → x = 6</T>
+      <T x={240} y={64} size={9} bold color="#D97706" align="middle">x = 6  →  Point (6, 0)</T>
+      {/* Axes. Scale: 25px/unit. Origin at (60,155) */}
+      <line x1="40" y1="155" x2="250" y2="155" stroke="#555" strokeWidth="1.5"/>
+      <line x1="60" y1="80" x2="60" y2="162" stroke="#555" strokeWidth="1.5"/>
+      <polygon points="250,151 255,155 250,159" fill="#555"/>
+      <polygon points="56,80 60,74 64,80" fill="#555"/>
+      <T x={257} y={158} size={9}>x</T>
+      <T x={63} y={77} size={9}>y</T>
+      {/* x-axis labels */}
+      <T x={60} y={166} size={8} color="#555" align="middle">0</T>
+      <T x={85} y={166} size={8} color="#555" align="middle">1</T>
+      <T x={110} y={166} size={8} color="#555" align="middle">2</T>
+      <T x={135} y={166} size={8} color="#555" align="middle">3</T>
+      <T x={160} y={166} size={8} color="#555" align="middle">4</T>
+      <T x={185} y={166} size={8} color="#555" align="middle">5</T>
+      <T x={210} y={166} size={8} color="#555" align="middle">6</T>
+      {/* y-axis labels */}
+      <T x={53} y={158} size={8} color="#555" align="end">0</T>
+      <T x={53} y={133} size={8} color="#555" align="end">1</T>
+      <T x={53} y={108} size={8} color="#555" align="end">2</T>
+      <T x={53} y={83} size={8} color="#555" align="end">3</T>
+      {/* line x+2y=6: (0,3)→(6,0). 25px/unit. (0,3)→(60,155-75)=(60,80). (6,0)→(60+150,155)=(210,155) */}
+      <line x1="60" y1="80" x2="210" y2="155" stroke="#2196F3" strokeWidth="2"/>
+      <circle cx="60" cy="80" r="5" fill="#1D4ED8"/>
+      <circle cx="210" cy="155" r="5" fill="#D97706"/>
+      <T x={64} y={78} size={9} bold color="#1D4ED8">(0,3)</T>
+      <T x={197} y={150} size={9} bold color="#D97706">(6,0)</T>
+      <T x={160} y={192} size={10} bold color="#333" align="middle">Join the two intercept points → the graph</T>
+    </svg>
+  );
+}
+
+function ApSscMath9SpecialLines() {
+  return (
+    <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 210 }}>
+      <rect width="320" height="200" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Special Lines — x=a, y=b, y=x</T>
+      {/* Axes. Origin (160,110). Scale 30px/unit */}
+      <line x1="50" y1="110" x2="300" y2="110" stroke="#777" strokeWidth="1.2"/>
+      <line x1="160" y1="30" x2="160" y2="180" stroke="#777" strokeWidth="1.2"/>
+      <polygon points="300,106 305,110 300,114" fill="#777"/>
+      <polygon points="156,30 160,24 164,30" fill="#777"/>
+      <T x={307} y={113} size={9} color="#555">x</T>
+      <T x={163} y={27} size={9} color="#555">y</T>
+      {/* x=3 — vertical red line at x=160+3*30=250 */}
+      <line x1="250" y1="30" x2="250" y2="180" stroke="#E91E63" strokeWidth="2" strokeDasharray="6,3"/>
+      <T x={252} y={45} size={9} bold color="#E91E63">x = 3</T>
+      <T x={252} y={57} size={8} color="#E91E63">(vertical)</T>
+      {/* y=2 — horizontal green line at y=110-2*30=50 */}
+      <line x1="50" y1="50" x2="300" y2="50" stroke="#16A34A" strokeWidth="2" strokeDasharray="6,3"/>
+      <T x={55} y={46} size={9} bold color="#16A34A">y = 2  (horizontal)</T>
+      {/* y=x — diagonal at 45° */}
+      <line x1="60" y1="160" x2="270" y2="50" stroke="#D97706" strokeWidth="2"/>
+      <T x={268} y={48} size={9} bold color="#D97706">y = x</T>
+      {/* labels */}
+      <rect x="10" y="145" width="300" height="50" rx="5" fill="#fff" stroke="#E2E8F0" strokeWidth="1"/>
+      <T x={160} y={160} size={9} color="#E91E63" align="middle">x = 3 — passes through (3,0); parallel to y-axis</T>
+      <T x={160} y={173} size={9} color="#16A34A" align="middle">y = 2 — passes through (0,2); parallel to x-axis</T>
+      <T x={160} y={186} size={9} color="#D97706" align="middle">y = x — passes through origin; bisects quadrants I &amp; III</T>
+    </svg>
+  );
+}
+
+function ApSscMath9EuclidPostulates() {
+  return (
+    <svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 220 }}>
+      <rect width="320" height="210" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Euclid's 5 Postulates</T>
+      {/* P1 */}
+      <rect x="10" y="24" width="300" height="30" rx="4" fill="#DBEAFE"/>
+      <circle cx="40" cy="39" r="3" fill="#1D4ED8"/>
+      <circle cx="120" cy="39" r="3" fill="#1D4ED8"/>
+      <line x1="40" y1="39" x2="120" y2="39" stroke="#1D4ED8" strokeWidth="1.5"/>
+      <T x={130} y={43} size={9} color="#1D4ED8">P1: A straight line can be drawn joining any two points.</T>
+      {/* P2 */}
+      <rect x="10" y="58" width="300" height="30" rx="4" fill="#FEF3C7"/>
+      <line x1="20" y1="73" x2="80" y2="73" stroke="#D97706" strokeWidth="1.5"/>
+      <line x1="80" y1="73" x2="120" y2="73" stroke="#D97706" strokeWidth="1.5" strokeDasharray="4,2"/>
+      <T x={130} y={77} size={9} color="#D97706">P2: A line segment can be extended indefinitely.</T>
+      {/* P3 */}
+      <rect x="10" y="92" width="300" height="30" rx="4" fill="#DCFCE7"/>
+      <circle cx="50" cy="107" r="15" fill="none" stroke="#16A34A" strokeWidth="1.5"/>
+      <circle cx="50" cy="107" r="2" fill="#16A34A"/>
+      <line x1="50" y1="107" x2="65" y2="107" stroke="#16A34A" strokeWidth="1.2"/>
+      <T x={80} y={111} size={9} color="#16A34A">P3: A circle can be drawn with any centre and radius.</T>
+      {/* P4 */}
+      <rect x="10" y="126" width="300" height="30" rx="4" fill="#FEE2E2"/>
+      <line x1="30" y1="141" x2="75" y2="141" stroke="#DC2626" strokeWidth="1.5"/>
+      <line x1="53" y1="126" x2="53" y2="156" stroke="#DC2626" strokeWidth="1.5"/>
+      <line x1="80" y1="141" x2="115" y2="141" stroke="#DC2626" strokeWidth="1.5"/>
+      <line x1="98" y1="126" x2="98" y2="156" stroke="#DC2626" strokeWidth="1.5"/>
+      <T x={125} y={145} size={9} color="#DC2626">P4: All right angles are equal to each other (90°).</T>
+      {/* P5 */}
+      <rect x="10" y="160" width="300" height="40" rx="4" fill="#F3E8FF"/>
+      <line x1="20" y1="175" x2="90" y2="175" stroke="#7C3AED" strokeWidth="1.5"/>
+      <line x1="20" y1="190" x2="90" y2="190" stroke="#7C3AED" strokeWidth="1.5"/>
+      <line x1="55" y1="165" x2="70" y2="200" stroke="#9333EA" strokeWidth="1.5"/>
+      <T x={100} y={175} size={9} color="#7C3AED">P5 (Parallel): If two lines are cut by</T>
+      <T x={100} y={188} size={9} color="#7C3AED">a transversal and interior angles &lt; 180°, they meet.</T>
+    </svg>
+  );
+}
+
+function ApSscMath9FifthPostulate() {
+  return (
+    <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 210 }}>
+      <rect width="320" height="200" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Playfair's Axiom (Equivalent to Euclid's P5)</T>
+      {/* Line l */}
+      <line x1="20" y1="120" x2="300" y2="120" stroke="#555" strokeWidth="2"/>
+      <T x={305} y={123} size={10} bold color="#555">l</T>
+      {/* Point P */}
+      <circle cx="160" cy="70" r="4" fill="#E91E63"/>
+      <T x={165} y={68} size={10} bold color="#E91E63">P</T>
+      {/* One unique parallel through P */}
+      <line x1="20" y1="70" x2="300" y2="70" stroke="#2196F3" strokeWidth="2"/>
+      <T x={305} y={73} size={10} bold color="#2196F3">m</T>
+      {/* label: exactly one */}
+      <rect x="60" y="30" width="200" height="28" rx="5" fill="#DBEAFE"/>
+      <T x={160} y={44} size={10} color="#1D4ED8" align="middle" bold>Through P, exactly ONE line</T>
+      <T x={160} y={57} size={9} color="#1D4ED8" align="middle">parallel to l can be drawn (line m)</T>
+      {/* rejected lines crossing l */}
+      <line x1="100" y1="40" x2="220" y2="135" stroke="#FCA5A5" strokeWidth="1.2" strokeDasharray="5,3"/>
+      <line x1="80" y1="55" x2="240" y2="130" stroke="#FCA5A5" strokeWidth="1.2" strokeDasharray="5,3"/>
+      <T x={230} y={120} size={8} color="#DC2626">not parallel</T>
+      <line x1="15" y1="140" x2="305" y2="140" stroke="#E2E8F0" strokeWidth="1"/>
+      <T x={160} y={158} size={9} color="#555" align="middle">Euclid's 5th Postulate ↔ "Through a point not on a line,</T>
+      <T x={160} y={172} size={9} color="#555" align="middle">exactly one line can be drawn parallel to the given line."</T>
+      <T x={160} y={186} size={9} bold color="#7C3AED" align="middle">This is the foundation of Euclidean geometry.</T>
+    </svg>
+  );
+}
+
+function ApSscMath9BasicAngles() {
+  return (
+    <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 210 }}>
+      <rect width="320" height="200" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Types of Angles</T>
+      {/* Acute — 45° */}
+      <g transform="translate(30,50)">
+        <line x1="0" y1="60" x2="55" y2="60" stroke="#555" strokeWidth="1.5"/>
+        <line x1="0" y1="60" x2="39" y2="18" stroke="#2196F3" strokeWidth="1.5"/>
+        <path d="M18,60 A18,18 0 0,0 12.7,47" fill="none" stroke="#2196F3" strokeWidth="1.2"/>
+        <T x={20} y={53} size={9} color="#2196F3">45°</T>
+        <T x={27} y={80} size={10} bold color="#2196F3" align="middle">Acute</T>
+        <T x={27} y={92} size={9} color="#555" align="middle">(0° – 90°)</T>
+      </g>
+      {/* Right — 90° */}
+      <g transform="translate(110,50)">
+        <line x1="0" y1="60" x2="55" y2="60" stroke="#555" strokeWidth="1.5"/>
+        <line x1="0" y1="60" x2="0" y2="10" stroke="#16A34A" strokeWidth="1.5"/>
+        <rect x="0" y="44" width="12" height="12" fill="none" stroke="#16A34A" strokeWidth="1.2"/>
+        <T x={14} y={50} size={9} color="#16A34A">90°</T>
+        <T x={27} y={80} size={10} bold color="#16A34A" align="middle">Right</T>
+        <T x={27} y={92} size={9} color="#555" align="middle">(exactly 90°)</T>
+      </g>
+      {/* Obtuse — 120° */}
+      <g transform="translate(190,50)">
+        <line x1="0" y1="60" x2="55" y2="60" stroke="#555" strokeWidth="1.5"/>
+        <line x1="0" y1="60" x2="-24" y2="18" stroke="#D97706" strokeWidth="1.5"/>
+        <path d="M18,60 A18,18 0 0,0 -7.6,51" fill="none" stroke="#D97706" strokeWidth="1.2"/>
+        <T x={2} y={50} size={9} color="#D97706">120°</T>
+        <T x={15} y={80} size={10} bold color="#D97706" align="middle">Obtuse</T>
+        <T x={15} y={92} size={9} color="#555" align="middle">(90° – 180°)</T>
+      </g>
+      {/* Straight angle */}
+      <rect x="15" y="108" width="140" height="44" rx="5" fill="#FEE2E2"/>
+      <line x1="30" y1="130" x2="130" y2="130" stroke="#DC2626" strokeWidth="2"/>
+      <circle cx="80" cy="130" r="3" fill="#DC2626"/>
+      <path d="M100,130 A20,20 0 0,0 60,130" fill="none" stroke="#DC2626" strokeWidth="1.2"/>
+      <T x={80} y={126} size={9} color="#DC2626" align="middle">180°</T>
+      <T x={80} y={145} size={10} bold color="#DC2626" align="middle">Straight Angle (180°)</T>
+      {/* Reflex */}
+      <rect x="165" y="108" width="140" height="44" rx="5" fill="#F3E8FF"/>
+      <line x1="235" y1="140" x2="295" y2="140" stroke="#7C3AED" strokeWidth="1.5"/>
+      <line x1="235" y1="140" x2="235" y2="115" stroke="#7C3AED" strokeWidth="1.5"/>
+      <path d="M255,140 A20,20 0 1,0 235,120" fill="none" stroke="#7C3AED" strokeWidth="1.2"/>
+      <T x={265} y={130} size={8} color="#7C3AED">270°</T>
+      <T x={235} y={157} size={10} bold color="#7C3AED" align="middle">Reflex (180°–360°)</T>
+      <T x={160} y={195} size={9} color="#555" align="middle">Complementary = 90° sum · Supplementary = 180° sum</T>
+    </svg>
+  );
+}
+
+function ApSscMath9ParallelTransversal() {
+  return (
+    <svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 220 }}>
+      <rect width="320" height="210" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Parallel Lines Cut by a Transversal — 8 Angles</T>
+      {/* Line p (parallel 1) */}
+      <line x1="20" y1="75" x2="240" y2="75" stroke="#2196F3" strokeWidth="2"/>
+      <T x={244} y={78} size={10} bold color="#2196F3">p</T>
+      {/* Line q (parallel 2) */}
+      <line x1="20" y1="140" x2="240" y2="140" stroke="#2196F3" strokeWidth="2"/>
+      <T x={244} y={143} size={10} bold color="#2196F3">q</T>
+      {/* Transversal t */}
+      <line x1="100" y1="20" x2="175" y2="195" stroke="#E91E63" strokeWidth="2"/>
+      <T x={176} y={198} size={10} bold color="#E91E63">t</T>
+      {/* Angle labels at first intersection (~115,75) */}
+      <T x={98} y={70} size={9} color="#D97706" align="end">∠1</T>
+      <T x={119} y={70} size={9} color="#D97706">∠2</T>
+      <T x={98} y={87} size={9} color="#D97706" align="end">∠3</T>
+      <T x={119} y={87} size={9} color="#D97706">∠4</T>
+      {/* Angle labels at second intersection (~140,140) */}
+      <T x={123} y={135} size={9} color="#16A34A" align="end">∠5</T>
+      <T x={144} y={135} size={9} color="#16A34A">∠6</T>
+      <T x={123} y={152} size={9} color="#16A34A" align="end">∠7</T>
+      <T x={144} y={152} size={9} color="#16A34A">∠8</T>
+      {/* Legend */}
+      <rect x="10" y="165" width="300" height="38" rx="5" fill="#fff" stroke="#E2E8F0"/>
+      <T x={160} y={179} size={9} color="#D97706" align="middle">∠1=∠2+∠3+∠4 at p · Alternate interior: ∠3=∠6, ∠4=∠5</T>
+      <T x={160} y={192} size={9} color="#16A34A" align="middle">Co-interior (same side): ∠3+∠5=180°, ∠4+∠6=180°</T>
+      <T x={160} y={204} size={9} bold color="#1E3A5F" align="middle">Corresponding: ∠1=∠5, ∠2=∠6, ∠3=∠7, ∠4=∠8</T>
+    </svg>
+  );
+}
+
+function ApSscMath9ParallelTransitivity() {
+  return (
+    <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxHeight: 210 }}>
+      <rect width="320" height="200" fill="#F8FAFC" rx="8"/>
+      <T x={160} y={16} size={11} bold color="#1E3A5F" align="middle">Lines Parallel to the Same Line are Parallel to Each Other</T>
+      {/* Line a */}
+      <line x1="20" y1="55" x2="270" y2="55" stroke="#2196F3" strokeWidth="2"/>
+      <T x={274} y={59} size={11} bold color="#2196F3">a</T>
+      {/* Line b */}
+      <line x1="20" y1="105" x2="270" y2="105" stroke="#16A34A" strokeWidth="2"/>
+      <T x={274} y={109} size={11} bold color="#16A34A">b</T>
+      {/* Line c */}
+      <line x1="20" y1="155" x2="270" y2="155" stroke="#D97706" strokeWidth="2"/>
+      <T x={274} y={159} size={11} bold color="#D97706">c</T>
+      {/* double-arrow braces */}
+      <line x1="295" y1="55" x2="295" y2="105" stroke="#555" strokeWidth="1.2"/>
+      <polygon points="291,60 295,53 299,60" fill="#555"/>
+      <polygon points="291,100 295,107 299,100" fill="#555"/>
+      <T x={300} y={84} size={9} color="#555">a ∥ b</T>
+      <line x1="295" y1="105" x2="295" y2="155" stroke="#555" strokeWidth="1.2"/>
+      <polygon points="291,110 295,103 299,110" fill="#555"/>
+      <polygon points="291,150 295,157 299,150" fill="#555"/>
+      <T x={300} y={133} size={9} color="#555">b ∥ c</T>
+      {/* therefore */}
+      <rect x="60" y="165" width="200" height="28" rx="6" fill="#DBEAFE"/>
+      <T x={160} y={180} size={10} bold color="#1D4ED8" align="middle">∴ a ∥ c (by transitivity of parallel lines)</T>
+      <T x={160} y={193} size={9} color="#555" align="middle">Theorem: If a ∥ b and b ∥ c, then a ∥ c</T>
+    </svg>
+  );
+}
+
+/* ── CBSE MATH 8 — Ch1–Ch7 ───────────────────────────────────────────────── */
+function CbseMath8Squares() {
+  return (
+    <svg viewBox="0 0 280 195" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Squares — n² = Area of n×n Grid</T>
+      {[3,4,5].map((n,col)=>{
+        const ox=22+col*84, oy=42, sz=14;
+        const colors=["#DBEAFE","#FEF9C3","#DCFCE7"];
+        const strokes=["#3B82F6","#EAB308","#22C55E"];
+        return(
+          <g key={n}>
+            {Array.from({length:n}).flatMap((_,r)=>Array.from({length:n}).map((_2,c)=>(
+              <rect key={r*n+c} x={ox+c*sz} y={oy+r*sz} width={sz-1} height={sz-1} rx="2" fill={colors[col]} stroke={strokes[col]} strokeWidth="0.8"/>
+            )))}
+            <T x={ox+n*sz/2} y={oy+n*sz+16} size={11} bold color={strokes[col]} align="middle">{n}²={n*n}</T>
+          </g>
+        );
+      })}
+      <rect x="10" y="152" width="260" height="36" rx="6" fill="#F0F9FF"/>
+      <T x={140} y={168} size={9} bold color="#0369A1" align="middle">Perfect squares: 1,4,9,16,25,36,49,64,81,100</T>
+      <T x={140} y={182} size={8} color="#64748B" align="middle">n² = n×n  (area of square with side n)</T>
+    </svg>
+  );
+}
+function CbseMath8Cubes() {
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Cubes — n³ = n × n × n</T>
+      {[1,2,3,4,5].map((n,i)=>(
+        <g key={n}>
+          <rect x={18+i*50} y="40" width="44" height="38" rx="6" fill="#F5F3FF" stroke="#7C3AED" strokeWidth="1.5"/>
+          <T x={40+i*50} y={56} size={10} bold color="#7C3AED" align="middle">{n}³</T>
+          <T x={40+i*50} y={71} size={9} color="#5B21B6" align="middle">={n*n*n}</T>
+        </g>
+      ))}
+      <rect x="10" y="88" width="260" height="26" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={104} size={9} bold color="#6D28D9" align="middle">Perfect cubes: 1,8,27,64,125,216,343…</T>
+      <rect x="10" y="122" width="260" height="58" rx="6" fill="#FEF3C7"/>
+      <T x={140} y={140} size={9} bold color="#92400E" align="middle">Cube = Volume of cube with side n</T>
+      <T x={140} y={156} size={9} color="#B45309" align="middle">Side 3 → Volume = 3³ = 27 cubic units</T>
+      <T x={140} y={172} size={8} color="#78350F" align="middle">Even n → even cube  |  Odd n → odd cube</T>
+    </svg>
+  );
+}
+function CbseMath8SquareRoots() {
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Square Roots — √n = inverse of squaring</T>
+      <line x1="20" y1="84" x2="260" y2="84" stroke="#94A3B8" strokeWidth="2"/>
+      {[[1,1],[4,2],[9,3],[16,4],[25,5]].map(([n,sq],i)=>{
+        const x=20+i*60;
+        return(
+          <g key={n}>
+            <circle cx={x} cy={84} r="5" fill="#22C55E"/>
+            <T x={x} y={100} size={9} bold color="#16A34A" align="middle">{n}</T>
+            <line x1={x} y1={70} x2={x} y2={79} stroke="#22C55E" strokeWidth="1.5"/>
+            <rect x={x-20} y="44" width="40" height="22" rx="5" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.2"/>
+            <T x={x} y={59} size={9} bold color="#16A34A" align="middle">√{n}={sq}</T>
+          </g>
+        );
+      })}
+      <T x={140} y={116} size={8} color="#64748B" align="middle">√n defined only for n ≥ 0</T>
+      <rect x="10" y="126" width="260" height="54" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={144} size={9} bold color="#166534" align="middle">Approximations to memorise:</T>
+      <T x={140} y={160} size={9} color="#15803D" align="middle">√2≈1.414  √3≈1.732  √5≈2.236  √7≈2.646</T>
+      <T x={140} y={174} size={8} color="#64748B" align="middle">Long division method for non-perfect squares</T>
+    </svg>
+  );
+}
+function CbseMath8CubeRoots() {
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Cube Roots — ∛n via Prime Factor Triplets</T>
+      <rect x="10" y="40" width="124" height="84" rx="8" fill="#F5F3FF" stroke="#7C3AED" strokeWidth="1.5"/>
+      <T x={72} y={58} size={9} bold color="#6D28D9" align="middle">∛216 = ?</T>
+      <T x={72} y={74} size={8} color="#4C1D95" align="middle">216 = 2×2×2×3×3×3</T>
+      <T x={72} y={90} size={8} color="#4C1D95" align="middle">= (2³)×(3³)</T>
+      <T x={72} y={108} size={9} bold color="#7C3AED" align="middle">∛216 = 2×3 = 6 ✓</T>
+      <rect x="146" y="40" width="124" height="84" rx="8" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <T x={208} y={58} size={9} bold color="#92400E" align="middle">∛343 = ?</T>
+      <T x={208} y={74} size={8} color="#78350F" align="middle">343 = 7×7×7</T>
+      <T x={208} y={90} size={8} color="#78350F" align="middle">One triplet only</T>
+      <T x={208} y={108} size={9} bold color="#D97706" align="middle">∛343 = 7 ✓</T>
+      <rect x="10" y="132" width="260" height="48" rx="6" fill="#F0F9FF"/>
+      <T x={140} y={150} size={9} bold color="#0369A1" align="middle">Method: prime-factorise → group into triplets</T>
+      <T x={140} y={166} size={8} color="#0284C7" align="middle">Each triplet contributes one factor to ∛</T>
+    </svg>
+  );
+}
+function CbseMath8ExponentsIntro() {
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Exponents — aⁿ = a × a × … (n times)</T>
+      <rect x="30" y="40" width="80" height="44" rx="8" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={70} y={58} size={14} bold color="#1D4ED8" align="middle">2⁴</T>
+      <T x={70} y={76} size={8} color="#1E40AF" align="middle">base=2, exp=4</T>
+      <T x={124} y={65} size={12} bold color="#374151" align="middle">=</T>
+      <rect x="140" y="40" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={205} y={58} size={10} bold color="#166534" align="middle">2×2×2×2</T>
+      <T x={205} y={76} size={9} bold color="#15803D" align="middle">= 16</T>
+      <T x={140} y={104} size={8} color="#6B7280" align="middle">4 factors of 2</T>
+      <rect x="10" y="112" width="260" height="68" rx="6" fill="#FEF9C3"/>
+      <T x={140} y={130} size={9} bold color="#713F12" align="middle">aⁿ  (a = base,  n = exponent)</T>
+      <T x={140} y={146} size={9} color="#854D0E" align="middle">a¹ = a   |   a⁰ = 1 (a≠0)   |   a² = square</T>
+      <T x={140} y={162} size={9} color="#854D0E" align="middle">a³ = cube  |  a⁴,a⁵ … higher powers</T>
+    </svg>
+  );
+}
+function CbseMath8LawsOfExponents() {
+  const laws=[["aᵐ × aⁿ","aᵐ⁺ⁿ","add exponents"],["aᵐ ÷ aⁿ","aᵐ⁻ⁿ","sub exponents"],["(aᵐ)ⁿ","aᵐⁿ","power of power"],["aᵐ × bᵐ","(ab)ᵐ","same exp"],["a⁰","1","zero exp"],["a⁻ⁿ","1/aⁿ","negative exp"]];
+  return (
+    <svg viewBox="0 0 280 204" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Six Laws of Exponents</T>
+      {laws.map(([lhs,rhs,note],i)=>(
+        <g key={i}>
+          <rect x="10" y={38+i*27} width="260" height="24" rx="5" fill={i%2===0?"#F0F9FF":"#F5F3FF"}/>
+          <T x={76} y={54+i*27} size={9} bold color="#1D4ED8" align="middle">{lhs}</T>
+          <T x={138} y={54+i*27} size={10} color="#374151" align="middle">=</T>
+          <T x={188} y={54+i*27} size={9} bold color="#7C3AED" align="middle">{rhs}</T>
+          <T x={268} y={54+i*27} size={7} color="#94A3B8" align="end">{note}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+function CbseMath8NegativeExponents() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Negative Exponents — a⁻ⁿ = 1/aⁿ</T>
+      <rect x="10" y="38" width="260" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5"/>
+      <T x={140} y={52} size={9} bold color="#B91C1C" align="middle">⚠ a⁻ⁿ ≠ −aⁿ  (most common mistake!)</T>
+      <T x={140} y={66} size={8} color="#DC2626" align="middle">Negative exponent = RECIPROCAL, not negative</T>
+      <rect x="10" y="80" width="124" height="58" rx="8" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={72} y={98} size={11} bold color="#1D4ED8" align="middle">2⁻³</T>
+      <T x={72} y={114} size={9} color="#1E40AF" align="middle">= 1/2³ = 1/8</T>
+      <T x={72} y={130} size={9} bold color="#2563EB" align="middle">= 0.125</T>
+      <rect x="146" y="80" width="124" height="58" rx="8" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={208} y={98} size={11} bold color="#166534" align="middle">10⁻⁴</T>
+      <T x={208} y={114} size={9} color="#15803D" align="middle">= 1/10000</T>
+      <T x={208} y={130} size={9} bold color="#16A34A" align="middle">= 0.0001</T>
+      <rect x="10" y="146" width="260" height="38" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={162} size={9} bold color="#6D28D9" align="middle">Flip the fraction to make exponent positive:</T>
+      <T x={140} y={178} size={9} color="#7C3AED" align="middle">(3/5)⁻² = (5/3)² = 25/9</T>
+    </svg>
+  );
+}
+function CbseMath8ScientificNotation() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Scientific Notation — a × 10ⁿ  (1 ≤ a &lt; 10)</T>
+      <rect x="10" y="38" width="260" height="50" rx="6" fill="#F0FDF4" stroke="#86EFAC" strokeWidth="1.5"/>
+      <T x={140} y={56} size={9} bold color="#166534" align="middle">LARGE → positive exponent (decimal moves left)</T>
+      <T x={140} y={72} size={9} color="#16A34A" align="middle">300,000 = 3.0 × 10⁵   ★←←←←← (5 places)</T>
+      <rect x="10" y="96" width="260" height="50" rx="6" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5"/>
+      <T x={140} y={114} size={9} bold color="#92400E" align="middle">SMALL → negative exponent (decimal moves right)</T>
+      <T x={140} y={130} size={9} color="#B45309" align="middle">0.0003 = 3.0 × 10⁻⁴   →→→→★ (4 places)</T>
+      <rect x="10" y="154" width="260" height="36" rx="6" fill="#F8FAFC"/>
+      <T x={140} y={170} size={9} bold color="#374151" align="middle">Speed of light: 3×10⁸ m/s</T>
+      <T x={140} y={184} size={9} color="#64748B" align="middle">Size of atom: 1×10⁻¹⁰ m</T>
+    </svg>
+  );
+}
+function CbseMath8NumberSystems() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Number Hierarchy — ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ</T>
+      <ellipse cx="140" cy="118" rx="125" ry="70" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5"/>
+      <T x={140} y={52} size={9} bold color="#92400E" align="middle">ℝ Real Numbers</T>
+      <T x={230} y={115} size={8} color="#B45309" align="middle">√2,π,e</T>
+      <ellipse cx="130" cy="120" rx="90" ry="50" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={130} y={74} size={9} bold color="#1D4ED8" align="middle">ℚ Rationals</T>
+      <T x={196} y={122} size={8} color="#1E40AF" align="middle">½,−¾</T>
+      <ellipse cx="120" cy="122" rx="60" ry="34" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={120} y={96} size={9} bold color="#166534" align="middle">ℤ Integers</T>
+      <T x={152} y={126} size={8} color="#15803D" align="middle">−3,0</T>
+      <ellipse cx="110" cy="126" rx="34" ry="20" fill="#F5F3FF" stroke="#7C3AED" strokeWidth="1.5"/>
+      <T x={110} y={130} size={8} bold color="#6D28D9" align="middle">ℕ 1,2,3</T>
+    </svg>
+  );
+}
+function CbseMath8IntegersOps() {
+  return (
+    <svg viewBox="0 0 280 182" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Integer Operations on the Number Line</T>
+      <line x1="20" y1="78" x2="260" y2="78" stroke="#94A3B8" strokeWidth="2"/>
+      {[-4,-3,-2,-1,0,1,2,3,4].map((n,i)=>{
+        const x=20+i*30;
+        return(
+          <g key={n}>
+            <line x1={x} y1={72} x2={x} y2={84} stroke="#94A3B8" strokeWidth="1.5"/>
+            <T x={x} y={96} size={9} color={n===0?"#1D4ED8":"#374151"} bold={n===0} align="middle">{n}</T>
+          </g>
+        );
+      })}
+      <path d="M80 70 Q96 55 112 70" fill="none" stroke="#22C55E" strokeWidth="2"/>
+      <polygon points="112,70 107,65 114,63" fill="#22C55E"/>
+      <T x={96} y={52} size={9} bold color="#16A34A" align="middle">+4</T>
+      <path d="M200 70 Q183 55 166 70" fill="none" stroke="#EF4444" strokeWidth="2"/>
+      <polygon points="166,70 171,65 163,63" fill="#EF4444"/>
+      <T x={183} y={52} size={9} bold color="#DC2626" align="middle">−3</T>
+      <rect x="10" y="108" width="260" height="66" rx="6" fill="#F8FAFC"/>
+      <T x={140} y={126} size={9} bold color="#374151" align="middle">Right = positive (+)   |   Left = negative (−)</T>
+      <T x={140} y={142} size={9} color="#374151" align="middle">−5 + 8 = 3   |   −3 − 4 = −7</T>
+      <T x={140} y={158} size={9} color="#374151" align="middle">(+)(+)=+  (−)(−)=+  (+)(−)=−  (−)(+)=−</T>
+    </svg>
+  );
+}
+function CbseMath8RationalNumbers() {
+  return (
+    <svg viewBox="0 0 280 186" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Rational Numbers — p/q  (p,q ∈ ℤ, q ≠ 0)</T>
+      <line x1="20" y1="80" x2="260" y2="80" stroke="#94A3B8" strokeWidth="2"/>
+      {[[-2,"−2",true],[-1.5,"−3/2",false],[-1,"−1",true],[-0.5,"−1/2",false],[0,"0",true],[0.5,"1/2",false],[1,"1",true],[1.5,"3/2",false],[2,"2",true]].map(([v,label,isInt],i)=>{
+        const x=20+i*30;
+        return(
+          <g key={i}>
+            <line x1={x} y1={74} x2={x} y2={86} stroke={isInt?"#1D4ED8":"#9333EA"} strokeWidth={isInt?2:1.2}/>
+            <T x={x} y={100} size={isInt?9:7} bold={isInt} color={isInt?"#1D4ED8":"#7E22CE"} align="middle">{label}</T>
+          </g>
+        );
+      })}
+      <rect x="10" y="112" width="260" height="66" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={130} size={9} bold color="#6D28D9" align="middle">Any p/q where p,q ∈ ℤ  and  q ≠ 0</T>
+      <T x={140} y={146} size={9} color="#7C3AED" align="middle">Terminating: 1/4 = 0.25</T>
+      <T x={140} y={162} size={9} color="#7C3AED" align="middle">Recurring: 1/3 = 0.333…  (rational, not irrational)</T>
+    </svg>
+  );
+}
+function CbseMath8IrrationalNumbers() {
+  return (
+    <svg viewBox="0 0 280 186" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Irrational Numbers — Non-repeating Decimals</T>
+      <line x1="20" y1="76" x2="260" y2="76" stroke="#94A3B8" strokeWidth="2"/>
+      {[[0,"0",true],[120,"1",true],[240,"2",true]].map(([cx,label,isInt])=>(
+        <g key={label}>
+          <circle cx={20+cx} cy={76} r="4" fill="#3B82F6"/>
+          <T x={20+cx} y={91} size={9} bold color="#1D4ED8" align="middle">{label}</T>
+        </g>
+      ))}
+      {[[42,"√2","#EF4444","≈1.414…"],[57,"√3","#7C3AED","≈1.732…"],[136,"√5","#EAB308","≈2.236…"],[160,"π","#F97316","≈3.14159…"]].map(([cx,label,color,approx])=>(
+        <g key={label}>
+          <circle cx={cx} cy={76} r="5" fill={color}/>
+          <T x={cx} y={91} size={8} bold color={color} align="middle">{label}</T>
+          <T x={cx} y={58} size={7} color={color} align="middle">{approx}</T>
+          <line x1={cx} y1={63} x2={cx} y2={71} stroke={color} strokeWidth="1"/>
+        </g>
+      ))}
+      <rect x="10" y="106" width="260" height="72" rx="6" fill="#FEF2F2"/>
+      <T x={140} y={124} size={9} bold color="#991B1B" align="middle">Cannot be written as p/q</T>
+      <T x={140} y={140} size={9} color="#B91C1C" align="middle">Decimal: non-terminating AND non-recurring</T>
+      <T x={140} y={156} size={8} color="#DC2626" align="middle">√2 = 1.41421356…  digits NEVER repeat</T>
+      <T x={140} y={170} size={8} color="#64748B" align="middle">Rational + Irrational = always Irrational</T>
+    </svg>
+  );
+}
+function CbseMath8QuadTypes() {
+  const shapes=[
+    {label:"Square",pts:"0,0 42,0 42,42 0,42",fill:"#DBEAFE",stroke:"#3B82F6"},
+    {label:"Rectangle",pts:"0,8 56,8 56,36 0,36",fill:"#DCFCE7",stroke:"#22C55E"},
+    {label:"Parallelogram",pts:"10,8 58,8 48,36 0,36",fill:"#FEF9C3",stroke:"#EAB308"},
+    {label:"Rhombus",pts:"28,0 56,22 28,44 0,22",fill:"#FEE2E2",stroke:"#EF4444"},
+    {label:"Trapezium",pts:"10,8 54,8 62,38 0,38",fill:"#F5F3FF",stroke:"#7C3AED"},
+    {label:"Kite",pts:"28,0 56,28 28,54 0,28",fill:"#FFF7ED",stroke:"#F97316"},
+  ];
+  return (
+    <svg viewBox="0 0 280 218" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="4" width="260" height="24" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={20} size={10} bold color="#FFF" align="middle">Six Types of Quadrilaterals</T>
+      {shapes.map(({label,pts,fill,stroke},i)=>{
+        const col=i%3,row=Math.floor(i/3);
+        const ox=16+col*88,oy=34+row*88;
+        const shifted=pts.split(" ").map(p=>{const[x,y]=p.split(",");return`${+x+ox},${+y+oy}`;}).join(" ");
+        return(
+          <g key={label}>
+            <polygon points={shifted} fill={fill} stroke={stroke} strokeWidth="1.5"/>
+            <T x={ox+28} y={oy+62} size={8} bold color={stroke} align="middle">{label}</T>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+function CbseMath8QuadProperties() {
+  const rows=[["Shape","‖ pairs","= sides","90°","= diag"],["Square","2","4","✓","✓"],["Rect.","2","opp","✓","✓"],["Parallelogram","2","opp","✗","✗"],["Rhombus","2","4","✗","⊥bisect"],["Trapezium","1","—","✗","✗"]];
+  return (
+    <svg viewBox="0 0 280 186" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="4" width="260" height="22" rx="4" fill="#1D1D1F"/>
+      <T x={140} y={18} size={9} bold color="#FFF" align="middle">Quadrilateral Properties at a Glance</T>
+      {rows.map((row,i)=>(
+        <g key={i}>
+          <rect x="10" y={30+i*26} width="260" height="24" rx="3" fill={i===0?"#1D1D1F":i%2===0?"#EFF6FF":"#F0FDF4"}/>
+          {row.map((cell,j)=>(
+            <T key={j} x={20+j*52} y={46+i*26} size={i===0?8:9} bold={i===0||j===0} color={i===0?"#FFF":j===0?"#1D4ED8":"#374151"}>{cell}</T>
+          ))}
+        </g>
+      ))}
+    </svg>
+  );
+}
+function CbseMath8AngleSumProp() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Angle Sum of a Quadrilateral = 360°</T>
+      <polygon points="58,48 206,40 232,138 38,148" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="58" y1="48" x2="232" y2="138" stroke="#94A3B8" strokeWidth="1" strokeDasharray="4,3"/>
+      <T x={46} y={66} size={9} bold color="#1D4ED8">a=80°</T>
+      <T x={198} y={38} size={9} bold color="#16A34A">b=110°</T>
+      <T x={228} y={152} size={9} bold color="#DC2626">c=70°</T>
+      <T x={22} y={162} size={9} bold color="#7C3AED">d=100°</T>
+      <rect x="76" y="162" width="128" height="24" rx="5" fill="#F0F9FF"/>
+      <T x={140} y={178} size={9} bold color="#0369A1" align="middle">a+b+c+d = 360° always</T>
+    </svg>
+  );
+}
+function CbseMath8ParallelogramThms() {
+  return (
+    <svg viewBox="0 0 280 196" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Parallelogram — Key Theorems</T>
+      <polygon points="54,52 196,52 226,130 24,130" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="54" y1="52" x2="226" y2="130" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <line x1="196" y1="52" x2="24" y2="130" stroke="#22C55E" strokeWidth="1.5" strokeDasharray="5,3"/>
+      <circle cx="125" cy="91" r="4" fill="#F97316"/>
+      <T x={136} y={90} size={8} bold color="#EA580C">mid</T>
+      <T x={125} y={44} size={8} bold color="#1D4ED8" align="middle">AB ∥ CD  (opposite sides parallel)</T>
+      <rect x="10" y="144" width="260" height="44" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={160} size={9} bold color="#166534" align="middle">AB=CD, AD=BC  (opp sides equal)</T>
+      <T x={140} y={176} size={9} color="#15803D" align="middle">∠A=∠C, ∠B=∠D  |  Diagonals bisect each other</T>
+    </svg>
+  );
+}
+function CbseMath8NumberPatterns() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Number Patterns — Triangular &amp; Square</T>
+      <T x={14} y={44} size={8} bold color="#1D4ED8">Triangular: 1, 3, 6, 10…</T>
+      {[[1,1],[3,2],[6,3],[10,4]].map(([n,rows],idx)=>{
+        let dots=[];let d=0;
+        for(let r=0;r<rows;r++)for(let c=0;c<=r;c++){dots.push([30+idx*60+c*8-r*4,54+r*9]);d++;}
+        return dots.map((p,j)=><circle key={j} cx={p[0]} cy={p[1]} r="3" fill="#3B82F6"/>);
+      })}
+      <T x={14} y={106} size={8} bold color="#7C3AED">Square: 1, 4, 9, 16…</T>
+      {[[1,1],[4,2],[9,3],[16,4]].map(([n,s],idx)=>{
+        let dots=[];
+        for(let r=0;r<s;r++)for(let c=0;c<s;c++)dots.push([28+idx*56+c*7,114+r*7]);
+        return dots.map((p,j)=><circle key={j} cx={p[0]} cy={p[1]} r="2.5" fill="#7C3AED"/>);
+      })}
+      <rect x="10" y="158" width="260" height="26" rx="5" fill="#FEF9C3"/>
+      <T x={140} y={174} size={8} bold color="#713F12" align="middle">Triangular Tₙ=n(n+1)/2  |  Square Sₙ=n²</T>
+    </svg>
+  );
+}
+function CbseMath8PrimesComposites() {
+  const primes=new Set([2,3,5,7,11,13,17,19]);
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Primes &amp; Composites (1–20)</T>
+      {Array.from({length:20},(_,i)=>i+1).map((n,i)=>{
+        const col=i%5,row=Math.floor(i/5);
+        const isPrime=primes.has(n),isOne=n===1;
+        const fill=isPrime?"#DBEAFE":isOne?"#F1F5F9":"#FEE2E2";
+        const stroke=isPrime?"#3B82F6":isOne?"#CBD5E1":"#FCA5A5";
+        const tc=isPrime?"#1D4ED8":isOne?"#94A3B8":"#EF4444";
+        return(
+          <g key={n}>
+            <rect x={20+col*50} y={38+row*30} width="40" height="24" rx="5" fill={fill} stroke={stroke} strokeWidth="1.5"/>
+            <T x={40+col*50} y={54+row*30} size={10} bold={isPrime} color={tc} align="middle">{n}</T>
+          </g>
+        );
+      })}
+      <T x={140} y={170} size={8} color="#64748B" align="middle">Blue=prime  |  Red=composite  |  Grey=1 (neither)</T>
+    </svg>
+  );
+}
+function CbseMath8DivisibilityRules() {
+  const rules=[["÷2","Last digit 0,2,4,6,8","128✓"],["÷3","Digit sum divisible by 3","123→6✓"],["÷5","Last digit 0 or 5","245✓"],["÷9","Digit sum divisible by 9","729→18✓"],["÷10","Last digit is 0","340✓"]];
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Divisibility Rules — Quick Test</T>
+      {rules.map(([div,rule,ex],i)=>(
+        <g key={i}>
+          <rect x="10" y={36+i*30} width="260" height="26" rx="5" fill={i%2===0?"#EFF6FF":"#F0FDF4"}/>
+          <rect x="10" y={36+i*30} width="32" height="26" rx="5" fill={i%2===0?"#DBEAFE":"#DCFCE7"}/>
+          <T x={26} y={53+i*30} size={9} bold color={i%2===0?"#1D4ED8":"#166534"} align="middle">{div}</T>
+          <T x={50} y={53+i*30} size={8} color="#374151">{rule}</T>
+          <T x={268} y={53+i*30} size={8} color="#6B7280" align="end">{ex}</T>
+        </g>
+      ))}
+    </svg>
+  );
+}
+function CbseMath8NumberPuzzles() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Number Trick — Algebra Explains Why</T>
+      <T x={140} y={44} size={9} bold color="#374151" align="middle">Pick any number N. Follow steps:</T>
+      {[["Step 1: Pick N","N","#EFF6FF"],["Step 2: Double","2N","#F0FDF4"],["Step 3: Add 6","2N+6","#FEF9C3"],["Step 4: Halve","N+3","#FFF7ED"],["Step 5: Sub N","= 3  always!","#DCFCE7"]].map(([step,expr,fill],i)=>(
+        <g key={i}>
+          <rect x="10" y={52+i*26} width="260" height="22" rx="5" fill={fill}/>
+          <T x={80} y={67+i*26} size={8} color="#64748B" align="middle">{step}</T>
+          <T x={196} y={67+i*26} size={10} bold color={i===4?"#16A34A":"#1D4ED8"} align="middle">{expr}</T>
+        </g>
+      ))}
+      <T x={140} y={188} size={8} color="#64748B" align="middle">Algebra shows the constant always cancels to 3</T>
+    </svg>
+  );
+}
+function CbseMath8DistributiveLaw() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Distributive Law — a(b+c) = ab + ac</T>
+      <rect x="20" y="40" width="96" height="68" rx="4" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={68} y={78} size={12} bold color="#1D4ED8" align="middle">ab</T>
+      <rect x="120" y="40" width="140" height="68" rx="4" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={190} y={78} size={12} bold color="#166534" align="middle">ac</T>
+      <line x1="116" y1="34" x2="116" y2="114" stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <T x={68} y={120} size={9} bold color="#1D4ED8" align="middle">b</T>
+      <T x={190} y={120} size={9} bold color="#166534" align="middle">c</T>
+      <line x1="14" y1="40" x2="14" y2="108" stroke="#7C3AED" strokeWidth="2.5"/>
+      <T x={9} y={76} size={9} bold color="#7C3AED" align="end">a</T>
+      <rect x="10" y="130" width="260" height="54" rx="6" fill="#FEF9C3"/>
+      <T x={140} y={148} size={9} bold color="#713F12" align="middle">Example: 3(x + 4) = 3·x + 3·4 = 3x + 12</T>
+      <T x={140} y={164} size={9} color="#854D0E" align="middle">BOTH terms inside bracket must be multiplied</T>
+      <T x={140} y={178} size={8} color="#92400E" align="middle">Reverse: 3x+12 → factor out 3 → 3(x+4)</T>
+    </svg>
+  );
+}
+function CbseMath8Factorisation() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Factorisation — Reverse of Distributive</T>
+      <rect x="10" y="38" width="260" height="44" rx="6" fill="#FEF9C3"/>
+      <T x={140} y={56} size={10} bold color="#92400E" align="middle">6x² + 9x</T>
+      <T x={140} y={74} size={9} color="#713F12" align="middle">HCF of 6x² and 9x = 3x</T>
+      <rect x="10" y="90" width="260" height="44" rx="6" fill="#DCFCE7"/>
+      <T x={140} y={108} size={10} bold color="#166534" align="middle">6x² + 9x = 3x(2x + 3)</T>
+      <T x={140} y={126} size={9} color="#15803D" align="middle">Verify: 3x·2x + 3x·3 = 6x²+9x ✓</T>
+      <rect x="10" y="142" width="260" height="44" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={160} size={9} bold color="#6D28D9" align="middle">Difference of squares: a²−b² = (a+b)(a−b)</T>
+      <T x={140} y={178} size={9} color="#7C3AED" align="middle">x²−9 = x²−3² = (x+3)(x−3)</T>
+    </svg>
+  );
+}
+function CbseMath8LikeUnlikeTerms() {
+  return (
+    <svg viewBox="0 0 280 186" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Like vs Unlike Terms</T>
+      <T x={140} y={44} size={9} bold color="#374151" align="middle">3x² + 5x − 2x² + 7 − 4x</T>
+      {[{label:"3x²",x:30,fill:"#DBEAFE",stroke:"#3B82F6",tc:"#1D4ED8"},{label:"5x",x:82,fill:"#FEF9C3",stroke:"#EAB308",tc:"#713F12"},{label:"−2x²",x:130,fill:"#DBEAFE",stroke:"#3B82F6",tc:"#1D4ED8"},{label:"7",x:186,fill:"#DCFCE7",stroke:"#22C55E",tc:"#166534"},{label:"−4x",x:236,fill:"#FEF9C3",stroke:"#EAB308",tc:"#713F12"}].map(({label,x,fill,stroke,tc})=>(
+        <g key={label}>
+          <rect x={x-22} y="52" width="44" height="28" rx="6" fill={fill} stroke={stroke} strokeWidth="1.5"/>
+          <T x={x} y={70} size={9} bold color={tc} align="middle">{label}</T>
+        </g>
+      ))}
+      <rect x="10" y="92" width="260" height="86" rx="6" fill="#F8FAFC"/>
+      <T x={140} y={110} size={9} bold color="#374151" align="middle">Group LIKE terms (same variable + power):</T>
+      <T x={140} y={126} size={9} color="#1D4ED8" align="middle">x²-terms: 3x² − 2x² = x²</T>
+      <T x={140} y={142} size={9} color="#713F12" align="middle">x-terms:  5x − 4x = x</T>
+      <T x={140} y={158} size={9} color="#166534" align="middle">constants: 7</T>
+      <T x={140} y={174} size={9} bold color="#374151" align="middle">Result: x² + x + 7</T>
+    </svg>
+  );
+}
+function CbseMath8AlgebraicSimplification() {
+  return (
+    <svg viewBox="0 0 280 188" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Algebraic Simplification — 4 Steps</T>
+      {[{step:"Start",expr:"2(3x+4) − 3(x−2)",fill:"#EFF6FF",tc:"#1D4ED8"},{step:"Expand",expr:"6x+8 − 3x+6",fill:"#F0FDF4",tc:"#166534"},{step:"Group",expr:"(6x−3x)+(8+6)",fill:"#FEF9C3",tc:"#713F12"},{step:"Answer",expr:"3x + 14",fill:"#DCFCE7",tc:"#16A34A"}].map(({step,expr,fill,tc},i)=>(
+        <g key={i}>
+          <rect x="10" y={40+i*36} width="260" height="30" rx="6" fill={fill}/>
+          <T x={52} y={59+i*36} size={8} bold color="#94A3B8" align="middle">{step}</T>
+          <T x={165} y={59+i*36} size={10} bold color={tc} align="middle">{expr}</T>
+          {i<3&&<text x={140} y={74+i*36} fontSize={10} fill="#CBD5E1" textAnchor="middle">↓</text>}
+        </g>
+      ))}
+    </svg>
+  );
+}
+function CbseMath8Ratios() {
+  return (
+    <svg viewBox="0 0 280 186" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Ratios — Comparing Two Quantities</T>
+      <T x={140} y={44} size={9} bold color="#374151" align="middle">Ratio 2:3 in a class of 25 students</T>
+      <rect x="20" y="52" width="80" height="34" rx="6" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={60} y={73} size={10} bold color="#1D4ED8" align="middle">Boys=10</T>
+      <rect x="116" y="52" width="144" height="34" rx="6" fill="#FEE2E2" stroke="#EF4444" strokeWidth="2"/>
+      <T x={188} y={73} size={10} bold color="#DC2626" align="middle">Girls=15</T>
+      <T x={60} y={100} size={8} color="#1E40AF" align="middle">2 parts</T>
+      <T x={188} y={100} size={8} color="#B91C1C" align="middle">3 parts</T>
+      <rect x="10" y="110" width="260" height="68" rx="6" fill="#F8FAFC"/>
+      <T x={140} y={128} size={9} bold color="#374151" align="middle">Ratio a:b = a/b  (pure number, no units)</T>
+      <T x={140} y={144} size={9} color="#64748B" align="middle">Simplify: 10:15 = 2:3  (÷ HCF=5)</T>
+      <T x={140} y={160} size={9} color="#64748B" align="middle">2:3 ≠ 3:2  (order matters!)</T>
+      <T x={140} y={174} size={8} color="#94A3B8" align="middle">a:b:c = three-way ratio (e.g. angles in triangle)</T>
+    </svg>
+  );
+}
+function CbseMath8Proportions() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Proportions — a:b :: c:d → ad = bc</T>
+      <rect x="16" y="40" width="110" height="48" rx="8" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={71} y={60} size={12} bold color="#1D4ED8" align="middle">2 : 3</T>
+      <T x={71} y={78} size={9} color="#1E40AF" align="middle">= 0.6667</T>
+      <T x={140} y={66} size={14} bold color="#374151" align="middle">=</T>
+      <rect x="154" y="40" width="110" height="48" rx="8" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={209} y={60} size={12} bold color="#166534" align="middle">4 : 6</T>
+      <T x={209} y={78} size={9} color="#15803D" align="middle">= 0.6667 ✓</T>
+      <rect x="10" y="98" width="260" height="86" rx="6" fill="#FEF9C3"/>
+      <T x={140} y={116} size={9} bold color="#713F12" align="middle">Cross-product test: 2×6 = 12  and  3×4 = 12 ✓</T>
+      <T x={140} y={132} size={9} bold color="#92400E" align="middle">Solve: 2/3 = x/9</T>
+      <T x={140} y={148} size={9} color="#78350F" align="middle">3·x = 2·9 = 18   →   x = 6</T>
+      <T x={140} y={164} size={8} color="#64748B" align="middle">Extreme × Extreme = Mean × Mean</T>
+      <T x={140} y={178} size={8} color="#64748B" align="middle">(outer terms) × (outer) = (inner) × (inner)</T>
+    </svg>
+  );
+}
+function CbseMath8UnitaryMethod() {
+  return (
+    <svg viewBox="0 0 280 192" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Unitary Method — Find 1, Then Scale</T>
+      <rect x="10" y="38" width="260" height="30" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={57} size={9} bold color="#1D4ED8" align="middle">Problem: 5 pens cost ₹40. Cost of 8 pens?</T>
+      {[{step:"Given",val:"5 pens → ₹40",fill:"#DBEAFE",tc:"#1D4ED8"},{step:"÷5  (unit)",val:"1 pen  → ₹8",fill:"#F0FDF4",tc:"#166534"},{step:"×8  (scale)",val:"8 pens → ₹64 ✓",fill:"#DCFCE7",tc:"#16A34A"}].map(({step,val,fill,tc},i)=>(
+        <g key={i}>
+          <rect x="10" y={76+i*34} width="260" height="28" rx="6" fill={fill}/>
+          <T x={68} y={94+i*34} size={8} bold color="#94A3B8" align="middle">{step}</T>
+          <T x={178} y={94+i*34} size={10} bold color={tc} align="middle">{val}</T>
+          {i<2&&<text x={140} y={108+i*34} fontSize={10} fill="#CBD5E1" textAnchor="middle">↓</text>}
+        </g>
+      ))}
+      <T x={140} y={188} size={8} color="#64748B" align="middle">Works for direct proportion only</T>
+    </svg>
+  );
+}
+function CbseMath8Percentages() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={10} bold color="#FFF" align="middle">Percentages — Parts per Hundred</T>
+      <rect x="20" y="38" width="200" height="22" rx="4" fill="#E2E8F0"/>
+      <rect x="20" y="38" width="150" height="22" rx="4" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={95} y={53} size={9} bold color="#1D4ED8" align="middle">75 shaded</T>
+      <T x={224} y={53} size={9} color="#94A3B8" align="middle">25 blank</T>
+      <T x={140} y={74} size={9} bold color="#374151" align="middle">75 out of 100 = 75%</T>
+      <rect x="10" y="82" width="260" height="100" rx="6" fill="#F8FAFC"/>
+      <T x={140} y={100} size={9} bold color="#374151" align="middle">% ↔ Fraction ↔ Decimal</T>
+      <T x={140} y={116} size={9} color="#374151" align="middle">50% = 50/100 = 1/2 = 0.5</T>
+      <T x={140} y={132} size={9} color="#374151" align="middle">25% = 1/4 = 0.25</T>
+      <T x={140} y={148} size={9} color="#374151" align="middle">% increase = (increase/original)×100</T>
+      <T x={140} y={164} size={9} color="#374151" align="middle">% decrease = (decrease/original)×100</T>
+      <T x={140} y={180} size={8} color="#64748B" align="middle">Profit% = (Profit/CP)×100</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch8: Fractions ─────────────────────────────────────────────
+function CbseMath8ComplexFractions() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Complex Fractions</T>
+      <rect x="20" y="42" width="240" height="52" rx="6" fill="#EFF6FF"/>
+      <T x={140} y={60} size={10} color="#1E40AF" bold align="middle">a/b ÷ c/d = a/b × d/c</T>
+      <T x={140} y={78} size={9} color="#374151" align="middle">Keep → Change → Flip</T>
+      <T x={140} y={93} size={8} color="#64748B" align="middle">(invert the divisor, then multiply)</T>
+      <rect x="20" y="104" width="112" height="52" rx="5" fill="#F0FDF4"/>
+      <T x={76} y={120} size={9} color="#166534" bold align="middle">Example</T>
+      <T x={76} y={135} size={9} color="#374151" align="middle">3/4 ÷ 3/8</T>
+      <T x={76} y={150} size={9} color="#374151" align="middle">= 3/4 × 8/3 = 2</T>
+      <rect x="148" y="104" width="112" height="52" rx="5" fill="#FFF7ED"/>
+      <T x={204} y={120} size={9} color="#92400E" bold align="middle">Simplify First</T>
+      <T x={204} y={135} size={9} color="#374151" align="middle">Cancel common</T>
+      <T x={204} y={150} size={9} color="#374151" align="middle">factors early</T>
+    </svg>
+  );
+}
+
+function CbseMath8RatiosAsFractions() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Ratios as Fractions</T>
+      <T x={140} y={50} size={10} color="#1E40AF" bold align="middle">Ratio 3 : 4  =  3/4</T>
+      <rect x="20" y="58" width="240" height="22" rx="4" fill="#E0F2FE"/>
+      <T x={140} y={73} size={9} color="#0369A1" align="middle">Bar Model — 7 equal parts total</T>
+      <rect x="20" y="88" width="102" height="28" rx="4" fill="#3B82F6"/>
+      <T x={71} y={106} size={10} color="#fff" bold align="middle">3 parts</T>
+      <rect x="128" y="88" width="132" height="28" rx="4" fill="#93C5FD"/>
+      <T x={194} y={106} size={10} color="#1E40AF" bold align="middle">4 parts</T>
+      <T x={71} y={132} size={9} color="#374151" align="middle">Part A = 3/7 of whole</T>
+      <T x={194} y={132} size={9} color="#374151" align="middle">Part B = 4/7 of whole</T>
+      <T x={140} y={155} size={8} color="#64748B" align="middle">Ratio a : b → fraction a/(a+b) of total</T>
+    </svg>
+  );
+}
+
+function CbseMath8DividingFractions() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Dividing Fractions</T>
+      <rect x="20" y="38" width="240" height="36" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={54} size={10} color="#6D28D9" bold align="middle">Step 1: Keep the first fraction</T>
+      <T x={140} y={68} size={9} color="#374151" align="middle">Step 2: Change ÷ to ×  |  Step 3: Flip second</T>
+      <line x1="20" y1="82" x2="260" y2="82" stroke="#E5E7EB" strokeWidth="1"/>
+      <T x={70} y={100} size={22} color="#6D28D9" bold align="middle">2/3</T>
+      <T x={110} y={100} size={18} color="#374151" align="middle">÷</T>
+      <T x={150} y={100} size={22} color="#374151" bold align="middle">4/5</T>
+      <T x={185} y={100} size={14} color="#374151" align="middle">→</T>
+      <T x={70} y={130} size={22} color="#6D28D9" bold align="middle">2/3</T>
+      <T x={110} y={130} size={18} color="#374151" align="middle">×</T>
+      <T x={150} y={130} size={22} color="#059669" bold align="middle">5/4</T>
+      <T x={195} y={130} size={16} color="#374151" align="middle">= 10/12</T>
+      <T x={140} y={158} size={8} color="#64748B" align="middle">Simplify: 10/12 = 5/6</T>
+    </svg>
+  );
+}
+
+function CbseMath8FractionWordProbs() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Fraction Word Problems</T>
+      <rect x="20" y="38" width="240" height="40" rx="6" fill="#FFF7ED"/>
+      <T x={140} y={54} size={9} color="#92400E" align="middle">Riya has 3/4 kg of sugar. She uses</T>
+      <T x={140} y={68} size={9} color="#92400E" align="middle">2/3 of it. How much is left?</T>
+      <T x={30} y={96} size={9} color="#374151" align="middle">Used: 3/4 × 2/3 = 6/12 = 1/2 kg</T>
+      <T x={30} y={112} size={9} color="#374151" align="middle">Left: 3/4 − 1/2 = 3/4 − 2/4 = 1/4 kg</T>
+      <rect x="20" y="124" width="240" height="28" rx="5" fill="#DCFCE7"/>
+      <T x={140} y={136} size={9} color="#166534" bold align="middle">Strategy: of → multiply</T>
+      <T x={140} y={150} size={9} color="#166534" align="middle">Convert to common denom before add/sub</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch9: Pythagoras ────────────────────────────────────────────
+function CbseMath8RightTriangles() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Right-Angled Triangles</T>
+      <polygon points="60,160 200,160 60,60" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <rect x="60" y="148" width="14" height="12" fill="none" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={50} y={110} size={10} color="#1E40AF" bold align="middle">a</T>
+      <T x={130} y={170} size={10} color="#1E40AF" bold align="middle">b</T>
+      <T x={140} y={100} size={10} color="#DC2626" bold align="middle">c</T>
+      <T x={220} y={108} size={9} color="#374151" align="middle">c = hypotenuse</T>
+      <T x={220} y={122} size={9} color="#374151" align="middle">(longest side)</T>
+      <T x={220} y={138} size={9} color="#374151" align="middle">a, b = legs</T>
+      <T x={140} y={155} size={9} color="#64748B" align="middle">Right angle (90°) is opposite hypotenuse</T>
+    </svg>
+  );
+}
+
+function CbseMath8PythagorasThm() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Pythagoras' Theorem</T>
+      <polygon points="70,155 130,155 70,95" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <rect x="70" y="143" width="12" height="12" fill="none" stroke="#3B82F6" strokeWidth="1.5"/>
+      <rect x="10" y="95" width="60" height="60" fill="#FEE2E2" stroke="#EF4444" strokeWidth="1.5"/>
+      <T x={40} y={129} size={9} color="#DC2626" bold align="middle">a²</T>
+      <rect x="70" y="155" width="60" height="60" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={100} y={189} size={9} color="#166534" bold align="middle">b²</T>
+      <rect x="130" y="69" width="86" height="86" fill="#FEF9C3" stroke="#EAB308" strokeWidth="1.5" transform="rotate(-45 173 112)"/>
+      <T x={180} y={112} size={9} color="#92400E" bold align="middle">c²</T>
+      <T x={140} y={50} size={11} color="#DC2626" bold align="middle">a² + b² = c²</T>
+    </svg>
+  );
+}
+
+function CbseMath8ApplyingPythagoras() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Applying Pythagoras</T>
+      <rect x="60" y="60" width="14" height="90" rx="3" fill="#94A3B8"/>
+      <line x1="74" y1="150" x2="190" y2="150" stroke="#374151" strokeWidth="2"/>
+      <line x1="74" y1="60" x2="190" y2="150" stroke="#DC2626" strokeWidth="2.5"/>
+      <rect x="74" y="138" width="12" height="12" fill="none" stroke="#374151" strokeWidth="1.5"/>
+      <T x={50} y={106} size={9} color="#1E40AF" bold align="middle">wall</T>
+      <T x={50} y={120} size={9} color="#1E40AF" align="middle">= a</T>
+      <T x={132} y={163} size={9} color="#374151" bold align="middle">ground = b</T>
+      <T x={155} y={100} size={9} color="#DC2626" bold align="middle">ladder</T>
+      <T x={155} y={114} size={9} color="#DC2626" align="middle">= c</T>
+      <T x={140} y={50} size={9} color="#374151" align="middle">c = √(a² + b²)</T>
+    </svg>
+  );
+}
+
+function CbseMath8DistanceOnGrid() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Distance on a Grid</T>
+      {[0,1,2,3,4,5].map(i=><line key={`gv${i}`} x1={50+i*36} y1="40" x2={50+i*36} y2="172" stroke="#E5E7EB" strokeWidth="1"/>)}
+      {[0,1,2,3,4].map(i=><line key={`gh${i}`} x1="50" y1={40+i*33} x2="230" y2={40+i*33} stroke="#E5E7EB" strokeWidth="1"/>)}
+      <line x1="50" y1="40" x2="50" y2="172" stroke="#9CA3AF" strokeWidth="1.5"/>
+      <line x1="50" y1="172" x2="230" y2="172" stroke="#9CA3AF" strokeWidth="1.5"/>
+      <circle cx="86" cy="139" r="5" fill="#3B82F6"/>
+      <circle cx="194" cy="73" r="5" fill="#DC2626"/>
+      <line x1="86" y1="139" x2="194" y2="73" stroke="#7C3AED" strokeWidth="2" strokeDasharray="4,3"/>
+      <line x1="86" y1="139" x2="194" y2="139" stroke="#374151" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <line x1="194" y1="139" x2="194" y2="73" stroke="#374151" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <T x={140} y={152} size={8} color="#374151" align="middle">Δx = 3</T>
+      <T x={210} y={106} size={8} color="#374151" align="middle">Δy=2</T>
+      <T x={140} y={58} size={9} color="#7C3AED" bold align="middle">d = √(Δx² + Δy²) = √13</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch10: Proportions & Variation ──────────────────────────────
+function CbseMath8SolvingProportions() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Solving Proportions</T>
+      <T x={140} y={50} size={12} color="#1E40AF" bold align="middle">a/b = c/d</T>
+      <T x={140} y={68} size={10} color="#374151" align="middle">⟹  a × d = b × c  (cross-multiply)</T>
+      <line x1="20" y1="78" x2="260" y2="78" stroke="#E5E7EB" strokeWidth="1"/>
+      <rect x="20" y="88" width="240" height="44" rx="6" fill="#F0FDF4"/>
+      <T x={140} y={106} size={10} color="#166534" bold align="middle">Example: x/6 = 4/8</T>
+      <T x={140} y={122} size={9} color="#374151" align="middle">8x = 24  →  x = 3</T>
+      <rect x="20" y="140" width="240" height="28" rx="5" fill="#EFF6FF"/>
+      <T x={140} y={152} size={9} color="#1E40AF" bold align="middle">Proportion: equal ratios</T>
+      <T x={140} y={163} size={8} color="#64748B" align="middle">a : b :: c : d  ⟹  product of means = product of extremes</T>
+    </svg>
+  );
+}
+
+function CbseMath8ScaleDrawings() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Scale Drawings and Maps</T>
+      <rect x="20" y="38" width="100" height="70" rx="4" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={70} y={58} size={8} color="#1E40AF" bold align="middle">Map</T>
+      <T x={70} y={74} size={9} color="#374151" align="middle">5 cm</T>
+      <line x1="30" y1="90" x2="110" y2="90" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={70} y={104} size={8} color="#64748B" align="middle">on paper</T>
+      <rect x="140" y="38" width="130" height="70" rx="4" fill="#DCFCE7" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={205} y={58} size={8} color="#166534" bold align="middle">Real World</T>
+      <T x={205} y={74} size={9} color="#374151" align="middle">50 km</T>
+      <line x1="150" y1="90" x2="260" y2="90" stroke="#22C55E" strokeWidth="2"/>
+      <T x={205} y={104} size={8} color="#64748B" align="middle">actual distance</T>
+      <T x={140} y={128} size={10} color="#7C3AED" bold align="middle">Scale = 1 : 10 00 000</T>
+      <T x={140} y={148} size={9} color="#374151" align="middle">Real dist = map dist × scale factor</T>
+      <T x={140} y={163} size={8} color="#64748B" align="middle">5 cm × 10 km/cm = 50 km</T>
+    </svg>
+  );
+}
+
+function CbseMath8SimilarFigures() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Similar Figures</T>
+      <polygon points="30,160 90,160 30,80" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={20} y={76} size={8} color="#1E40AF" align="middle">A</T>
+      <T x={20} y={165} size={8} color="#1E40AF" align="middle">B</T>
+      <T x={92} y={165} size={8} color="#1E40AF" align="middle">C</T>
+      <polygon points="120,160 220,160 120,60" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2"/>
+      <T x={108} y={56} size={8} color="#92400E" align="middle">P</T>
+      <T x={108} y={165} size={8} color="#92400E" align="middle">Q</T>
+      <T x={223} y={165} size={8} color="#92400E" align="middle">R</T>
+      <T x={140} y={50} size={9} color="#7C3AED" bold align="middle">∠A=∠P, ∠B=∠Q, ∠C=∠R</T>
+      <T x={140} y={64} size={9} color="#374151" align="middle">AB/PQ = BC/QR = CA/RP = k</T>
+    </svg>
+  );
+}
+
+function CbseMath8DirectInverse() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Direct and Inverse Variation</T>
+      <rect x="16" y="36" width="120" height="130" rx="6" fill="#EFF6FF"/>
+      <T x={76} y={52} size={9} color="#1E40AF" bold align="middle">Direct (y = kx)</T>
+      <line x1="26" y1="150" x2="26" y2="62" stroke="#94A3B8" strokeWidth="1.5"/>
+      <line x1="26" y1="150" x2="128" y2="150" stroke="#94A3B8" strokeWidth="1.5"/>
+      <line x1="30" y1="146" x2="120" y2="70" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={76} y={162} size={8} color="#374151" align="middle">↑x → ↑y</T>
+      <rect x="144" y="36" width="120" height="130" rx="6" fill="#FFF7ED"/>
+      <T x={204} y={52} size={9} color="#92400E" bold align="middle">Inverse (y = k/x)</T>
+      <line x1="154" y1="150" x2="154" y2="62" stroke="#94A3B8" strokeWidth="1.5"/>
+      <line x1="154" y1="150" x2="256" y2="150" stroke="#94A3B8" strokeWidth="1.5"/>
+      <path d="M158 70 Q170 80 185 100 Q200 120 250 148" fill="none" stroke="#F59E0B" strokeWidth="2"/>
+      <T x={204} y={162} size={8} color="#374151" align="middle">↑x → ↓y</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch11: Polygons and Symmetry ────────────────────────────────
+function CbseMath8InteriorAnglesPolygon() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Interior Angles of Polygon</T>
+      <polygon points="140,44 196,82 176,148 104,148 84,82" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={140} y={40} size={8} color="#1E40AF" align="middle">108°</T>
+      <T x={204} y={86} size={8} color="#1E40AF" align="middle">108°</T>
+      <T x={182} y={158} size={8} color="#1E40AF" align="middle">108°</T>
+      <T x={88} y={158} size={8} color="#1E40AF" align="middle">108°</T>
+      <T x={72} y={86} size={8} color="#1E40AF" align="middle">108°</T>
+      <rect x="20" y="162" width="240" height="24" rx="5" fill="#F0FDF4"/>
+      <T x={140} y={172} size={9} color="#166534" bold align="middle">Sum = (n − 2) × 180°</T>
+      <T x={140} y={183} size={8} color="#374151" align="middle">Pentagon: (5−2)×180 = 540°  |  Each = 108°</T>
+    </svg>
+  );
+}
+
+function CbseMath8ClassifyingPolygons() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Classifying Polygons</T>
+      <rect x="16" y="36" width="58" height="58" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <T x={45} y={100} size={8} color="#1E40AF" align="middle">Square (4)</T>
+      <polygon points="92,36 120,94 64,94" fill="#DCFCE7" stroke="#22C55E" strokeWidth="2"/>
+      <T x={92} y={106} size={8} color="#166534" align="middle">Triangle (3)</T>
+      <polygon points="155,36 185,36 200,65 185,94 155,94 140,65" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2"/>
+      <T x={170} y={106} size={8} color="#92400E" align="middle">Hexagon (6)</T>
+      <polygon points="230,36 260,60 250,94 210,94 200,60" fill="#FEE2E2" stroke="#EF4444" strokeWidth="2"/>
+      <T x={230} y={106} size={8} color="#DC2626" align="middle">Pentagon (5)</T>
+      <rect x="16" y="116" width="248" height="60" rx="5" fill="#F8FAFC"/>
+      <T x={140} y={132} size={9} color="#374151" bold align="middle">Regular: all sides equal, all angles equal</T>
+      <T x={140} y={148} size={8} color="#64748B" align="middle">Irregular: sides/angles differ</T>
+      <T x={140} y={164} size={8} color="#64748B" align="middle">Convex: all interior angles &lt; 180°</T>
+    </svg>
+  );
+}
+
+function CbseMath8TypesOfSymmetry() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Types of Symmetry</T>
+      <rect x="16" y="36" width="118" height="140" rx="6" fill="#EFF6FF"/>
+      <T x={75} y={52} size={9} color="#1E40AF" bold align="middle">Line Symmetry</T>
+      <polygon points="75,68 105,120 75,120" fill="#BFDBFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <polygon points="75,68 45,120 75,120" fill="#BFDBFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="75" y1="62" x2="75" y2="128" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <T x={75} y={140} size={8} color="#374151" align="middle">Mirror image about</T>
+      <T x={75} y={152} size={8} color="#374151" align="middle">the axis of symmetry</T>
+      <rect x="146" y="36" width="118" height="140" rx="6" fill="#FFF7ED"/>
+      <T x={205} y={52} size={9} color="#92400E" bold align="middle">Rotational Sym.</T>
+      <polygon points="205,70 220,100 205,90 190,100" fill="#FED7AA" stroke="#F59E0B" strokeWidth="1.5"/>
+      <polygon points="205,70 220,100 205,90 190,100" fill="#FED7AA" stroke="#F59E0B" strokeWidth="1.5" transform="rotate(120 205 90)"/>
+      <polygon points="205,70 220,100 205,90 190,100" fill="#FED7AA" stroke="#F59E0B" strokeWidth="1.5" transform="rotate(240 205 90)"/>
+      <T x={205} y={140} size={8} color="#374151" align="middle">Order 3 — looks same</T>
+      <T x={205} y={152} size={8} color="#374151" align="middle">after 120° rotation</T>
+    </svg>
+  );
+}
+
+function CbseMath8GeomTransformations() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Geometric Transformations</T>
+      <rect x="14" y="34" width="78" height="70" rx="5" fill="#EFF6FF"/>
+      <T x={53} y={46} size={8} color="#1E40AF" bold align="middle">Translation</T>
+      <polygon points="24,88 44,60 64,88" fill="#BFDBFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <polygon points="50,95 70,67 90,95" fill="#3B82F6" stroke="#1E40AF" strokeWidth="1.5" opacity="0.7"/>
+      <line x1="34" y1="74" x2="60" y2="81" stroke="#DC2626" strokeWidth="1" strokeDasharray="3,2"/>
+      <rect x="100" y="34" width="78" height="70" rx="5" fill="#F0FDF4"/>
+      <T x={139} y={46} size={8} color="#166534" bold align="middle">Reflection</T>
+      <polygon points="108,88 128,60 148,88" fill="#BBF7D0" stroke="#22C55E" strokeWidth="1.5"/>
+      <line x1="139" y1="36" x2="139" y2="100" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="3,2"/>
+      <polygon points="170,88 150,60 130,88" fill="#22C55E" stroke="#166534" strokeWidth="1.5" opacity="0.7"/>
+      <rect x="186" y="34" width="78" height="70" rx="5" fill="#FFF7ED"/>
+      <T x={225} y={46} size={8} color="#92400E" bold align="middle">Rotation</T>
+      <polygon points="196,88 216,60 236,88" fill="#FED7AA" stroke="#F59E0B" strokeWidth="1.5"/>
+      <polygon points="196,88 216,60 236,88" fill="#F59E0B" stroke="#92400E" strokeWidth="1.5" opacity="0.7" transform="rotate(45 216 74)"/>
+      <T x={140} y={120} size={8} color="#374151" bold align="middle">Isometries — shape and size preserved</T>
+      <T x={140} y={135} size={8} color="#64748B" align="middle">Translation: slide  |  Reflection: flip</T>
+      <T x={140} y={150} size={8} color="#64748B" align="middle">Rotation: turn about a fixed point</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch12: Graphs ───────────────────────────────────────────────
+function CbseMath8GraphsNetworks() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Graphs and Data</T>
+      <line x1="30" y1="40" x2="30" y2="170" stroke="#374151" strokeWidth="2"/>
+      <line x1="30" y1="170" x2="260" y2="170" stroke="#374151" strokeWidth="2"/>
+      {[["Mon",50,110],["Tue",70,90],["Wed",60,100],["Thu",85,75],["Fri",40,120]].map(([d,h,y],i)=>(
+        <g key={d}>
+          <rect x={40+i*42} y={y} width="28" height={170-y} fill="#3B82F6" rx="3" opacity="0.8"/>
+          <T x={54+i*42} y={183} size={7} color="#374151" align="middle">{d}</T>
+        </g>
+      ))}
+      <T x={18} y={50} size={7} color="#374151" align="middle">100</T>
+      <T x={18} y={90} size={7} color="#374151" align="middle">60</T>
+      <T x={18} y={130} size={7} color="#374151" align="middle">20</T>
+      <T x={140} y={40} size={9} color="#1E40AF" bold align="middle">Bar Chart — Weekly Data</T>
+    </svg>
+  );
+}
+
+function CbseMath8PathsInGraphs() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Coordinate Graphs</T>
+      <line x1="40" y1="40" x2="40" y2="175" stroke="#374151" strokeWidth="2"/>
+      <line x1="40" y1="175" x2="265" y2="175" stroke="#374151" strokeWidth="2"/>
+      {[0,1,2,3,4].map(i=>(
+        <g key={i}>
+          <line x1={40+i*44} y1="170" x2={40+i*44} y2="180" stroke="#374151" strokeWidth="1.5"/>
+          <T x={40+i*44} y={186} size={7} color="#374151" align="middle">{i}</T>
+          <line x1="35" y1={175-i*28} x2="45" y2={175-i*28} stroke="#374151" strokeWidth="1.5"/>
+          <T x={30} y={178-i*28} size={7} color="#374151" align="middle">{i}</T>
+        </g>
+      ))}
+      <line x1="40" y1="175" x2="216" y2="63" stroke="#3B82F6" strokeWidth="2.5"/>
+      {[[0,0],[1,1],[2,2],[3,3],[4,4]].map(([x,y])=>(
+        <circle key={x} cx={40+x*44} cy={175-y*28} r="4" fill="#DC2626"/>
+      ))}
+      <T x={180} y={56} size={9} color="#1E40AF" bold align="middle">y = x</T>
+      <T x={140} y={50} size={8} color="#374151" align="middle">Linear relationship — straight line</T>
+    </svg>
+  );
+}
+
+function CbseMath8EulerPaths() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Linear Graphs and Applications</T>
+      <line x1="40" y1="40" x2="40" y2="170" stroke="#374151" strokeWidth="2"/>
+      <line x1="40" y1="170" x2="260" y2="170" stroke="#374151" strokeWidth="2"/>
+      {[0,1,2,3,4].map(i=>(
+        <g key={i}>
+          <line x1={40+i*44} y1="165" x2={40+i*44} y2="175" stroke="#374151" strokeWidth="1"/>
+          <T x={40+i*44} y={183} size={7} color="#374151" align="middle">{i}</T>
+        </g>
+      ))}
+      <line x1="40" y1="162" x2="216" y2="78" stroke="#7C3AED" strokeWidth="2.5"/>
+      <T x={230} y={76} size={9} color="#7C3AED" bold align="middle">y=2x+2</T>
+      <circle cx="40" cy="162" r="4" fill="#7C3AED"/>
+      <circle cx="128" cy="120" r="4" fill="#7C3AED"/>
+      <T x={50} y={156} size={8} color="#374151" align="middle">(0,2)</T>
+      <T x={138} y={114} size={8} color="#374151" align="middle">(2,6)</T>
+      <T x={140} y={50} size={9} color="#374151" bold align="middle">y = mx + c  (slope m, y-intercept c)</T>
+      <T x={140} y={64} size={8} color="#64748B" align="middle">m = rise/run = Δy/Δx</T>
+    </svg>
+  );
+}
+
+function CbseMath8TreesInGraphs() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Reading and Interpreting Graphs</T>
+      <rect x="16" y="36" width="118" height="130" rx="6" fill="#EFF6FF"/>
+      <T x={75} y={52} size={8} color="#1E40AF" bold align="middle">Pie Chart</T>
+      <circle cx="75" cy="100" r="42" fill="none" stroke="#E5E7EB" strokeWidth="1"/>
+      <path d="M75 100 L75 58 A42 42 0 0 1 111 79 Z" fill="#3B82F6"/>
+      <path d="M75 100 L111 79 A42 42 0 0 1 100 140 Z" fill="#22C55E"/>
+      <path d="M75 100 L100 140 A42 42 0 0 1 50 140 Z" fill="#F59E0B"/>
+      <path d="M75 100 L50 140 A42 42 0 0 1 75 58 Z" fill="#EF4444"/>
+      <T x={75} y={158} size={7} color="#374151" align="middle">Shows parts of a whole (360°)</T>
+      <rect x="146" y="36" width="118" height="130" rx="6" fill="#FFF7ED"/>
+      <T x={205} y={52} size={8} color="#92400E" bold align="middle">Line Graph</T>
+      <line x1="156" y1="156" x2="256" y2="156" stroke="#374151" strokeWidth="1.5"/>
+      <line x1="156" y1="60" x2="156" y2="156" stroke="#374151" strokeWidth="1.5"/>
+      <polyline points="166,140 186,120 206,100 226,80 246,90" fill="none" stroke="#F59E0B" strokeWidth="2"/>
+      {[[166,140],[186,120],[206,100],[226,80],[246,90]].map(([x,y])=>(
+        <circle key={x} cx={x} cy={y} r="3" fill="#92400E"/>
+      ))}
+      <T x={205} y={170} size={7} color="#374151" align="middle">Shows trends over time</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch13: Algebra ──────────────────────────────────────────────
+function CbseMath8AlgebraicExpressions() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Algebraic Expressions</T>
+      <rect x="20" y="38" width="240" height="36" rx="6" fill="#F5F3FF"/>
+      <T x={140} y={54} size={13} color="#6D28D9" bold align="middle">3x² + 5x − 7</T>
+      <T x={140} y={68} size={8} color="#7C3AED" align="middle">↑ three terms (polynomial)</T>
+      <rect x="20" y="84" width="72" height="56" rx="5" fill="#DBEAFE"/>
+      <T x={56} y={100} size={8} color="#1E40AF" bold align="middle">Coefficient</T>
+      <T x={56} y={114} size={9} color="#374151" align="middle">3 in 3x²</T>
+      <T x={56} y={128} size={8} color="#64748B" align="middle">multiplies var</T>
+      <rect x="104" y="84" width="72" height="56" rx="5" fill="#DCFCE7"/>
+      <T x={140} y={100} size={8} color="#166534" bold align="middle">Variable</T>
+      <T x={140} y={114} size={9} color="#374151" align="middle">x — unknown</T>
+      <T x={140} y={128} size={8} color="#64748B" align="middle">value to find</T>
+      <rect x="188" y="84" width="72" height="56" rx="5" fill="#FEF3C7"/>
+      <T x={224} y={100} size={8} color="#92400E" bold align="middle">Constant</T>
+      <T x={224} y={114} size={9} color="#374151" align="middle">−7 (fixed)</T>
+      <T x={224} y={128} size={8} color="#64748B" align="middle">no variable</T>
+      <T x={140} y={158} size={8} color="#64748B" align="middle">Degree = highest power of variable</T>
+    </svg>
+  );
+}
+
+function CbseMath8LinearEquations() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Linear Equations</T>
+      <line x1="140" y1="36" x2="140" y2="120" stroke="#94A3B8" strokeWidth="1"/>
+      <rect x="30" y="36" width="96" height="84" rx="6" fill="#EFF6FF"/>
+      <T x={78} y={56} size={10} color="#1E40AF" bold align="middle">LHS</T>
+      <T x={78} y={76} size={14} color="#374151" bold align="middle">2x+3</T>
+      <circle cx="78" cy="100" r="12" fill="#DBEAFE"/>
+      <T x={78} y={104} size={10} color="#1E40AF" bold align="middle">⚖</T>
+      <rect x="154" y="36" width="96" height="84" rx="6" fill="#FFF7ED"/>
+      <T x={202} y={56} size={10} color="#92400E" bold align="middle">RHS</T>
+      <T x={202} y={76} size={14} color="#374151" bold align="middle">11</T>
+      <circle cx="202" cy="100" r="12" fill="#FED7AA"/>
+      <T x={202} y={104} size={10} color="#92400E" bold align="middle">⚖</T>
+      <rect x="20" y="128" width="240" height="50" rx="5" fill="#F0FDF4"/>
+      <T x={140} y={144} size={9} color="#166534" bold align="middle">Solve: 2x + 3 = 11</T>
+      <T x={140} y={160} size={9} color="#374151" align="middle">2x = 8  (subtract 3 both sides)</T>
+      <T x={140} y={175} size={9} color="#374151" align="middle">x = 4  (divide both sides by 2)</T>
+    </svg>
+  );
+}
+
+function CbseMath8LinearInequalities() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Introduction to Inequalities</T>
+      <T x={140} y={50} size={12} color="#1E40AF" bold align="middle">x &lt; 5</T>
+      <line x1="30" y1="80" x2="250" y2="80" stroke="#374151" strokeWidth="2"/>
+      {[-2,-1,0,1,2,3,4,5,6,7].map((v,i)=>(
+        <g key={v}>
+          <line x1={50+i*20} y1="75" x2={50+i*20} y2="85" stroke="#374151" strokeWidth="1.5"/>
+          <T x={50+i*20} y={96} size={7} color="#374151" align="middle">{v}</T>
+        </g>
+      ))}
+      <line x1="50" y1="80" x2="148" y2="80" stroke="#3B82F6" strokeWidth="4" strokeLinecap="round"/>
+      <circle cx="148" cy="80" r="5" fill="white" stroke="#3B82F6" strokeWidth="2.5"/>
+      <T x={80} y={70} size={8} color="#3B82F6" bold align="middle">solution region</T>
+      <T x={148} y={68} size={8} color="#DC2626" align="middle">open circle: 5 excluded</T>
+      <rect x="20" y="108" width="240" height="50" rx="5" fill="#F5F3FF"/>
+      <T x={140} y={124} size={9} color="#6D28D9" bold align="middle">Rules for Inequalities</T>
+      <T x={140} y={140} size={8} color="#374151" align="middle">Add/subtract → direction unchanged</T>
+      <T x={140} y={154} size={8} color="#DC2626" align="middle">Multiply/divide by negative → flip sign!</T>
+    </svg>
+  );
+}
+
+function CbseMath8AlgebraicIdentities() {
+  return (
+    <svg viewBox="0 0 280 190" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Algebraic Identities</T>
+      <rect x="20" y="36" width="80" height="80" rx="4" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={60} y={80} size={14} color="#1E40AF" bold align="middle">a²</T>
+      <rect x="100" y="36" width="48" height="80" rx="4" fill="#BBF7D0" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={124} y={80} size={11} color="#166534" bold align="middle">ab</T>
+      <rect x="148" y="36" width="48" height="80" rx="4" fill="#BBF7D0" stroke="#22C55E" strokeWidth="1.5"/>
+      <T x={172} y={80} size={11} color="#166534" bold align="middle">ab</T>
+      <rect x="196" y="36" width="64" height="80" rx="4" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="1.5"/>
+      <T x={228} y={80} size={14} color="#92400E" bold align="middle">b²</T>
+      <T x={140} y={132} size={11} color="#DC2626" bold align="middle">(a+b)² = a²+2ab+b²</T>
+      <T x={140} y={150} size={9} color="#374151" align="middle">(a−b)² = a²−2ab+b²</T>
+      <T x={140} y={165} size={9} color="#374151" align="middle">(a+b)(a−b) = a²−b²</T>
+      <T x={140} y={180} size={8} color="#64748B" align="middle">Use to expand or factorise quickly</T>
+    </svg>
+  );
+}
+
+// ── CBSE Math 8 — Ch14: Area and Perimeter ───────────────────────────────────
+function CbseMath8AreaRectangle() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Area of Rectangle / Square</T>
+      <rect x="40" y="44" width="160" height="90" rx="4" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="40" y1="138" x2="200" y2="138" stroke="#374151" strokeWidth="1.5"/>
+      <line x1="200" y1="44" x2="200" y2="138" stroke="#374151" strokeWidth="1.5"/>
+      <T x={120} y={94} size={12} color="#1E40AF" bold align="middle">l × w</T>
+      <T x={120} y={152} size={10} color="#374151" bold align="middle">l = 8 cm</T>
+      <T x={215} y={94} size={9} color="#374151" align="middle">w = 5</T>
+      <rect x="20" y="158" width="240" height="18" rx="4" fill="#DCFCE7"/>
+      <T x={140} y={170} size={9} color="#166534" bold align="middle">Area = l × w  |  Perimeter = 2(l + w)</T>
+    </svg>
+  );
+}
+
+function CbseMath8AreaTriangle() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Area of a Triangle</T>
+      <polygon points="60,150 220,150 100,60" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="100" y1="60" x2="100" y2="150" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <rect x="100" y="138" width="12" height="12" fill="none" stroke="#DC2626" strokeWidth="1.5"/>
+      <T x={136} y={168} size={10} color="#374151" bold align="middle">base (b)</T>
+      <T x={82} y={106} size={10} color="#DC2626" bold align="middle">h</T>
+      <rect x="20" y="152" width="240" height="24" rx="5" fill="#F0FDF4"/>
+      <T x={140} y={164} size={10} color="#166534" bold align="middle">Area = ½ × base × height</T>
+      <T x={140} y={172} size={8} color="#64748B" align="middle">Height must be perpendicular to base</T>
+    </svg>
+  );
+}
+
+function CbseMath8AreaTrapezium() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Area of Trapezium</T>
+      <polygon points="70,60 190,60 220,150 40,150" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2"/>
+      <T x={130} y={52} size={9} color="#92400E" bold align="middle">a (parallel side)</T>
+      <T x={130} y={164} size={9} color="#92400E" bold align="middle">b (parallel side)</T>
+      <line x1="70" y1="60" x2="70" y2="150" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <rect x="70" y="138" width="12" height="12" fill="none" stroke="#3B82F6" strokeWidth="1.5"/>
+      <T x={55} y={108} size={9} color="#3B82F6" bold align="middle">h</T>
+      <rect x="20" y="154" width="240" height="22" rx="5" fill="#DCFCE7"/>
+      <T x={140} y={168} size={10} color="#166534" bold align="middle">Area = ½ × (a + b) × h</T>
+    </svg>
+  );
+}
+
+function CbseMath8AreaCircle() {
+  return (
+    <svg viewBox="0 0 280 180" style={{width:"100%",maxWidth:280,height:"auto"}}>
+      <rect x="10" y="6" width="260" height="26" rx="6" fill="#1D1D1F"/>
+      <T x={140} y={23} size={11} color="#F5F5F7" bold align="middle">Area and Circumference of Circle</T>
+      <circle cx="140" cy="102" r="60" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="140" y1="102" x2="200" y2="102" stroke="#DC2626" strokeWidth="2"/>
+      <circle cx="140" cy="102" r="3" fill="#DC2626"/>
+      <T x={170} y={96} size={10} color="#DC2626" bold align="middle">r</T>
+      <line x1="80" y1="102" x2="200" y2="102" stroke="#7C3AED" strokeWidth="1.5" strokeDasharray="4,3"/>
+      <T x={140} y={128} size={8} color="#7C3AED" align="middle">diameter d = 2r</T>
+      <rect x="20" y="154" width="240" height="22" rx="5" fill="#F0FDF4"/>
+      <T x={140} y={164} size={9} color="#166534" bold align="middle">Area = πr²  |  Circumference = 2πr</T>
+      <T x={140} y={173} size={7} color="#64748B" align="middle">π ≈ 3.14159  or use 22/7 for approximation</T>
+    </svg>
+  );
+}
+
 const DIAGRAM_MAP = {
   // Biology
   sci_ch5_human_digestion:            { label: "Human Digestive System",              Component: DigestiveSystem },
@@ -5946,6 +10083,308 @@ const DIAGRAM_MAP = {
   sst_ch21_caste:              { label: "Caste and OBC Reservations — Mandal Commission",     Component: CastePolitics },
   sst_ch22_struggles:          { label: "Bolivia Water War 2000 — Popular Struggles",         Component: PopularStruggles },
   sst_ch22_movements:          { label: "Pressure Groups vs Political Parties",               Component: PressureGroups },
+
+  // ── ICSE Math 10 ────────────────────────────────────────────────
+  // Ch4 — Linear Inequations
+  icse_math10_ch4_ineq_number_line: { label: "Number Line — Inequations",                    Component: IcseNumberLine },
+  icse_math10_ch4_ineq_basics:      { label: "Number Line — Inequation Basics",              Component: IcseNumberLine },
+  icse_math10_ch4_ineq_solving:     { label: "Number Line — Solving Inequations",            Component: IcseNumberLine },
+  icse_math10_ch4_ineq_combined:    { label: "Number Line — Combined Inequations",           Component: IcseNumberLine },
+  // Ch10 — Arithmetic Progression
+  icse_math10_ch10_ap_basics:       { label: "AP — Sequence & Common Difference",            Component: IcseAPSequence },
+  icse_math10_ch10_ap_nth_term:     { label: "AP — nth Term Formula",                        Component: IcseAPSequence },
+  icse_math10_ch10_ap_sum:          { label: "AP — Sum of n Terms",                          Component: IcseAPSequence },
+  icse_math10_ch10_ap_problems:     { label: "AP — Word Problems",                           Component: IcseAPSequence },
+  // Ch11 — Geometric Progression
+  icse_math10_ch11_gp_basics:       { label: "GP — Sequence & Common Ratio",                 Component: IcseGPSequence },
+  icse_math10_ch11_gp_nth_term:     { label: "GP — nth Term Formula",                        Component: IcseGPSequence },
+  icse_math10_ch11_gp_sum:          { label: "GP — Sum & Infinite Series",                   Component: IcseGPSequence },
+  icse_math10_ch11_gp_problems:     { label: "GP — Word Problems",                           Component: IcseGPSequence },
+  // Ch12 — Reflection
+  icse_math10_ch12_reflection_basics:   { label: "Reflection — Basics in Axes",              Component: IcseReflectionBasics },
+  icse_math10_ch12_reflection_axes:     { label: "Reflection — All Four Quadrant Reflections", Component: IcseReflectionAxes },
+  icse_math10_ch12_reflection_lines:    { label: "Reflection — In y=x and y=−x",             Component: IcseReflectionLines },
+  icse_math10_ch12_reflection_problems: { label: "Reflection — Composite Problems",           Component: IcseReflectionProblems },
+  // Ch13 — Section and Midpoint Formula
+  icse_math10_ch13_section_internal:  { label: "Section Formula — Internal Division",        Component: IcseSectionInternal },
+  icse_math10_ch13_section_external:  { label: "Section Formula — External Division",        Component: IcseSectionExternal },
+  icse_math10_ch13_midpoint:          { label: "Midpoint Formula",                            Component: IcseMidpoint },
+  icse_math10_ch13_section_problems:  { label: "Section Formula — Centroid of Triangle",     Component: IcseSectionProblems },
+  // Ch14 — Equation of a Line
+  icse_math10_ch14_slope:             { label: "Slope — Rise Over Run",                       Component: IcseSlope },
+  icse_math10_ch14_line_forms:        { label: "Line — y = mx + c with Intercepts",          Component: IcseLineForms },
+  icse_math10_ch14_special_lines:     { label: "Special Lines — Parallel & Perpendicular",   Component: IcseSpecialLines },
+  icse_math10_ch14_line_problems:     { label: "Line — Perpendicular Lines (m₁m₂=−1)",       Component: IcseLineProblems },
+  // Ch15 — Similarity
+  icse_math10_ch15_similarity_basics:       { label: "Similarity — Two Similar Triangles",   Component: IcseSimilarityBasics },
+  icse_math10_ch15_similarity_criteria:     { label: "Similarity — AA, SAS~, SSS~ Criteria", Component: IcseSimilarityCriteria },
+  icse_math10_ch15_similarity_applications: { label: "Similarity — Basic Proportionality Theorem", Component: IcseSimilarityBPT },
+  icse_math10_ch15_similarity_problems:     { label: "Similarity — Scale Factor & Area Ratio", Component: IcseSimilarityProblems },
+  // Ch16 — Loci
+  icse_math10_ch16_loci_concepts:      { label: "Loci — Circle as Equidistant Locus",        Component: IcseLocusConcepts },
+  icse_math10_ch16_loci_properties:    { label: "Loci — Perpendicular Bisector Locus",       Component: IcseLocusProperties },
+  icse_math10_ch16_loci_constructions: { label: "Loci — Incenter from Angle Bisectors",      Component: IcseLocusConstructions },
+  icse_math10_ch16_loci_problems:      { label: "Loci — Intersection of Two Loci",           Component: IcseLocusProblems },
+  // Ch17 — Circles
+  icse_math10_ch17_circle_theorems:       { label: "Circles — Angle in Semicircle = 90°",   Component: IcseCircleTheorems },
+  icse_math10_ch17_circle_chord_properties:{ label: "Circles — Perpendicular from Centre Bisects Chord", Component: IcseCircleChords },
+  icse_math10_ch17_circle_arc_angle:      { label: "Circles — Central Angle = 2 × Inscribed Angle", Component: IcseCircleArcAngle },
+  icse_math10_ch17_circle_cyclic_quad:    { label: "Circles — Cyclic Quadrilateral",         Component: IcseCircleCyclicQuad },
+  // Ch18 — Tangents and Intersecting Chords
+  icse_math10_ch18_tangent_basics:         { label: "Tangents — Radius ⊥ Tangent at Point", Component: IcseTangentBasics },
+  icse_math10_ch18_tangent_properties:     { label: "Tangents — Two Tangents from External Point", Component: IcseTangentProperties },
+  icse_math10_ch18_tangent_chord_angle:    { label: "Tangents — Tangent-Chord Angle",        Component: IcseTangentChordAngle },
+  icse_math10_ch18_intersecting_chords:    { label: "Tangents — Intersecting Chords PA×PB=PC×PD", Component: IcseIntersectingChords },
+  // Ch19 — Constructions
+  icse_math10_ch19_constructions_basics:        { label: "Constructions — Tangent at a Point", Component: IcseConstructionsBasics },
+  icse_math10_ch19_constructions_tangents:      { label: "Constructions — Tangent from External Point", Component: IcseConstructionsTangents },
+  icse_math10_ch19_constructions_inscribed:     { label: "Constructions — Incircle of Triangle", Component: IcseConstructionsInscribed },
+  icse_math10_ch19_constructions_circumscribed: { label: "Constructions — Circumcircle of Triangle", Component: IcseConstructionsCircumscribed },
+  // Ch20 — Cylinder, Cone, Sphere
+  icse_math10_ch20_cylinder:  { label: "Cylinder — CSA, TSA, Volume",                        Component: IcseCylinder },
+  icse_math10_ch20_cone:      { label: "Cone — Slant Height, CSA, TSA, Volume",              Component: IcseCone },
+  icse_math10_ch20_sphere:    { label: "Sphere — Surface Area & Volume",                     Component: IcseSphere },
+  icse_math10_ch20_combined:  { label: "Combined Solids — Volume Addition",                  Component: IcseCombinedSolid },
+  // Ch21 — Trigonometrical Identities
+  icse_math10_ch21_trig_ratios_review:        { label: "Trig Ratios — SOH-CAH-TOA",          Component: IcseTrigRatios },
+  icse_math10_ch21_trig_identities_basic:     { label: "Trig Identities — sin²θ+cos²θ=1",   Component: IcseUnitCircle },
+  icse_math10_ch21_trig_identities_proofs:    { label: "Trig Identities — Proof via Right Triangle", Component: IcseTrigProofs },
+  icse_math10_ch21_trig_identities_problems:  { label: "Trig Identities — Complementary Angles", Component: IcseComplementaryAngles },
+  // Ch22 — Heights and Distances
+  icse_math10_ch22_angles_elevation_depression: { label: "Heights — Elevation & Depression Angles", Component: IcseElevationDepression },
+  icse_math10_ch22_single_observer:             { label: "Heights — Single Observer Setup",   Component: IcseSingleObserver },
+  icse_math10_ch22_two_positions:               { label: "Heights — Two Observer Positions",  Component: IcseTwoPositions },
+  icse_math10_ch22_buildings_towers:            { label: "Heights — Two Buildings Formula",   Component: IcseBuildingsTowers },
+  // Ch23 — Graphical Representation
+  icse_math10_ch23_histogram:           { label: "Statistics — Histogram (no gaps)",          Component: IcseHistogram },
+  icse_math10_ch23_ogive:               { label: "Statistics — Less-than Ogive",              Component: IcseOgive },
+  icse_math10_ch23_frequency_polygon:   { label: "Statistics — Frequency Polygon",            Component: IcseFrequencyPolygon },
+  icse_math10_ch23_ogive_statistics:    { label: "Statistics — Ogive: Q₁, Median, Q₃",       Component: IcseOgiveStatistics },
+
+  // ── ICSE CLASS 9 MATHEMATICS ───────────────────────────────────────────────
+  // Ch9 — Triangles (Congruency in Triangles)
+  icse_math9_ch9_triangle_congruence:  { label: "Congruent Triangles — △ABC ≅ △PQR",         Component: Icse9CongruenceIntro },
+  icse_math9_ch9_congruence_criteria:  { label: "Congruence Criteria — SAS, ASA, SSS, RHS",  Component: Icse9CongruenceCriteria },
+  icse_math9_ch9_triangle_properties: { label: "Exterior Angle = Sum of Two Interior Angles", Component: Icse9TriangleProperties },
+  icse_math9_ch9_triangle_problems:   { label: "Congruent Triangles in Parallelogram",        Component: Icse9CongruenceProblems },
+  // Ch10 — Isosceles Triangles
+  icse_math9_ch10_isosceles_properties: { label: "Isosceles — Equal Sides → Equal Base Angles", Component: Icse9IsoscelesBase },
+  icse_math9_ch10_isosceles_theorems:   { label: "Isosceles Converse — Equal Angles → Equal Sides", Component: Icse9IsoscelesAngles },
+  icse_math9_ch10_equilateral_triangle: { label: "Equilateral Triangle — All Sides and Angles Equal", Component: Icse9EquilateralTriangle },
+  icse_math9_ch10_isosceles_problems:   { label: "Isosceles — Altitude Bisects Base",          Component: Icse9IsoscelesProblems },
+  // Ch11 — Inequalities
+  icse_math9_ch11_inequality_basics:    { label: "Triangle Inequality — Greater Angle Opp Longer Side", Component: Icse9InequalityBasics },
+  icse_math9_ch11_triangle_inequalities:{ label: "Triangle Inequality — Sum of Two Sides > Third", Component: Icse9TriangleIneq },
+  icse_math9_ch11_inequality_theorems:  { label: "Exterior Angle > Non-Adjacent Interior Angles", Component: Icse9InequalityTheorem },
+  icse_math9_ch11_inequality_problems:  { label: "Median < Average of Enclosing Sides",         Component: Icse9InequalityProblems },
+  // Ch12 — Mid-Point Theorem
+  icse_math9_ch12_midpoint_theorem:   { label: "Mid-Point Theorem — MN ∥ BC, MN = ½BC",      Component: Icse9MidpointThm },
+  icse_math9_ch12_converse_midpoint:  { label: "Converse of Mid-Point Theorem",               Component: Icse9ConverseMP },
+  icse_math9_ch12_intercept_theorem:  { label: "Equal Intercept Theorem — Parallel Lines",    Component: Icse9InterceptThm },
+  icse_math9_ch12_midpoint_problems:  { label: "Trapezium Mid-Segment = ½(AB + DC)",          Component: Icse9MidpointProblems },
+  // Ch13 — Pythagoras Theorem
+  icse_math9_ch13_pythagoras_theorem:      { label: "Pythagoras — a² + b² = c²",             Component: Icse9PythagorasBasic },
+  icse_math9_ch13_pythagoras_converse:     { label: "Converse of Pythagoras — Classify Triangle", Component: Icse9PythagorasConverse },
+  icse_math9_ch13_pythagoras_applications: { label: "Pythagoras — Ladder and Height Problems", Component: Icse9PythagorasApp },
+  icse_math9_ch13_pythagoras_problems:     { label: "Pythagoras — Right Triangle in Grid",    Component: Icse9PythagorasProblems },
+  // Ch14 — Rectilinear Figures (Quadrilaterals)
+  icse_math9_ch14_quadrilateral_properties: { label: "Quadrilateral Angle Sum = 360°",        Component: Icse9QuadProperties },
+  icse_math9_ch14_parallelogram_theorems:   { label: "Parallelogram — Properties and Diagonals", Component: Icse9Parallelogram },
+  icse_math9_ch14_special_quadrilaterals:   { label: "Special Quadrilaterals — Rectangle, Rhombus, Square, Kite", Component: Icse9SpecialQuads },
+  icse_math9_ch14_rectilinear_problems:     { label: "Trapezium Area = ½(a+b)h",              Component: Icse9RectilinearProblems },
+  // Ch15 — Construction of Polygons
+  icse_math9_ch15_basic_constructions:        { label: "Perpendicular Bisector Construction", Component: Icse9BasicConstructions },
+  icse_math9_ch15_triangle_construction:      { label: "Triangle Construction — SSS / SAS / ASA", Component: Icse9TriangleConstruction },
+  icse_math9_ch15_quadrilateral_construction: { label: "Quadrilateral Construction via Diagonal", Component: Icse9QuadConstruction },
+  icse_math9_ch15_polygon_construction:       { label: "Regular Hexagon — Compass Construction", Component: Icse9PolygonConstruction },
+  // Ch16 — Area Theorems
+  icse_math9_ch16_area_parallelogram:     { label: "Area of Parallelogram = Base × Height",  Component: Icse9AreaParallelogram },
+  icse_math9_ch16_area_triangle:         { label: "Area of Triangle = ½ × Base × Height",   Component: Icse9AreaTriangle },
+  icse_math9_ch16_area_theorems_proof:   { label: "Equal Area — Same Base, Same Parallels",  Component: Icse9AreaProof },
+  icse_math9_ch16_area_theorem_problems: { label: "Quadrilateral Area = ½ × d × (h₁+h₂)",  Component: Icse9AreaProblems },
+  // Ch17 — Circle (Chord Properties)
+  icse_math9_ch17_circle_basics:    { label: "Circle — Radius, Diameter, Chord",            Component: Icse9CircleBasicsComp },
+  icse_math9_ch17_chord_properties: { label: "Chord — Perp from Centre Bisects Chord",      Component: Icse9ChordProp },
+  icse_math9_ch17_arc_properties:   { label: "Arcs — Equal Arcs ↔ Equal Chords ↔ Equal Central Angles", Component: Icse9ArcProp },
+  icse_math9_ch17_circle_problems:  { label: "Equal Chords are Equidistant from Centre",    Component: Icse9CircleProbComp },
+  // Ch20 — Area and Perimeter of Plane Figures
+  icse_math9_ch20_area_plane_figures:       { label: "Area Formulae — Rectangle, Triangle, Parallelogram, Trapezium", Component: Icse9AreaPlane },
+  icse_math9_ch20_perimeter_plane_figures:  { label: "Perimeter — Distance Around Boundary", Component: Icse9PerimeterPlane },
+  icse_math9_ch20_circle_area_perimeter:    { label: "Circle — Area = πr², Circumference = 2πr", Component: Icse9CircleAreaPerim },
+  icse_math9_ch20_area_perimeter_problems:  { label: "Combined Figure — Rectangle + Semicircle", Component: Icse9AreaPerimProblems },
+  // Ch21 — Solids (Surface Area and Volume)
+  icse_math9_ch21_cuboid_cylinder:   { label: "Cuboid — LSA, TSA, Volume",                  Component: Icse9Cuboid },
+  icse_math9_ch21_cone_pyramid:      { label: "Cone and Pyramid — Volume = ⅓ × Base × h",  Component: Icse9ConePyramid },
+  icse_math9_ch21_sphere_hemisphere: { label: "Sphere and Hemisphere — SA and Volume",       Component: Icse9SphereHemisphere },
+  icse_math9_ch21_solid_problems:    { label: "Combined Solid — Cylinder + Hemisphere",      Component: Icse9SolidProblems },
+  // Ch26 — Co-ordinate Geometry
+  icse_math9_ch26_cartesian_plane:    { label: "Cartesian Plane — 4 Quadrants",              Component: Icse9CartesianPlane },
+  icse_math9_ch26_plotting_points:    { label: "Plotting Points — All 4 Quadrants",          Component: Icse9PlottingPoints },
+  icse_math9_ch26_distance_midpoint:  { label: "Distance Formula and Midpoint Formula",      Component: Icse9DistanceMidpoint },
+  icse_math9_ch26_coordinate_problems:{ label: "Coordinate Triangle — Sides and Classification", Component: Icse9CoordProblems },
+
+  // ── CBSE CLASS 9 MATHEMATICS ──────────────────────────────────────────────
+  // Ch1 — Coordinates (reusing existing ICSE 9 components)
+  cbse_math9_ch1_cartesian_plane:            { label: "Cartesian Plane — 4 Quadrants",               Component: Icse9CartesianPlane },
+  cbse_math9_ch1_plotting_points:            { label: "Plotting Points — All 4 Quadrants",           Component: Icse9PlottingPoints },
+  cbse_math9_ch1_distance_formula:           { label: "Distance Formula and Midpoint Formula",        Component: Icse9DistanceMidpoint },
+  cbse_math9_ch1_section_formula:            { label: "Section Formula — Internal Division m:n",     Component: IcseSectionInternal },
+  // Ch2 — Linear Polynomials
+  cbse_math9_ch2_poly_basics:                { label: "Polynomial — Degree, Terms, Coefficients",    Component: CbseMath9PolyBasics },
+  cbse_math9_ch2_zeroes:                     { label: "Zeroes of Polynomial — x-intercepts",         Component: CbseMath9PolyZeroes },
+  cbse_math9_ch2_remainder_theorem:          { label: "Remainder Theorem — substitute x = a",        Component: CbseMath9RemainderThm },
+  cbse_math9_ch2_factor_theorem:             { label: "Factor Theorem — p(a)=0 ↔ (x−a) factor",     Component: CbseMath9FactorThm },
+  // Ch3 — The World of Numbers
+  cbse_math9_ch3_number_systems:             { label: "Number Hierarchy — ℕ⊂W⊂ℤ⊂ℚ⊂ℝ",             Component: CbseMath9NumberHierarchy },
+  cbse_math9_ch3_irrational_representation:  { label: "√2 on Number Line — Geometric Construction",  Component: CbseMath9IrrationalLine },
+  cbse_math9_ch3_decimal_expansions:         { label: "Terminating vs Non-Terminating Decimals",     Component: CbseMath9DecimalTypes },
+  cbse_math9_ch3_real_operations:            { label: "Laws of Exponents — 6 Rules",                 Component: CbseMath9RealOps },
+  // Ch4 — Algebraic Identities
+  cbse_math9_ch4_basic_identities:           { label: "(a+b)² Geometric Proof — 4 Regions",          Component: CbseMath9BasicIdentities },
+  cbse_math9_ch4_cube_identities:            { label: "Cube Identities — (a±b)³",                   Component: CbseMath9CubeIdentities },
+  cbse_math9_ch4_three_variable_identities:  { label: "Three-Variable Identities — a³+b³+c³",       Component: CbseMath9ThreeVarId },
+  cbse_math9_ch4_factorising_with_identities:{ label: "Factorising with Identities — 4-Step",        Component: CbseMath9Factorising },
+  // Ch5 — Circles (reusing 2 ICSE 9 components + 2 new)
+  cbse_math9_ch5_circle_basics:              { label: "Circle Parts — Radius, Chord, Arc",           Component: Icse9CircleBasicsComp },
+  cbse_math9_ch5_chord_theorems:             { label: "Chord — Perpendicular from Centre Bisects",   Component: Icse9ChordProp },
+  cbse_math9_ch5_angle_theorems:             { label: "Central Angle = 2 × Inscribed Angle",         Component: CbseMath9AngleTheorems },
+  cbse_math9_ch5_cyclic_quadrilaterals:      { label: "Cyclic Quadrilateral — Opposite Angles 180°", Component: CbseMath9CyclicQuad },
+  // Ch6 — Perimeter and Area (reusing 2 ICSE 9 components + 2 new)
+  cbse_math9_ch6_basics_triangle_area:       { label: "Triangle Area = ½ × base × height",          Component: Icse9AreaTriangle },
+  cbse_math9_ch6_herons_formula:             { label: "Heron's Formula — Area from 3 Sides",         Component: CbseMath9HeronsFormula },
+  cbse_math9_ch6_quadrilateral_areas:        { label: "Area Formulae — Quad, Parallelogram, Trap",   Component: Icse9AreaPlane },
+  cbse_math9_ch6_composite_areas:            { label: "Composite Figure — Split and Sum Areas",      Component: CbseMath9CompositeArea },
+  // Ch7 — Probability
+  cbse_math9_ch7_random_experiments:         { label: "Sample Space — Coin and Die",                 Component: CbseMath9RandomExperiment },
+  cbse_math9_ch7_empirical_probability:      { label: "Empirical Probability — Frequency Table",     Component: CbseMath9EmpiricalProb },
+  cbse_math9_ch7_probability_range:          { label: "Probability Range — 0 ≤ P(E) ≤ 1",           Component: CbseMath9ProbRange },
+  cbse_math9_ch7_probability_applications:   { label: "Probability — Standard 52-Card Deck",         Component: CbseMath9ProbApps },
+  // Ch8 — Sequences and Progressions
+  cbse_math9_ch8_sequences_basics:           { label: "Sequences — Patterns in Number Lists",        Component: CbseMath9SequenceBasics },
+  cbse_math9_ch8_arithmetic_progressions:    { label: "AP — Terms a, a+d, a+2d…  nth term",         Component: CbseMath9AP },
+  cbse_math9_ch8_ap_sum:                     { label: "Sum of AP — Gauss Pairing Sₙ=n/2(a+l)",      Component: CbseMath9APSum },
+  cbse_math9_ch8_geometric_progressions:     { label: "GP — Terms a, ar, ar²…  nth term",           Component: CbseMath9GP },
+
+  // ── AP SSC CLASS 9 MATHEMATICS ────────────────────────────────────────────
+  // Ch1 — Number Systems (all 4 reuse CBSE Math 9 components)
+  ap_ssc_math9_ch1_irrational_numbers:              { label: "√2 on Number Line — Geometric Construction",  Component: CbseMath9IrrationalLine },
+  ap_ssc_math9_ch1_decimal_expansions:              { label: "Terminating vs Non-Terminating Decimals",     Component: CbseMath9DecimalTypes },
+  ap_ssc_math9_ch1_laws_of_exponents:               { label: "Laws of Exponents — 6 Rules",                 Component: CbseMath9RealOps },
+  ap_ssc_math9_ch1_operations_on_reals:             { label: "Number Hierarchy — ℕ⊂W⊂ℤ⊂ℚ⊂ℝ",             Component: CbseMath9NumberHierarchy },
+  // Ch2 — Polynomials (all 5 reuse CBSE Math 9 components)
+  ap_ssc_math9_ch2_polynomials_basics:              { label: "Polynomial — Degree, Terms, Coefficients",    Component: CbseMath9PolyBasics },
+  ap_ssc_math9_ch2_zeroes_of_polynomial:            { label: "Zeroes of Polynomial — x-intercepts",        Component: CbseMath9PolyZeroes },
+  ap_ssc_math9_ch2_remainder_theorem:               { label: "Remainder Theorem — substitute x = a",       Component: CbseMath9RemainderThm },
+  ap_ssc_math9_ch2_factor_theorem:                  { label: "Factor Theorem — p(a)=0 ↔ (x−a) factor",    Component: CbseMath9FactorThm },
+  ap_ssc_math9_ch2_algebraic_identities:            { label: "(a+b)² Geometric Proof — 4 Regions",         Component: CbseMath9BasicIdentities },
+  // Ch3 — Coordinate Geometry (reusing ICSE 9 components)
+  ap_ssc_math9_ch3_cartesian_system:                { label: "Cartesian Plane — 4 Quadrants",               Component: Icse9CartesianPlane },
+  ap_ssc_math9_ch3_plotting_points:                 { label: "Plotting Points — All 4 Quadrants",           Component: Icse9PlottingPoints },
+  // Ch4 — Linear Equations in Two Variables (3 new components)
+  ap_ssc_math9_ch4_linear_equation_solutions:       { label: "Linear Equation — Infinite Solutions on Line", Component: ApSscMath9LinearEqSolutions },
+  ap_ssc_math9_ch4_graph_of_linear_equation:        { label: "Intercept Method — x-intercept and y-intercept", Component: ApSscMath9LinearEqGraph },
+  ap_ssc_math9_ch4_equations_of_special_lines:      { label: "Special Lines — x=a (vertical), y=b (horizontal)", Component: ApSscMath9SpecialLines },
+  // Ch5 — Introduction to Euclid's Geometry (2 new components)
+  ap_ssc_math9_ch5_euclid_definitions_axioms:       { label: "Euclid's 5 Postulates — Geometric Foundations", Component: ApSscMath9EuclidPostulates },
+  ap_ssc_math9_ch5_fifth_postulate:                 { label: "Playfair's Axiom — Exactly One Parallel Line",   Component: ApSscMath9FifthPostulate },
+  // Ch6 — Lines and Angles (3 new components)
+  ap_ssc_math9_ch6_basic_terms_angles:              { label: "Types of Angles — Acute, Right, Obtuse, Straight", Component: ApSscMath9BasicAngles },
+  ap_ssc_math9_ch6_parallel_lines_transversal:      { label: "Parallel Lines — 8 Angles from Transversal",  Component: ApSscMath9ParallelTransversal },
+  ap_ssc_math9_ch6_lines_parallel_to_same_line:     { label: "Parallel Transitivity — a∥b and b∥c → a∥c",   Component: ApSscMath9ParallelTransitivity },
+  // Ch7 — Triangles (reusing ICSE 9 components)
+  ap_ssc_math9_ch7_congruence_of_triangles:         { label: "Congruence of Triangles — Same Shape and Size", Component: Icse9CongruenceIntro },
+  ap_ssc_math9_ch7_congruence_criteria:             { label: "Congruence Criteria — SSS, SAS, ASA, RHS",    Component: Icse9CongruenceCriteria },
+  ap_ssc_math9_ch7_triangle_properties_inequalities:{ label: "Triangle Properties — Angle Sum and Sides",   Component: Icse9TriangleProperties },
+  // Ch8 — Quadrilaterals (reusing ICSE 9 components)
+  ap_ssc_math9_ch8_parallelogram_properties:        { label: "Parallelogram — Opposite Sides and Angles",   Component: Icse9Parallelogram },
+  ap_ssc_math9_ch8_angle_sum_property:              { label: "Quadrilateral — Angle Sum = 360°",            Component: Icse9QuadProperties },
+  ap_ssc_math9_ch8_midpoint_theorem:                { label: "Midpoint Theorem — Line joining midpoints ∥ third side", Component: Icse9MidpointThm },
+  // Ch9 — Circles (reusing ICSE 9 + CBSE Math 9 components)
+  ap_ssc_math9_ch9_chords_of_circle:                { label: "Chord — Perpendicular from Centre Bisects",   Component: Icse9ChordProp },
+  ap_ssc_math9_ch9_angle_subtended_by_arc:          { label: "Central Angle = 2 × Inscribed Angle",         Component: CbseMath9AngleTheorems },
+  ap_ssc_math9_ch9_cyclic_quadrilaterals:           { label: "Cyclic Quadrilateral — Opposite Angles 180°", Component: CbseMath9CyclicQuad },
+  // Ch10 — Heron's Formula (reusing CBSE Math 9 components)
+  ap_ssc_math9_ch10_herons_formula:                 { label: "Heron's Formula — Area from 3 Sides",         Component: CbseMath9HeronsFormula },
+  ap_ssc_math9_ch10_herons_application_quadrilaterals:{ label: "Composite Figure — Split Quadrilateral into Triangles", Component: CbseMath9CompositeArea },
+  // Ch11 — Surface Areas and Volumes (reusing ICSE 9 components)
+  ap_ssc_math9_ch11_surface_area_solids:            { label: "Cuboid and Cylinder — Surface Area Formulae", Component: Icse9Cuboid },
+  ap_ssc_math9_ch11_volume_of_solids:               { label: "Cone and Pyramid — Volume Formulae",          Component: Icse9ConePyramid },
+  // Ch12 — Statistics (reusing ICSE 10 + CBSE 10 components)
+  ap_ssc_math9_ch12_data_collection_presentation:   { label: "Histogram — Frequency Distribution Bar Chart", Component: IcseHistogram },
+  ap_ssc_math9_ch12_frequency_distributions:        { label: "Frequency Polygon — Midpoints Connected",     Component: IcseFrequencyPolygon },
+  ap_ssc_math9_ch12_central_tendency:               { label: "Mean — Grouped Data using Assumed Mean",      Component: MeanGrouped },
+
+  // ── CBSE Math 8 ─────────────────────────────────────────────────────────────
+  // Ch1 — Squares, Cubes and Roots
+  cbse_math8_ch1_squares:                           { label: "Squares — n×n Grid",                          Component: CbseMath8Squares },
+  cbse_math8_ch1_cubes:                             { label: "Cubes — n³ = n × n × n",                      Component: CbseMath8Cubes },
+  cbse_math8_ch1_square_roots:                      { label: "Square Roots — Prime Factorisation",          Component: CbseMath8SquareRoots },
+  cbse_math8_ch1_cube_roots:                        { label: "Cube Roots — Prime Factorisation",            Component: CbseMath8CubeRoots },
+  // Ch2 — Exponents
+  cbse_math8_ch2_exponents_intro:                   { label: "Introduction to Exponents — aⁿ",              Component: CbseMath8ExponentsIntro },
+  cbse_math8_ch2_laws_of_exponents:                 { label: "Laws of Exponents — aᵐ × aⁿ = aᵐ⁺ⁿ",         Component: CbseMath8LawsOfExponents },
+  cbse_math8_ch2_negative_exponents:                { label: "Negative and Zero Exponents — a⁻ⁿ = 1/aⁿ",   Component: CbseMath8NegativeExponents },
+  cbse_math8_ch2_scientific_notation:               { label: "Scientific Notation — a × 10ⁿ",               Component: CbseMath8ScientificNotation },
+  // Ch3 — Number Systems
+  cbse_math8_ch3_number_systems:                    { label: "The Number System Story — N ⊂ Z ⊂ Q ⊂ R",    Component: CbseMath8NumberSystems },
+  cbse_math8_ch3_integers_operations:               { label: "Integers and Their Operations",               Component: CbseMath8IntegersOps },
+  cbse_math8_ch3_rational_numbers:                  { label: "Rational Numbers — p/q on Number Line",       Component: CbseMath8RationalNumbers },
+  cbse_math8_ch3_irrational_numbers:                { label: "Irrational Numbers — √2, π on Number Line",  Component: CbseMath8IrrationalNumbers },
+  // Ch4 — Quadrilaterals
+  cbse_math8_ch4_quadrilateral_types:               { label: "Types of Quadrilaterals",                     Component: CbseMath8QuadTypes },
+  cbse_math8_ch4_quadrilateral_properties:          { label: "Properties of Quadrilaterals",                Component: CbseMath8QuadProperties },
+  cbse_math8_ch4_angle_sum_property:                { label: "Angle Sum Property — Sum = 360°",             Component: CbseMath8AngleSumProp },
+  cbse_math8_ch4_parallelogram_theorems:            { label: "Parallelogram Theorems — Parallel Lines",     Component: CbseMath8ParallelogramThms },
+  // Ch5 — Number Theory
+  cbse_math8_ch5_number_patterns:                   { label: "Number Patterns — Fibonacci & Arithmetic",   Component: CbseMath8NumberPatterns },
+  cbse_math8_ch5_primes_and_composites:             { label: "Primes and Composites — Sieve of Eratosthenes", Component: CbseMath8PrimesComposites },
+  cbse_math8_ch5_divisibility_rules:                { label: "Divisibility Rules — 2, 3, 5, 9, 11",        Component: CbseMath8DivisibilityRules },
+  cbse_math8_ch5_number_puzzles:                    { label: "Number Puzzles and Tricks",                   Component: CbseMath8NumberPuzzles },
+  // Ch6 — Algebra Basics
+  cbse_math8_ch6_distributive_law:                  { label: "The Distributive Law — a(b+c) = ab+ac",       Component: CbseMath8DistributiveLaw },
+  cbse_math8_ch6_factorisation:                     { label: "Factorisation of Algebraic Expressions",     Component: CbseMath8Factorisation },
+  cbse_math8_ch6_like_and_unlike_terms:             { label: "Like and Unlike Terms",                       Component: CbseMath8LikeUnlikeTerms },
+  cbse_math8_ch6_algebraic_simplification:          { label: "Simplifying Algebraic Expressions",          Component: CbseMath8AlgebraicSimplification },
+  // Ch7 — Ratio and Percent
+  cbse_math8_ch7_ratios:                            { label: "Ratios — a : b Comparison",                   Component: CbseMath8Ratios },
+  cbse_math8_ch7_proportions:                       { label: "Proportions — a/b = c/d",                    Component: CbseMath8Proportions },
+  cbse_math8_ch7_unitary_method:                    { label: "The Unitary Method — Find One, Then Many",   Component: CbseMath8UnitaryMethod },
+  cbse_math8_ch7_percentages:                       { label: "Percentages — % Increase, Decrease, Profit", Component: CbseMath8Percentages },
+  // Ch8 — Fractions
+  cbse_math8_ch8_complex_fractions:                 { label: "Complex Fractions — Keep, Change, Flip",     Component: CbseMath8ComplexFractions },
+  cbse_math8_ch8_ratios_as_fractions:               { label: "Ratios as Fractions — Bar Model",            Component: CbseMath8RatiosAsFractions },
+  cbse_math8_ch8_dividing_fractions:                { label: "Dividing Fractions — Invert and Multiply",   Component: CbseMath8DividingFractions },
+  cbse_math8_ch8_fraction_word_problems:            { label: "Fraction Word Problems — Strategy Guide",    Component: CbseMath8FractionWordProbs },
+  // Ch9 — Pythagoras
+  cbse_math8_ch9_right_triangles:                   { label: "Right-Angled Triangles — Legs and Hypotenuse", Component: CbseMath8RightTriangles },
+  cbse_math8_ch9_pythagoras_theorem:                { label: "Pythagoras' Theorem — a² + b² = c²",         Component: CbseMath8PythagorasThm },
+  cbse_math8_ch9_applying_pythagoras:               { label: "Applying Pythagoras — Ladder Problem",       Component: CbseMath8ApplyingPythagoras },
+  cbse_math8_ch9_distance_on_grid:                  { label: "Distance on a Grid — d = √(Δx²+Δy²)",       Component: CbseMath8DistanceOnGrid },
+  // Ch10 — Proportions and Variation
+  cbse_math8_ch10_solving_proportions:              { label: "Solving Proportions — Cross Multiplication", Component: CbseMath8SolvingProportions },
+  cbse_math8_ch10_scale_drawings:                   { label: "Scale Drawings and Maps",                    Component: CbseMath8ScaleDrawings },
+  cbse_math8_ch10_similar_figures:                  { label: "Similar Figures — Equal Angles, Scaled Sides", Component: CbseMath8SimilarFigures },
+  cbse_math8_ch10_direct_inverse_variation:         { label: "Direct and Inverse Variation — y=kx vs y=k/x", Component: CbseMath8DirectInverse },
+  // Ch11 — Polygons and Symmetry
+  cbse_math8_ch11_interior_angles_polygon:          { label: "Interior Angles of Polygon — (n−2)×180°",   Component: CbseMath8InteriorAnglesPolygon },
+  cbse_math8_ch11_classifying_polygons:             { label: "Classifying Polygons — Regular, Irregular",  Component: CbseMath8ClassifyingPolygons },
+  cbse_math8_ch11_types_of_symmetry:                { label: "Types of Symmetry — Line and Rotational",    Component: CbseMath8TypesOfSymmetry },
+  cbse_math8_ch11_geometric_transformations:        { label: "Geometric Transformations — Translate, Reflect, Rotate", Component: CbseMath8GeomTransformations },
+  // Ch12 — Graphs
+  cbse_math8_ch12_graphs_and_networks:              { label: "Graphs and Data — Bar Chart",                Component: CbseMath8GraphsNetworks },
+  cbse_math8_ch12_paths_in_graphs:                  { label: "Coordinate Graphs — Linear Relationship",   Component: CbseMath8PathsInGraphs },
+  cbse_math8_ch12_euler_paths:                      { label: "Linear Graphs — y = mx + c",                Component: CbseMath8EulerPaths },
+  cbse_math8_ch12_trees_in_graphs:                  { label: "Reading Graphs — Pie Chart and Line Graph",  Component: CbseMath8TreesInGraphs },
+  // Ch13 — Algebra
+  cbse_math8_ch13_algebraic_expressions:            { label: "Algebraic Expressions — Terms and Coefficients", Component: CbseMath8AlgebraicExpressions },
+  cbse_math8_ch13_linear_equations:                 { label: "Linear Equations — Balance Scale Method",   Component: CbseMath8LinearEquations },
+  cbse_math8_ch13_linear_inequalities:              { label: "Inequalities — Number Line Solution Region", Component: CbseMath8LinearInequalities },
+  cbse_math8_ch13_algebraic_identities:             { label: "Algebraic Identities — (a+b)² = a²+2ab+b²", Component: CbseMath8AlgebraicIdentities },
+  // Ch14 — Area and Perimeter
+  cbse_math8_ch14_area_of_rectangle:                { label: "Area and Perimeter — Rectangle and Square",  Component: CbseMath8AreaRectangle },
+  cbse_math8_ch14_area_of_triangle:                 { label: "Area of Triangle — ½ × base × height",      Component: CbseMath8AreaTriangle },
+  cbse_math8_ch14_area_of_trapezium:                { label: "Area of Trapezium — ½(a+b)×h",              Component: CbseMath8AreaTrapezium },
+  cbse_math8_ch14_area_of_circle:                   { label: "Area of Circle — πr² and Circumference 2πr", Component: CbseMath8AreaCircle },
 };
 
 export function Diagram({ topicId }) {

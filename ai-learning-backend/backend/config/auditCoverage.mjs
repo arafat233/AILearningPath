@@ -1,15 +1,18 @@
 /**
- * Coverage Audit Script — Stellar Content Pipeline
+ * Coverage Audit Script — Stellar Content Pipeline (Board-Agnostic)
  *
- * Compares what NCERT textbook requires vs what is in the DB.
+ * Compares what the syllabus requires vs what is in the DB.
+ * Applies to any board: CBSE, ICSE, SSC, IB, State Boards.
  * Run at any time to find gaps in teaching content, questions, or diagrams.
  *
  * Usage:
- *   node config/auditCoverage.mjs                        # audits all subjects
- *   node config/auditCoverage.mjs Science                # Science only
- *   node config/auditCoverage.mjs Mathematics            # Math only
- *   node config/auditCoverage.mjs Science --detail       # show per-topic question counts
- *   node config/auditCoverage.mjs Science --missing-only # show only gaps
+ *   node config/auditCoverage.mjs                              # audits all boards + subjects
+ *   node config/auditCoverage.mjs Science                      # Science only (all boards)
+ *   node config/auditCoverage.mjs Mathematics                  # Math only (all boards)
+ *   node config/auditCoverage.mjs --board=CBSE Mathematics     # CBSE Math only
+ *   node config/auditCoverage.mjs --board=ICSE Mathematics     # ICSE Math only
+ *   node config/auditCoverage.mjs Science --detail             # per-topic question counts
+ *   node config/auditCoverage.mjs Science --missing-only       # gaps only
  */
 
 import "dotenv/config";
@@ -19,14 +22,18 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const args = process.argv.slice(2);
-const filterSubject = args.find(a => !a.startsWith("--")) || null;
-const showDetail    = args.includes("--detail");
-const missingOnly   = args.includes("--missing-only");
+const args        = process.argv.slice(2);
+const flagArgs    = args.filter(a => a.startsWith("--"));
+const posArgs     = args.filter(a => !a.startsWith("--"));
+const filterSubject = posArgs[0] || null;
+const showDetail    = flagArgs.includes("--detail");
+const missingOnly   = flagArgs.includes("--missing-only");
+// --board=CBSE or --board=ICSE — filters to a specific board
+const boardFlag     = (flagArgs.find(a => a.startsWith("--board=")) || "").replace("--board=", "").toUpperCase() || null;
 
-// ─── Expected topics per chapter (CBSE 2023-24 syllabus) ─────────────────────
-// Update this table when adding a new subject/class.
-// Format: { chapterId, chapterName, subject, grade, expectedTopicIds: [...] }
+// ─── Expected topics per chapter ──────────────────────────────────────────────
+// Add a board: field to every entry. Required for --board= filtering.
+// Format: { board, chapterId, chapterName, subject, grade, expectedTopicIds: [...] }
 const EXPECTED = [
 
   // ══════════════════════════════════════════════════════
@@ -188,33 +195,110 @@ const EXPECTED = [
   { chapterId: "cbse_math10_ch14", chapterName: "Probability",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["cbse_math10_ch14_probability_basics","cbse_math10_ch14_dice_coins_spinners","cbse_math10_ch14_cards_and_balls","cbse_math10_ch14_equally_likely_events"] },
 
   // ══════════════════════════════════════════════════════
-  // MATHEMATICS — ICSE Class 10 (Selina/Concise — 25 chapters, 7 units)
+  // MATHEMATICS — AP SSC Class 10 (Andhra Pradesh State Secondary Certificate)
+  // board: "AP_SSC"  topicId prefix: ap_ssc_math10_
+  // Curriculum = NCERT Math 10 (Telugu-medium translation of the same textbook).
+  // Content cloned from cbse_math10_* via seedApSscMath10.js.
   // ══════════════════════════════════════════════════════
-  { chapterId: "icse10_ch1",  chapterName: "Value Added Tax",                                 subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch1_vat_intro","icse10_ch1_vat_calculations","icse10_ch1_vat_invoice","icse10_ch1_vat_word_problems"] },
-  { chapterId: "icse10_ch2",  chapterName: "Banking (Recurring Deposit Account)",             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch2_banking_intro","icse10_ch2_banking_si_formula","icse10_ch2_banking_maturity","icse10_ch2_banking_word_problems"] },
-  { chapterId: "icse10_ch3",  chapterName: "Shares and Dividend",                             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch3_shares_basics","icse10_ch3_shares_dividend","icse10_ch3_shares_market_value","icse10_ch3_shares_word_problems"] },
-  { chapterId: "icse10_ch4",  chapterName: "Linear Inequations (In one variable)",            subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch4_inequations_intro","icse10_ch4_inequations_solving","icse10_ch4_inequations_number_line","icse10_ch4_inequations_word"] },
-  { chapterId: "icse10_ch5",  chapterName: "Quadratic Equations",                             subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch5_quadratic_intro","icse10_ch5_quadratic_factorization","icse10_ch5_quadratic_formula","icse10_ch5_quadratic_nature"] },
-  { chapterId: "icse10_ch6",  chapterName: "Solving (Simple) Problems on Quadratic Equations",subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch6_word_problems_quad","icse10_ch6_age_problems","icse10_ch6_speed_problems","icse10_ch6_geometry_problems"] },
-  { chapterId: "icse10_ch7",  chapterName: "Ratio and Proportion",                            subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch7_ratio_basics","icse10_ch7_proportion_properties","icse10_ch7_continued_proportion","icse10_ch7_proportion_applications"] },
-  { chapterId: "icse10_ch8",  chapterName: "Remainder and Factor Theorems",                   subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch8_remainder_theorem","icse10_ch8_factor_theorem","icse10_ch8_factorization_cubic","icse10_ch8_polynomial_division"] },
-  { chapterId: "icse10_ch9",  chapterName: "Matrices",                                        subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch9_matrix_basics","icse10_ch9_matrix_operations","icse10_ch9_matrix_multiplication","icse10_ch9_matrix_determinant"] },
-  { chapterId: "icse10_ch10", chapterName: "Arithmetic Progression",                          subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch10_ap_intro","icse10_ch10_ap_nth_term","icse10_ch10_ap_sum","icse10_ch10_ap_applications"] },
-  { chapterId: "icse10_ch11", chapterName: "Geometric Progression",                           subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch11_gp_intro","icse10_ch11_gp_nth_term","icse10_ch11_gp_sum","icse10_ch11_gp_applications"] },
-  { chapterId: "icse10_ch12", chapterName: "Reflection",                                      subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch12_reflection_x_axis","icse10_ch12_reflection_y_axis","icse10_ch12_reflection_origin","icse10_ch12_invariant_points"] },
-  { chapterId: "icse10_ch13", chapterName: "Section and Mid-Point Formula",                   subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch13_section_formula","icse10_ch13_midpoint","icse10_ch13_dividing_line","icse10_ch13_section_applications"] },
-  { chapterId: "icse10_ch14", chapterName: "Equation of a Line",                              subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch14_slope_intercept","icse10_ch14_two_point_form","icse10_ch14_parallel_perpendicular","icse10_ch14_line_problems"] },
-  { chapterId: "icse10_ch15", chapterName: "Similarity (with Maps and Models)",               subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch15_similarity_intro","icse10_ch15_similar_triangles","icse10_ch15_maps_models","icse10_ch15_area_ratio"] },
-  { chapterId: "icse10_ch16", chapterName: "Loci (Locus and Its Constructions)",              subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch16_locus_intro","icse10_ch16_perpendicular_bisector_locus","icse10_ch16_angle_bisector_locus","icse10_ch16_circle_locus"] },
-  { chapterId: "icse10_ch17", chapterName: "Circles",                                         subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch17_chord_properties","icse10_ch17_arcs_angles","icse10_ch17_cyclic_quadrilateral","icse10_ch17_circle_theorems"] },
-  { chapterId: "icse10_ch18", chapterName: "Tangents and Intersecting Chords",                subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch18_tangent_properties","icse10_ch18_two_tangents","icse10_ch18_intersecting_chords","icse10_ch18_alternate_segment"] },
-  { chapterId: "icse10_ch19", chapterName: "Constructions (Circles)",                         subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch19_construct_tangent","icse10_ch19_construct_circumscribe","icse10_ch19_construct_inscribe","icse10_ch19_construct_problems"] },
-  { chapterId: "icse10_ch20", chapterName: "Cylinder, Cone and Sphere (Surface Area & Volume)",subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch20_cylinder_volume","icse10_ch20_cone_surface","icse10_ch20_sphere_area","icse10_ch20_combined_solids"] },
-  { chapterId: "icse10_ch21", chapterName: "Trigonometrical Identities",                      subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch21_basic_identities","icse10_ch21_complementary_angles","icse10_ch21_trig_tables","icse10_ch21_identity_proofs"] },
-  { chapterId: "icse10_ch22", chapterName: "Heights and Distances",                           subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch22_angle_elevation","icse10_ch22_angle_depression","icse10_ch22_height_problems","icse10_ch22_distance_problems"] },
-  { chapterId: "icse10_ch23", chapterName: "Graphical Representation",                        subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch23_histograms","icse10_ch23_frequency_polygon","icse10_ch23_ogives","icse10_ch23_comparison_graphs"] },
-  { chapterId: "icse10_ch24", chapterName: "Measures of Central Tendency",                    subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch24_mean","icse10_ch24_median","icse10_ch24_mode","icse10_ch24_quartiles"] },
-  { chapterId: "icse10_ch25", chapterName: "Probability",                                     subject: "Mathematics", grade: "10-ICSE", skipDiagram: true, expectedTopicIds: ["icse10_ch25_probability_intro","icse10_ch25_simple_events","icse10_ch25_compound_events","icse10_ch25_probability_problems"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch1",  chapterName: "Real Numbers",                       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch1_euclid_division_lemma","ap_ssc_math10_ch1_prime_factorisation","ap_ssc_math10_ch1_lcm_and_hcf","ap_ssc_math10_ch1_proving_irrationality","ap_ssc_math10_ch1_decimal_expansions"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch2",  chapterName: "Polynomials",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch2_degree_and_types","ap_ssc_math10_ch2_zeroes_from_graphs","ap_ssc_math10_ch2_zeroes_and_coefficients","ap_ssc_math10_ch2_polynomial_from_zeroes","ap_ssc_math10_ch2_division_algorithm"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch3",  chapterName: "Pair of Linear Equations",           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch3_graphical_method","ap_ssc_math10_ch3_consistency_of_pairs","ap_ssc_math10_ch3_substitution_method","ap_ssc_math10_ch3_elimination_method","ap_ssc_math10_ch3_cross_multiplication"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch4",  chapterName: "Quadratic Equations",                subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch4_identifying_quadratics","ap_ssc_math10_ch4_forming_quadratics","ap_ssc_math10_ch4_factorisation_method","ap_ssc_math10_ch4_discriminant_and_roots","ap_ssc_math10_ch4_completing_the_square"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch5",  chapterName: "Arithmetic Progressions",            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch5_identifying_ap","ap_ssc_math10_ch5_nth_term","ap_ssc_math10_ch5_sum_of_ap","ap_ssc_math10_ch5_arithmetic_mean_combined"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch6",  chapterName: "Triangles",                          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch6_similar_figures","ap_ssc_math10_ch6_basic_proportionality","ap_ssc_math10_ch6_similarity_criteria","ap_ssc_math10_ch6_areas_of_similar_triangles","ap_ssc_math10_ch6_pythagoras_theorem"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch7",  chapterName: "Coordinate Geometry",                subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch7_distance_formula","ap_ssc_math10_ch7_section_formula","ap_ssc_math10_ch7_area_and_collinearity"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch8",  chapterName: "Introduction to Trigonometry",       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch8_trigonometric_ratios","ap_ssc_math10_ch8_ratios_of_special_angles","ap_ssc_math10_ch8_trigonometric_identities","ap_ssc_math10_ch8_complementary_angles"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch9",  chapterName: "Some Applications of Trigonometry",  subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch9_single_triangle_heights","ap_ssc_math10_ch9_two_triangle_heights"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch10", chapterName: "Circles",                            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch10_tangent_properties","ap_ssc_math10_ch10_tangent_lengths"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch11", chapterName: "Areas Related to Circles",           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch11_sectors_and_segments","ap_ssc_math10_ch11_combined_plane_figures"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch12", chapterName: "Surface Areas and Volumes",          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch12_surface_area_of_solids","ap_ssc_math10_ch12_volume_of_solids","ap_ssc_math10_ch12_frustum_of_a_cone"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch13", chapterName: "Statistics",                         subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch13_mean_of_grouped_data","ap_ssc_math10_ch13_mode_of_grouped_data","ap_ssc_math10_ch13_median_of_grouped_data","ap_ssc_math10_ch13_empirical_relationship","ap_ssc_math10_ch13_ogives"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math10_ch14", chapterName: "Probability",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["ap_ssc_math10_ch14_probability_basics","ap_ssc_math10_ch14_dice_coins_spinners","ap_ssc_math10_ch14_cards_and_balls","ap_ssc_math10_ch14_equally_likely_events"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — AP SSC Class 9 (Traditional NCERT Class 9, rationalized 2024-25)
+  // board: "AP_SSC"  topicId prefix: ap_ssc_math9_
+  // 12 chapters (NOT cloneable from cbse_math9_ which uses Ganita Manjari 2026)
+  // Fresh content seeded via seedApSscMath9Content.js
+  // ══════════════════════════════════════════════════════
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch1",  chapterName: "Number Systems",                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch1_irrational_numbers","ap_ssc_math9_ch1_decimal_expansions","ap_ssc_math9_ch1_operations_on_reals","ap_ssc_math9_ch1_laws_of_exponents"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch2",  chapterName: "Polynomials",                            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch2_polynomials_basics","ap_ssc_math9_ch2_zeroes_of_polynomial","ap_ssc_math9_ch2_remainder_theorem","ap_ssc_math9_ch2_factor_theorem","ap_ssc_math9_ch2_algebraic_identities"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch3",  chapterName: "Coordinate Geometry",                    subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch3_cartesian_system","ap_ssc_math9_ch3_plotting_points"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch4",  chapterName: "Linear Equations in Two Variables",      subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch4_linear_equation_solutions","ap_ssc_math9_ch4_graph_of_linear_equation","ap_ssc_math9_ch4_equations_of_special_lines"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch5",  chapterName: "Introduction to Euclid's Geometry",      subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch5_euclid_definitions_axioms","ap_ssc_math9_ch5_fifth_postulate"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch6",  chapterName: "Lines and Angles",                       subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch6_basic_terms_angles","ap_ssc_math9_ch6_parallel_lines_transversal","ap_ssc_math9_ch6_lines_parallel_to_same_line"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch7",  chapterName: "Triangles",                              subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch7_congruence_of_triangles","ap_ssc_math9_ch7_congruence_criteria","ap_ssc_math9_ch7_triangle_properties_inequalities"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch8",  chapterName: "Quadrilaterals",                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch8_angle_sum_property","ap_ssc_math9_ch8_parallelogram_properties","ap_ssc_math9_ch8_midpoint_theorem"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch9",  chapterName: "Circles",                                subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch9_chords_of_circle","ap_ssc_math9_ch9_angle_subtended_by_arc","ap_ssc_math9_ch9_cyclic_quadrilaterals"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch10", chapterName: "Heron's Formula",                        subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch10_herons_formula","ap_ssc_math9_ch10_herons_application_quadrilaterals"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch11", chapterName: "Surface Areas and Volumes",              subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch11_surface_area_solids","ap_ssc_math9_ch11_volume_of_solids"] },
+  { board: "AP_SSC", chapterId: "ap_ssc_math9_ch12", chapterName: "Statistics",                             subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["ap_ssc_math9_ch12_data_collection_presentation","ap_ssc_math9_ch12_frequency_distributions","ap_ssc_math9_ch12_central_tendency"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — ICSE Class 10 (Selina/Concise — 25 chapters)
+  // board: "ICSE"  topicId prefix: icse_math10_
+  // Ch1–18: Topics + Questions seeded. Phases 2/4/5/6/9 outstanding.
+  // Ch19–25: Not yet seeded (questions + topics outstanding).
+  // ══════════════════════════════════════════════════════
+  { board: "ICSE", chapterId: "icse_math10_ch1",  chapterName: "Taxation (GST & VAT)",                          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch1_gst_concepts","icse_math10_ch1_gst_computation","icse_math10_ch1_vat_concepts","icse_math10_ch1_vat_computation"] },
+  { board: "ICSE", chapterId: "icse_math10_ch2",  chapterName: "Banking (Recurring Deposit Account)",           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch2_rd_concept","icse_math10_ch2_rd_interest","icse_math10_ch2_rd_maturity","icse_math10_ch2_rd_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch3",  chapterName: "Shares and Dividend",                           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch3_shares_basics","icse_math10_ch3_dividend_income","icse_math10_ch3_return_and_yield","icse_math10_ch3_share_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch4",  chapterName: "Linear Inequations",                            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch4_ineq_basics","icse_math10_ch4_ineq_solving","icse_math10_ch4_ineq_number_line","icse_math10_ch4_ineq_combined"] },
+  { board: "ICSE", chapterId: "icse_math10_ch5",  chapterName: "Quadratic Equations",                           subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch5_quad_basics","icse_math10_ch5_quad_factoring","icse_math10_ch5_quad_formula","icse_math10_ch5_quad_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch6",  chapterName: "Solving Problems on Quadratic Equations",       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch6_qprob_numbers","icse_math10_ch6_qprob_motion","icse_math10_ch6_qprob_work","icse_math10_ch6_qprob_geometry"] },
+  { board: "ICSE", chapterId: "icse_math10_ch7",  chapterName: "Ratio and Proportion",                          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch7_ratio_basics","icse_math10_ch7_proportion_basics","icse_math10_ch7_proportion_properties","icse_math10_ch7_proportion_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch8",  chapterName: "Remainder and Factor Theorems",                 subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch8_remainder_theorem","icse_math10_ch8_factor_theorem","icse_math10_ch8_polynomial_factorisation","icse_math10_ch8_polynomial_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch9",  chapterName: "Matrices",                                      subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch9_matrix_basics","icse_math10_ch9_matrix_operations","icse_math10_ch9_matrix_multiplication","icse_math10_ch9_matrix_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch10", chapterName: "Arithmetic Progression",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch10_ap_basics","icse_math10_ch10_ap_nth_term","icse_math10_ch10_ap_sum","icse_math10_ch10_ap_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch11", chapterName: "Geometric Progression",                         subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch11_gp_basics","icse_math10_ch11_gp_nth_term","icse_math10_ch11_gp_sum","icse_math10_ch11_gp_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch12", chapterName: "Reflection",                                    subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch12_reflection_basics","icse_math10_ch12_reflection_axes","icse_math10_ch12_reflection_lines","icse_math10_ch12_reflection_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch13", chapterName: "Section and Mid-Point Formula",                 subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch13_section_internal","icse_math10_ch13_section_external","icse_math10_ch13_midpoint","icse_math10_ch13_section_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch14", chapterName: "Equation of a Line",                            subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch14_slope","icse_math10_ch14_line_forms","icse_math10_ch14_special_lines","icse_math10_ch14_line_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch15", chapterName: "Similarity",                                    subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch15_similarity_basics","icse_math10_ch15_similarity_criteria","icse_math10_ch15_similarity_applications","icse_math10_ch15_similarity_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch16", chapterName: "Loci",                                          subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch16_loci_concepts","icse_math10_ch16_loci_properties","icse_math10_ch16_loci_constructions","icse_math10_ch16_loci_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch17", chapterName: "Circles",                                       subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch17_circle_chord_properties","icse_math10_ch17_circle_arc_angle","icse_math10_ch17_circle_cyclic_quad","icse_math10_ch17_circle_theorems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch18", chapterName: "Tangents and Intersecting Chords",              subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch18_tangent_basics","icse_math10_ch18_tangent_properties","icse_math10_ch18_tangent_chord_angle","icse_math10_ch18_intersecting_chords"] },
+  { board: "ICSE", chapterId: "icse_math10_ch19", chapterName: "Constructions (Circles)",                        subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch19_constructions_basics","icse_math10_ch19_constructions_circumscribed","icse_math10_ch19_constructions_inscribed","icse_math10_ch19_constructions_tangents"] },
+  { board: "ICSE", chapterId: "icse_math10_ch20", chapterName: "Cylinder, Cone and Sphere",                     subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch20_cylinder","icse_math10_ch20_cone","icse_math10_ch20_sphere","icse_math10_ch20_combined"] },
+  { board: "ICSE", chapterId: "icse_math10_ch21", chapterName: "Trigonometrical Identities",                    subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch21_trig_ratios_review","icse_math10_ch21_trig_identities_basic","icse_math10_ch21_trig_identities_proofs","icse_math10_ch21_trig_identities_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch22", chapterName: "Heights and Distances",                         subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch22_single_observer","icse_math10_ch22_angles_elevation_depression","icse_math10_ch22_buildings_towers","icse_math10_ch22_two_positions"] },
+  { board: "ICSE", chapterId: "icse_math10_ch23", chapterName: "Graphical Representation",                      subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch23_histogram","icse_math10_ch23_frequency_polygon","icse_math10_ch23_ogive","icse_math10_ch23_ogive_statistics"] },
+  { board: "ICSE", chapterId: "icse_math10_ch24", chapterName: "Measures of Central Tendency",                  subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch24_mean_grouped","icse_math10_ch24_median_grouped","icse_math10_ch24_mode_grouped","icse_math10_ch24_central_tendency_problems"] },
+  { board: "ICSE", chapterId: "icse_math10_ch25", chapterName: "Probability",                                   subject: "Mathematics", grade: "10", skipDiagram: true, expectedTopicIds: ["icse_math10_ch25_probability_basics","icse_math10_ch25_theoretical_probability","icse_math10_ch25_experimental_probability","icse_math10_ch25_probability_problems"] },
+
+  // ══════════════════════════════════════════════════════
+  // ICSE MATHEMATICS — Class 9 (Selina Concise)
+  // 28 chapters × 4 sub-topics = 112 topics
+  // topicId prefix: icse_math9_*
+  // ══════════════════════════════════════════════════════
+  { board: "ICSE", chapterId: "icse_math9_ch1",  chapterName: "Rational and Irrational Numbers",                subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch1_rational_numbers","icse_math9_ch1_irrational_numbers","icse_math9_ch1_surds_operations","icse_math9_ch1_rationalization"] },
+  { board: "ICSE", chapterId: "icse_math9_ch2",  chapterName: "Compound Interest (Without Using Formula)",      subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch2_ci_concept","icse_math9_ch2_ci_yearly","icse_math9_ch2_ci_half_yearly","icse_math9_ch2_ci_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch3",  chapterName: "Compound Interest (Using Formula)",              subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch3_ci_formula","icse_math9_ch3_ci_formula_applications","icse_math9_ch3_ci_growth_decay","icse_math9_ch3_ci_formula_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch4",  chapterName: "Expansions",                                     subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch4_expansion_basics","icse_math9_ch4_algebraic_identities","icse_math9_ch4_special_products","icse_math9_ch4_expansion_applications"] },
+  { board: "ICSE", chapterId: "icse_math9_ch5",  chapterName: "Factorisation",                                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch5_factoring_basics","icse_math9_ch5_factoring_identities","icse_math9_ch5_factoring_quadratics","icse_math9_ch5_factoring_polynomials"] },
+  { board: "ICSE", chapterId: "icse_math9_ch6",  chapterName: "Simultaneous Linear Equations",                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch6_sle_substitution","icse_math9_ch6_sle_elimination","icse_math9_ch6_sle_graphical","icse_math9_ch6_sle_word_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch7",  chapterName: "Indices (Exponents)",                            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch7_laws_of_indices","icse_math9_ch7_negative_indices","icse_math9_ch7_fractional_indices","icse_math9_ch7_indices_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch8",  chapterName: "Logarithms",                                     subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch8_log_definition","icse_math9_ch8_log_laws","icse_math9_ch8_log_equations","icse_math9_ch8_log_applications"] },
+  { board: "ICSE", chapterId: "icse_math9_ch9",  chapterName: "Triangles",                                      subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch9_triangle_congruence","icse_math9_ch9_congruence_criteria","icse_math9_ch9_triangle_properties","icse_math9_ch9_triangle_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch10", chapterName: "Isosceles Triangles",                            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch10_isosceles_properties","icse_math9_ch10_isosceles_theorems","icse_math9_ch10_equilateral_triangle","icse_math9_ch10_isosceles_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch11", chapterName: "Inequalities",                                   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch11_inequality_basics","icse_math9_ch11_triangle_inequalities","icse_math9_ch11_inequality_theorems","icse_math9_ch11_inequality_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch12", chapterName: "Mid-Point and Its Converse (Intercept Theorem)", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch12_midpoint_theorem","icse_math9_ch12_converse_midpoint","icse_math9_ch12_intercept_theorem","icse_math9_ch12_midpoint_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch13", chapterName: "Pythagoras Theorem",                             subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch13_pythagoras_theorem","icse_math9_ch13_pythagoras_converse","icse_math9_ch13_pythagoras_applications","icse_math9_ch13_pythagoras_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch14", chapterName: "Rectilinear Figures",                            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch14_quadrilateral_properties","icse_math9_ch14_parallelogram_theorems","icse_math9_ch14_special_quadrilaterals","icse_math9_ch14_rectilinear_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch15", chapterName: "Construction of Polygons",                       subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch15_basic_constructions","icse_math9_ch15_triangle_construction","icse_math9_ch15_quadrilateral_construction","icse_math9_ch15_polygon_construction"] },
+  { board: "ICSE", chapterId: "icse_math9_ch16", chapterName: "Area Theorems (Proof and Use)",                  subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch16_area_parallelogram","icse_math9_ch16_area_triangle","icse_math9_ch16_area_theorems_proof","icse_math9_ch16_area_theorem_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch17", chapterName: "Circle",                                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch17_circle_basics","icse_math9_ch17_chord_properties","icse_math9_ch17_arc_properties","icse_math9_ch17_circle_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch18", chapterName: "Statistics",                                     subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch18_data_collection","icse_math9_ch18_frequency_distribution","icse_math9_ch18_graphical_representation","icse_math9_ch18_statistics_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch19", chapterName: "Mean and Median",                                subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch19_mean_calculation","icse_math9_ch19_median_calculation","icse_math9_ch19_mode_calculation","icse_math9_ch19_central_tendency_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch20", chapterName: "Area and Perimeter of Plane Figures",            subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch20_area_plane_figures","icse_math9_ch20_perimeter_plane_figures","icse_math9_ch20_circle_area_perimeter","icse_math9_ch20_area_perimeter_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch21", chapterName: "Solids: Surface Area and Volume of 3D Solids",   subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch21_cuboid_cylinder","icse_math9_ch21_cone_pyramid","icse_math9_ch21_sphere_hemisphere","icse_math9_ch21_solid_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch22", chapterName: "Trigonometrical Ratios",                         subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch22_trig_ratios_definition","icse_math9_ch22_trig_ratios_complementary","icse_math9_ch22_trig_tables_use","icse_math9_ch22_trig_ratios_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch23", chapterName: "Trigonometrical Ratios of Standard Angles",      subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch23_standard_angles_0_30_45","icse_math9_ch23_standard_angles_60_90","icse_math9_ch23_trig_standard_identities","icse_math9_ch23_standard_angles_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch24", chapterName: "Solution of Right Triangles",                    subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch24_right_triangle_solution","icse_math9_ch24_finding_sides","icse_math9_ch24_finding_angles","icse_math9_ch24_right_triangle_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch25", chapterName: "Complementary Angles",                           subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch25_complementary_trig","icse_math9_ch25_complementary_identities","icse_math9_ch25_complementary_applications","icse_math9_ch25_complementary_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch26", chapterName: "Co-ordinate Geometry",                           subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch26_cartesian_plane","icse_math9_ch26_plotting_points","icse_math9_ch26_distance_midpoint","icse_math9_ch26_coordinate_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch27", chapterName: "Graphical Solution (Linear Equations)",          subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch27_linear_graphs","icse_math9_ch27_graphical_equations","icse_math9_ch27_simultaneous_graphical","icse_math9_ch27_graphical_problems"] },
+  { board: "ICSE", chapterId: "icse_math9_ch28", chapterName: "Distance Formula",                               subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["icse_math9_ch28_distance_formula","icse_math9_ch28_distance_applications","icse_math9_ch28_collinearity","icse_math9_ch28_distance_problems"] },
 
   // ══════════════════════════════════════════════════════
   // SOCIAL SCIENCE — Class 10 (CBSE 2023-24)
@@ -692,6 +776,25 @@ const EXPECTED = [
   { chapterId: "cbse_math9_ch6", chapterName: "Perimeter and Area",                                    subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch6_basics_triangle_area","cbse_math9_ch6_herons_formula","cbse_math9_ch6_quadrilateral_areas","cbse_math9_ch6_composite_areas"] },
   { chapterId: "cbse_math9_ch7", chapterName: "The Mathematics of Maybe: Introduction to Probability", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch7_random_experiments","cbse_math9_ch7_empirical_probability","cbse_math9_ch7_probability_range","cbse_math9_ch7_probability_applications"] },
   { chapterId: "cbse_math9_ch8", chapterName: "Predicting What Comes Next: Sequences and Progressions", subject: "Mathematics", grade: "9", skipDiagram: true, expectedTopicIds: ["cbse_math9_ch8_sequences_basics","cbse_math9_ch8_arithmetic_progressions","cbse_math9_ch8_ap_sum","cbse_math9_ch8_geometric_progressions"] },
+
+  // ══════════════════════════════════════════════════════
+  // MATHEMATICS — CBSE Class 8 (standardized v3, 14 chapters × 4 sub-topics = 56 topics)
+  // topicId prefix: cbse_math8_  |  skipDiagram: SVG diagrams are inline in teaching_content
+  // ══════════════════════════════════════════════════════
+  { board: "CBSE", chapterId: "cbse_math8_ch1",  chapterName: "A Square and A Cube",                    subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch1_squares","cbse_math8_ch1_cubes","cbse_math8_ch1_square_roots","cbse_math8_ch1_cube_roots"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch2",  chapterName: "Power Play",                             subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch2_exponents_intro","cbse_math8_ch2_laws_of_exponents","cbse_math8_ch2_negative_exponents","cbse_math8_ch2_scientific_notation"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch3",  chapterName: "A Story of Numbers",                     subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch3_number_systems","cbse_math8_ch3_integers_operations","cbse_math8_ch3_rational_numbers","cbse_math8_ch3_irrational_numbers"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch4",  chapterName: "Quadrilaterals",                         subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch4_quadrilateral_types","cbse_math8_ch4_quadrilateral_properties","cbse_math8_ch4_angle_sum_property","cbse_math8_ch4_parallelogram_theorems"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch5",  chapterName: "Number Play",                            subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch5_number_patterns","cbse_math8_ch5_primes_and_composites","cbse_math8_ch5_divisibility_rules","cbse_math8_ch5_number_puzzles"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch6",  chapterName: "We Distribute, Yet Things Multiply",    subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch6_like_and_unlike_terms","cbse_math8_ch6_distributive_law","cbse_math8_ch6_factorisation","cbse_math8_ch6_algebraic_simplification"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch7",  chapterName: "Proportional Reasoning - 1",            subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch7_ratios","cbse_math8_ch7_proportions","cbse_math8_ch7_unitary_method","cbse_math8_ch7_percentages"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch8",  chapterName: "Fractions in Disguise",                 subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch8_complex_fractions","cbse_math8_ch8_ratios_as_fractions","cbse_math8_ch8_dividing_fractions","cbse_math8_ch8_fraction_word_problems"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch9",  chapterName: "The Baudhayana-Pythagoras Theorem",     subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch9_right_triangles","cbse_math8_ch9_pythagoras_theorem","cbse_math8_ch9_applying_pythagoras","cbse_math8_ch9_distance_on_grid"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch10", chapterName: "Proportional Reasoning - 2",            subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch10_solving_proportions","cbse_math8_ch10_scale_drawings","cbse_math8_ch10_similar_figures","cbse_math8_ch10_direct_inverse_variation"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch11", chapterName: "Exploring Some Geometric Themes",       subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch11_interior_angles_polygon","cbse_math8_ch11_classifying_polygons","cbse_math8_ch11_types_of_symmetry","cbse_math8_ch11_geometric_transformations"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch12", chapterName: "Tales by Dots and Lines",               subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch12_graphs_and_networks","cbse_math8_ch12_paths_in_graphs","cbse_math8_ch12_euler_paths","cbse_math8_ch12_trees_in_graphs"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch13", chapterName: "Algebra Play",                          subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch13_algebraic_expressions","cbse_math8_ch13_linear_equations","cbse_math8_ch13_linear_inequalities","cbse_math8_ch13_algebraic_identities"] },
+  { board: "CBSE", chapterId: "cbse_math8_ch14", chapterName: "Area",                                  subject: "Mathematics", grade: "8", skipDiagram: true, expectedTopicIds: ["cbse_math8_ch14_area_of_rectangle","cbse_math8_ch14_area_of_triangle","cbse_math8_ch14_area_of_trapezium","cbse_math8_ch14_area_of_circle"] },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -742,25 +845,28 @@ const diagramIds = await getDiagramTopicIds();
 
 await mongoose.disconnect();
 
-// Filter by subject if requested
-const chapters = filterSubject
-  ? EXPECTED.filter(c => c.subject.toLowerCase().includes(filterSubject.toLowerCase()))
-  : EXPECTED;
+// Filter by board and/or subject
+let chapters = EXPECTED;
+if (boardFlag)      chapters = chapters.filter(c => (c.board || "CBSE").toUpperCase() === boardFlag);
+if (filterSubject)  chapters = chapters.filter(c => c.subject.toLowerCase().includes(filterSubject.toLowerCase()));
 
 if (chapters.length === 0) {
-  console.log(colRed(`No chapters found for subject "${filterSubject}". Available: Science, Mathematics, Social Science, English, Hindi`));
+  const boardHint  = boardFlag  ? ` board="${boardFlag}"` : "";
+  const subjHint   = filterSubject ? ` subject="${filterSubject}"` : "";
+  console.log(colRed(`No chapters found for${boardHint}${subjHint}. Check --board= and subject spelling.`));
   process.exit(1);
 }
 
 // ─── Output ──────────────────────────────────────────────────────────────────
 
-const subjects = [...new Set(chapters.map(c => `${c.subject} Grade ${c.grade}`))];
+const subjects = [...new Set(chapters.map(c => `${(c.board||"CBSE").toUpperCase()} ${c.subject} Grade ${c.grade}`))];
 
 for (const subjectGrade of subjects) {
-  const subjectChapters = chapters.filter(c => `${c.subject} Grade ${c.grade}` === subjectGrade);
+  const [sg_board, ...sg_rest] = subjectGrade.split(" ");
+  const subjectChapters = chapters.filter(c => `${(c.board||"CBSE").toUpperCase()} ${c.subject} Grade ${c.grade}` === subjectGrade);
 
   console.log("\n" + "═".repeat(90));
-  console.log(colBold(` ${subjectGrade} — Coverage Audit`));
+  console.log(colBold(` [${sg_board}] ${sg_rest.join(" ")} — Coverage Audit`));
   console.log("═".repeat(90));
   console.log(
     colBold(pad("Chapter", 38)) +

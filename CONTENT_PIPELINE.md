@@ -1,8 +1,12 @@
-# Stellar — Content Addition Pipeline
+# Stellar — Content Addition Pipeline (Board-Agnostic)
 
-> **Reference doc for adding any new CBSE subject or class.**
-> Covers the exact process used to build Class 10 Science from scratch.
-> Follow these phases in order for every new subject/class.
+> **Reference doc for adding any new subject, class, or exam board.**
+> Applies equally to CBSE, ICSE, SSC, IB, State Boards, or any future board.
+> Covers the exact process used to build CBSE Class 10 Science and Math.
+> Follow these phases in order for **every board × grade × subject combination**.
+>
+> **Rule:** No board is special. CBSE, ICSE, and every future board must clear
+> all phases and pass `npm run audit:coverage` before the content is considered shipped.
 
 ---
 
@@ -16,32 +20,53 @@
 | `Topic` | `topics` | Lightweight topic record (name, subject, examFrequency) — shown in Admin → Topics | `topicModel.js` |
 | `NcertChunk` | `ncertchunks` | RAG vector chunks for AI tutor — built from teaching content | `ncertChunkModel.js` |
 
-**Key IDs:**
-- **Math** topic IDs: `ch{N}_s{N}_c{N}_t{N}` — e.g. `ch5_s2_c1_t1`
-- **Science** topic IDs: `sci_ch{N}_{descriptor}` — e.g. `sci_ch9_reflection_mirrors`
-- **Future subjects**: use `{subj_code}_ch{N}_{descriptor}` — e.g. `sst_ch1_french_revolution`, `eng_ch1_letter_to_god`
+**TopicId naming convention — board is always a prefix:**
+
+| Board | Subject | Example topicId |
+|-------|---------|----------------|
+| CBSE  | Math 10 | `cbse_math10_ch5_quadratic_equations` |
+| CBSE  | Science | `sci_ch5_photosynthesis` (legacy — prefix = `sci_`) |
+| CBSE  | SST     | `sst_ch1_french_revolution` |
+| ICSE  | Math 10 | `icse_math10_ch5_quad_basics` |
+| SSC   | Math 10 | `ssc_math10_ch5_...` |
+| IB    | Math SL | `ib_mathsl_ch5_...` |
+
+**Pattern:** `{board}_{subj}{grade}_ch{N}_{descriptor}`
+- `board` = lowercase board code (`cbse`, `icse`, `ssc`, `ib`, `state_ka`, etc.)
+- `subj` = subject code (`math`, `sci`, `sst`, `eng`, `hin`)
+- `grade` = class number (`10`, `9`, `sl`, etc.)
+- `ch{N}` = chapter number
+- `descriptor` = short snake_case topic name
 
 **WARNING:** Never change a topicId after seeding — Questions link to them and renaming breaks all practice data.
 
 ---
 
-## Phase 0 — NCERT Textbook Mapping (Specification)
+## Phase 0 — Scope Definition + Syllabus Mapping
 
-**What:** Before writing a single line of seed code, map the full NCERT syllabus for the subject. This is your specification. Everything downstream is built from this map.
+**What:** Before writing a single line of seed code, lock down the scope and map the full syllabus. This is your specification. Everything downstream is built from this map.
 
-**Steps:**
+**Step 0a — Define scope (required for every new content block):**
+1. Which **board**? (CBSE / ICSE / SSC / IB / State Board)
+2. Which **grade**? (Class 1–12, SL/HL, etc.)
+3. Which **subject**? (Mathematics / Science / English / etc.)
+4. **Source textbook?** (NCERT for CBSE; Selina/Concise for ICSE; etc.)
+5. Set `examBoard` value that will be used in the DB — must match exactly what is stored in `User.examBoard`
 
-1. Open the NCERT PDF for the subject (CBSE 2023-24 rationalized syllabus)
+**Step 0b — Map the syllabus:**
+1. Open the official textbook PDF for the board
 2. List every chapter → subchapter → topic
-3. Cross-check against the CBSE 2023-24 rationalized syllabus — some chapters are deleted or reduced
-4. Assign a `topicId` for every topic using the naming convention above
-5. **Add all expected topicIds to the `EXPECTED` array in `backend/config/auditCoverage.mjs`** — this becomes your ground truth
+3. Cross-check against the board's current year syllabus — some chapters may be deleted or reduced
+4. Assign a `topicId` for every topic using the naming convention above (board prefix required)
+5. **Add all expected topicIds to the `EXPECTED` array in `backend/config/auditCoverage.mjs`** with `board` field set — this becomes your ground truth
 
 **Why this step first:** The `EXPECTED` array in `auditCoverage.mjs` is the single source of truth for coverage. If you add it early, every subsequent phase can be verified against it with `npm run audit:coverage`.
 
-**Example entry to add to `EXPECTED`:**
+**Example entry to add to `EXPECTED` (board field required):**
 ```js
+// CBSE entry
 {
+  board: "CBSE",
   chapterId: "sst_ch1", chapterName: "The Rise of Nationalism in Europe",
   subject: "Social Science", grade: "10",
   expectedTopicIds: [
@@ -51,9 +76,22 @@
     "sst_ch1_ireland_italy",
   ],
 },
+
+// ICSE entry
+{
+  board: "ICSE",
+  chapterId: "icse_math10_ch1", chapterName: "Taxation",
+  subject: "Mathematics", grade: "10",
+  expectedTopicIds: [
+    "icse_math10_ch1_gst_concepts",
+    "icse_math10_ch1_gst_computation",
+    "icse_math10_ch1_vat_concepts",
+    "icse_math10_ch1_vat_computation",
+  ],
+},
 ```
 
-**Verify:** `npm run audit:coverage Social Science` — should show all topics as MISSING (not yet seeded). That's the correct starting state.
+**Verify:** `npm run audit:coverage --board=CBSE Mathematics` or `npm run audit:coverage --board=ICSE Mathematics` — should show all topics as MISSING (not yet seeded). That's the correct starting state.
 
 ---
 
@@ -163,6 +201,15 @@ Example: `seedScienceBiologyQuestions.js`, `seedScienceChemistryQuestions.js`, `
 **Run:** `node config/seed{Subject}{Unit}Questions.js`
 
 **Verify:** `npm run audit:coverage {Subject}` — "Qs" column should show ≥20 per chapter (green)
+
+**Board isolation gate (MANDATORY after every Phase 3 seed):**
+```bash
+npm run validate:board-isolation --board={BOARD}
+# Must exit 0. If it exits 1, run:
+npm run validate:board-isolation:fix --board={BOARD}
+# Then re-run validate to confirm clean.
+```
+This catches the exact class of bug where a seed accidentally tags questions with the wrong `examBoard` (e.g. `"CBSE"` on ICSE questions). Exit code 1 blocks CI. Never proceed to Phase 4 with a non-zero exit here.
 
 ---
 
@@ -444,14 +491,36 @@ const subject = isSci ? "Science" : isEng ? "English" : isHindi ? "Hindi" : "Mat
 
 ---
 
-## Phase 10 — Update BLUEPRINT.md
+## Phase 10 — Update BLUEPRINT.md + CONTENT_STATUS.md
 
-Update `BLUEPRINT.md` in the same commit as the seed files. Every new seed file, route change, or schema addition must be reflected there. This is how future Claude sessions know what exists.
+These two files **must be updated in the same commit** as the seed files. Non-negotiable — a phase completed without updating both is considered incomplete.
+
+### BLUEPRINT.md
+Every new seed file, route change, or schema addition must be reflected there. This is how future Claude sessions know what exists.
 
 **What to update in BLUEPRINT.md:**
 - Add seed file descriptions with topic counts
 - Add npm script aliases
 - Update "Content" section with new subject stats
+
+### CONTENT_STATUS.md  ← **always update this**
+
+`CONTENT_STATUS.md` (at the project root, one level above this file) is the live tracker for every board × grade × subject.
+
+**After completing any phase for any content block:**
+1. Open `CONTENT_STATUS.md`
+2. Find the row for your board/grade/subject
+3. Change the phase column: `❌` → `✅`, or `❌` → `⚠️` with a note if partial
+4. Update the Topics/Questions count columns with real numbers
+5. Update the Notes column if anything is non-obvious (gaps, cleanup scripts pending, blocked on another phase)
+6. Update the `*Last updated*` line at the bottom
+
+**When adding a new board or grade that doesn't have a row yet:**
+1. Add a new section (if new board) or a new table row (if new grade for an existing board)
+2. Start with all phases as `❌`
+3. Fill in the Notes column with: board, source textbook, topicId prefix
+
+**The rule:** if `CONTENT_STATUS.md` doesn't reflect your changes, the phase is not done.
 
 ---
 
@@ -555,37 +624,60 @@ backend/config/
 
 ---
 
-## Quick Start Checklist for a New Subject
+## Quick Start Checklist for Any Board × Grade × Subject
+
+> Replace `{BOARD}`, `{Subject}`, `{N}` with the actual values (e.g. ICSE, Mathematics, 10).
+> This checklist applies identically to CBSE, ICSE, SSC, IB, or any future board.
 
 ```
-[ ] 0. Get NCERT PDF + map all chapters → topic IDs
-[ ] 0b. Add expected topicIds to EXPECTED array in auditCoverage.mjs
-[ ] 0c. Run: npm run audit:coverage {Subject} → confirm all show as MISSING (starting state)
-[ ] 1. Write seed{Subject}Curriculum.js → run it → verify chapter count in DB
-[ ] 2. For each unit (split into 2-3 files):
-        - Write teaching content → Phase 2 seed → run it
-        - Write 5 questions per topic → Phase 3 seed → run it
+[ ] 0.  Define scope: board={BOARD}, grade={N}, subject={Subject}, source textbook?
+[ ] 0b. Map all chapters → topic IDs using convention: {board}_{subj}{grade}_ch{N}_{descriptor}
+[ ] 0c. Add expected topicIds to EXPECTED array in auditCoverage.mjs with board: "{BOARD}"
+[ ] 0d. Run: npm run audit:coverage --board={BOARD} {Subject}
+        → confirm all show as MISSING (correct starting state)
+[ ] 1.  Write seed{Board}{Subject}Curriculum.js → run it → verify chapter count in DB
+        Each Topic doc must have: examBoard: "{BOARD}", grade: "{N}", subject: "{Subject}"
+[ ] 2.  For each unit (split into 2-3 files):
+        - Write teaching content (NcertTopicContent) → Phase 2 seed → run it
+        - Write ≥5 questions per topic (examBoard: "{BOARD}") → Phase 3 seed → run it
         - Add SVG diagram to DiagramLibrary.jsx → Phase 4
-[ ] 3. Run Phase 5 DAG seed
-[ ] 4. Run Phase 6 RAG build
-[ ] 5. Create seed{Subject}All.js convenience runner + add npm scripts to package.json
-[ ] 6. Run: npm run audit:coverage {Subject} → must show ✅ FULLY COVERED
-[ ] 7. *** FRONTEND WIRING — Phase 9a (Lessons.jsx topic-grouped path) ***
+[ ] 3.  Run Phase 5 DAG seed (prerequisites between topics)
+[ ] 4.  Run Phase 6 RAG build (npm run rag:build-{subject})
+[ ] 5.  Create seed{Board}{Subject}All.js convenience runner + add npm scripts to package.json
+[ ] 6.  Run: npm run audit:coverage --board={BOARD} {Subject}
+        → must show ✅ FULLY COVERED
+[ ] 6b. If subject is Mathematics: npm run audit:math --board={BOARD} --grade={N}
+        → must exit code 0 (all 14 checks pass per topic)
+[ ] 7.  *** FRONTEND WIRING — Phase 9a (Lessons.jsx topic-grouped path) ***
         - Add SUBJECT_CHAPTER_TITLES constant
         - Add SubjectChapterCard alias
         - Add state + fetch in useEffect Promise.all
         - Add useMemo groupBy chapterNumber
         - Add render branch in Textbook Chapters section
-        - TEST: go to Lessons → click subject tab → chapters expand → topics visible → click Study → NcertTopicView loads
+        - TEST: go to Lessons → click subject tab → chapters expand → topics visible → Study → NcertTopicView loads
 [ ] 7b. *** FRONTEND WIRING — Phase 9b (NcertTopicView subject detection) ***
-        - Add isSubjectTopicId helper
-        - Add subject prefix to isSciLike (if flat-string content format)
+        - Add isSubjectTopicId helper for new board's topicId prefix
         - Update useEffect subject detection for sibling fetch
-        - TEST: open /ncert/topics/{subject}_ch1_xxx → content renders (not blank page)
-[ ] 8. Verify admin panel + student topic pages
-[ ] 9. Update BLUEPRINT.md with new seed file counts and npm scripts
-[10] Commit: "Feat: add {Subject} Class {N} — {N} topics, {N} diagrams, {N} questions"
-[11] Push + smoke test on production
+        - TEST: open /ncert/topics/{board}_{subj}{grade}_ch1_xxx → content renders (not blank)
+[ ] 8.  Verify admin panel + student topic pages
+[ ] 9.  Update BLUEPRINT.md with new seed file counts and npm scripts
+[10]    *** Update CONTENT_STATUS.md ***
+        - If this board/grade/subject is new: add a row with all phases filled in
+        - If completing a phase on an existing row: tick the phase column ✅
+        - Update Topics/Questions counts with real numbers
+        - Commit CONTENT_STATUS.md in the same commit as the seed files
+[11]    Commit: "Feat: {BOARD} {Subject} Class {N} — {N} topics, {N} diagrams, {N} questions"
+[12]    Push + smoke test on production
+```
+
+**Board isolation checklist (run for every new board):**
+```
+[ ] All Topic docs have examBoard: "{BOARD}"
+[ ] All Question docs have examBoard: "{BOARD}"
+[ ] All NcertTopicContent topicIds start with the board prefix
+[ ] auditCoverage.mjs EXPECTED entries have board: "{BOARD}"
+[ ] npm run validate:board-isolation --board={BOARD}   → must exit 0
+[ ] npm run audit:coverage --board={BOARD} exits green
 ```
 
 ---
@@ -613,6 +705,16 @@ node config/auditCoverage.mjs Science --missing-only
 
 **To add a new subject to the audit**, append to the `EXPECTED` array in `backend/config/auditCoverage.mjs`. The template is at the bottom of that file.
 
+```bash
+# Board isolation validation (catches examBoard field vs topicId prefix mismatches)
+npm run validate:board-isolation              # check all boards
+npm run validate:board-isolation:icse        # ICSE only
+npm run validate:board-isolation:cbse        # CBSE only
+npm run validate:board-isolation:fix         # auto-fix all mismatches (safe — bulk updateMany)
+
+# Exit code 0 = clean, 1 = mismatches found. Use in CI to block bad seeds.
+```
+
 ---
 
 ## Admin Panel — What Shows Where
@@ -630,4 +732,14 @@ node config/auditCoverage.mjs Science --missing-only
 
 ---
 
-*Last updated: 2026-05-08 — Class 10 Science complete (55 topics, 55 diagrams, 222 questions). auditCoverage.mjs added.*
+---
+
+## Pipeline Status by Board
+
+> **See [`CONTENT_STATUS.md`](../CONTENT_STATUS.md) for the full per-board × per-grade × per-subject tracking table.**
+> That file is the single source of truth for what is done and what is missing.
+> Update it in the same commit as seed files.
+
+---
+
+*Last updated: 2026-05-23 — Pipeline made board-agnostic. ICSE Math 10 practice layer complete (ch1–18, 72 topics, 1150 questions). Lesson layer outstanding. `validateBoardIsolation.mjs` added as mandatory Phase 3 gate to prevent examBoard field mismatches.*

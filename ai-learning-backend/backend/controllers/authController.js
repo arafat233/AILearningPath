@@ -93,6 +93,7 @@ function safeUser(user) {
     name:        user.name,
     email:       user.email,
     role:        user.role       || "student",
+    examBoard:   user.examBoard  || null,
     subject:     user.subject    || null,
     grade:       user.grade      || null,
     goal:        user.goal       || null,
@@ -142,7 +143,7 @@ function queueWelcomeEmail(user, { social = false } = {}) {
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, examDate, grade, referralCode } = req.body;
+    const { name, email, password, examDate, grade, examBoard, referralCode } = req.body;
     const existing = await User.findOne({ email });
     if (existing) return next(new AppError("Email already registered", 409));
 
@@ -156,12 +157,13 @@ export const register = async (req, res, next) => {
       if (referrer) referredBy = referrer._id.toString();
     }
 
-    const user = await User.create({ name, email, password: hashed, examDate, grade, trialExpiry, referredBy });
+    const user = await User.create({ name, email, password: hashed, examDate, grade, examBoard, trialExpiry, referredBy });
     await issueTokens(user, res);
     setCsrfCookie(res);
     queueWelcomeEmail(user);
 
-    res.json({ data: { user: safeUser(user) } });
+    const needsOnboarding = !user.examBoard || !user.grade;
+    res.json({ data: { user: safeUser(user), needsOnboarding } });
   } catch (err) {
     next(err);
   }
@@ -239,7 +241,7 @@ export const refresh = async (req, res, next) => {
       userId = stored; // backwards compat with old plain-string tokens
     }
 
-    const user = await User.findById(userId).select("_id name email role subject grade goal examDate isPaid plan planExpiry").lean();
+    const user = await User.findById(userId).select("_id name email role examBoard subject grade goal examDate isPaid plan planExpiry").lean();
     if (!user) return res.status(401).json({ error: "User not found" });
 
     await sessionDel(`refresh:${hash}`);
@@ -404,7 +406,7 @@ export function initPassport() {
           queueWelcomeEmail(user, { social: true });
         }
 
-        const needsOnboarding = isNewUser || !user.examDate;
+        const needsOnboarding = isNewUser || !user.examBoard || !user.grade;
         return done(null, { user, needsOnboarding });
       } catch (err) {
         return done(err);

@@ -4,7 +4,7 @@ import { createChild } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 
 const CLASSES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
-const BOARDS  = ["CBSE","ICSE","IB","SSC","State Board"];
+const BOARDS  = ["CBSE","ICSE","AP_SSC","IB","SSC","State Board"];
 
 export default function Onboarding() {
   const { user, setAuth, setActiveChild } = useAuthStore();

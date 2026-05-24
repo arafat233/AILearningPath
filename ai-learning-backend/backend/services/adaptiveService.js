@@ -1,26 +1,62 @@
 import { Question, UserProfile, SeenQuestion, User } from "../models/index.js";
 import { generateAIQuestion } from "./aiService.js";
 import { isIcseTopicId } from "../utils/boardFilter.js";
+import { sessionGet, sessionSet } from "../utils/redisClient.js";
+
+const BOARD_TTL   = 3600; // examBoard almost never changes
+const PROFILE_TTL = 120;  // 2 min — profile updates on every submission
+
+export async function getCachedBoard(userId) {
+  const key = `user:board:${userId}`;
+  const cached = await sessionGet(key);
+  if (cached) return cached;
+  const u = await User.findById(userId).select("examBoard").lean();
+  const board = (u?.examBoard || "CBSE").toUpperCase();
+  sessionSet(key, board, BOARD_TTL).catch(() => {});
+  return board;
+}
+
+export async function getCachedProfile(userId) {
+  const key = `user:profile:${userId}`;
+  const cached = await sessionGet(key);
+  if (cached) return cached;
+  const profile = await UserProfile.findOne({ userId }).lean();
+  if (profile) sessionSet(key, profile, PROFILE_TTL).catch(() => {});
+  return profile;
+}
+
+// Call after any write that mutates the profile so the cache doesn't serve stale data.
+export async function invalidateProfileCache(userId) {
+  await sessionSet(`user:profile:${userId}`, null, 1).catch(() => {});
+}
 
 // excludeIds: question IDs to never serve (e.g. already shown this session).
 // Applied even in the "all seen — reset" fallback so the same question
 // is never returned back-to-back within a session.
-export const getNextQuestion = async (userId, topic, excludeIds = []) => {
-  // Board guard: never serve a question whose topicId doesn't match user's board
+export const getNextQuestion = async (userId, topic, excludeIds = [], mode = "mixed") => {
+  // Board guard + adaptive profile — fetched in parallel, both Redis-cached.
+  let userBoard = "CBSE";
+  let profile   = null;
   try {
-    const u = await User.findById(userId).select("examBoard").lean();
-    const userBoard = (u?.examBoard || "CBSE").toUpperCase();
+    [userBoard, profile] = await Promise.all([
+      getCachedBoard(userId),
+      getCachedProfile(userId),
+    ]);
     const topicIsIcse = isIcseTopicId(topic);
     if (topicIsIcse && userBoard !== "ICSE") return null;
     if (!topicIsIcse && userBoard === "ICSE") return null;
-  } catch { /* if board lookup fails, fall through to legacy behaviour */ }
+  } catch { /* if lookup fails, fall through to legacy behaviour */ }
 
-  const profile = await UserProfile.findOne({ userId });
-
+  // Mode overrides adaptive difficulty — easy/challenge pin to a fixed range
   let targetDifficulty = 0.5;
+  let modeFilter = null; // extra $match clause for difficulty when mode pins it
+  if (mode === "easy")      { targetDifficulty = 0.2; modeFilter = { difficultyScore: { $lt: 0.45 } }; }
+  else if (mode === "challenge") { targetDifficulty = 0.8; modeFilter = { difficultyScore: { $gte: 0.65 } }; }
+  // "mixed" and "mock" use the adaptive logic below
+
   let weakness = null;
 
-  if (profile) {
+  if (!modeFilter && profile) {
     const { accuracy, behaviorStats } = profile;
     if (accuracy > 0.8) targetDifficulty = 0.75;
     else if (accuracy < 0.4) targetDifficulty = 0.25;
@@ -88,17 +124,18 @@ export const getNextQuestion = async (userId, topic, excludeIds = []) => {
     "options.0": { $exists: true },
   };
 
-  // Try unseen questions near target difficulty
+  // Try unseen questions near target difficulty (mode pins difficulty if set)
+  const diffFilter = modeFilter ?? { difficultyScore: { $gte: targetDifficulty - 0.2, $lte: targetDifficulty + 0.2 } };
   let questions = await Question.find({
     topic,
     ...mcqFilter,
     isFlagged: { $ne: true },
     deletedAt: null,
-    difficultyScore: { $gte: targetDifficulty - 0.2, $lte: targetDifficulty + 0.2 },
+    ...diffFilter,
     ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
   }).lean();
 
-  // If all seen, widen difficulty range (still honouring excludeIds)
+  // If none found in difficulty range, widen to all difficulties (still unseen first)
   if (!questions.length) {
     questions = await Question.find({
       topic,
@@ -144,7 +181,7 @@ export const getNextQuestion = async (userId, topic, excludeIds = []) => {
 };
 
 export const getInterleavedQuestion = async (userId, topics) => {
-  const profile = await UserProfile.findOne({ userId });
+  const profile = await getCachedProfile(userId);
   const topicProgress = profile?.topicProgress || [];
 
   // Weight topics by weakness — weak topics appear more often

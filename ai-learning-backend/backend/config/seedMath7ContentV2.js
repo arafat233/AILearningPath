@@ -3,8 +3,12 @@ import dotenv from "dotenv";
 import { NcertTopicContent } from "../models/ncertTopicContentModel.js";
 dotenv.config();
 
-const T = (topicId, chapterNumber, sectionNumber, title, intuition, process_explanation, worked_example, common_misconceptions, shortcuts_and_tricks, key_takeaway) => ({
-  topicId, chapterNumber, sectionNumber, title, subject:"Mathematics", intuition, process_explanation, worked_example, common_misconceptions, shortcuts_and_tricks, key_takeaway
+const T = (topicId, chapterNumber, _sectionNumber, title, intuition, process_explanation, worked_example, common_misconceptions, shortcuts_and_tricks, key_takeaway) => ({
+  topicId,
+  chapterNumber,
+  subject: "Mathematics",
+  name: title,
+  teaching_content: { intuition, derivation: process_explanation, process_explanation, worked_example, common_misconceptions, shortcuts_and_tricks, key_takeaway },
 });
 
 const topics = [
@@ -103,7 +107,7 @@ async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log(`Seeding ${topics.length} Class 7 Math v2 sub-topics...`);
   for (const t of topics) {
-    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, t, { upsert: true, new: true });
+    await NcertTopicContent.findOneAndUpdate({ topicId: t.topicId }, { $set: t }, { upsert: true, new: true });
   }
   console.log(`Seeded ${topics.length} Class 7 Math v2 sub-topics.`);
   await mongoose.disconnect();

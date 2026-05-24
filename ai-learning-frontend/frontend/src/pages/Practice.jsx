@@ -309,7 +309,7 @@ export default function Practice() {
       : selectedTopic;
     if (!topic) { setLoading(false); return; }
     try {
-      const { data } = await startTopic(topic);
+      const { data } = await startTopic(topic, null, practiceMode);
       if (data.foundationRedirect) {
         setFoundationMsg(data.message);
         setQuestion(data.question);
@@ -499,7 +499,7 @@ export default function Practice() {
       if (bookmarkMode) {
         ({ data } = await startBookmarkPractice());
       } else if (topic) {
-        ({ data } = await startTopic(topic, currentQId));
+        ({ data } = await startTopic(topic, currentQId, practiceMode));
       } else {
         setLoading(false);
         return;

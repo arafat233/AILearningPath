@@ -1,12 +1,14 @@
-import { UserProfile, StudyPlan, Topic } from "../models/index.js";
+import { UserProfile, StudyPlan, Topic, User } from "../models/index.js";
 import { getRevisionTopics } from "./revisionService.js";
 
 export const getDailyBrief = async (userId) => {
-  const [profile, revisionDue, activePlan] = await Promise.all([
+  const [profile, revisionDue, activePlan, userDoc] = await Promise.all([
     UserProfile.findOne({ userId }).lean(),
     getRevisionTopics(userId),
     StudyPlan.findOne({ userId, isActive: true }).sort({ createdAt: -1 }).lean(),
+    User.findById(userId).select("examBoard").lean(),
   ]);
+  const board = (userDoc?.examBoard || "CBSE").toUpperCase();
 
   // Top 3 weakest topics by accuracy (must have at least 1 attempt)
   const weakTopics = (profile?.topicProgress || [])
@@ -49,7 +51,7 @@ export const getDailyBrief = async (userId) => {
   // Enrich weak topics and revision items with subject names
   const allNames = [...weakTopics.map((t) => t.topic), ...revisionTop.map((t) => t.topic)];
   if (allNames.length > 0) {
-    const docs = await Topic.find({ name: { $in: allNames } }, "name subject").lean();
+    const docs = await Topic.find({ name: { $in: allNames }, examBoard: board }, "name subject").lean();
     const map  = {};
     docs.forEach((d) => { map[d.name] = d.subject; });
     weakTopics.forEach((t)   => { t.subject = map[t.topic]  || null; });

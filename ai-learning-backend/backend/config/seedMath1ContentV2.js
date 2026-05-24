@@ -559,6 +559,12 @@ const topics = [
   },
 ];
 
+const toSchema = (t) => ({
+  topicId: t.topicId, chapterNumber: t.chapterNumber, subject: t.subject || "Mathematics",
+  name: t.title || t.name || t.topicId,
+  teaching_content: { intuition: t.intuition || "", derivation: t.process_explanation || "", process_explanation: t.process_explanation || "", worked_example: t.worked_example || "", common_misconceptions: t.common_misconceptions || "", shortcuts_and_tricks: t.shortcuts_and_tricks || "", key_takeaway: t.key_takeaway || "" },
+});
+
 async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log("MongoDB connected");
@@ -566,7 +572,7 @@ async function seed() {
   for (const topic of topics) {
     await NcertTopicContent.findOneAndUpdate(
       { topicId: topic.topicId },
-      topic,
+      { $set: toSchema(topic) },
       { upsert: true, new: true }
     );
     console.log(`  ✓ ${topic.topicId}`);

@@ -1,7 +1,7 @@
 import { Attempt, ErrorMemory, User, Question } from "../models/index.js";
 import logger from "../utils/logger.js";
 import { analyzeAnswer } from "../services/analysisService.js";
-import { getNextQuestion } from "../services/adaptiveService.js";
+import { getNextQuestion, invalidateProfileCache, getCachedProfile } from "../services/adaptiveService.js";
 import { updateUserProfile } from "../services/profileService.js";
 import { checkFoundation } from "../services/foundationService.js";
 import { updateQuestionStats } from "../services/selfLearningService.js";
@@ -26,7 +26,7 @@ const safeQuestion = (q) => {
 
 export const startTopic = async (req, res, next) => {
   try {
-    const { topicId, excludeCurrentId } = req.body;
+    const { topicId, excludeCurrentId, mode } = req.body;
     const userId = req.user.id;
 
     // Foundation check
@@ -54,7 +54,7 @@ export const startTopic = async (req, res, next) => {
     };
     const excludeIds = excludeCurrentId ? [excludeCurrentId] : [];
     const [question, totalAvailable] = await Promise.all([
-      getNextQuestion(userId, topicId, excludeIds),
+      getNextQuestion(userId, topicId, excludeIds, mode),
       Question.countDocuments({ topic: topicId, ...mcqFilter }),
     ]);
     if (!question) return next(new AppError("No questions found for this topic yet.", 404));
@@ -68,7 +68,7 @@ export const startTopic = async (req, res, next) => {
       seenThisSession: qId ? [qId] : [],
     }, SESSION_TTL);
 
-    const profile = await UserProfile.findOne({ userId });
+    const profile = await getCachedProfile(userId);
     const teacherMsg = profile
       ? generateTeacherMessage(profile, { questionsAnswered: 0, sessionCorrect: 0 })
       : null;
@@ -124,6 +124,7 @@ export const submitAnswer = async (req, res, next) => {
 
     if (question._id) updateQuestionStats(question._id, result.isCorrect, safeTime, selectedType).catch((err) => logger.warn("updateQuestionStats failed", { err: err.message, questionId: question._id }));
     updateUserProfile(userId).catch((err) => logger.warn("updateUserProfile failed", { err: err.message, userId }));
+    invalidateProfileCache(userId).catch(() => {});
     await updateStreak(userId).catch((err) => logger.warn("updateStreak failed", { err: err.message, userId }));
 
     if (!result.isCorrect) {
@@ -232,7 +233,7 @@ export const submitAnswer = async (req, res, next) => {
 export const getTeacherMessage = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const profile = await UserProfile.findOne({ userId });
+    const profile = await getCachedProfile(userId);
     if (!profile) return res.json({ message: "Start practicing to get personalised guidance!", type: "welcome" });
 
     const msg = generateTeacherMessage(profile);

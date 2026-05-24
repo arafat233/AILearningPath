@@ -1,5 +1,6 @@
 import { Exam, ExamAttempt, Question, WeeklyLeaderboard, UserProfile } from "../models/index.js";
 import { calculateExamScore, normalizeScores, assignRanks } from "../services/scoringService.js";
+import { getCachedBoard } from "../services/adaptiveService.js";
 import { AppError } from "../utils/AppError.js";
 import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
 
@@ -38,11 +39,13 @@ export const startExam = async (req, res, next) => {
       const idMap = new Map(allQuestions.map((q) => [String(q._id), q]));
       allQuestions = exam.questionIds.map((id) => idMap.get(String(id))).filter(Boolean);
     } else {
-      // Adaptive exam: sample questions by difficulty
+      // Adaptive exam: sample questions by difficulty (board-scoped)
+      const board = await getCachedBoard(userId);
+      const boardMatch = { examBoard: board };
       const [easy, medium, hard] = await Promise.all([
-        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.easy } }]),
-        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.medium } }]),
-        Question.aggregate([{ $match: { topic: exam.topic, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.hard } }]),
+        Question.aggregate([{ $match: { topic: exam.topic, ...boardMatch, difficultyScore: { $lt: 0.4 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.easy } }]),
+        Question.aggregate([{ $match: { topic: exam.topic, ...boardMatch, difficultyScore: { $gte: 0.4, $lt: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.medium } }]),
+        Question.aggregate([{ $match: { topic: exam.topic, ...boardMatch, difficultyScore: { $gte: 0.7 }, isFlagged: { $ne: true }, deletedAt: null } }, { $sample: { size: exam.questionDistribution.hard } }]),
       ]);
       allQuestions = [...easy, ...medium, ...hard];
     }
@@ -196,17 +199,21 @@ export const generateMock = async (req, res, next) => {
     const { questionCount = 20, duration = 45, subject } = req.body;
     const userId = req.user.id;
 
-    const profile  = await UserProfile.findOne({ userId }).lean();
+    const [profile, board] = await Promise.all([
+      UserProfile.findOne({ userId }).lean(),
+      getCachedBoard(userId),
+    ]);
     const weakAreas = profile?.weakAreas || [];
 
-    const count   = Math.min(50, Math.max(5, Number(questionCount)));
+    const count         = Math.min(50, Math.max(5, Number(questionCount)));
     const subjectFilter = subject ? { subject } : {};
+    const boardFilter   = { examBoard: board };
 
     let questions = [];
 
     if (weakAreas.length > 0) {
       questions = await Question.aggregate([
-        { $match: { topic: { $in: weakAreas }, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
+        { $match: { topic: { $in: weakAreas }, ...boardFilter, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
         { $sample: { size: count } },
       ]);
     }
@@ -215,7 +222,7 @@ export const generateMock = async (req, res, next) => {
       const needed      = count - questions.length;
       const existingIds = questions.map((q) => q._id);
       const fallback    = await Question.aggregate([
-        { $match: { _id: { $nin: existingIds }, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
+        { $match: { _id: { $nin: existingIds }, ...boardFilter, isFlagged: { $ne: true }, deletedAt: null, ...subjectFilter } },
         { $sample: { size: needed } },
       ]);
       questions = [...questions, ...fallback];

@@ -1,4 +1,5 @@
 import { UserProfile, Topic } from "../models/index.js";
+import { getCachedBoard } from "./adaptiveService.js";
 
 const GOAL_WEIGHTS = {
   pass:        { freq: 0.65, weak: 0.25, accuracy: 0.10 },
@@ -28,8 +29,11 @@ export const generateStudyPlan = async (userId, opts) => {
   } = opts;
 
   const subjectList = Array.isArray(subjects) ? subjects : [subjects];
-  const profile     = await UserProfile.findOne({ userId }).lean();
-  const allTopics   = await Topic.find({ subject: { $in: subjectList }, grade }).lean();
+  const [board, profile] = await Promise.all([
+    getCachedBoard(userId),
+    UserProfile.findOne({ userId }).lean(),
+  ]);
+  const allTopics = await Topic.find({ subject: { $in: subjectList }, grade, examBoard: board }).lean();
   const topics      = topicFilter.length > 0
     ? allTopics.filter(t => topicFilter.includes(t.name))
     : allTopics;

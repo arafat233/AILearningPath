@@ -1,6 +1,6 @@
-# AI Learning Path — CBSE Class 10 Exam Prep Platform
+# AI Learning Path — Multi-Board Exam Prep Platform (CBSE / ICSE / AP SSC)
 
-An AI-powered exam preparation platform for CBSE Class 10 students. Students practice adaptive questions, get personalised AI explanations, follow a smart study planner, compete live against each other, and receive lessons — all driven by a behavioural analysis engine that tracks HOW they think, not just whether they're right.
+An AI-powered exam preparation platform for students across CBSE, ICSE and AP SSC boards (Grades 1–10). Students practice adaptive questions, get personalised AI explanations, follow a smart study planner, compete live against each other, and receive lessons — all driven by a behavioural analysis engine that tracks HOW they think, not just whether they're right.
 
 **Stack:** React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 
@@ -91,7 +91,14 @@ An AI-powered exam preparation platform for CBSE Class 10 students. Students pra
 | Adaptive recommender engine (mastery thresholds, fluke/stuck detection, routing) | Complete |
 | Analytics event tracking (AnalyticsEvent, D1/D7/D30 retention, AI retry rate) | Complete |
 | Admin Retention dashboard (conversion funnel, cohort retention, top topics) | Complete |
-| SVG diagram library — Science 55/55 topics, Math 54/54 topics (895 questions) | Complete |
+| SVG diagram library — 402 total entries across all boards (DiagramLibrary.jsx) | Complete |
+| Multi-board content: CBSE Math Gr 1–10 · ICSE Math 9–10 · AP SSC Math 9–10 · CBSE Science/English/Hindi/SST Gr 10 | Complete |
+| CBSE Math 8 — ALL PHASES: 56 topics, 627 Qs, 397 RAG chunks, 56 DAG nodes, 56 SVG diagrams (2026-05-24) | Complete |
+| CBSE Math 9 — ALL PHASES: 32 topics, ~900 Qs, 301 RAG chunks, 32 DAG nodes, 32 SVG diagrams | Complete |
+| ICSE Math 9 — ALL PHASES: 112 topics, 1792 Qs, 589 RAG chunks, 112 DAG nodes, 48 SVG diagrams | Complete |
+| ICSE Math 10 — ALL PHASES: 100 topics, 1600 Qs, 60 SVG diagrams | Complete |
+| AP SSC Math 9 — ALL PHASES: 35 topics, 560 Qs, 229 RAG chunks, 35 DAG nodes, 35/35 audit PASS | Complete |
+| AP SSC Math 10 — ALL PHASES: 54 topics, 1140 Qs, 884 RAG chunks, 54 DAG nodes | Complete |
 | CBSE Class 10 Social Science — 65 fine-grained topics, ~795 questions, 65 SVG diagrams | Complete |
 
 ---
@@ -355,7 +362,7 @@ AILearningPath/
 │   └── src/
 │       ├── pages/          # one file per route (incl. SchoolGroups)
 │       ├── pages/admin/    # admin-only pages (role-guarded, incl. AdminRetention)
-│       ├── components/     # Layout, BadgeToast, DoubtChat, DiagramLibrary (174 SVGs)
+│       ├── components/     # Layout, BadgeToast, DoubtChat, DiagramLibrary (402 DIAGRAM_MAP entries)
 │       ├── hooks/          # useFeatureFlags
 │       ├── services/       # api.js (axios + CSRF + 401 handler)
 │       ├── store/          # Zustand auth store

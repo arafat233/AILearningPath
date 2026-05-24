@@ -35,9 +35,12 @@ export const getStudentDashboard = async (studentId) => {
   const thirtyMinAgo    = new Date(now - 30 * 60 * 1000);
   const oneWeekAgo      = sevenDaysAgo;
 
-  const [student, profile, streak, badges, recentAttempts, allFourWeekAttempts, topics, recentDoubts, recentExams, recentLessons] =
+  // Fetch student first to get examBoard for board-scoped topic query
+  const student = await User.findById(studentId).select("name email grade subject goal createdAt studiedNcertTopics examBoard").lean();
+  const board   = (student?.examBoard || "CBSE").toUpperCase();
+
+  const [profile, streak, badges, recentAttempts, allFourWeekAttempts, topics, recentDoubts, recentExams, recentLessons] =
     await Promise.all([
-      User.findById(studentId).select("name email grade subject goal createdAt studiedNcertTopics").lean(),
       UserProfile.findOne({ userId: studentId }).lean(),
       Streak.findOne({ userId: studentId }).lean(),
       Badge.find({ userId: studentId }).sort({ awardedAt: -1 }).limit(10).lean(),
@@ -48,7 +51,7 @@ export const getStudentDashboard = async (studentId) => {
       Attempt.find({ userId: studentId, createdAt: { $gte: twentyEightDaysAgo } })
         .select("isCorrect createdAt")
         .lean(),
-      Topic.find().select("name subject").lean(),
+      Topic.find({ examBoard: board }).select("name subject").lean(),
       DoubtThread.find({ userId: studentId, updatedAt: { $gte: twoDaysAgo } })
         .select("topic subject updatedAt messages")
         .sort({ updatedAt: -1 })
@@ -92,16 +95,43 @@ export const getStudentDashboard = async (studentId) => {
   const totalWeeklyMinutes  = weeklyPractice.reduce((s, d) => s + d.minutes, 0);
 
   // ── Subject mastery ───────────────────────────────────────────────────────
-  const CBSE_SUBJECTS = [
-    { name: "Mathematics",    color: "#007AFF" },
-    { name: "Science",        color: "#34C759" },
-    { name: "English",        color: "#FF9500" },
-    { name: "Social Science", color: "#AF52DE" },
-  ];
+  // Subject list is board-aware — never show CBSE subjects to an ICSE student or vice versa
+  const SUBJECTS_BY_BOARD = {
+    CBSE: [
+      { name: "Mathematics",    color: "#007AFF" },
+      { name: "Science",        color: "#34C759" },
+      { name: "English",        color: "#FF9500" },
+      { name: "Social Science", color: "#AF52DE" },
+      { name: "Hindi",          color: "#FF3B30" },
+    ],
+    ICSE: [
+      { name: "Mathematics",    color: "#007AFF" },
+      { name: "Physics",        color: "#34C759" },
+      { name: "Chemistry",      color: "#FF9500" },
+      { name: "Biology",        color: "#AF52DE" },
+      { name: "English",        color: "#FF3B30" },
+      { name: "History & Civics", color: "#5856D6" },
+      { name: "Geography",      color: "#30B0C7" },
+    ],
+    IB: [
+      { name: "Mathematics",    color: "#007AFF" },
+      { name: "Physics",        color: "#34C759" },
+      { name: "Chemistry",      color: "#FF9500" },
+      { name: "Biology",        color: "#AF52DE" },
+      { name: "English",        color: "#FF3B30" },
+    ],
+    SSC: [
+      { name: "Mathematics",    color: "#007AFF" },
+      { name: "Science",        color: "#34C759" },
+      { name: "English",        color: "#FF9500" },
+      { name: "Social Science", color: "#AF52DE" },
+    ],
+  };
+  const SUBJECT_LIST  = SUBJECTS_BY_BOARD[board] || SUBJECTS_BY_BOARD.CBSE;
   const SUBJECT_ALIAS = { Math: "Mathematics", "Social Std.": "Social Science" };
   const subjectAcc    = {};
   const subjectCounts = {};
-  CBSE_SUBJECTS.forEach(({ name }) => { subjectAcc[name] = 0; subjectCounts[name] = 0; });
+  SUBJECT_LIST.forEach(({ name }) => { subjectAcc[name] = 0; subjectCounts[name] = 0; });
 
   (profile?.topicProgress || []).forEach((tp) => {
     const raw = topicSubjectMap[tp.topic] || "Mathematics";
@@ -111,7 +141,7 @@ export const getStudentDashboard = async (studentId) => {
     subjectCounts[sub] += 1;
   });
 
-  const subjectMastery = CBSE_SUBJECTS.map(({ name, color }) => ({
+  const subjectMastery = SUBJECT_LIST.map(({ name, color }) => ({
     subject:    name,
     accuracy:   subjectCounts[name] > 0 ? Math.round((subjectAcc[name] / subjectCounts[name]) * 100) : 0,
     topicCount: subjectCounts[name],

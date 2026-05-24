@@ -81,12 +81,12 @@
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | 100 | 1600 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 25 chapters, 100 topics, 1600 Qs, all phases complete. Source: Selina textbook. topicId prefix: `icse_math10_*` |
-| 9  | 112 | 1792 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 28 chapters, 112 topics, 1792 Qs, 589 RAG chunks, 112/112 audit PASS (2026-05-24). topicId prefix: `icse_math9_*` |
+| 10 | 100 | 1600 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 25 NcertChapter docs (icse_math10_ch1–ch25, board=ICSE); 100 topics, 1600 Qs. ALL PHASES COMPLETE. Source: Selina textbook. |
+| 9  | 112 | 1792 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 28 NcertChapter docs (icse_math9_ch1–ch28, board=ICSE); 112 topics, 1792 Qs, 589 RAG chunks, 112/112 audit PASS. ALL PHASES COMPLETE. |
 
 **ICSE Math 9 — phase details:**
 - Ph0 (Scope): 28 chapters mapped from Selina Concise Class 9 syllabus ✅
-- Ph1 (Curriculum): 112 Topic docs in `seedIcseMath9Curriculum.js` with `examBoard:"ICSE"`, `grade:"9"` ✅
+- Ph1 (Curriculum): ✅ 112 Topic docs in `seedIcseMath9Curriculum.js` + 28 NcertChapter docs in `seedIcseMath9NcertChapters.js` (icse_math9_ch1–ch28, board=ICSE, grade=9). npm script: `seed:icse-math9-chapters`; prepended to `seed:icse-math9-all`.
 - Ph2 (Teaching content): 112/112 NcertTopicContent docs in `seedIcseMath9Content.js` ✅
 - Ph3 (Questions): 1792 Qs — 1120 MCQ (A) + 448 short-answer (B) + 224 long-answer (C) across all 28 chapters (2026-05-24). 10 MCQ + 4 short + 2 long per topic. `examBoard:"ICSE"` on all. ✅
 - Ph4 (Diagrams): ✅ 48 SVG diagram components added to DiagramLibrary.jsx (2026-05-24) — Ch9–Ch17, Ch20–Ch21, Ch26 fully covered (4 diagrams/chapter × 12 chapters). Components: Icse9CongruenceIntro through Icse9CoordProblems.
@@ -97,7 +97,7 @@
 - Ph9 (Frontend): ✅ Wired 2026-05-24 — Lessons.jsx: added `grade === "9" && board === "ICSE"` → `icse_math9_*` filter. NcertTopicView.jsx: added `isIcseMath9TopicId`, `ICSE_MATH9_CHAPTER_TITLES` (28 chapters), `"icse_math9"` family entry, `setChapterTitle` handler.
 
 **ICSE Math 10 — phase details:**
-- Ph1 (Curriculum): 100 Topic docs, all with `examBoard:"ICSE"`, `grade:"10"` ✅
+- Ph1 (Curriculum): ✅ 100 Topic docs (existing) + 25 NcertChapter docs in `seedIcseMath10NcertChapters.js` (icse_math10_ch1–ch25, board=ICSE, grade=10). npm script: `seed:icse-math10-chapters`; prepended to `seed:icse-math10-all`.
 - Ph2 (Teaching content): 100/100 NcertTopicContent docs — 100/100 audit PASS (2026-05-23) ✅
 - Ph3 (Questions): 1600 Qs across ch1–25 (10 MCQ + 4 short + 2 long per topic), `examBoard:"ICSE"` validated ✅
 - Ph4 (Diagrams): ✅ 60 SVG diagrams added to DiagramLibrary.jsx (2026-05-23) — Ch4, Ch10–Ch23 fully covered (4 diagrams/chapter). Ch1–Ch3, Ch5–Ch9 are algebraic/commercial, no diagram needed.
@@ -210,4 +210,4 @@ When you add a new board/grade/subject:
 
 **v2 content density gap (grades 1–8):** The v2 seed format provides `intuition`, `process_explanation`, `worked_example`, `common_misconceptions`, `shortcuts_and_tricks`, `key_takeaway` — 8 of 15 audit checks pass. The 7 failing checks (`key_formulas`, `prerequisite_knowledge`, `visual_description`, `svg_diagrams`, `when_to_use_this_method`, `edge_cases`, `video_script_hooks`) require a future v3 enrichment pass to reach benchmark (Class 10) density. Ph5 is ⚠️ because existing DAG seeds use chapter-level nodes (`math{N}_ch{N}`) not sub-topic nodes — adequate for recommendations but not full prerequisite chains.
 
-*Last updated: 2026-05-24 — AP SSC Math 9 Ph1 ✅: 12 NcertChapter docs (seedApSscMath9NcertChapters.js, ap_ssc_math9_ch1–ch12, board=AP_SSC). AP SSC Math 10 Ph1 ✅: 14 NcertChapter docs (seedApSscMath10NcertChapters.js, ap_ssc_math10_ch1–ch14, board=AP_SSC). Both grades now ALL PHASES COMPLETE. CBSE Math 8 ALL PHASES COMPLETE (56 topics, 627 Qs, 56 SVG diagrams). CBSE Math 9 Ph4 ✅ (32 diagram entries). ICSE Math 9 ALL PHASES COMPLETE (112 topics, 1792 Qs).*
+*Last updated: 2026-05-24 — ICSE Math 10 Ph1 ✅: 25 NcertChapter docs (seedIcseMath10NcertChapters.js, icse_math10_ch1–ch25, board=ICSE). ICSE Math 9 Ph1 ✅: 28 NcertChapter docs (seedIcseMath9NcertChapters.js, icse_math9_ch1–ch28, board=ICSE). Both ICSE grades now ALL PHASES COMPLETE with full NcertChapter docs. AP SSC Math 9 Ph1 ✅ (12 NcertChapters). AP SSC Math 10 Ph1 ✅ (14 NcertChapters). CBSE Math 8+9 ALL PHASES COMPLETE. ICSE Math 9 ALL PHASES COMPLETE (112 topics, 1792 Qs).*

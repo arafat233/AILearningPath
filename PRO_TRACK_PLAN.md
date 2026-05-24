@@ -54,20 +54,23 @@ This plan covers ONLY the pilot. Bulk import is a separate plan written after pi
 
 ---
 
-## 3. Pre-flight decisions required (BLOCK until answered)
+## 3. Pre-flight decisions — LOCKED 2026-05-25
 
-These must be settled before writing a single line of code. Each maps to a `PROFESSIONAL_TRACKS_BLUEPRINT.md` §11 open decision.
+All decisions approved by Najeeb on 2026-05-25. Recommended option taken in every row. No code may deviate from these without re-opening the decision.
 
-| # | Decision                                              | Recommended                              | Status  |
-|---|-------------------------------------------------------|------------------------------------------|---------|
-| 1 | New `Pro*` models vs extend `Ncert*` models           | New `Pro*` models (clean separation)     | PENDING |
-| 2 | Sandbox provider                                      | Self-host Judge0 on Oracle Cloud         | PENDING |
-| 3 | User schema: `tracks[]` array vs single field         | `tracks: [{ key, role, enrolledAt }]`    | PENDING |
-| 4 | Commit raw Java content into git vs external path     | Commit into repo under `content/pro/java/`| PENDING |
-| 5 | Pilot users — gated rollout or open to all?           | Internal only (Najeeb + Salma accounts)  | PENDING |
-| 6 | Onboarding: where does pro-track picker appear?       | New "What are you here for?" step before grade picker | PENDING |
+| # | Decision                                              | LOCKED CHOICE                                            | Date       |
+|---|-------------------------------------------------------|----------------------------------------------------------|------------|
+| 1 | New `Pro*` models vs extend `Ncert*` models           | NEW `Pro*` models (`models/proModels.js`) — clean sep    | 2026-05-25 |
+| 2 | Sandbox provider                                      | Self-host Judge0 on Oracle Cloud (`144.24.154.247:2358`) | 2026-05-25 |
+| 3 | User schema: `tracks[]` array vs single field         | `tracks: [{ key, role, enrolledAt }]` array              | 2026-05-25 |
+| 4 | Commit raw Java content into git vs external path     | Commit into repo at `ai-learning-backend/backend/content/pro/java/**` (git-lfs if >200MB) | 2026-05-25 |
+| 5 | Pilot users — gated rollout or open to all?           | Internal only — feature flag `PRO_TRACKS_ENABLED_FOR_EMAILS` (Najeeb + Salma) | 2026-05-25 |
+| 6 | Onboarding: where does pro-track picker appear?       | NEW `/welcome` audience picker step AFTER `/register` and BEFORE track-specific onboarding | 2026-05-25 |
+| 7 | Strip grade + examDate from Register.jsx              | YES — move to school-specific onboarding only            | 2026-05-25 |
+| 8 | Parent-vs-self model for pro tracks                   | Pro/competitive learner is ALWAYS `user`, never a `linkedStudent`. School track keeps parent→child model. | 2026-05-25 |
+| 9 | Dashboard merge — single page vs split routes         | Single `Dashboard.jsx` with `<TrackTabs />` switcher (URL: `/?track=<key>`) | 2026-05-25 |
 
-**Action: review this table, mark each row APPROVED / CHANGED, then we proceed.**
+**Implementation may now begin (Day 1, §5).**
 
 ---
 
@@ -369,12 +372,10 @@ These don't block the pilot, but we'll need to decide before bulk import:
 
 ## 9. Sign-off
 
-Reviewers, mark APPROVED / CHANGES_REQUESTED below before implementation starts.
-
-| Reviewer | Decision | Date | Notes |
-|----------|----------|------|-------|
-| Najeeb   |          |      |       |
-| Salma    |          |      |       |
+| Reviewer | Decision | Date       | Notes                                                                |
+|----------|----------|------------|----------------------------------------------------------------------|
+| Najeeb   | APPROVED | 2026-05-25 | All 9 recommendations accepted as-is. Implementation cleared to start.|
+| Salma    | pending  |            |                                                                      |
 
 ---
 

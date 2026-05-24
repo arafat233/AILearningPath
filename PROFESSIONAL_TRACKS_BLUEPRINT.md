@@ -359,33 +359,39 @@ Not every track has the same shape. Document upfront so we don't over-fit on Jav
 
 ---
 
-## 11. Open Decisions (blockers)
+## 11. Decisions — LOCKED 2026-05-25
 
-These must be answered before code lands. Update this section with the decision + date.
+All blocker decisions approved by Najeeb 2026-05-25. See `PRO_TRACK_PLAN.md` §3 for the full nine-row decision table including UX-flow items (#7–#9). Summary below:
 
 ### 11.1 Reuse `NcertChapter` / `NcertTopicContent` vs new `Pro*` models
-- **Option A:** Add `track: String` + `language: String` discriminator to existing models. Cheap, one migration, but pollutes the K-12 schema.
-- **Option B:** New `ProModule` / `ProTopic` models. Clean separation, but ~30% schema duplication.
-- **Recommended:** B (clean separation). K-12 and pro have diverging fields long-term (exercises, projects, code execution).
-- **Decision:** PENDING — date __________
+- **LOCKED: B — new `Pro*` models** in `models/proModels.js`. Clean separation from K-12.
 
 ### 11.2 Code execution sandbox provider
-- **Recommended:** Self-host Judge0 on Oracle Cloud (`144.24.154.247`)
-- **Decision:** PENDING — date __________
+- **LOCKED: Self-host Judge0** on Oracle Cloud (`144.24.154.247:2358`) via Docker Compose.
 
 ### 11.3 User model — `tracks[]` array vs single `currentTrack`
-- **Recommended:** Array. Users will move between school and pro freely.
-- **Decision:** PENDING — date __________
+- **LOCKED: `tracks: [{ key, role, enrolledAt }]` array.** Users may be enrolled in multiple tracks simultaneously.
 
 ### 11.4 Pricing model for professional tracks
-- Out of scope of this doc. Track-pricing decision goes in `BLUEPRINT.md` / pricing notes.
-- **Decision:** PENDING — date __________
+- **Still PENDING** — out of scope of pilot. Defer to a separate pricing decision.
 
 ### 11.5 Where does the Java content live in git?
-- **Option A:** Commit raw `codequest_content/java/modules/**` into the repo (~925 files, ~50MB)
-- **Option B:** Keep raw content out of git, seed scripts read from a configurable path
-- **Recommended:** A — single source of truth, no broken seeds when paths change. Use git-lfs if size becomes a problem.
-- **Decision:** PENDING — date __________
+- **LOCKED: A — commit into repo** at `ai-learning-backend/backend/content/pro/java/**`. Use git-lfs if size exceeds 200MB.
+
+### 11.6 Pilot rollout gating
+- **LOCKED: Internal only.** Feature flag `PRO_TRACKS_ENABLED_FOR_EMAILS` (env-var allowlist; Najeeb + Salma only) gates `/api/v1/pro/*` and `/pro/*` routes during pilot.
+
+### 11.7 Onboarding flow
+- **LOCKED: New `/welcome` audience picker** after `/register`, before track-specific onboarding. Three audience cards: School / Professional / Competitive.
+
+### 11.8 Register form
+- **LOCKED: Strip grade + examDate** from `Register.jsx`. Those fields move into school-specific onboarding only.
+
+### 11.9 Parent-vs-self model for pro tracks
+- **LOCKED: Pro/competitive learner is always `user` themselves.** Never a `linkedStudent`. School track keeps the existing parent → child model.
+
+### 11.10 Dashboard merge
+- **LOCKED: Single `Dashboard.jsx` with `<TrackTabs />` switcher.** Active track persisted via `?track=<key>` URL param.
 
 ---
 
@@ -433,3 +439,4 @@ These must be answered before code lands. Update this section with the decision 
 | Date       | Change                                                                 |
 |------------|------------------------------------------------------------------------|
 | 2026-05-25 | Initial draft. Java pilot, DSA visualizer sub-track, future track queue, open decisions documented. |
+| 2026-05-25 | All 9 pre-flight decisions LOCKED (#11.1–#11.10, except #11.4 pricing which is deferred). Implementation cleared to begin Day 1 of pilot. |

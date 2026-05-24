@@ -34,3 +34,8 @@ SECURITY_CHECKLIST.md
 SECURITY_CHECKLIST.private.md
 e2e-bot/.env
 **/e2e-bot/.env
+
+# Runtime log files
+backend.err
+frontend.err
+*.err

@@ -379,10 +379,282 @@ These don't block the pilot, but we'll need to decide before bulk import:
 
 ---
 
-## 10. References
+## 10. MASTER CHECKLIST — Pilot Runbook
+
+> Tick each box as you complete it. Phases are sequential within a day; tasks within a phase can mostly run in parallel.
+> If a check is `[~]` it means "skipped intentionally — document why in §9 notes".
+> Time estimates are rough — measure actual time and update §9.
+
+### Phase 0 — Prerequisites (BEFORE Day 1 starts — ~45 min)
+
+- [ ] SSH access to Oracle box `144.24.154.247` verified
+- [ ] Docker installed on Oracle (`docker --version` ≥ 20.x)
+- [ ] Free disk space on Oracle ≥ 5 GB (`df -h`)
+- [ ] Free RAM headroom on Oracle ≥ 1 GB (`free -h`)
+- [ ] Local Mongo dev instance reachable (`mongosh` connects)
+- [ ] Local Redis dev instance reachable (`redis-cli ping`)
+- [ ] Backend `.env` baseline boots without errors
+- [ ] Frontend dev server boots (`npm run dev` in frontend)
+- [ ] All existing Jest tests passing locally
+- [ ] **Production MongoDB backup taken** (mongodump) — before any user migration
+- [ ] Source content folder accessible: `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_M46\codequest_content\java\modules\m1_fundamentals\topics\t1_hello_world`
+- [ ] `.env` new keys queued: `JUDGE0_URL`, `JUDGE0_AUTH_TOKEN`, `PRO_TRACKS_ENABLED_FOR_EMAILS`, `SANDBOX_MAX_RUNS_PER_HOUR`, `SANDBOX_MAX_RUNS_PER_DAY`
+- [ ] Working branch confirmed: `main` per project memory (no feature branch)
+
+### Phase 1 — Judge0 sandbox infrastructure (Day 1, ~90 min)
+
+- [ ] Create `infra/judge0/docker-compose.judge0.yml`
+- [ ] Create `infra/judge0/judge0.conf` (hardened — no network egress, no privileged)
+- [ ] Pin Judge0 image to a fixed version tag (never `:latest`)
+- [ ] Local spin-up first: `docker compose up -d` succeeds
+- [ ] Smoke: `curl localhost:2358/about` returns 200
+- [ ] Smoke: POST Java Hello World, response stdout = `Hello, World!\n`
+- [ ] Configured: CPU limit 5s, memory 256 MB, max output 8 KB
+- [ ] Auth token set (do not run open to the network)
+- [ ] Deploy compose to Oracle box
+- [ ] Firewall: port 2358 internal-only (no public ingress)
+- [ ] Backend `GET /healthz` extended to include Judge0 reachability check
+- [ ] `infra/judge0/README.md` runbook: start, stop, logs, restart, rotate token
+
+### Phase 2 — Data models & user migration (Day 1, ~90 min)
+
+- [ ] `models/proModels.js` created with all 7 schemas (ProTrack, ProModule, ProTopic, ProExercise, ProProject, ProSubmission, ProProgress)
+- [ ] Unique indexes verified: `trackKey`, `moduleId`, `topicId`, `exerciseId`, `projectId`
+- [ ] `ProSubmission` has 30-day TTL index
+- [ ] `models/index.js` re-exports the new models
+- [ ] User schema: add `tracks: [{ key, role, enrolledAt }]`
+- [ ] Migration script `migrations/2026-05-25_users_add_tracks.mjs` backfills existing users to `tracks: [{ key: "school", role: "learner" }]`
+- [ ] Migration tested on local dev DB
+- [ ] Existing User-related Jest tests still pass
+- [ ] Migration documented in `migrations/README.md`
+
+### Phase 3 — Backend services, middleware, and API (Day 1, ~180 min)
+
+- [ ] `utils/trackFilter.js` middleware (mirror of `boardFilter.js`)
+- [ ] `middleware/featureFlag.js` reading `PRO_TRACKS_ENABLED_FOR_EMAILS` (comma-separated allowlist)
+- [ ] `services/codeExecutionService.js`:
+  - [ ] `runCode({ source, language, stdin, timeLimitMs, memoryLimitKb })`
+  - [ ] `runTestCases({ source, language, testCases })`
+  - [ ] Redis-backed per-user rate limit (30/hr, 100/day)
+  - [ ] Output truncated to 8 KB
+  - [ ] Standard result shape returned
+  - [ ] **PII guard:** raw user code never logged at any log level
+- [ ] `services/proService.js`:
+  - [ ] `listTracks(userId)`
+  - [ ] `getTrack(trackSlug, userId)`
+  - [ ] `getModule(trackKey, moduleId, userId)`
+  - [ ] `getTopic(topicId, userId)`
+  - [ ] `getExercise(exerciseId, userId)`
+  - [ ] `submitExercise({ userId, exerciseId, code })`
+  - [ ] `getProgress(userId, trackKey)`
+  - [ ] `enroll(userId, trackKey)`
+- [ ] `controllers/proController.js` — thin handlers, no business logic
+- [ ] `validators/proValidator.js` — Joi schemas per endpoint
+- [ ] `routes/proRoutes.js` mounted under `/api/v1/pro`
+- [ ] Route stack: `auth → featureFlag → validate → trackFilter → controller`
+- [ ] Submit endpoint has additional per-route rate limiter
+- [ ] CORS confirmed — pro routes inherit existing config from `FRONTEND_URL`
+- [ ] All errors flow through global `AppError` handler
+
+### Phase 4 — Pilot content seed (Day 1, ~60 min)
+
+- [ ] Copy source content folder to repo: `ai-learning-backend/backend/content/pro/java/m1_fundamentals/topics/t1_hello_world/` (all 4 files: topic.json, exercises.json, project.json, README.md)
+- [ ] `config/seedJavaPilot.js`:
+  - [ ] Idempotent upserts on all 7 models
+  - [ ] Schema-mapping table at top of file as comment
+  - [ ] Logs counts of inserted/updated docs at end
+- [ ] npm script `seed:pro-java-pilot` added
+- [ ] Seed runs cleanly against local DB
+- [ ] Verified in DB: 1 ProTrack, 1 ProModule, 1 ProTopic, 3 ProExercises, 1 ProProject
+- [ ] Each exercise has non-empty `testCases[]`
+
+### Phase 5 — Backend tests (Day 1, ~90 min)
+
+- [ ] `__tests__/proService.test.js` — every service function happy + error paths
+- [ ] `__tests__/codeExecutionService.test.js` — happy path, compile error, timeout, OOM, rate-limit hit
+- [ ] `__tests__/trackFilter.test.js` — school-only user → 403 on pro routes
+- [ ] `__tests__/featureFlag.test.js` — non-allowlisted email → 403
+- [ ] `__tests__/proRoutes.integration.test.js` — full route table with mocked sandbox
+- [ ] Existing K-12 tests still pass (`npm test` exit 0)
+- [ ] Coverage for new pro modules ≥ 80%
+- [ ] `npm run validate:track-isolation` script added (analogous to `validate:board-isolation`) and exits 0
+
+### Phase 6 — Frontend infra & routing (Day 2, ~60 min)
+
+- [ ] Install `@monaco-editor/react` at a pinned version
+- [ ] Vite config: lazy-load Monaco only on `/pro/*` routes (dynamic import)
+- [ ] Base bundle size verified — no regression on K-12 routes (Lighthouse before/after)
+- [ ] New routes added in `App.jsx`:
+  - [ ] `/welcome`
+  - [ ] `/onboarding/school` (canonical) + `/onboarding` redirect for back-compat
+  - [ ] `/onboarding/pro`
+  - [ ] `/pro`
+  - [ ] `/pro/:trackSlug`
+  - [ ] `/pro/:trackSlug/:moduleId`
+  - [ ] `/pro/:trackSlug/:moduleId/:topicId`
+  - [ ] `/pro/exercise/:exerciseId`
+- [ ] All `/pro/*` routes wrapped in AuthGuard + FeatureFlagGuard
+- [ ] Error boundary mounted at `/pro/*` root
+- [ ] 404 handler for unknown pro routes
+
+### Phase 7 — Signup, Welcome, and onboarding (Day 2, ~120 min)
+
+- [ ] `Register.jsx` — remove `grade` and `examDate` inputs
+- [ ] `Register.jsx` — after register, navigate to `/welcome` (not `/onboarding`)
+- [ ] `services/api.js` `register()` payload no longer sends grade/examDate
+- [ ] Backend `authController.register` tolerates missing grade/examDate (back-compat)
+- [ ] `pages/Welcome.jsx` created:
+  - [ ] Hero: "Welcome to Stellar — what are you here for?"
+  - [ ] Three cards: School (live) / Professional (live) / Competitive (Coming soon, disabled)
+  - [ ] Card click sets intended track in session storage, navigates accordingly
+  - [ ] Matches Dashboard.jsx design tokens
+- [ ] `pages/onboarding/School.jsx` (renamed from `Onboarding.jsx`):
+  - [ ] Same fields as before
+  - [ ] On submit also pushes `{ key: "school" }` to `user.tracks[]`
+- [ ] `pages/onboarding/Pro.jsx` created:
+  - [ ] Language picker (Java live, Python/JS/C++ visually present but disabled)
+  - [ ] Experience: Beginner / Some coding / Experienced
+  - [ ] Goal: First job / Switch jobs / Hobby / Personal project
+  - [ ] Optional: current role
+  - [ ] On submit: POST `/api/v1/pro/enroll` → navigate `/?track=pro_java`
+
+### Phase 8 — Pro track UI (Day 2, ~180 min)
+
+- [ ] `pages/professional/ProTrackPicker.jsx`
+- [ ] `pages/professional/ProCourseLanding.jsx`
+- [ ] `pages/professional/ProModuleView.jsx`
+- [ ] `pages/professional/ProTopicView.jsx`
+- [ ] `pages/professional/ProExerciseRunner.jsx`
+- [ ] `components/pro/CodeEditor.jsx` (Monaco wrapper)
+- [ ] `components/pro/TestRunner.jsx`
+- [ ] `components/pro/SyntaxBreakdown.jsx`
+- [ ] `components/pro/HintBox.jsx`
+- [ ] Every async fetch has explicit loading + error UI
+- [ ] Error states implemented: sandbox down (503), rate limited (429), compile error, test failure
+- [ ] Empty states: no progress yet, no submissions yet
+- [ ] Keyboard accessibility (tab order, ARIA on tabs, focus rings)
+- [ ] Dark mode parity verified
+- [ ] All pages match Dashboard.jsx style (no max-w on page roots, fluid grids)
+- [ ] Mobile graceful degradation: Monaco hidden or read-only on `<640px` viewport, fall back to a "best viewed on desktop" notice for v1
+
+### Phase 9 — Dashboard merge & settings (Day 2, ~60 min)
+
+- [ ] `Dashboard.jsx` reads `user.tracks[]`
+- [ ] `components/TrackTabs.jsx` — renders tabs from enrolled tracks, syncs to `?track=` URL param
+- [ ] `components/dashboard/SchoolDashboardCards.jsx` — existing cards extracted
+- [ ] `components/dashboard/ProDashboardCards.jsx`:
+  - [ ] Continue learning card (last topic visited via localStorage)
+  - [ ] Total XP card
+  - [ ] Streak card
+  - [ ] Today's exercise card
+  - [ ] Browse modules CTA
+- [ ] Dashboard renders correct cards based on active track param
+- [ ] `Settings.jsx` — new "My tracks" section listing enrolled tracks
+- [ ] Settings — "Add another track" button → `/welcome`
+
+### Phase 10 — Analytics & telemetry (Day 2, ~30 min)
+
+- [ ] Events emitted (use existing analytics service, else log to backend):
+  - [ ] `pro.enrolled` { trackKey }
+  - [ ] `pro.topic_viewed` { topicId }
+  - [ ] `pro.exercise_started` { exerciseId }
+  - [ ] `pro.code_submitted` { exerciseId, language, durationMs }
+  - [ ] `pro.exercise_passed` { exerciseId, attempts }
+  - [ ] `pro.exercise_failed` { exerciseId, reason }
+- [ ] Sandbox latency tracked in logs (p50, p95)
+- [ ] Rate-limit-hit counter incremented per user
+
+### Phase 11 — Acceptance / smoke (Day 2, ~60 min)
+
+- [ ] **Happy path walkthrough** with a fresh email on the allowlist:
+  - [ ] Sign up
+  - [ ] Land on `/welcome`, pick Professional
+  - [ ] Complete pro onboarding
+  - [ ] Land on Dashboard with `pro_java` track active
+  - [ ] Click into Java → Module 1 → Topic 1
+  - [ ] Read teaching content
+  - [ ] Solve Exercise 1 (warmup) → green pass
+  - [ ] Solve Exercise 2 (easy) → green pass
+  - [ ] Solve Exercise 3 (medium) → green pass
+  - [ ] XP reflected on dashboard
+- [ ] **Regression**: existing K-12 user signs in, no broken flows, board isolation intact
+- [ ] **Isolation**: school-only user hits `/api/v1/pro/tracks` → 403
+- [ ] **Feature flag**: user NOT on allowlist hits `/api/v1/pro/*` → 403
+- [ ] **Load**: 100 sequential Hello World submissions, sandbox does not crash
+- [ ] **Audit scripts**: `audit:coverage`, `validate:board-isolation`, `validate:track-isolation` all exit 0
+- [ ] **Lighthouse**: pro topic page score ≥ baseline; K-12 pages no regression
+
+### Phase 12 — Documentation & memory (Day 2, ~45 min)
+
+- [ ] `BLUEPRINT.md` — add Tracks table (school/professional/competitive) and pro_java entry
+- [ ] `CONTENT_STATUS.md` — add `pro_java` row
+- [ ] `PROFESSIONAL_TRACKS_BLUEPRINT.md` changelog — pilot shipped entry
+- [ ] `PRO_TRACK_PLAN.md` §9 sign-off — fill in actual elapsed time + lessons learned
+- [ ] Memory file `project_pro_java_pilot.md` written
+- [ ] `MEMORY.md` index updated
+- [ ] `infra/judge0/README.md` runbook reviewed
+- [ ] `migrations/README.md` updated with user-tracks migration entry
+
+### Phase 13 — Commit, tag, push (Day 2, ~15 min)
+
+- [ ] All changes committed to `main` in small, logical commits (no big-bang)
+- [ ] Tag `pilot-pro-java-v1` on the final commit
+- [ ] `git push origin main` and tag pushed
+- [ ] Graphify hook ran successfully on commit
+- [ ] `graphify update .` run manually (project rule)
+- [ ] PR review (self) on GitHub — diff sanity check
+
+### Phase 14 — Post-pilot follow-ups (NOT in 2 days — separate plan)
+
+- [ ] Bulk-import remaining 208 Java topics (M1 rest + M2–M46)
+- [ ] Decide: weeks 2–3 priority — Python OR DSA visualizers
+- [ ] Open pro track to public (remove feature flag)
+- [ ] Pricing model decision (`PROFESSIONAL_TRACKS_BLUEPRINT.md` §11.4 still PENDING)
+- [ ] Marketing announcement
+- [ ] Certificate issuance flow
+- [ ] Mentor / reviewer role flow
+- [ ] AI tutor scoped to pro track context (Phase 6 RAG)
+
+---
+
+### Total estimate
+
+| Day | Phases    | Estimated time |
+|-----|-----------|----------------|
+| 0   | 0         | 45 min         |
+| 1   | 1, 2, 3, 4, 5 | ~8.5 hours |
+| 2   | 6, 7, 8, 9, 10, 11, 12, 13 | ~9.5 hours |
+
+**Honest:** Day 2 is tight. If Phase 8 or 11 overflows, defer Phase 10 analytics to a Day 3 polish pass — analytics is not Definition of Done.
+
+### Items I deliberately considered and rejected for v1
+
+| Item                                       | Why deferred                                             |
+|--------------------------------------------|----------------------------------------------------------|
+| E2E browser tests (Playwright/Cypress)     | Internal pilot, manual smoke is enough                  |
+| Visual regression tests                    | No baseline yet; defer                                   |
+| i18n / translated strings                  | Pro track is English-only for v1                         |
+| Spaced repetition / forgetting curve UI    | DSA visualizer plan §7.4                                 |
+| Certificate generation                     | Post-pilot                                               |
+| Public landing page rework (`Landing.jsx`) | Audience picker happens AFTER register; v2              |
+| Mobile Monaco                              | Code editor is desktop-first; mobile shows fallback     |
+| SEO for `/pro/*`                           | Routes are gated; no public discovery needed yet         |
+| Email notifications (welcome, streak)      | Stretch; not blocking pilot                              |
+| Submission code export / "download my code"| Not v1                                                   |
+| Pro track admin tooling                    | Content seeded from JSON; admin UI can wait              |
+| Terms of Service update for code subs      | Pilot is internal; revisit before public open            |
+
+---
+
+## 11. References
 
 - Full multi-track vision: `PROFESSIONAL_TRACKS_BLUEPRINT.md`
 - K-12 content pipeline pattern: `CONTENT_PIPELINE.md`
 - Project blueprint: `BLUEPRINT.md`
 - Content status tracker: `CONTENT_STATUS.md`
+- Existing board isolation pattern (model for `trackFilter.js`): `ai-learning-backend/backend/utils/boardFilter.js`
+- Existing schemas to model after: `models/ncertChapterModel.js`, `models/ncertTopicContentModel.js`
+- Existing signup flow files: `pages/Register.jsx`, `pages/Onboarding.jsx`, `pages/StartOnboarding.jsx`
 - Source content for pilot: `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_M46\codequest_content\java\modules\m1_fundamentals\topics\t1_hello_world`
+- Judge0 docs: `https://judge0.com` (self-hosted edition)
+- Monaco editor: `@monaco-editor/react`

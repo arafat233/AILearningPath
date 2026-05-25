@@ -1,0 +1,81 @@
+# Judge0 — local-only sandbox for the pro-track Java pilot.
+#
+# Why local-only: PRO_TRACK_PLAN.md §3 decision #2 (locked 2026-05-25, amended
+# same day to local-only). Pilot is internal (Najeeb + Salma allowlist), no
+# public traffic, so the production hosting decision is deferred to Phase 14.
+#
+# Security:
+#   - Postgres + Redis are not exposed outside the compose network.
+#   - The Judge0 server port is bound to 127.0.0.1 only (never 0.0.0.0).
+#   - Image tags are pinned; never use :latest.
+#   - JUDGE0_AUTH_TOKEN must be set in .env so the backend rejects
+#     unauthenticated submissions even on localhost.
+#
+# Usage:
+#   docker compose -f docker-compose.judge0.yml up -d        # start
+#   docker compose -f docker-compose.judge0.yml ps           # status
+#   docker compose -f docker-compose.judge0.yml logs -f      # tail logs
+#   docker compose -f docker-compose.judge0.yml down         # stop
+#   curl localhost:2358/about                                # smoke test
+
+name: stellar-judge0
+
+services:
+  server:
+    image: judge0/judge0:1.13.0
+    container_name: stellar-judge0-server
+    restart: unless-stopped
+    ports:
+      # 127.0.0.1 ONLY — never bind to the LAN/internet.
+      - "127.0.0.1:2358:2358"
+    env_file:
+      - judge0.conf
+    privileged: true   # required by isolate sandbox to set up cgroups
+    depends_on:
+      - db
+      - redis
+    networks:
+      - judge0net
+
+  workers:
+    image: judge0/judge0:1.13.0
+    container_name: stellar-judge0-workers
+    restart: unless-stopped
+    command: ["./scripts/workers"]
+    env_file:
+      - judge0.conf
+    privileged: true
+    depends_on:
+      - db
+      - redis
+    networks:
+      - judge0net
+
+  db:
+    image: postgres:13.10
+    container_name: stellar-judge0-db
+    restart: unless-stopped
+    env_file:
+      - judge0.conf
+    volumes:
+      - judge0-pg:/var/lib/postgresql/data
+    networks:
+      - judge0net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: stellar-judge0-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - judge0-redis:/data
+    networks:
+      - judge0net
+
+volumes:
+  judge0-pg:
+  judge0-redis:
+
+networks:
+  judge0net:
+    driver: bridge

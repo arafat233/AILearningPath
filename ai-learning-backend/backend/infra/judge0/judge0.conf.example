@@ -1,0 +1,49 @@
+# Judge0 environment config — copy to judge0.conf and edit secrets.
+# This file is sourced by every container in docker-compose.judge0.yml.
+#
+# DO NOT commit judge0.conf with real secrets — only judge0.conf.example.
+
+# ── Judge0 server ────────────────────────────────────────────────────────────
+# Auth token required on every request. Generate with:
+#   openssl rand -hex 32
+# Then copy into both this file AND the backend's main .env as JUDGE0_AUTH_TOKEN.
+AUTHN_TOKEN=__CHANGE_ME__
+AUTHZ_TOKEN=__CHANGE_ME__
+
+# Disable open submissions — every call must carry the auth token.
+ENABLE_WAIT_RESULT=true
+
+# ── Sandbox resource limits (per submission) ─────────────────────────────────
+# These match PRO_TRACK_PLAN.md §4.3.
+CPU_TIME_LIMIT=5            # hard CPU seconds
+CPU_EXTRA_TIME=1            # grace time before SIGKILL
+WALL_TIME_LIMIT=10          # wall-clock seconds
+MEMORY_LIMIT=262144         # 256 MB in KB
+STACK_LIMIT=131072          # 128 MB in KB
+MAX_PROCESSES_AND_OR_THREADS=64
+ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT=false
+ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT=true
+MAX_FILE_SIZE=4096          # KB
+MAX_QUEUE_SIZE=200
+MAX_SUBMISSION_BATCH_SIZE=20
+
+# Output truncation (we trim again on the backend before sending to client)
+ENABLE_COMPILER_OPTIONS=true
+ALLOWED_LANGUAGES_FOR_COMPILE_OPTIONS=
+ENABLE_COMMAND_LINE_ARGUMENTS=true
+USE_DOCS_AS_SUBMISSION_BODY=false
+
+# ── Disable outbound network access from sandboxes ──────────────────────────
+# isolate's default is to grant /etc/hosts + DNS; we want neither.
+ENABLE_NETWORK=false
+
+# ── Postgres (internal — never exposed outside the compose network) ─────────
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_DB=judge0
+POSTGRES_USER=judge0
+POSTGRES_PASSWORD=__CHANGE_ME__
+
+# ── Redis (internal) ────────────────────────────────────────────────────────
+REDIS_HOST=redis
+REDIS_PORT=6379

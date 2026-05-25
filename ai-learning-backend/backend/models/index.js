@@ -25,6 +25,15 @@ const userSchema = new mongoose.Schema({
     type:     String,
     validate: { validator: (v) => /^[a-f\d]{24}$/i.test(v), message: "Invalid student userId" },
   }], // student ObjectIds stored as strings
+  // Pro-track enrolment — added 2026-05-25 per PRO_TRACK_PLAN.md §4.2.
+  // Defaults to empty; existing users get backfilled to [{ key: "school" }]
+  // by migrations/2026-05-25_users_add_tracks.mjs (run after Mongo backup).
+  tracks: [{
+    key:        { type: String, required: true },                          // "school" | "pro_java" | ...
+    role:       { type: String, default: "learner" },                      // learner | mentor | reviewer
+    enrolledAt: { type: Date,   default: Date.now },
+    _id: false,
+  }],
   inviteCode:     { type: String, unique: true, sparse: true },
   // Password reset
   passwordResetToken:   { type: String, default: null },

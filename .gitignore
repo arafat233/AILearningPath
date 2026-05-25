@@ -39,3 +39,11 @@ e2e-bot/.env
 backend.err
 frontend.err
 *.err
+
+# Pro-track Java pilot — Judge0 sandbox secrets
+# judge0.conf carries the AUTHN_TOKEN + Postgres password; only the .example is committed.
+ai-learning-backend/backend/infra/judge0/judge0.conf
+**/infra/judge0/judge0.conf
+
+# Mongo backups
+backups/

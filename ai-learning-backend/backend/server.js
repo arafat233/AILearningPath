@@ -64,6 +64,7 @@ import competitionV2Routes from "./routes/competitionV2Routes.js";
 import liveRoomV2Routes  from "./routes/liveRoomV2Routes.js";
 import parentV2Routes    from "./routes/parentV2Routes.js";
 import schoolGroupV2Routes from "./routes/schoolGroupV2Routes.js";
+import proRoutes         from "./routes/proRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
 dotenv.config();
@@ -238,6 +239,7 @@ app.use("/api/v1/competition-v2", competitionV2Routes);
 app.use("/api/v1/live-room",      liveRoomV2Routes);
 app.use("/api/v1/parent",         parentV2Routes);
 app.use("/api/v1/school-group",   schoolGroupV2Routes);
+app.use("/api/v1/pro",            proRoutes);
 
 // API docs — only in non-production or when ENABLE_SWAGGER=true
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {

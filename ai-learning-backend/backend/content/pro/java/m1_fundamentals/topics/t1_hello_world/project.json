@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t1_proj",
+  "linked_topic": "java_m1_t1",
+  "level": "mini",
+  "name": "Build Your Bio Page",
+  "estimated_minutes": 25,
+  "difficulty": 2,
+  
+  "scenario": "You just finished interviewing at a startup, and the recruiter says 'Send us a quick Java program that introduces yourself — anything you want, just show us you can write code.' This actually happens. Some companies use these as low-pressure ways to verify candidates can actually code before scheduling technical interviews.",
+  
+  "description": "Build a Java program that prints a structured personal bio page to the console. Make it look professional — like something you'd actually want a hiring manager to see.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named 'BioPage' in file BioPage.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Includes at least 5 sections of information (e.g., Name, Education, Skills, Goals, Interests)",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Uses visual structure — at least one separator line and consistent formatting",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Has a clear title at the top",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Output is at least 12 lines long",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Uses a mix of print() and println() to create inline formatting",
+        "weight": 10
+      },
+      {
+        "id": "bonus_2",
+        "description": "Uses creative ASCII art or special characters for visual appeal",
+        "weight": 10
+      },
+      {
+        "id": "bonus_3",
+        "description": "Includes a 'Goals' or 'What I'm Looking For' section that's specific and authentic",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Output formatted with aligned columns (e.g., labels and values lined up)",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "starter_code": "// Build YOUR bio page below\n// Replace the placeholder with your actual info\n// Make it look professional — like something you'd send to a recruiter\n\npublic class BioPage {\n    public static void main(String[] args) {\n        // Your bio page code here\n        \n    }\n}",
+  
+  "example_output": "============================================\n             ABOUT AISHA KHAN\n============================================\n\nROLE:        Aspiring Backend Developer\nLOCATION:    Bangalore, India\nEDUCATION:   B.Tech Computer Science, 2024\n\n--------------------------------------------\nSKILLS\n--------------------------------------------\n  • Java, Python\n  • Git, Linux basics\n  • Currently learning: Spring Boot\n\n--------------------------------------------\nGOALS\n--------------------------------------------\n  Looking for backend developer roles where\n  I can work on real-world systems while\n  growing my expertise in distributed systems.\n\n--------------------------------------------\nCONTACT\n--------------------------------------------\n  Email:  aisha.khan@example.com\n  GitHub: github.com/aishak\n\n============================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 20,
+      "criteria": [
+        "Compiles without warnings (10 pts)",
+        "Runs without runtime errors (10 pts)"
+      ]
+    },
+    {
+      "category": "Structure",
+      "points": 30,
+      "criteria": [
+        "Has clear title at top (5 pts)",
+        "Has at least 5 distinct sections (10 pts)",
+        "Uses separators/borders (5 pts)",
+        "Output is at least 12 lines (5 pts)",
+        "Class properly named (5 pts)"
+      ]
+    },
+    {
+      "category": "Content Quality",
+      "points": 25,
+      "criteria": [
+        "Information is well-organized (10 pts)",
+        "Easy to read at a glance (10 pts)",
+        "Looks professional (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Consistent indentation (5 pts)",
+        "No unnecessary statements (5 pts)",
+        "Comments explaining sections (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 40,
+      "criteria": [
+        "Mix of print/println shown thoughtfully (10 pts)",
+        "Creative visual elements (10 pts)",
+        "Specific, authentic content (10 pts)",
+        "Aligned formatting (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "unrestricted",
+  "ai_policy_explanation": "This is your FIRST project — focus on getting comfortable with Java syntax. Use AI hints if you get stuck. The goal is to practice the println pattern and build something real. By later projects, AI usage will be more limited, but for now, just get it working.",
+  
+  "submission_instructions": "Save your code in BioPage.java. Run it locally (or in our editor) and verify the output looks right. Submit through the platform — your code will be auto-graded against the rubric, and you can also share with the community for feedback.",
+  
+  "tips_for_success": [
+    "Don't try to do too much. Pick 5-7 sections that are meaningful.",
+    "Look at LinkedIn profiles or GitHub READMEs for inspiration on what to include.",
+    "Use real information about yourself — this makes the project meaningful.",
+    "Run your code frequently as you build. Don't write all 30 lines and then try to run it.",
+    "Match indentation. Java doesn't require it but consistent code is professional code.",
+    "Save your final code to GitHub — this is your first project for your portfolio!"
+  ],
+  
+  "concepts_reinforced": [
+    "Class structure",
+    "Main method",
+    "System.out.println for output",
+    "Multi-line console output",
+    "Basic code organization"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Building this teaches you something tutorials can't: making structural decisions. How long should each section be? What order makes sense? How much visual separation is too much? These are real engineering decisions you'll make every day on the job, just with more complex code. Starting here, building 'taste' for clean output, is genuinely valuable.",
+  
+  "extensions_for_advanced_learners": [
+    "Add command-line arguments support to customize the bio for different audiences",
+    "Read information from a text file (you'll learn this later — note this as a future improvement)",
+    "Make it interactive (using Scanner — also covered later)",
+    "Add color codes for terminal output (advanced, optional)"
+  ]
+}

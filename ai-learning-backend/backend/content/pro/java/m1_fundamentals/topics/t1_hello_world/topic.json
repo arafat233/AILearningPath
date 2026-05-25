@@ -1,0 +1,286 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t1",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 1,
+  "name": "Hello World & Setup",
+  "slug": "hello-world-and-setup",
+  
+  "metadata": {
+    "difficulty": 1,
+    "estimated_minutes": 30,
+    "prerequisites": [],
+    "concepts_taught": [
+      "java_installation",
+      "main_method",
+      "class_structure",
+      "print_statement",
+      "compilation_process",
+      "ide_basics"
+    ],
+    "skills_developed": [
+      "setting_up_environment",
+      "writing_first_program",
+      "running_java_code",
+      "reading_compiler_errors"
+    ],
+    "career_relevance": "Every Java developer's first day on the job involves setting up their development environment and running their first program. This is the foundation everything else builds on. You'll repeat this process every time you join a new company, contribute to a new project, or set up a new machine.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Every Java application — from the Android apps on your phone to enterprise banking systems processing billions of transactions — starts with the same thing: a program that runs. Before you can build anything impressive, you need to know how to write code, compile it, and run it. That's what 'Hello World' actually teaches you. It's not about printing 'Hello World' — it's about understanding the complete cycle of writing → compiling → running that you'll repeat thousands of times in your career.",
+    "what_you_will_build": "By the end of this topic, you'll have Java installed on your machine, written your first program from scratch, and run it successfully. You'll also understand WHY the code looks the way it does (instead of just copy-pasting it like most tutorials teach)."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Java is what's called a compiled language. That word matters. It means you don't just write code and run it — there's a step in between. Let's understand the full picture before writing anything.\n\nWhen you write a Java program, three things happen:\n\n1. You write code in a .java file (this is human-readable text)\n2. The Java compiler (javac) converts your code into something called bytecode (.class file)\n3. The Java Virtual Machine (JVM) executes that bytecode\n\nThis is why Java is famous for 'write once, run anywhere.' Your code becomes bytecode, and ANY machine with a JVM (Windows, Mac, Linux, your fridge — yes, really) can run it.",
+      
+      "why_it_matters": "Understanding this matters because when something goes wrong, knowing which stage failed tells you how to fix it. Got a compilation error? Your code has a syntax problem. Got a runtime error? Your code compiled fine but did something illegal while running. Confusing the two is a beginner mistake that costs hours.",
+      
+      "analogy": "Think of it like cooking. The recipe (your .java file) is what you write. The prep work — chopping, measuring, organizing (compilation) — converts it into something ready to cook. The actual cooking (JVM execution) is when the dish gets made. You can't skip prep and start cooking. Same with Java."
+    },
+    
+    "syntax_breakdown": {
+      "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+      "annotations": [
+        {
+          "code_part": "public class HelloWorld",
+          "explanation": "Every Java file must contain a class. The class name (HelloWorld) MUST match the filename (HelloWorld.java). 'public' means this class is accessible from anywhere — we'll cover access modifiers later."
+        },
+        {
+          "code_part": "public static void main(String[] args)",
+          "explanation": "This is the main method — the entry point. When you run a Java program, the JVM looks for this exact signature. Change anything (case, return type, parameters) and it won't run. This is one of the few times in programming where you must memorize the exact incantation."
+        },
+        {
+          "code_part": "System.out.println(\"Hello, World!\")",
+          "explanation": "This prints text to the console. 'System.out' is the standard output stream. 'println' means 'print line' (prints text and adds a newline). The text in quotes is what gets printed."
+        },
+        {
+          "code_part": "Curly braces { }",
+          "explanation": "Braces define blocks of code. The class has a block. The main method has a block inside the class. Every opening brace needs a closing brace — this is a rule, not a suggestion."
+        },
+        {
+          "code_part": "Semicolons ;",
+          "explanation": "Java statements end with semicolons. Miss one, and the compiler will yell at you. This trips up developers coming from Python. Get used to typing them."
+        }
+      ]
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the Java execution pipeline: HelloWorld.java → javac → HelloWorld.class → java → JVM → Output. Arrows indicate flow. Each stage has icons (source file, compiler, bytecode file, VM, terminal output).",
+      "alt_text": "Diagram showing source code being compiled to bytecode, then executed by JVM"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You just joined a startup as a junior Java developer. On day one, your tech lead Priya says: 'Set up your environment and write a program that introduces yourself to the team. Just a console output is fine.' This is a real onboarding task at many companies — they want to verify your setup works before giving you real work.",
+    
+    "problem_statement": "Write a Java program that prints the following exact output (without the surrounding quotes):\n\n\"Hi team!\nMy name is Aisha Khan.\nI joined as a Java Developer.\nReady to build great software!\"",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Create a new file",
+        "details": "Create a file called Introduction.java. The filename must match the class name. Use a code editor like VS Code, IntelliJ IDEA, or even Notepad++ — for now, simpler is better."
+      },
+      {
+        "step": 2,
+        "action": "Write the class structure",
+        "details": "Start with the class declaration:\n\npublic class Introduction {\n\n}\n\nNote: filename is Introduction.java, class name is Introduction. They match."
+      },
+      {
+        "step": 3,
+        "action": "Add the main method",
+        "details": "Inside the class braces, add:\n\npublic static void main(String[] args) {\n\n}\n\nThis is where the program starts running."
+      },
+      {
+        "step": 4,
+        "action": "Add the print statements",
+        "details": "Inside the main method braces, add four println statements:\n\nSystem.out.println(\"Hi team!\");\nSystem.out.println(\"My name is Aisha Khan.\");\nSystem.out.println(\"I joined as a Java Developer.\");\nSystem.out.println(\"Ready to build great software!\");"
+      },
+      {
+        "step": 5,
+        "action": "Save and compile",
+        "details": "Save the file. Open terminal in the file's directory. Run:\n\njavac Introduction.java\n\nIf there are no errors, you'll see no output (silence is success in compiler land). A new file Introduction.class is created."
+      },
+      {
+        "step": 6,
+        "action": "Run the program",
+        "details": "Run:\n\njava Introduction\n\nNote: no .class extension. Just the class name. You should see the four lines printed to the terminal."
+      }
+    ],
+    
+    "final_code": "public class Introduction {\n    public static void main(String[] args) {\n        System.out.println(\"Hi team!\");\n        System.out.println(\"My name is Aisha Khan.\");\n        System.out.println(\"I joined as a Java Developer.\");\n        System.out.println(\"Ready to build great software!\");\n    }\n}",
+    
+    "expected_output": "Hi team!\nMy name is Aisha Khan.\nI joined as a Java Developer.\nReady to build great software!",
+    
+    "common_issues": [
+      {
+        "issue": "Error: class Introduction is public, should be declared in a file named Introduction.java",
+        "cause": "File name doesn't match class name",
+        "fix": "Rename your file to match exactly (case matters: Introduction.java, not introduction.java)"
+      },
+      {
+        "issue": "javac: command not found",
+        "cause": "Java JDK is not installed or not in PATH",
+        "fix": "Install JDK and verify PATH is set. Run 'java -version' to check."
+      },
+      {
+        "issue": "';' expected",
+        "cause": "Missing semicolon at end of statement",
+        "fix": "Java statements end with ;. Check each line."
+      }
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Amazon",
+        "use_case": "Every microservice at Amazon (and there are thousands) starts with a main method or Spring Boot entry point. The println statement is replaced with a logger, but the structure is identical to what you just learned."
+      },
+      {
+        "company_context": "Netflix",
+        "use_case": "Netflix's backend is famously Java-based. Their stream processing services, recommendation engines, and content delivery all start with classes containing main methods."
+      },
+      {
+        "company_context": "Banking (HDFC, ICICI, Bank of America)",
+        "use_case": "Core banking systems process millions of transactions per day. They're typically Java applications running 24/7 with the same fundamental structure — entry point classes, just at massive scale."
+      },
+      {
+        "company_context": "Android Apps",
+        "use_case": "If you've ever used WhatsApp, Instagram, or any Android app — large parts are written in Java (or Kotlin, which compiles similarly). Each starts from an entry point and runs in a JVM-like environment."
+      }
+    ],
+    
+    "interview_relevance": "This topic itself rarely appears in interviews — but EVERYTHING you'll be tested on builds from this foundation. Live coding interviews start with you opening an editor and writing a class. If you can't do this quickly, you've lost time before solving the actual problem. The 'Hello World' speed is a real factor — top candidates have the syntax in muscle memory and never have to think about it.",
+    
+    "real_world_workflow": "Day in the life: A Java developer at any company opens their IDE in the morning, navigates to a project, modifies code in classes (built on this structure), runs it locally with similar commands, and pushes changes. The print statements become log statements. The simple class becomes 50 classes that interact. But the core mental model — class → main method → execution — never changes."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "filename_class_mismatch",
+      "what_students_get_wrong": "Naming the file differently from the class. Like having class HelloWorld in a file called helloworld.java or my_file.java.",
+      "remediation": "Reinforce that the filename (case-sensitive) must exactly match the public class name. The compiler enforces this strictly. Practice with multiple file/class examples.",
+      "detection_pattern": "Compilation error about public class declaration"
+    },
+    {
+      "gap_id": "missing_semicolons",
+      "what_students_get_wrong": "Forgetting semicolons at the end of statements. Especially common for students coming from Python.",
+      "remediation": "Train students to mentally end each statement with a semicolon. Show common error message so they recognize it instantly.",
+      "detection_pattern": "Compilation error: ';' expected"
+    },
+    {
+      "gap_id": "main_method_signature",
+      "what_students_get_wrong": "Writing slight variations like 'public void main(String args)' or 'public static void Main()'. Java requires exact signature.",
+      "remediation": "Emphasize that main method signature is exact, not flexible. The JVM looks for this specific signature.",
+      "detection_pattern": "Runtime error: Main method not found"
+    },
+    {
+      "gap_id": "compiler_vs_runtime_confusion",
+      "what_students_get_wrong": "Not understanding the difference between compilation errors (caught by javac) and runtime errors (caught while running). Treats them all as 'errors'.",
+      "remediation": "Explicitly contrast: compilation errors mean code is malformed; runtime errors mean code is valid but did something wrong. Show examples of each.",
+      "detection_pattern": "Inability to articulate which phase an error occurred in"
+    },
+    {
+      "gap_id": "case_sensitivity",
+      "what_students_get_wrong": "Using System.Out.Println instead of System.out.println. Or HelloWorld vs helloworld.",
+      "remediation": "Java is case-sensitive everywhere. Emphasize this with examples of common case mistakes.",
+      "detection_pattern": "Cannot find symbol error"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Java code goes through compilation (.java → .class) before running",
+      "Every Java program needs a class with a main method as entry point",
+      "Filename must match the public class name exactly",
+      "Statements end with semicolons; blocks use curly braces",
+      "javac compiles, java runs (don't include .class extension when running)",
+      "Java is case-sensitive — System.out.println, not System.Out.PrintLn"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "If you have a public class called UserService, what must the filename be?",
+        "answer": "UserService.java (exactly that case)"
+      },
+      {
+        "question": "What's the difference between a compilation error and a runtime error?",
+        "answer": "Compilation errors are caught by javac before the program runs (syntax problems). Runtime errors happen while the program is running (logic problems, invalid operations)."
+      },
+      {
+        "question": "What does 'static' mean in 'public static void main'?",
+        "answer": "Static means the method belongs to the class itself, not an instance. The JVM can call it without creating an object of the class. We'll cover this deeper in OOP topics."
+      },
+      {
+        "question": "What's the difference between println and print?",
+        "answer": "println adds a newline at the end (cursor moves to next line). print doesn't (cursor stays on same line)."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Variables. You'll learn how to store data — numbers, text, true/false values — and use that data in your programs. Where Hello World was about output, Variables are about memory. Together, they're the foundation of every program ever written."
+  },
+  
+  "setup_instructions": {
+    "platforms": [
+      {
+        "os": "Windows",
+        "steps": [
+          "Download JDK 17 LTS from Oracle or use Adoptium (free): https://adoptium.net",
+          "Run installer with default settings",
+          "Set JAVA_HOME environment variable to JDK install location",
+          "Add %JAVA_HOME%\\bin to PATH",
+          "Verify with: java -version and javac -version in Command Prompt"
+        ]
+      },
+      {
+        "os": "macOS",
+        "steps": [
+          "Install Homebrew if not installed: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
+          "Run: brew install openjdk@17",
+          "Follow Homebrew instructions to symlink",
+          "Verify with: java -version in Terminal"
+        ]
+      },
+      {
+        "os": "Linux (Ubuntu/Debian)",
+        "steps": [
+          "Update package list: sudo apt update",
+          "Install JDK: sudo apt install openjdk-17-jdk",
+          "Verify with: java -version and javac -version"
+        ]
+      }
+    ],
+    
+    "ide_recommendations": [
+      {
+        "ide": "IntelliJ IDEA Community Edition",
+        "best_for": "Best overall — auto-suggestions, great error messages, free",
+        "url": "https://www.jetbrains.com/idea/download/"
+      },
+      {
+        "ide": "VS Code with Java Extension Pack",
+        "best_for": "Lightweight, familiar if you've used VS Code before",
+        "url": "https://code.visualstudio.com/docs/java/java-tutorial"
+      },
+      {
+        "ide": "Eclipse",
+        "best_for": "Traditional choice, still used in enterprise environments",
+        "url": "https://www.eclipse.org/downloads/"
+      }
+    ],
+    
+    "platform_alternative": "If you don't want to set up locally yet, you can use our in-browser editor for the first few topics. Just click 'Open Editor' on any exercise. We recommend setting up locally by Topic 5 though — you'll need it for real projects."
+  }
+}

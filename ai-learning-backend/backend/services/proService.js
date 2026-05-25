@@ -1,0 +1,216 @@
+/**
+ * proService — business logic for the pro-track Java pilot.
+ *
+ * Controllers in controllers/proController.js are intentionally thin and
+ * just call these functions. All DB access + sandbox orchestration lives
+ * here.
+ *
+ * PRO_TRACK_PLAN.md §4.4 lists the consumer endpoints. Names map 1:1.
+ */
+
+import {
+  ProTrack, ProModule, ProTopic, ProExercise, ProProject,
+  ProSubmission, ProProgress,
+} from "../models/proModels.js";
+import { User } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
+import { runTestCases } from "./codeExecutionService.js";
+import { isEnrolled, invalidateEnrolment } from "../middleware/trackFilter.js";
+import logger from "../utils/logger.js";
+
+// ── Tracks ──────────────────────────────────────────────────────────────────
+
+export async function listTracks(userId) {
+  const [user, allLive] = await Promise.all([
+    User.findById(userId).select("tracks").lean(),
+    ProTrack.find({ status: "live" }).select("key slug name description language iconUrl coverUrl totalModules totalTopics totalExercises totalXp").sort({ name: 1 }).lean(),
+  ]);
+  const enrolled = new Set((user?.tracks || []).map((t) => t.key));
+  return allLive.map((t) => ({ ...t, enrolled: enrolled.has(t.key) }));
+}
+
+export async function getTrack(trackSlug, userId) {
+  const track = await ProTrack.findOne({ slug: trackSlug, status: "live" }).lean();
+  if (!track) throw new AppError("Track not found.", 404);
+  if (!(await isEnrolled(userId, track.key))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const modules = await ProModule.find({ trackKey: track.key, status: "live" })
+    .select("moduleId moduleNumber name slug description estimatedHours prerequisites")
+    .sort({ moduleNumber: 1 })
+    .lean();
+  return { ...track, modules };
+}
+
+// ── Modules ─────────────────────────────────────────────────────────────────
+
+export async function getModule(trackSlug, moduleId, userId) {
+  const track = await ProTrack.findOne({ slug: trackSlug }).lean();
+  if (!track) throw new AppError("Track not found.", 404);
+  if (!(await isEnrolled(userId, track.key))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const module = await ProModule.findOne({ moduleId, trackKey: track.key }).lean();
+  if (!module) throw new AppError("Module not found.", 404);
+  const topics = await ProTopic.find({ moduleId, trackKey: track.key })
+    .select("topicId topicNumber name slug estimatedMinutes difficulty xpReward")
+    .sort({ topicNumber: 1 })
+    .lean();
+  return { ...module, topics };
+}
+
+// ── Topics ──────────────────────────────────────────────────────────────────
+
+export async function getTopic(topicId, userId) {
+  const topic = await ProTopic.findOne({ topicId }).lean();
+  if (!topic) throw new AppError("Topic not found.", 404);
+  if (!(await isEnrolled(userId, topic.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  return topic;
+}
+
+export async function listExercisesForTopic(topicId, userId) {
+  const topic = await ProTopic.findOne({ topicId }).select("trackKey").lean();
+  if (!topic) throw new AppError("Topic not found.", 404);
+  if (!(await isEnrolled(userId, topic.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  return ProExercise.find({ topicId })
+    .select("exerciseId level type title scenario instructions starterCode hints xpReward difficulty")
+    .sort({ exerciseId: 1 })
+    .lean();
+}
+
+// ── Exercises ───────────────────────────────────────────────────────────────
+
+export async function getExercise(exerciseId, userId) {
+  const ex = await ProExercise.findOne({ exerciseId }).lean();
+  if (!ex) throw new AppError("Exercise not found.", 404);
+  if (!(await isEnrolled(userId, ex.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  // Strip expectedSolution + testCases from the client response — those
+  // are graded server-side; never exposed.
+  const { expectedSolution: _es, testCases: _tc, ...safe } = ex;
+  return safe;
+}
+
+export async function submitExercise({ userId, exerciseId, code }) {
+  if (!code || typeof code !== "string" || code.length === 0) {
+    throw new AppError("Code is required.", 400);
+  }
+  if (code.length > 50_000) {
+    throw new AppError("Submission too large (>50KB).", 413);
+  }
+
+  const ex = await ProExercise.findOne({ exerciseId }).lean();
+  if (!ex) throw new AppError("Exercise not found.", 404);
+  if (!(await isEnrolled(userId, ex.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+
+  const track = await ProTrack.findOne({ key: ex.trackKey }).select("language").lean();
+  const language = track?.language || "java";
+
+  const { sandboxResult, testResults, passed } = await runTestCases({
+    userId,
+    source: code,
+    language,
+    testCases: ex.testCases || [],
+  });
+
+  const xpAwarded = passed ? (ex.xpReward || 0) : 0;
+
+  // Record submission. PII guard: the user code is stored on ProSubmission
+  // with a 30-day TTL (defined on the schema in models/proModels.js).
+  await ProSubmission.create({
+    userId,
+    trackKey:   ex.trackKey,
+    exerciseId,
+    code,
+    language,
+    sandboxResult,
+    testResults,
+    passed,
+    xpAwarded,
+  });
+
+  // Update progress (idempotent — completedExercises is a set)
+  if (passed) {
+    await ProProgress.findOneAndUpdate(
+      { userId, trackKey: ex.trackKey },
+      {
+        $addToSet: { completedExercises: exerciseId },
+        $inc:      { totalXp: xpAwarded },
+        $set:      { lastActivityAt: new Date() },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  }
+
+  logger.info("[pro] exercise submission", {
+    userId, exerciseId, passed,
+    casesPassed: testResults.filter((t) => t.passed).length,
+    casesTotal:  testResults.length,
+  });
+
+  return { sandboxResult, testResults, passed, xpAwarded };
+}
+
+// ── Progress ────────────────────────────────────────────────────────────────
+
+export async function getProgress(userId, trackKey) {
+  if (!(await isEnrolled(userId, trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const prog = await ProProgress.findOne({ userId, trackKey }).lean();
+  return prog || {
+    userId,
+    trackKey,
+    completedTopics: [],
+    completedExercises: [],
+    totalXp: 0,
+    currentStreak: 0,
+    lastActivityAt: null,
+  };
+}
+
+// ── Enrolment ───────────────────────────────────────────────────────────────
+
+export async function enroll(userId, trackKey) {
+  const track = await ProTrack.findOne({ key: trackKey, status: "live" }).lean();
+  if (!track) throw new AppError("Track not found.", 404);
+
+  // Already enrolled?
+  const existing = await User.findOne(
+    { _id: userId, "tracks.key": trackKey },
+    { _id: 1 }
+  ).lean();
+  if (existing) {
+    invalidateEnrolment(userId, trackKey);
+    return { trackKey, alreadyEnrolled: true };
+  }
+
+  await User.updateOne(
+    { _id: userId },
+    {
+      $push: {
+        tracks: {
+          key:        trackKey,
+          role:       "learner",
+          enrolledAt: new Date(),
+        },
+      },
+    }
+  );
+  // Initialise progress doc (no-op if it already exists).
+  await ProProgress.findOneAndUpdate(
+    { userId, trackKey },
+    { $setOnInsert: { totalXp: 0, currentStreak: 0 } },
+    { upsert: true }
+  );
+  invalidateEnrolment(userId, trackKey);
+  logger.info("[pro] enrolment", { userId, trackKey });
+  return { trackKey, alreadyEnrolled: false };
+}

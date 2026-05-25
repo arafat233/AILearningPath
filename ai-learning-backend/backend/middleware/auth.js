@@ -23,6 +23,7 @@ const CHILD_SWAP_SKIP_PREFIXES = [
   "/api/payment",
   "/api/user/children",  // managing the children list itself must stay parent-scoped
   "/api/user/me",        // parent's own identity / Settings edits must not be swapped
+  "/api/v1/pro",         // pro-track learner is ALWAYS the user, never linkedStudent (PRO_TRACK_PLAN.md decision #8)
 ];
 
 // In-process cache of (parentId, childId) → owns?  Avoids a DB lookup on every

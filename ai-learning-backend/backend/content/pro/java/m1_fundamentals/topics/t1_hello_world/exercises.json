@@ -1,0 +1,474 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t1",
+  "topic_name": "Hello World & Setup",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m1_t1_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the class declaration",
+      "scenario": "You're starting your first Java file. Fill in the missing parts to declare a class called Greeting.",
+      "instructions": "Fill in the blanks to complete the class declaration. The class should be named Greeting and should be public.",
+      "starter_code": "______ class ______ {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
+      "expected_solution": "public class Greeting {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "public", "hint": "What modifier makes the class accessible from anywhere?" },
+        { "position": 2, "answer": "Greeting", "hint": "The class name should match what we asked for" }
+      ],
+      "test_cases": [
+        {
+          "type": "code_analysis",
+          "must_contain": ["public class Greeting"],
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Java class declarations follow the pattern: <modifier> class <ClassName>",
+        "The class name in this exercise should be 'Greeting' with capital G",
+        "Don't forget 'public' as the modifier"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the main method signature",
+      "scenario": "The main method is the entry point. Fill in the exact signature.",
+      "instructions": "Complete the main method signature. Remember: the signature must be exact for the JVM to recognize it.",
+      "starter_code": "public class MyApp {\n    public ______ ______ main(______[] args) {\n        System.out.println(\"Running!\");\n    }\n}",
+      "expected_solution": "public class MyApp {\n    public static void main(String[] args) {\n        System.out.println(\"Running!\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "static", "hint": "Keyword that means 'belongs to the class, not an instance'" },
+        { "position": 2, "answer": "void", "hint": "Return type when method returns nothing" },
+        { "position": 3, "answer": "String", "hint": "Type for text data" }
+      ],
+      "test_cases": [
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static void main(String[] args)"],
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "The signature is: public static void main(String[] args)",
+        "Each part has a specific meaning we'll cover later — for now, memorize it",
+        "The parameter type is String[] (capital S)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t1_ex_3",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add the missing semicolon",
+      "scenario": "Java statements end with semicolons. Find the missing one.",
+      "instructions": "This code has one missing semicolon that's preventing it from compiling. Add it to make the code work.",
+      "starter_code": "public class Test {\n    public static void main(String[] args) {\n        System.out.println(\"Line one\");\n        System.out.println(\"Line two\")\n        System.out.println(\"Line three\");\n    }\n}",
+      "expected_solution": "public class Test {\n    public static void main(String[] args) {\n        System.out.println(\"Line one\");\n        System.out.println(\"Line two\");\n        System.out.println(\"Line three\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Line one\nLine two\nLine three"
+        }
+      ],
+      "hints": [
+        "Look carefully at the end of each println statement",
+        "Compare line by line — what's different about line 2?",
+        "Line 'Line two' is missing its semicolon"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Your first complete program",
+      "scenario": "Write your very first Java program from scratch. This is the kind of thing you'll do hundreds of times in your career — getting it right the first time matters.",
+      "instructions": "Write a complete Java program that prints exactly: Hello, Java!\n\nThe class should be called FirstProgram. Get the syntax right — no shortcuts.",
+      "starter_code": "// Write your complete Java program below\n",
+      "expected_solution": "public class FirstProgram {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, Java!\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hello, Java!",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public class FirstProgram", "public static void main"]
+        }
+      ],
+      "hints": [
+        "Start with the class declaration: public class FirstProgram",
+        "Inside the class, add the main method",
+        "Inside main, use System.out.println to print the message",
+        "Don't forget closing braces and semicolons"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Multi-line output",
+      "scenario": "You need to display a multi-line welcome message for a new app. Each line should appear on its own line.",
+      "instructions": "Write a program in a class called Welcome that prints these three lines:\n\nLine 1: Welcome to CodeQuest\nLine 2: Your coding journey starts here\nLine 3: Let's build something great",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class Welcome {\n    public static void main(String[] args) {\n        System.out.println(\"Welcome to CodeQuest\");\n        System.out.println(\"Your coding journey starts here\");\n        System.out.println(\"Let's build something great\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Welcome to CodeQuest\nYour coding journey starts here\nLet's build something great"
+        }
+      ],
+      "hints": [
+        "You'll need three separate println statements",
+        "Each println automatically adds a newline at the end",
+        "Make sure each statement ends with a semicolon"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t1_ex_6",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Predict the output",
+      "scenario": "Reading code accurately is as important as writing it. Predict exactly what this program prints.",
+      "instructions": "Look at this code carefully and type the exact output you'd see when running it. Include line breaks where applicable.\n\n```java\npublic class Mystery {\n    public static void main(String[] args) {\n        System.out.print(\"Hello\");\n        System.out.print(\" \");\n        System.out.println(\"World\");\n        System.out.println(\"!\");\n    }\n}\n```",
+      "expected_solution": "Hello World\n!",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Hello World\n!",
+          "normalize_whitespace": false
+        }
+      ],
+      "hints": [
+        "Note: print() does NOT add a newline, println() does",
+        "The first three lines build up one line of output",
+        "The fourth line creates a new line with just '!'"
+      ],
+      "xp_reward": 25,
+      "concept_tested": "print_vs_println"
+    },
+    
+    {
+      "id": "java_m1_t1_ex_7",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the broken code",
+      "scenario": "Your teammate sent you this code asking why it won't compile. Find ALL the bugs and fix them.",
+      "instructions": "This code has 3 bugs preventing it from compiling. Find and fix all of them.",
+      "starter_code": "public class buggyCode {\n    public static void Main(String args) {\n        System.out.println(\"Hello\")\n    }\n}",
+      "expected_solution": "public class BuggyCode {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
+      "bugs": [
+        {
+          "line": 1,
+          "issue": "Class name should be capitalized: BuggyCode (also file must match)",
+          "fix": "Change 'buggyCode' to 'BuggyCode'"
+        },
+        {
+          "line": 2,
+          "issue": "main method has wrong signature: Main (capital M) and String missing []",
+          "fix": "Change 'Main(String args)' to 'main(String[] args)'"
+        },
+        {
+          "line": 3,
+          "issue": "Missing semicolon at end of println statement",
+          "fix": "Add ; at end of line"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hello",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Java is case-sensitive — 'main' is different from 'Main'",
+        "By convention, class names start with capital letter (PascalCase)",
+        "The main method signature must be exact, including String[] args",
+        "Don't forget semicolons at the end of statements"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["case_sensitivity", "main_method_signature", "missing_semicolons"]
+    },
+    
+    {
+      "id": "java_m1_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Format an introduction",
+      "scenario": "You're writing a small program for an onboarding screen. The output needs specific formatting with separators.",
+      "instructions": "Write a class called Introduction that prints this exact output (the === lines are part of the output):\n\n=====================\n     INTRODUCTION\n=====================\nName: Priya Sharma\nRole: Backend Developer\nCompany: TechCorp\n=====================",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class Introduction {\n    public static void main(String[] args) {\n        System.out.println(\"=====================\");\n        System.out.println(\"     INTRODUCTION\");\n        System.out.println(\"=====================\");\n        System.out.println(\"Name: Priya Sharma\");\n        System.out.println(\"Role: Backend Developer\");\n        System.out.println(\"Company: TechCorp\");\n        System.out.println(\"=====================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=====================\n     INTRODUCTION\n=====================\nName: Priya Sharma\nRole: Backend Developer\nCompany: TechCorp\n====================="
+        }
+      ],
+      "hints": [
+        "Pay attention to exact spacing — the title 'INTRODUCTION' has 5 spaces before it",
+        "The separator line has 21 equal signs (count carefully)",
+        "Use 7 separate println statements",
+        "Spaces matter in strings — copy carefully"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m1_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Print on same line",
+      "scenario": "Sometimes you want output on the same line — like a progress indicator or inline status. Use print() instead of println().",
+      "instructions": "Write a class called SameLine that produces this exact output (note: 'Loading' and the dots are on the same line, followed by 'Done!' on a new line):\n\nLoading...Done!\nApplication started",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class SameLine {\n    public static void main(String[] args) {\n        System.out.print(\"Loading\");\n        System.out.print(\"...\");\n        System.out.println(\"Done!\");\n        System.out.println(\"Application started\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Loading...Done!\nApplication started"
+        }
+      ],
+      "hints": [
+        "Use print() for output that stays on the same line",
+        "Use println() when you want a newline at the end",
+        "'Loading', '...', and 'Done!' should be print/println combinations",
+        "Last line uses println() for the newline"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "print_vs_println"
+    },
+    
+    {
+      "id": "java_m1_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Tricky output prediction",
+      "scenario": "Predict what this slightly tricky code produces. Pay attention to print vs println.",
+      "instructions": "What's the EXACT output of this code? Include any newlines you see.\n\n```java\npublic class Tricky {\n    public static void main(String[] args) {\n        System.out.print(\"A\");\n        System.out.println(\"B\");\n        System.out.print(\"C\");\n        System.out.print(\"D\");\n        System.out.println();\n        System.out.print(\"E\");\n    }\n}\n```",
+      "expected_solution": "AB\nCD\nE",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "AB\nCD\nE",
+          "normalize_whitespace": false
+        }
+      ],
+      "hints": [
+        "print() puts text directly with no newline",
+        "println() adds a newline AFTER the text",
+        "println() with no argument just prints a newline",
+        "Trace it carefully line by line"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "print_vs_println_advanced"
+    },
+    
+    {
+      "id": "java_m1_t1_ex_11",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Find the subtle bugs",
+      "scenario": "This code looks correct at first glance but has subtle issues. Real-world debugging often involves finding these.",
+      "instructions": "This code has 4 subtle bugs. Find and fix all of them so it compiles and prints:\n\nWelcome to Java\nLet's get started",
+      "starter_code": "public Class HelloApp {\n    public static Void main(String[] args) {\n        System.Out.println(\"Welcome to Java\");\n        system.out.println(\"Let's get started\");\n    }\n}",
+      "expected_solution": "public class HelloApp {\n    public static void main(String[] args) {\n        System.out.println(\"Welcome to Java\");\n        System.out.println(\"Let's get started\");\n    }\n}",
+      "bugs": [
+        {
+          "line": 1,
+          "issue": "'Class' should be lowercase 'class'",
+          "fix": "Change 'Class' to 'class'"
+        },
+        {
+          "line": 2,
+          "issue": "'Void' should be lowercase 'void'",
+          "fix": "Change 'Void' to 'void'"
+        },
+        {
+          "line": 3,
+          "issue": "'System.Out' should be 'System.out' (lowercase out)",
+          "fix": "Change 'System.Out' to 'System.out'"
+        },
+        {
+          "line": 4,
+          "issue": "'system.out' should be 'System.out' (capital S)",
+          "fix": "Change 'system.out' to 'System.out'"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Welcome to Java\nLet's get started",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Java is strictly case-sensitive",
+        "Keywords like 'class', 'void', 'public' are all lowercase",
+        "Standard library 'System.out' has specific capitalization",
+        "Compare line 3 and line 4 — they're inconsistent"
+      ],
+      "xp_reward": 50,
+      "common_misconceptions_tested": ["case_sensitivity"]
+    },
+    
+    {
+      "id": "java_m1_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Onboarding screen",
+      "scenario": "You're building an onboarding screen for a new dev joining a startup. The output needs to feel professional and structured.",
+      "instructions": "Write a class called Onboarding that produces this exact output:\n\n+-------------------------+\n|   NEW HIRE ONBOARDING   |\n+-------------------------+\n  Step 1: Setup laptop\n  Step 2: Install IDE\n  Step 3: Clone repo\n  Step 4: Run hello world\n+-------------------------+\n  Status: Ready to code!",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class Onboarding {\n    public static void main(String[] args) {\n        System.out.println(\"+-------------------------+\");\n        System.out.println(\"|   NEW HIRE ONBOARDING   |\");\n        System.out.println(\"+-------------------------+\");\n        System.out.println(\"  Step 1: Setup laptop\");\n        System.out.println(\"  Step 2: Install IDE\");\n        System.out.println(\"  Step 3: Clone repo\");\n        System.out.println(\"  Step 4: Run hello world\");\n        System.out.println(\"+-------------------------+\");\n        System.out.println(\"  Status: Ready to code!\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "+-------------------------+\n|   NEW HIRE ONBOARDING   |\n+-------------------------+\n  Step 1: Setup laptop\n  Step 2: Install IDE\n  Step 3: Clone repo\n  Step 4: Run hello world\n+-------------------------+\n  Status: Ready to code!"
+        }
+      ],
+      "hints": [
+        "Count the dashes in the border — there are 25 in '-------------------------'",
+        "Steps are indented with 2 spaces",
+        "Title 'NEW HIRE ONBOARDING' has 3 spaces on each side",
+        "Use println() for each line"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m1_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor verbose code",
+      "scenario": "Your teammate wrote this verbose code. It works but it's not great. Improve it while keeping exact same output.",
+      "instructions": "The code below works correctly but uses println for everything. Refactor to use a mix of print and println where appropriate, AND reduce the number of statements while keeping EXACT same output.\n\nOriginal output:\nLoading database...OK\nLoading config...OK\nServer started\n\nOriginal code below:",
+      "starter_code": "public class ServerStartup {\n    public static void main(String[] args) {\n        System.out.print(\"Loading database\");\n        System.out.print(\"...\");\n        System.out.println(\"OK\");\n        System.out.print(\"Loading config\");\n        System.out.print(\"...\");\n        System.out.println(\"OK\");\n        System.out.println(\"Server started\");\n    }\n}",
+      "expected_solution": "public class ServerStartup {\n    public static void main(String[] args) {\n        System.out.println(\"Loading database...OK\");\n        System.out.println(\"Loading config...OK\");\n        System.out.println(\"Server started\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Loading database...OK\nLoading config...OK\nServer started"
+        },
+        {
+          "type": "code_analysis",
+          "max_statements": 4,
+          "description": "Should use 3 println statements (plus class/method boilerplate)"
+        }
+      ],
+      "hints": [
+        "Strings can contain '...' directly — no need to print them separately",
+        "Each line of output should be ONE println statement",
+        "You can shorten 7 statements to 3"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "code_efficiency"
+    },
+    
+    {
+      "id": "java_m1_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete program from spec",
+      "scenario": "You receive a ticket from your project manager with these exact specifications. Build it.",
+      "instructions": "BUILD SPEC:\n- Class name: ProductInfo\n- Filename: ProductInfo.java\n- Must compile without warnings\n- Must produce this exact output:\n\n========================================\n             PRODUCT INFO\n========================================\nProduct: Wireless Headphones\nBrand: SoundMax\nPrice: $89.99\nStock: 47 units\n----------------------------------------\nFree shipping on orders over $50\nReturn policy: 30 days\n========================================",
+      "starter_code": "// Build the ProductInfo program below\n",
+      "expected_solution": "public class ProductInfo {\n    public static void main(String[] args) {\n        System.out.println(\"========================================\");\n        System.out.println(\"             PRODUCT INFO\");\n        System.out.println(\"========================================\");\n        System.out.println(\"Product: Wireless Headphones\");\n        System.out.println(\"Brand: SoundMax\");\n        System.out.println(\"Price: $89.99\");\n        System.out.println(\"Stock: 47 units\");\n        System.out.println(\"----------------------------------------\");\n        System.out.println(\"Free shipping on orders over $50\");\n        System.out.println(\"Return policy: 30 days\");\n        System.out.println(\"========================================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "========================================\n             PRODUCT INFO\n========================================\nProduct: Wireless Headphones\nBrand: SoundMax\nPrice: $89.99\nStock: 47 units\n----------------------------------------\nFree shipping on orders over $50\nReturn policy: 30 days\n========================================",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Border line has 40 equal signs",
+        "Separator line has 40 dashes",
+        "Title 'PRODUCT INFO' has 13 spaces before it (it's centered in 40 char width)",
+        "Watch out for the dollar sign — it's part of the string, no escaping needed"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m1_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Build a structured report",
+      "scenario": "You're writing the first program for a monitoring tool that prints daily server status. Output formatting matters in real tools because it's read by other engineers.",
+      "instructions": "Write a class called DailyReport that produces this output. Match it EXACTLY including all spaces and special characters:\n\n╔══════════════════════════════════════╗\n║         DAILY SERVER REPORT          ║\n╚══════════════════════════════════════╝\n  Server:      production-01\n  Uptime:      99.97%\n  Requests:    1,247,392\n  Errors:      23\n  Status:      [HEALTHY]\n\n  Generated: 2026-05-18 09:00 UTC",
+      "starter_code": "// Write your DailyReport class below\n",
+      "expected_solution": "public class DailyReport {\n    public static void main(String[] args) {\n        System.out.println(\"╔══════════════════════════════════════╗\");\n        System.out.println(\"║         DAILY SERVER REPORT          ║\");\n        System.out.println(\"╚══════════════════════════════════════╝\");\n        System.out.println(\"  Server:      production-01\");\n        System.out.println(\"  Uptime:      99.97%\");\n        System.out.println(\"  Requests:    1,247,392\");\n        System.out.println(\"  Errors:      23\");\n        System.out.println(\"  Status:      [HEALTHY]\");\n        System.out.println();\n        System.out.println(\"  Generated: 2026-05-18 09:00 UTC\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "╔══════════════════════════════════════╗\n║         DAILY SERVER REPORT          ║\n╚══════════════════════════════════════╝\n  Server:      production-01\n  Uptime:      99.97%\n  Requests:    1,247,392\n  Errors:      23\n  Status:      [HEALTHY]\n\n  Generated: 2026-05-18 09:00 UTC"
+        }
+      ],
+      "hints": [
+        "The box uses Unicode characters: ╔ ═ ╗ ║ ╚ ╝",
+        "Each data line has 2 spaces of indentation",
+        "Labels (Server:, Uptime:, etc.) are followed by spaces to align values",
+        "Use println() with no argument for the blank line",
+        "These special characters work fine in Java strings — no escaping needed"
+      ],
+      "xp_reward": 80
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 4,
+      "medium": 5,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 3,
+      "code_scratch": 7,
+      "debug": 2,
+      "predict_output": 2,
+      "refactor": 1
+    },
+    "total_xp_possible": 545,
+    "estimated_completion_minutes": 25
+  },
+  
+  "gap_detection_map": {
+    "case_sensitivity": ["ex_7", "ex_11"],
+    "missing_semicolons": ["ex_3", "ex_7"],
+    "main_method_signature": ["ex_2", "ex_7"],
+    "print_vs_println": ["ex_6", "ex_9", "ex_10"],
+    "filename_class_mismatch": ["ex_7"],
+    "code_efficiency": ["ex_13"]
+  }
+}

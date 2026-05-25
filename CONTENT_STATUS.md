@@ -211,3 +211,13 @@ When you add a new board/grade/subject:
 **v2 content density gap (grades 1–8):** The v2 seed format provides `intuition`, `process_explanation`, `worked_example`, `common_misconceptions`, `shortcuts_and_tricks`, `key_takeaway` — 8 of 15 audit checks pass. The 7 failing checks (`key_formulas`, `prerequisite_knowledge`, `visual_description`, `svg_diagrams`, `when_to_use_this_method`, `edge_cases`, `video_script_hooks`) require a future v3 enrichment pass to reach benchmark (Class 10) density. Ph5 is ⚠️ because existing DAG seeds use chapter-level nodes (`math{N}_ch{N}`) not sub-topic nodes — adequate for recommendations but not full prerequisite chains.
 
 *Last updated: 2026-05-24 — ICSE Math 10 Ph1 ✅: 25 NcertChapter docs (seedIcseMath10NcertChapters.js, icse_math10_ch1–ch25, board=ICSE). ICSE Math 9 Ph1 ✅: 28 NcertChapter docs (seedIcseMath9NcertChapters.js, icse_math9_ch1–ch28, board=ICSE). Both ICSE grades now ALL PHASES COMPLETE with full NcertChapter docs. AP SSC Math 9 Ph1 ✅ (12 NcertChapters). AP SSC Math 10 Ph1 ✅ (14 NcertChapters). CBSE Math 8+9 ALL PHASES COMPLETE. ICSE Math 9 ALL PHASES COMPLETE (112 topics, 1792 Qs).*
+
+---
+
+## Professional tracks
+
+Lives outside the school content pipeline — Pro models + content are in `models/proModels.js` and `content/pro/<lang>/...`. Pipeline phases above (Ph0–Ph9) don't all map; pro content uses its own audit (every exercise must have non-empty `testCases[]`).
+
+| Track    | Modules | Topics | Exercises | Project | Status (2026-05-25) | Notes |
+|----------|---------|--------|-----------|---------|---------------------|-------|
+| pro_java | 1       | 1      | 15        | 1       | ✅ pilot complete   | java_m1 Fundamentals · java_m1_t1 Hello World & Setup · seed: `npm run seed:pro-java-pilot` · idempotent. Phase 11 (real Judge0 acceptance) + tag pending Docker install. |

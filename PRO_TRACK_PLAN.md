@@ -384,6 +384,48 @@ These don't block the pilot, but we'll need to decide before bulk import:
 | Najeeb   | APPROVED | 2026-05-25 | All 9 recommendations accepted as-is. Implementation cleared to start.|
 | Salma    | pending  |            |                                                                      |
 
+### Build completion log
+
+| Phase | Status | Commit | Notes |
+|-------|--------|--------|-------|
+| 0 | partial | (pre-build) | Mongo/Redis/content folder ✓; Docker install + Mongo backup were deferred to user (not blocking the code work) |
+| 1 | files done | `43219723` | `infra/judge0/*` committed. `docker compose up` waits on user's Docker install |
+| 2 | done | `43219723` | 7 Pro* models + `User.tracks[]` schema field; backfill migration written, NOT YET RUN |
+| 3 | done | `d30fd89e` | 4 middleware + 2 services + 1 controller + validators + routes |
+| 4 | done | `d30fd89e` | Pilot content seeded — 1 track / 1 module / 1 topic / 15 exercises / 1 project |
+| 5 | done | `c9672842` | 32 new tests · 430/430 backend tests passing |
+| 6 | done | `6c82eda0` | 5 lazy-loaded pro pages + sidebar entry + 9 API wrappers |
+| 7 | done | `18b8ba46` | Welcome + Pro onboarding pages; Register routes to `/welcome` |
+| 8 | done | `f121b435` | Monaco editor lazy-chunked, replaced textarea |
+| 9 | done | `f121b435` | TrackTabs + ProDashboardSnapshot + Settings "My Tracks" |
+| 10 | done | `7b896a52` | 8 funnel + health events emitted via existing `trackEvent` helper |
+| 11 | ⏳ pending | — | Needs Docker installed + `docker compose up` + auth-token wiring |
+| 12 | ⏳ in progress | (current commit) | docs + memory updates |
+| 13 | ⏳ pending | — | Tag `pilot-pro-java-v1` after Phase 11 acceptance |
+
+### Lessons learned (2026-05-25 build day)
+
+- **Locking decisions BEFORE coding paid off**. The 9-row decision matrix at §3 made every implementation choice obvious. Estimated build at ~18h; actual ~7h thanks to no re-architecture mid-build.
+- **The view-as-child fix in the morning was a prerequisite we hadn't planned for.** Trying to write the pro track on top of a broken parent/child scope layer would have created compounding bugs. Worth the half-day detour.
+- **`actAsChild` swap pattern reused** — pro routes are added to the skip-list (parent's own data). Zero per-controller change to support a future "view as another parent" / "act as company employee" mode.
+- **Test mocks went stale faster than expected** during prior refactors. Adding `validate:track-isolation` + `smoke` to CI catches the next round of drift in < 30 s.
+- **Local-only Judge0 is the right call for the pilot.** Production hosting (Oracle vs. tiny VPS vs. managed) is a real decision; deferring it to Phase 14 freed today to focus on the actual application code.
+- **Monaco lazy-loading mattered**. ~2 MB chunk only ships when a user actually opens an exercise — Dashboard/Lessons users never pay the cost.
+
+### Items that turned out NOT to be needed for Day 1
+
+- Per-exercise sandbox warm-up (Judge0's own warm path is fine).
+- A separate `feature_flags` admin panel — single env var is enough for the pilot allowlist.
+- A `ProEnrollment` collection — `User.tracks[]` covers the join with zero indirection.
+
+### Deferred to follow-ups (don't block pilot launch)
+
+- Bulk Java content import (M1 rest + M2-M46) — Phase 14
+- Python / JS / C++ tracks — Phase 14
+- Certificate generation on track completion — Phase 14
+- Mentor / reviewer roles — Phase 14
+- DSA visualizers — separate plan (PROFESSIONAL_TRACKS_BLUEPRINT.md §7)
+
 ---
 
 ## 10. MASTER CHECKLIST — Pilot Runbook

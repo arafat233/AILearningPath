@@ -1,7 +1,7 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
 >
-> **Track expansion:** Stellar now spans three tracks — `school` (K-12, LIVE), `professional` (Java pilot, in planning), `competitive` (IIT/NEET/UPSC/USMLE/GRE/TOEFL, planned). See `PROFESSIONAL_TRACKS_BLUEPRINT.md` for the master multi-track checklist and `PRO_TRACK_PLAN.md` for the Java pilot integration plan (awaiting review/sign-off).
+> **Track expansion:** Stellar now spans three tracks — `school` (K-12, LIVE), `professional` (Java pilot, **CODE COMPLETE** awaiting Docker spin-up), `competitive` (IIT/NEET/UPSC/USMLE/GRE/TOEFL, planned). See `PROFESSIONAL_TRACKS_BLUEPRINT.md` for the master multi-track checklist and `PRO_TRACK_PLAN.md` for the Java pilot integration plan (§9 build completion log).
 >
 > Last updated: 2026-05-25 — Professional & competitive track blueprint added (PROFESSIONAL_TRACKS_BLUEPRINT.md + PRO_TRACK_PLAN.md). Previous: ICSE Math 9 + Math 10 Ph1 NcertChapter docs added (seedIcseMath9NcertChapters.js: 28 chapters icse_math9_ch1–ch28, board=ICSE, grade=9; seedIcseMath10NcertChapters.js: 25 chapters icse_math10_ch1–ch25, board=ICSE, grade=10; npm scripts seed:icse-math9-chapters + seed:icse-math10-chapters; both prepended to seed:xxx-all). Previous: AP SSC Math 9 + Math 10 Ph1 NcertChapter docs added (seedApSscMath9NcertChapters.js: 12 chapters ap_ssc_math9_ch1–ch12; seedApSscMath10NcertChapters.js: 14 chapters ap_ssc_math10_ch1–ch14; board=AP_SSC; npm scripts seed:ap-ssc-math9-chapters + seed:ap-ssc-math10-chapters; both prepended to seed:xxx-all). AP SSC Math 9 Ph4 SVG diagrams: 35 DIAGRAM_MAP entries (27 reused from CBSE Math 9 / ICSE 9 / ICSE 10 + 8 new SVG component functions for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). CBSE Math 9 Ph4 SVG diagrams: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns, Ch1–Ch8 fully covered). DiagramLibrary total entries: ~502 across all boards. AP SSC Math 9 + 10: ALL PHASES COMPLETE. CBSE Math 9: ALL PHASES COMPLETE. ICSE Math 9 + 10: ALL PHASES COMPLETE.
 
@@ -1374,6 +1374,64 @@ Required env vars (server exits on startup if missing):
 To make first admin:
   db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
   then re-login to get new JWT with role: "admin"
+```
+
+---
+
+## 7b. TRACKS — multi-curriculum (added 2026-05-25)
+
+Stellar now exposes three parallel learning tracks. Each is a self-contained
+content + UI flow; the auth/profile layer is shared. PRO_TRACK_PLAN.md is the
+canonical reference for the Java pilot.
+
+| Track key      | Audience          | Status (2026-05-25) | Where it lives                       |
+|----------------|-------------------|---------------------|--------------------------------------|
+| `school`       | K-12 (CBSE/ICSE/AP_SSC/...) | LIVE     | NcertChapter / NcertTopicContent / Question + Lessons, Practice, Analytics … |
+| `pro_java`     | Adult professional | **Code complete; pilot awaiting Judge0 install** | ProTrack/ProModule/ProTopic/ProExercise/ProProject/ProSubmission/ProProgress + `/api/v1/pro/*` + `/pro/*` frontend |
+| `pro_<lang>`   | Future languages   | not yet built       | Same shape as pro_java               |
+| `competitive`  | JEE/NEET/UPSC/…    | not yet built       | TBD                                  |
+
+User multi-track enrolment lives on `User.tracks: [{ key, role, enrolledAt }]`.
+`requireEmailAllowlist("PRO_TRACKS_ENABLED_FOR_EMAILS")` gates the pilot to an
+explicit allowlist of internal emails during ramp.
+
+### Pro-track architecture cheatsheet
+
+```
+Backend
+  models/proModels.js                         7 schemas
+  middleware/featureFlag.js                   email-allowlist gate
+  middleware/trackFilter.js                   User.tracks-based enrolment check
+  services/codeExecutionService.js            Judge0 wrapper + rate limit
+                                              (30/hr, 100/day per user via Redis)
+  services/proService.js                      listTracks/getTrack/getModule/getTopic/
+                                              listExercises/getExercise/submitExercise/
+                                              getProgress/enroll
+  controllers/proController.js                thin HTTP delegators
+  validators/proValidator.js                  Joi schemas (strict snake_case IDs)
+  routes/proRoutes.js                         /api/v1/pro/* — mounted in server.js
+  config/seedJavaPilot.js                     idempotent pilot content seed
+  content/pro/java/m1_fundamentals/topics/t1_hello_world/  source-of-truth JSONs
+  infra/judge0/                                Docker Compose + judge0.conf.example
+                                                + README runbook
+
+Frontend
+  src/services/api.js                         9 pro* HTTP wrappers
+  src/pages/Welcome.jsx                       /welcome audience picker
+  src/pages/onboarding/Pro.jsx                /onboarding/pro
+  src/pages/professional/ProTrackPicker.jsx   /pro
+  src/pages/professional/ProCourseLanding.jsx /pro/:trackSlug
+  src/pages/professional/ProModuleView.jsx    /pro/:trackSlug/:moduleId
+  src/pages/professional/ProTopicView.jsx     /pro/:trackSlug/:moduleId/:topicId
+  src/pages/professional/ProExerciseRunner.jsx /pro/exercise/:exerciseId
+  src/components/TrackTabs.jsx                Dashboard track switcher (?track=)
+  src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
+  src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
+
+Analytics events (AnalyticsEvent, 90-day TTL)
+  pro.enrolled · pro.topic_viewed · pro.exercise_started ·
+  pro.code_submitted · pro.exercise_passed · pro.exercise_failed ·
+  pro.sandbox.latency · pro.sandbox.rate_limited
 ```
 
 ---

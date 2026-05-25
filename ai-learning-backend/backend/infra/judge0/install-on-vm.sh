@@ -33,6 +33,23 @@ green() { printf '\033[32m%s\033[0m\n' "$*"; }
 red()   { printf '\033[31m%s\033[0m\n' "$*"; }
 log()   { printf '\033[2m[%s]\033[0m %s\n' "$(date +%H:%M:%S)" "$*"; }
 
+# ── 0. Cgroup v1 prereq check ────────────────────────────────────────────────
+# Judge0 1.13's isolate sandbox requires cgroup v1. Ubuntu 22.04+ defaults to
+# unified cgroup v2 which causes "rb_sysopen - /box/Main.java" at submission.
+# Fix is a one-time grub patch + reboot BEFORE running this installer.
+if [ "$(stat -fc %T /sys/fs/cgroup 2>/dev/null)" = "cgroup2fs" ]; then
+  red "FATAL: cgroup v2 is active. Judge0's isolate sandbox needs cgroup v1."
+  red ""
+  red "Fix (one-time, ~30 seconds total):"
+  red "  sudo sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT=\"|GRUB_CMDLINE_LINUX_DEFAULT=\"systemd.unified_cgroup_hierarchy=0 |' /etc/default/grub"
+  red "  sudo update-grub"
+  red "  sudo reboot"
+  red ""
+  red "After reboot, verify with: stat -fc %T /sys/fs/cgroup  (should print 'tmpfs')"
+  red "Then re-run this installer."
+  exit 1
+fi
+
 # ── 1. Install Docker if not already present ──────────────────────────────────
 if ! command -v docker >/dev/null 2>&1; then
   bold "Installing Docker Engine + Compose plugin"
@@ -117,15 +134,22 @@ AUTHZ_TOKEN=${AUTHN_TOKEN}
 
 ENABLE_WAIT_RESULT=true
 
-# Sandbox limits — must clear Judge0 1.13.x validators (≤ 128000 for stack)
+# Sandbox limits — tuned for JVM (256 MB default heap needs ~500 MB total).
+# - MEMORY_LIMIT must clear Judge0's 512000 KB default cap or validators reject.
+# - ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT=false → cgroup limit applies to
+#   the whole submission, NOT each process. JVM's mmap for heap fails when this
+#   is true even with a 500 MB cap because RLIMIT_AS is set per-process.
+# - MAX_MEMORY_LIMIT=1048576 lifts the cap to 1 GB for headroom on later tracks.
+# - STACK_LIMIT capped at 128000 by Judge0 1.13.x validators.
 CPU_TIME_LIMIT=5
 CPU_EXTRA_TIME=1
 WALL_TIME_LIMIT=10
-MEMORY_LIMIT=262144
+MEMORY_LIMIT=512000
+MAX_MEMORY_LIMIT=1048576
 STACK_LIMIT=128000
 MAX_PROCESSES_AND_OR_THREADS=64
 ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT=false
-ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT=true
+ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT=false
 MAX_FILE_SIZE=4096
 MAX_QUEUE_SIZE=200
 MAX_SUBMISSION_BATCH_SIZE=20

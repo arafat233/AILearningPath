@@ -1,3 +1,7 @@
+// dotenv/config MUST be the first import — populates process.env BEFORE any
+// downstream module (e.g. codeExecutionService) reads it at module init time.
+// Without this, services that capture env at module load fall back to defaults.
+import "dotenv/config";
 import express from "express";
 import { alertOnError } from "./utils/errorAlert.js";
 import cors from "cors";
@@ -5,7 +9,6 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
 import helmet from "helmet";
@@ -67,7 +70,6 @@ import schoolGroupV2Routes from "./routes/schoolGroupV2Routes.js";
 import proRoutes         from "./routes/proRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
-dotenv.config();
 initSentry();   // no-op when SENTRY_DSN is not set
 validateEnv(); // crash fast if required env vars are missing
 initPassport(); // register Google strategy after env vars are loaded

@@ -107,7 +107,13 @@ export async function runCode({ userId, source, language, stdin = "" }) {
     });
   } catch (err) {
     // PII guard: never log `source`.
-    logger.error("Judge0 network error", { userId, languageId, err: err.message });
+    logger.error("Judge0 network error", {
+      userId, languageId,
+      url: JUDGE0_URL,
+      err: err.message,
+      causeCode: err.cause?.code,
+      causeMessage: err.cause?.message,
+    });
     throw new AppError("Code execution sandbox unreachable. Try again in a moment.", 503);
   }
 

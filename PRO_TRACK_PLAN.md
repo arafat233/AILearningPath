@@ -399,9 +399,9 @@ These don't block the pilot, but we'll need to decide before bulk import:
 | 8 | done | `f121b435` | Monaco editor lazy-chunked, replaced textarea |
 | 9 | done | `f121b435` | TrackTabs + ProDashboardSnapshot + Settings "My Tracks" |
 | 10 | done | `7b896a52` | 8 funnel + health events emitted via existing `trackEvent` helper |
-| 11 | 🟡 deferred to VM | (this commit) | Attempted on Docker Desktop Windows 2026-05-25; sandbox failed with the known `/box/Main.java` cgroups issue. Code is unchanged — `infra/judge0/install-on-vm.sh` runs the same compose on Linux where the sandbox works. Re-attempt against a Hetzner / Oracle VM. |
+| 11 | ✅ done | (this commit) | Acceptance 19/19 PASS against Hetzner CX23 VM (Falkenstein) 2026-05-26. End-to-end: backend → remote Judge0 → Java compile + run + testcases + XP + progress. Fixes shipped: dotenv-first import (init-order bug captured stale `JUDGE0_URL`), `/api` auto-append in acceptance test, install-on-vm.sh cgroup-v1 prereq check + JVM-safe memory config. |
 | 12 | ✅ done | `98fe56df` | BLUEPRINT + CONTENT_STATUS + plan §9 + migrations README |
-| 13 | ⏳ pending | — | Tag `pilot-pro-java-v1` after VM acceptance |
+| 13 | ✅ done | (this commit) | Tagged `pilot-pro-java-v1` on the acceptance-passing commit |
 
 ### Lessons learned (2026-05-25 build day)
 

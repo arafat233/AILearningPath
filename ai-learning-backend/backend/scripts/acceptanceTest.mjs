@@ -22,7 +22,10 @@
 
 import "dotenv/config";
 
-const BASE       = process.env.BACKEND_URL || "http://localhost:5001/api";
+// BACKEND_URL in .env is used for OAuth callbacks (no /api suffix), so
+// always append /api unless ACCEPTANCE_API_URL overrides the full path.
+const BASE       = process.env.ACCEPTANCE_API_URL
+  || `${(process.env.BACKEND_URL || "http://localhost:5001").replace(/\/$/, "")}/api`;
 // Fixed test email so the operator only has to add it to
 // PRO_TRACKS_ENABLED_FOR_EMAILS once. Idempotent — if the user already
 // exists from a previous run we just log in instead of registering.

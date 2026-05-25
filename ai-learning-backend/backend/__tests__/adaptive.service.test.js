@@ -18,10 +18,29 @@ jest.unstable_mockModule("../models/index.js", () => ({
   },
   UserProfile:  { findOne: mockProfileFindOne },
   SeenQuestion: { find: mockSeenFind, create: mockSeenCreate },
+  // adaptiveService.getCachedBoard chains .select().lean() on User.findById —
+  // if it crashes the surrounding Promise.all rejects, profile becomes
+  // undefined, and the difficulty-adjustment branch is silently skipped.
+  User: {
+    findById: jest.fn().mockReturnValue({
+      select: () => ({ lean: () => Promise.resolve({ examBoard: "CBSE" }) }),
+    }),
+  },
 }));
 
 jest.unstable_mockModule("../services/aiService.js", () => ({
   generateAIQuestion: mockGenerateAIQuestion,
+}));
+
+// adaptiveService.getCachedProfile/Board hit Redis first; mock them to miss so
+// the DB-backed lookup (which the test mocks via UserProfile.findOne) runs.
+jest.unstable_mockModule("../utils/redisClient.js", () => ({
+  sessionGet: jest.fn().mockResolvedValue(null),
+  sessionSet: jest.fn().mockResolvedValue(true),
+  sessionDel: jest.fn().mockResolvedValue(true),
+  incrBy:     jest.fn().mockResolvedValue(1),
+  acquireCronLock: jest.fn().mockResolvedValue(true),
+  releaseCronLock: jest.fn().mockResolvedValue(true),
 }));
 
 const { getNextQuestion } = await import("../services/adaptiveService.js");
@@ -60,8 +79,10 @@ describe("getNextQuestion", () => {
     expect(filter.difficultyScore.$lte).toBe(0.7);
   });
 
+  // adaptiveService.getCachedProfile chains .lean() on UserProfile.findOne, so
+  // the mock must return a thenable-shaped query, not a bare Promise.
   test("high accuracy (>0.8) → targets harder range starting at 0.55", async () => {
-    mockProfileFindOne.mockResolvedValue({ accuracy: 0.85, behaviorStats: {} });
+    mockProfileFindOne.mockReturnValue(leanResult({ accuracy: 0.85, behaviorStats: {} }));
     mockSeenFind.mockReturnValue(seenResult([]));
     mockQuestionFind.mockReturnValue(leanResult([Q]));
     await getNextQuestion("u1", "Algebra");
@@ -70,7 +91,7 @@ describe("getNextQuestion", () => {
   });
 
   test("low accuracy (<0.4) → targets easier range capped at 0.45", async () => {
-    mockProfileFindOne.mockResolvedValue({ accuracy: 0.3, behaviorStats: {} });
+    mockProfileFindOne.mockReturnValue(leanResult({ accuracy: 0.3, behaviorStats: {} }));
     mockSeenFind.mockReturnValue(seenResult([]));
     mockQuestionFind.mockReturnValue(leanResult([Q]));
     await getNextQuestion("u1", "Algebra");

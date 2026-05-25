@@ -6,6 +6,7 @@ import {
   compV2GetRoom, compV2Report,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 
 const STATES = { LIST: "list", LOBBY: "lobby", COUNTDOWN: "countdown", LIVE: "live", RESULT: "result" };
 const TIER_COLOR = { Bronze: "#a16207", Silver: "#94a3b8", Gold: "#eab308", Platinum: "#06b6d4", Diamond: "#a855f7", Master: "#f97316" };
@@ -16,6 +17,7 @@ const initialsOf = (n = "") => n.split(" ").filter(Boolean).slice(0, 2).map((w) 
 export default function Competition() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const profile = useActiveProfile();
 
   const [state, setState] = useState(STATES.LIST);
   const [d, setD] = useState(null);
@@ -418,7 +420,7 @@ export default function Competition() {
         {/* Class weekly leaderboard */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-[#f0f0f5]">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[14px] font-bold text-[#1c1c1e]">Class {user?.grade || "10"} · weekly leaderboard</p>
+            <p className="text-[14px] font-bold text-[#1c1c1e]">Class {profile?.grade || "10"} · weekly leaderboard</p>
             <p className="text-[11px] text-[#8E8E93]">{(d?.leaderboard?.length || 0).toLocaleString()} students</p>
           </div>
           <div className="space-y-1">

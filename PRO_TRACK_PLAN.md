@@ -61,7 +61,7 @@ All decisions approved by Najeeb on 2026-05-25. Recommended option taken in ever
 | # | Decision                                              | LOCKED CHOICE                                            | Date       |
 |---|-------------------------------------------------------|----------------------------------------------------------|------------|
 | 1 | New `Pro*` models vs extend `Ncert*` models           | NEW `Pro*` models (`models/proModels.js`) — clean sep    | 2026-05-25 |
-| 2 | Sandbox provider                                      | Self-host Judge0 on Oracle Cloud (`144.24.154.247:2358`) | 2026-05-25 |
+| 2 | Sandbox provider                                      | Self-host Judge0 in **local Docker** for pilot (`localhost:2358`). Production host deferred to post-pilot (Phase 14). | 2026-05-25 |
 | 3 | User schema: `tracks[]` array vs single field         | `tracks: [{ key, role, enrolledAt }]` array              | 2026-05-25 |
 | 4 | Commit raw Java content into git vs external path     | Commit into repo at `ai-learning-backend/backend/content/pro/java/**` (git-lfs if >200MB) | 2026-05-25 |
 | 5 | Pilot users — gated rollout or open to all?           | Internal only — feature flag `PRO_TRACKS_ENABLED_FOR_EMAILS` (Najeeb + Salma) | 2026-05-25 |
@@ -71,6 +71,12 @@ All decisions approved by Najeeb on 2026-05-25. Recommended option taken in ever
 | 9 | Dashboard merge — single page vs split routes         | Single `Dashboard.jsx` with `<TrackTabs />` switcher (URL: `/?track=<key>`) | 2026-05-25 |
 
 **Implementation may now begin (Day 1, §5).**
+
+> **Amendment 2026-05-25 (post-lock):** Decision #2 narrowed to *local-only* for the pilot.
+> Reason: pilot is internal (Najeeb + Salma), no public traffic. Local Docker avoids
+> consuming Oracle capacity, removes a deploy/SSH loop from every sandbox tweak, and
+> keeps the production box uninvolved until we've proven the flow works end-to-end.
+> Production sandbox host (Oracle vs. separate VPS vs. managed) is now a Phase 14 item.
 
 ---
 
@@ -184,7 +190,7 @@ Migration: `migrateUsersAddTracks.mjs` — every existing user gets `tracks: [{ 
 
 ### 4.3 Sandbox service
 
-Self-host Judge0 via Docker Compose on the existing Oracle box (`144.24.154.247`). Single `docker-compose.judge0.yml`. Backend talks to it over localhost:2358.
+**Pilot: local-only.** Self-host Judge0 via Docker Compose on the developer's Windows machine (Docker Desktop + WSL2). Single `docker-compose.judge0.yml`. Backend talks to it over `localhost:2358`, bound to `127.0.0.1` only — never exposed to LAN or internet. Production hosting decision deferred to Phase 14.
 
 ```
 services/codeExecutionService.js
@@ -240,10 +246,11 @@ Day-by-day. Each step has an explicit acceptance check.
 
 ### Day 1 — Backend + sandbox
 
-**Step 1 — Sandbox up (90 min)**
-- `docker-compose.judge0.yml` provisioned on Oracle box
+**Step 1 — Sandbox up (90 min) — LOCAL ONLY**
+- `docker-compose.judge0.yml` provisioned on the local Windows dev machine (Docker Desktop)
 - Smoke test: POST `/submissions?wait=true` with Java Hello World returns `Hello, World!\n`
-- Acceptance: `curl` from backend host gets clean response
+- Acceptance: `curl localhost:2358/about` from local backend gets clean response
+- Oracle deployment intentionally NOT in pilot — see Phase 14
 
 **Step 2 — Models (60 min)**
 - `models/proModels.js` with the 7 schemas above
@@ -329,13 +336,13 @@ Day-by-day. Each step has an explicit acceptance check.
 
 | Risk                                                  | Likelihood | Impact | Mitigation                                                    |
 |-------------------------------------------------------|------------|--------|---------------------------------------------------------------|
-| Judge0 self-host is brittle / hard to harden          | M          | H      | Have Piston as fallback for v1; harden Judge0 over weeks 2–4  |
+| Judge0 self-host is brittle / hard to harden          | M          | H      | Local-only for pilot keeps blast radius zero; production host + hardening is a Phase 14 decision |
 | Monaco bundle adds 2MB to frontend                    | H          | L      | Lazy-load only on `/pro/*` routes                             |
 | Source `topic.json` schema variations across modules  | M          | M      | Pilot tests parser on one topic; bulk import adds tolerance   |
 | Track isolation regression breaks K-12 board filter   | L          | H      | Add explicit Jest tests; trackFilter is additive, not invasive|
 | User confused by both K-12 and Pro in same UI         | M          | M      | Track picker on login; pro lives at `/pro/*` not `/learn`     |
 | Java content takes 50MB in git                        | M          | L      | Use git-lfs OR keep external; pilot doesn't decide bulk yet   |
-| Sandbox timeout misconfigured → CPU spikes            | L          | H      | Hard 5s CPU, 256MB RAM per call; rate limit; alerts on Oracle |
+| Sandbox timeout misconfigured → CPU spikes            | L          | H      | Hard 5s CPU, 256MB RAM per call; rate limit; local-only exposure for pilot |
 | Code submissions store user code in DB → privacy      | L          | M      | TTL on ProSubmission (30 days); never log raw code            |
 
 ---
@@ -385,36 +392,36 @@ These don't block the pilot, but we'll need to decide before bulk import:
 > If a check is `[~]` it means "skipped intentionally — document why in §9 notes".
 > Time estimates are rough — measure actual time and update §9.
 
-### Phase 0 — Prerequisites (BEFORE Day 1 starts — ~45 min)
+### Phase 0 — Prerequisites (BEFORE Day 1 starts — ~30 min)
 
-- [ ] SSH access to Oracle box `144.24.154.247` verified
-- [ ] Docker installed on Oracle (`docker --version` ≥ 20.x)
-- [ ] Free disk space on Oracle ≥ 5 GB (`df -h`)
-- [ ] Free RAM headroom on Oracle ≥ 1 GB (`free -h`)
+- [ ] Docker Desktop installed on local Windows machine (`docker --version` ≥ 20.x) with WSL2 backend enabled
+- [ ] Free disk space locally ≥ 5 GB (Judge0 images + Postgres + Redis containers)
+- [ ] Free RAM headroom locally ≥ 2 GB (Judge0 + Mongo + backend + frontend running together)
 - [ ] Local Mongo dev instance reachable (`mongosh` connects)
 - [ ] Local Redis dev instance reachable (`redis-cli ping`)
 - [ ] Backend `.env` baseline boots without errors
 - [ ] Frontend dev server boots (`npm run dev` in frontend)
 - [ ] All existing Jest tests passing locally
-- [ ] **Production MongoDB backup taken** (mongodump) — before any user migration
+- [ ] **Local MongoDB snapshot taken** before any schema migration (mongodump of dev DB)
 - [ ] Source content folder accessible: `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_M46\codequest_content\java\modules\m1_fundamentals\topics\t1_hello_world`
-- [ ] `.env` new keys queued: `JUDGE0_URL`, `JUDGE0_AUTH_TOKEN`, `PRO_TRACKS_ENABLED_FOR_EMAILS`, `SANDBOX_MAX_RUNS_PER_HOUR`, `SANDBOX_MAX_RUNS_PER_DAY`
+- [ ] `.env` new keys queued: `JUDGE0_URL=http://localhost:2358`, `JUDGE0_AUTH_TOKEN`, `PRO_TRACKS_ENABLED_FOR_EMAILS`, `SANDBOX_MAX_RUNS_PER_HOUR`, `SANDBOX_MAX_RUNS_PER_DAY`
 - [ ] Working branch confirmed: `main` per project memory (no feature branch)
+- [ ] **Oracle deployment NOT required for pilot** — capacity check / SSH access deferred to Phase 14
 
-### Phase 1 — Judge0 sandbox infrastructure (Day 1, ~90 min)
+### Phase 1 — Judge0 sandbox infrastructure (Day 1, ~75 min) — LOCAL ONLY
 
 - [ ] Create `infra/judge0/docker-compose.judge0.yml`
 - [ ] Create `infra/judge0/judge0.conf` (hardened — no network egress, no privileged)
 - [ ] Pin Judge0 image to a fixed version tag (never `:latest`)
-- [ ] Local spin-up first: `docker compose up -d` succeeds
+- [ ] Local spin-up on Docker Desktop: `docker compose up -d` succeeds
+- [ ] Bind Judge0 port to `127.0.0.1:2358` only (NOT `0.0.0.0`) — never exposed to LAN/internet
 - [ ] Smoke: `curl localhost:2358/about` returns 200
 - [ ] Smoke: POST Java Hello World, response stdout = `Hello, World!\n`
 - [ ] Configured: CPU limit 5s, memory 256 MB, max output 8 KB
-- [ ] Auth token set (do not run open to the network)
-- [ ] Deploy compose to Oracle box
-- [ ] Firewall: port 2358 internal-only (no public ingress)
+- [ ] Auth token set in `.env` (`JUDGE0_AUTH_TOKEN`) — required even locally
 - [ ] Backend `GET /healthz` extended to include Judge0 reachability check
-- [ ] `infra/judge0/README.md` runbook: start, stop, logs, restart, rotate token
+- [ ] `infra/judge0/README.md` runbook: start, stop, logs, restart, rotate token (local commands)
+- [ ] **Oracle deploy intentionally NOT in pilot** — see Phase 14
 
 ### Phase 2 — Data models & user migration (Day 1, ~90 min)
 
@@ -606,6 +613,7 @@ These don't block the pilot, but we'll need to decide before bulk import:
 
 ### Phase 14 — Post-pilot follow-ups (NOT in 2 days — separate plan)
 
+- [ ] **Decide production sandbox host** — Oracle (verify ≥5GB disk + ≥1GB RAM headroom first), separate tiny VPS, or managed sandbox provider; then deploy + harden Judge0 there. Pilot was local-only.
 - [ ] Bulk-import remaining 208 Java topics (M1 rest + M2–M46)
 - [ ] Decide: weeks 2–3 priority — Python OR DSA visualizers
 - [ ] Open pro track to public (remove feature flag)

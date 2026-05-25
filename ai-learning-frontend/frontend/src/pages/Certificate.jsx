@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getReport, getMe } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 import StellarLogo from "../components/StellarLogo";
 
 // Inject/remove @media print styles that hide the sidebar so only the
@@ -48,6 +49,7 @@ function Stat({ label, value, sub }) {
 
 export default function Certificate() {
   const { user } = useAuthStore();
+  const profile = useActiveProfile();
   const navigate  = useNavigate();
   const [report,  setReport]  = useState(null);
   const [profile, setProfile] = useState(null);
@@ -98,9 +100,9 @@ export default function Certificate() {
 
   const topicsMastered = (report.topicStats ?? []).filter((t) => t.accuracy >= 70).length;
   const issued = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-  const name   = user?.name ?? "Student";
-  const grade  = user?.grade ?? "10";
-  const subject = user?.subject ?? "Mathematics";
+  const name   = profile?.name ?? user?.name ?? "Student";
+  const grade  = profile?.grade ?? "10";
+  const subject = profile?.subject ?? user?.subject ?? "Mathematics";
 
   const handlePrint = () => {
     const after = () => { window.removeEventListener("afterprint", after); };

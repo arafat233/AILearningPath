@@ -1295,7 +1295,21 @@ src/__tests__/VoiceTutor.test.jsx         — 20 tests: render, mic transitions,
 JWT payload: { id, name, role }   ← role added
 JWT expiry: 7 days
 
-middleware/auth.js       — verifies token, attaches req.user
+middleware/auth.js       — verifies token, attaches req.user.
+                            View-as-child swap (2026-05-25):
+                              when req.headers["x-child-id"] is set AND the
+                              parent owns that child (linkedStudents check,
+                              cached 60s), req.user.id is swapped to the
+                              child's id; original parent id saved at
+                              req.parentUserId. Skip list protects routes
+                              that need parent context: /api/portal/*,
+                              /api/admin/*, /api/auth/*, /api/webhooks/*,
+                              /api/public/*, /api/feedback/*, /api/push/*,
+                              /api/v1/parent/*, /api/payment/*, /api/v1/payment/*,
+                              /api/user/children, /api/user/me.
+                            Frontend axios interceptor (services/api.js)
+                              automatically attaches x-child-id when the
+                              Zustand auth store's activeChild is set.
 middleware/adminAuth.js  — requires role === "admin" in JWT
 middleware/validate.js   — Joi schema validation; 422 on invalid input ← NEW
 middleware/errorHandler.js — centralised error handler (AppError,

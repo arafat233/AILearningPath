@@ -9,6 +9,7 @@ import {
   profileSetParentVisibility, profileExportUrl,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 const GRADES   = ["8","9","10","11","12"];
@@ -182,6 +183,7 @@ function InlineField({ label, value, onSave, type = "text", options }) {
 /* ─── Main ───────────────────────────────────────────────────────────────── */
 export default function Profile() {
   const { user, setAuth } = useAuthStore();
+  const activeProfile = useActiveProfile();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -384,7 +386,7 @@ export default function Profile() {
                 onUpload={(url) => saveSetting({ avatarDataUrl: url })} />
               <div className="min-w-0 pr-28">
                 <h1 className="text-[32px] font-bold leading-none text-[#1c1c1e] tracking-tight truncate mb-1 capitalize">{me?.name || user?.name || "—"}</h1>
-                <p className="text-[13px] font-medium text-[#1c1c1e]/70">Class {me?.grade || user?.grade} · CBSE · {me?.subject || user?.subject}</p>
+                <p className="text-[13px] font-medium text-[#1c1c1e]/70">Class {me?.grade || activeProfile?.grade || user?.grade} · {activeProfile?.examBoard || user?.examBoard || "CBSE"} · {me?.subject || activeProfile?.subject || user?.subject}</p>
                 <p className="text-[12px] text-[#1c1c1e]/55 mt-0.5">{joinedAgo ? `Joined ${joinedAgo}` : "New member"} · {totalAttempts} sessions · {profile?.thinkingProfile || "—"}</p>
                 {/* #23 Manifesto */}
                 {me?.manifesto ? (

@@ -19,6 +19,15 @@ api.interceptors.request.use((config) => {
     const token = getCsrfToken();
     if (token) config.headers["x-csrf-token"] = token;
   }
+  // When a parent is "viewing as" a child, every data request should be
+  // scoped to that child instead of the parent's account. The backend's auth
+  // middleware reads this header, verifies ownership, then swaps the actor
+  // for the duration of the request. Routes that legitimately need the
+  // parent identity (portal, admin, billing, etc.) are skipped server-side.
+  const activeChild = useAuthStore.getState().activeChild;
+  if (activeChild?._id) {
+    config.headers["x-child-id"] = activeChild._id;
+  }
   return config;
 });
 
@@ -334,9 +343,10 @@ export const listCurriculumChapters = (subject = "Mathematics", grade = "10") =>
 export const getCurriculumChapter   = (chapterNumber, subject = "Mathematics", grade = "10") =>
   api.get(`/v1/curriculum/${chapterNumber}`, { params: { subject, grade } });
 
-export const listNcertChapters    = (subject, grade)    => api.get("/v1/ncert/chapters", { params: { subject, grade } });
+export const listNcertChapters    = (subject, grade, board) => api.get("/v1/ncert/chapters", { params: { subject, grade, board } });
+export const listAvailableSubjects = (board, grade) => api.get("/v1/ncert/available-subjects", { params: { board, grade } });
 export const getNcertChapter      = (chapterId)         => api.get(`/v1/ncert/chapters/${chapterId}`);
-export const listNcertTopics      = (chapterNumber, subject) => api.get("/v1/ncert/topics", { params: { chapterNumber, subject } });
+export const listNcertTopics      = (chapterNumber, subject, chapterId) => api.get("/v1/ncert/topics", { params: { chapterNumber, subject, chapterId } });
 export const getNcertTopicContent = (topicId)           => api.get(`/v1/ncert/topics/${topicId}`);
 export const getPaperQuestions    = (topicId)           => api.get(`/v1/ncert/topics/${topicId}/paper-questions`);
 export const getMasteryTest       = (topicId, excludeIds = []) =>
@@ -383,9 +393,10 @@ export const generateMock = (opts) => api.post("/exam/generate-mock", opts);
 
 export const getPublicStats = () => api.get("/public/stats");
 
-export const createChild  = (data) => api.post("/user/children", data);
-export const getChildren  = ()     => api.get("/user/children");
-export const deleteChild  = (id)   => api.delete(`/user/children/${id}`);
+export const createChild  = (data)        => api.post("/user/children", data);
+export const getChildren  = ()            => api.get("/user/children");
+export const updateChild  = (id, patch)   => api.put(`/user/children/${id}`, patch);
+export const deleteChild  = (id)          => api.delete(`/user/children/${id}`);
 
 export const getPlacementQuiz   = ()          => api.get("/v1/placement-quiz");
 export const getPlacementStatus = ()          => api.get("/v1/placement-quiz/status");

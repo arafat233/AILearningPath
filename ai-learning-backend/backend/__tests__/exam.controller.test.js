@@ -44,6 +44,20 @@ jest.unstable_mockModule("../utils/redisClient.js", () => ({
   sessionGet: mockSessionGet,
   sessionSet: mockSessionSet,
   sessionDel: mockSessionDel,
+  // Newer exports
+  incrBy:     jest.fn().mockResolvedValue(1),
+  acquireCronLock:   jest.fn().mockResolvedValue(true),
+  releaseCronLock:   jest.fn().mockResolvedValue(true),
+}));
+
+// startExam reads the user's board via adaptiveService.getCachedBoard — stub
+// it so we don't have to mock the User.findById chain inside adaptiveService.
+jest.unstable_mockModule("../services/adaptiveService.js", () => ({
+  getCachedBoard:   jest.fn().mockResolvedValue("CBSE"),
+  getCachedProfile: jest.fn().mockResolvedValue(null),
+  getNextQuestion:  jest.fn(),
+  getInterleavedQuestion: jest.fn(),
+  invalidateProfileCache: jest.fn().mockResolvedValue(null),
 }));
 
 const ctrl = await import("../controllers/examController.js");

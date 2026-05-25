@@ -34,7 +34,7 @@
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | 40 | ~1600 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Benchmark grade — all phases complete |
+| 10 | 54 | 503 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 54 NcertTopicContent docs + 14 chapter skeletons; 503 Qs (391 sub-topic + 80 chapter-mixed + 32 nulls re-keyed → `cbse_math10_ch<N>_mixed`); audit 54/54 pass after `migrateCbseMath10QuestionsV0ToV2.mjs` (v0 descriptive→v2) + `migrateCbseClass10OrphanQuestions.mjs` + 16 authored nth-term Qs (2026-05-25) |
 | 9  | 30 | ~900  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Ph4 complete 2026-05-24: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns); Ch1–Ch8 fully covered |
 | 8  | 56 | 627   | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | v3 standardized (cbse_math8_*); 56 topics × 15/15 audit pass; 627 Qs (360A+155B+112C); 397 RAG chunks; DAG 56 nodes; 56 SVG diagrams (Ch1–Ch14, 28 new fns + 28 new entries); ALL PHASES COMPLETE 2026-05-24 |
 | 7  | 27 | ~810  | ✅ | ✅ | ✅ | ✅ | —  | ⚠️ | ✅ | ✅ | ⚠️ | ✅ | ⚠️ | v2 format; Ph5=chapter-level DAG only; Ph6=60 RAG chunks; Ph8=8/15 (v2 gap); Ph9=NcertTopicView wired 2026-05-23 |
@@ -49,7 +49,7 @@
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | 55 | ~222 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Complete — reference implementation for Science content format |
+| 10 | 55 | 257 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 55 topics + 13 NcertChapter skeletons seeded 2026-05-25 (`seedCbseScience10NcertChapters.js`); 257 Qs total (227 sub-topic + 30 re-keyed → `cbse_sci10_ch<N>_mixed`); reference implementation for Science content format |
 | 9  | —  | —    | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Not started |
 
 ### English

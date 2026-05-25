@@ -3,15 +3,21 @@
  *
  * Three states:
  *   1. Not logged in           → invite to register / log in
- *   2. Logged in, board+grade already set → redirect to /
- *   3. Logged in, missing board or grade  → show picker form
+ *   2. Effective profile (activeChild ?? user) already has board+grade → redirect to /
+ *   3. Logged in, effective profile is missing board or grade → show picker form
  *
- * On submit → PUT /api/v1/user/me → update store → navigate to /
+ * When viewing-as-child (activeChild set):
+ *   - Form greets, pre-fills, and SAVES to the child via PUT /user/children/:id
+ *   - Store's activeChild is updated with the response so the rest of the app
+ *     immediately reflects the new board/grade without a refresh.
+ *
+ * When no activeChild:
+ *   - Behaves like before — PUT /user/me on the logged-in user.
  */
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { updateMe } from "../services/api";
+import { updateMe, updateChild } from "../services/api";
 
 const BOARDS = ["CBSE", "ICSE", "AP_SSC", "IB", "SSC", "State Board"];
 
@@ -32,10 +38,11 @@ const GRADES = [
 
 export default function StartOnboarding() {
   const navigate     = useNavigate();
-  const { user, activeChild, setAuth } = useAuthStore((s) => ({
-    user:        s.user,
-    activeChild: s.activeChild,
-    setAuth:     s.setAuth,
+  const { user, activeChild, setAuth, setActiveChild } = useAuthStore((s) => ({
+    user:           s.user,
+    activeChild:    s.activeChild,
+    setAuth:        s.setAuth,
+    setActiveChild: s.setActiveChild,
   }));
 
   const effective = activeChild || user;
@@ -83,16 +90,27 @@ export default function StartOnboarding() {
   }
 
   // Logged in, board+grade missing — show picker
-  return <SetupForm user={user} setAuth={setAuth} navigate={navigate} />;
+  return (
+    <SetupForm
+      effective={effective}
+      user={user}
+      activeChild={activeChild}
+      setAuth={setAuth}
+      setActiveChild={setActiveChild}
+      navigate={navigate}
+    />
+  );
 }
 
-function SetupForm({ user, setAuth, navigate }) {
-  const [board, setBoard] = useState(user?.examBoard || "");
-  const [grade, setGrade] = useState(user?.grade     || "");
+function SetupForm({ effective, user, activeChild, setAuth, setActiveChild, navigate }) {
+  const [board, setBoard] = useState(effective?.examBoard || "");
+  const [grade, setGrade] = useState(effective?.grade     || "");
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState("");
 
   const valid = board && grade;
+  const targetName = effective?.name?.split(" ")[0] || "there";
+  const isChildContext = !!activeChild;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -100,9 +118,14 @@ function SetupForm({ user, setAuth, navigate }) {
     setSaving(true);
     setError("");
     try {
-      const { data } = await updateMe({ examBoard: board, grade });
-      // Update the store with the fresh user from the backend
-      setAuth(null, data?.data || { ...user, examBoard: board, grade });
+      if (isChildContext) {
+        const { data } = await updateChild(activeChild._id, { examBoard: board, grade });
+        const updated = data?.data?.child || { ...activeChild, examBoard: board, grade };
+        setActiveChild(updated);
+      } else {
+        const { data } = await updateMe({ examBoard: board, grade });
+        setAuth(null, data?.data || { ...user, examBoard: board, grade });
+      }
       navigate("/", { replace: true });
     } catch (err) {
       setError(err?.response?.data?.error || "Something went wrong. Please try again.");
@@ -119,10 +142,12 @@ function SetupForm({ user, setAuth, navigate }) {
             <span className="text-white text-2xl font-bold">S</span>
           </div>
           <h1 className="text-[22px] font-bold text-[var(--label)] mb-1">
-            Set up your learning
+            {isChildContext ? `Finish setting up ${targetName}` : "Set up your learning"}
           </h1>
           <p className="text-[14px] text-[var(--label2)]">
-            Hi {user?.name?.split(" ")[0] || "there"} — choose your board and grade to unlock your personalised content.
+            {isChildContext
+              ? `Choose ${targetName}'s board and grade to unlock personalised content.`
+              : `Hi ${targetName} — choose your board and grade to unlock your personalised content.`}
           </p>
         </div>
 

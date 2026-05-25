@@ -9,6 +9,7 @@ import {
   bmGetDue, bmRate, bmUpsertSection,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 import AICreditsIndicator from "../components/AICreditsIndicator";
 import MathText from "../components/MathText";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
@@ -61,6 +62,7 @@ export default function Practice() {
   const location  = useLocation();
   const navigate  = useNavigate();
   const user      = useAuthStore((s) => s.user);
+  const profile   = useActiveProfile();
   const mixTopics     = location.state?.mixTopics     || null;
   const retryWrongIds = location.state?.retryWrongIds || null;
   const collectionId  = location.state?.collectionId  || null;
@@ -69,7 +71,7 @@ export default function Practice() {
   const [topicsLoading, setTopicsLoading]   = useState(false);
   const [topicsError,   setTopicsError]     = useState("");
   const [selectedTopic, setSelectedTopic]   = useState(location.state?.topic || "");
-  const [activeSubject, setActiveSubject]   = useState(location.state?.topic ? "" : (user?.subject || "Math"));
+  const [activeSubject, setActiveSubject]   = useState(location.state?.topic ? "" : (profile?.subject || user?.subject || "Math"));
   const [scienceSub,    setScienceSub]      = useState(null);
   const [question, setQuestion]             = useState(null);
   const [feedback, setFeedback]             = useState(null);
@@ -673,7 +675,7 @@ export default function Practice() {
     setTopicsLoading(true);
     setTopicsError("");
     setTopics([]);
-    const grade = user?.grade || "10";
+    const grade = profile?.grade || "10";
     getTopics({ grade, subject })
       .then((r) => {
         if (reqId !== topicsReqRef.current) return; // stale — newer request in flight
@@ -694,7 +696,7 @@ export default function Practice() {
 
   useEffect(() => {
     loadTopics(activeSubject);
-  }, [activeSubject, user?.grade]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeSubject, profile?.grade]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-start when arriving with pre-selected topic / retry mode
   useEffect(() => {

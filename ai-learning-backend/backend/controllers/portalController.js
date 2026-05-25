@@ -236,7 +236,7 @@ export const getLinkedStudents = async (req, res, next) => {
     if (!user?.linkedStudents?.length) return res.json([]);
 
     const students = await User.find({ _id: { $in: user.linkedStudents } })
-      .select("name grade subject goal")
+      .select("name grade examBoard schoolName location subject goal")
       .lean();
     res.json(students.map((s) => ({ ...s, id: s._id })));
   } catch (err) { next(err); }

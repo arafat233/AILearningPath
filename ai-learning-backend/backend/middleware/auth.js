@@ -1,8 +1,62 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { sessionGet } from "../utils/redisClient.js";
 import { User } from "../models/index.js";
 import logger from "../utils/logger.js";
 import { TOKEN_COOKIE } from "../utils/cookieNames.js";
+
+// Routes where the x-child-id "view as child" swap must NEVER apply, because
+// the route legitimately needs the PARENT identity (link management, parental
+// controls, billing, admin operations, parent feedback, push subscriptions).
+// Match on req.originalUrl prefix — this runs from per-route middleware so
+// req.path alone won't include the mounted prefix.
+const CHILD_SWAP_SKIP_PREFIXES = [
+  "/api/portal",
+  "/api/admin",
+  "/api/auth",
+  "/api/webhooks",
+  "/api/public",
+  "/api/feedback",
+  "/api/push",
+  "/api/v1/parent",
+  "/api/v1/payment",
+  "/api/payment",
+  "/api/user/children",  // managing the children list itself must stay parent-scoped
+  "/api/user/me",        // parent's own identity / Settings edits must not be swapped
+];
+
+// In-process cache of (parentId, childId) → owns?  Avoids a DB lookup on every
+// authenticated request. Small TTL because linkedStudents changes rarely but
+// must reflect un-linking quickly.
+const ownershipCache = new Map();
+const OWNERSHIP_TTL_MS = 60_000;
+
+async function parentOwnsChild(parentId, childId) {
+  const key = `${parentId}::${childId}`;
+  const cached = ownershipCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached.ok;
+  const ok = await User.exists({ _id: parentId, linkedStudents: childId }).then(Boolean);
+  ownershipCache.set(key, { ok, expiresAt: Date.now() + OWNERSHIP_TTL_MS });
+  return ok;
+}
+
+// If the request carries an x-child-id header AND the path isn't in the skip
+// list AND the parent (req.user) owns that child, swap req.user.id to the
+// child's id and stash the original parent id on req.parentUserId. Every
+// downstream controller that reads req.user.id then transparently sees the
+// child as the actor — no per-controller change needed.
+async function maybeSwapToChild(req) {
+  const childId = req.headers["x-child-id"];
+  if (!childId) return;
+  if (!mongoose.isValidObjectId(childId)) return;
+  if (CHILD_SWAP_SKIP_PREFIXES.some((p) => req.originalUrl.startsWith(p))) return;
+  const parentId = req.user?.id;
+  if (!parentId || String(parentId) === String(childId)) return;
+  const owns = await parentOwnsChild(parentId, childId).catch(() => false);
+  if (!owns) return;
+  req.parentUserId = parentId;
+  req.user = { ...req.user, id: String(childId) };
+}
 
 export const auth = async (req, res, next) => {
   // Accept token from httpOnly cookie (primary) or Authorization header (fallback for API tools / curl)
@@ -62,6 +116,7 @@ export const auth = async (req, res, next) => {
   }
 
   req.user = decoded;
+  await maybeSwapToChild(req);
   next();
 };
 
@@ -79,6 +134,7 @@ export const optionalAuth = async (req, _res, next) => {
       if (blacklisted) return next();
     }
     req.user = decoded;
+    await maybeSwapToChild(req);
   } catch { /* invalid token — treat as unauthenticated */ }
   next();
 };

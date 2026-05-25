@@ -31,7 +31,7 @@ const updateMeSchema = Joi.object({
   goal:       Joi.string().optional(),
   weakTopics: Joi.array().items(Joi.string().max(200)).max(20).optional(),
   childName:  Joi.string().trim().max(80).optional().allow(""),
-  examBoard:  Joi.string().valid("CBSE","ICSE","IB","SSC","State Board").optional(),
+  examBoard:  Joi.string().valid("CBSE","ICSE","AP_SSC","IB","SSC","State Board").optional(),
   schoolName: Joi.string().trim().max(120).optional().allow(""),
   location:   Joi.string().trim().max(100).optional().allow(""),
 });
@@ -190,7 +190,7 @@ r.get("/daily-brief", auth, async (req, res, next) => {
 const childSchema = Joi.object({
   childName:  Joi.string().trim().min(1).max(80).required(),
   grade:      Joi.string().required(),
-  examBoard:  Joi.string().valid("CBSE","ICSE","IB","SSC","State Board").required(),
+  examBoard:  Joi.string().valid("CBSE","ICSE","AP_SSC","IB","SSC","State Board").required(),
   schoolName: Joi.string().trim().max(120).optional().allow(""),
   location:   Joi.string().trim().max(100).optional().allow(""),
 });
@@ -236,6 +236,35 @@ r.delete("/children/:childId", auth, async (req, res, next) => {
       $pull: { linkedStudents: req.params.childId },
     });
     res.json({ data: { message: "Child removed" } });
+  } catch (err) { next(err); }
+});
+
+// Update a linked student's profile (board/grade/school/location).
+// Only the parent who has this student in linkedStudents may update them.
+// Used by /start onboarding when a parent is viewing-as-child and the
+// child's record is missing examBoard or grade.
+const updateChildSchema = Joi.object({
+  grade:      Joi.string().optional(),
+  examBoard:  Joi.string().valid("CBSE","ICSE","AP_SSC","IB","SSC","State Board").optional(),
+  schoolName: Joi.string().trim().max(120).optional().allow(""),
+  location:   Joi.string().trim().max(100).optional().allow(""),
+  subject:    Joi.string().optional(),
+  examDate:   Joi.date().optional(),
+}).min(1);
+
+r.put("/children/:childId", auth, validate(updateChildSchema), async (req, res, next) => {
+  try {
+    const { childId } = req.params;
+    const parent = await User.findById(req.user.id).select("linkedStudents").lean();
+    const owns = parent?.linkedStudents?.map(String).includes(String(childId));
+    if (!owns) return next(new AppError("Not authorized to update this student", 403));
+
+    const updated = await User.findByIdAndUpdate(childId, { $set: req.body }, { new: true })
+      .select("_id name grade examBoard schoolName location subject examDate")
+      .lean();
+    if (!updated) return next(new AppError("Student not found", 404));
+
+    res.json({ data: { child: updated } });
   } catch (err) { next(err); }
 });
 

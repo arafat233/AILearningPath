@@ -19,6 +19,27 @@ export async function listNcertChapters(req, res, next) {
   }
 }
 
+// GET /api/v1/ncert/available-subjects?board=X&grade=Y
+// Returns the subjects that actually have at least one chapter seeded for the
+// given board + grade. Used by the Lessons page to hide subjects we don't yet
+// have content for (e.g. AP_SSC Class 10 currently has Math only — Science /
+// English / Social / Hindi tiles must NOT appear for that user).
+export async function listAvailableSubjects(req, res, next) {
+  try {
+    const board = String(req.query.board || "CBSE").toUpperCase();
+    const grade = String(req.query.grade || "10");
+    const rows = await NcertChapter.aggregate([
+      { $match: { board, grade } },
+      { $group: { _id: "$subject", chapterCount: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+    const data = rows.map((r) => ({ subject: r._id, chapterCount: r.chapterCount }));
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /api/v1/ncert/chapters/:chapterId
 export async function getNcertChapter(req, res, next) {
   try {
@@ -31,10 +52,16 @@ export async function getNcertChapter(req, res, next) {
   }
 }
 
-// GET /api/v1/ncert/topics?chapterNumber=1&subject=Science
+// GET /api/v1/ncert/topics?chapterNumber=1&subject=Science[&chapterId=ap_ssc_math9_ch1]
+//
+// When `chapterId` is provided (e.g. "ap_ssc_math9_ch1"), the result is
+// restricted to topics whose topicId starts with that chapter id. This is
+// the only way to disambiguate between, say, ap_ssc_math9_ch1_* and
+// ap_ssc_math10_ch1_* — both share chapterNumber=1 and subject=Mathematics.
+// Callers rendering a specific chapter MUST pass chapterId.
 export async function listNcertTopics(req, res, next) {
   try {
-    const { chapterNumber, subject } = req.query;
+    const { chapterNumber, subject, chapterId } = req.query;
 
     // Resolve the user's board so we never leak cross-board content
     const userDoc = req.user?.id
@@ -44,6 +71,10 @@ export async function listNcertTopics(req, res, next) {
 
     const conditions = [];
     if (chapterNumber) conditions.push({ chapterNumber: Number(chapterNumber) });
+    if (chapterId) {
+      const escaped = String(chapterId).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      conditions.push({ topicId: new RegExp(`^${escaped}_`) });
+    }
     if (subject) {
       // Safety net: also catch legacy Math Class 10 records where subject was
       // never written (imported before the field existed). They use the

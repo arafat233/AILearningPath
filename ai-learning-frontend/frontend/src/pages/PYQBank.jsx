@@ -5,6 +5,7 @@ import {
   toggleBookmark, getHint, getBookmarks,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 import MathText from "../components/MathText";
 
 const SUBJECTS = [
@@ -28,10 +29,11 @@ const fmtMarks = (m) => `${m} mk`;
 
 export default function PYQBank() {
   const { user } = useAuthStore();
+  const profile = useActiveProfile();
   const navigate = useNavigate();
 
   const [subject, setSubject] = useState("Mathematics");
-  const [grade]   = useState(user?.grade || "10");
+  const [grade]   = useState(profile?.grade || user?.grade || "10");
   const [selectedYears, setSelectedYears] = useState(() => new Set()); // multi-select
   const [years, setYears]     = useState([]);
   const [topics, setTopics]   = useState([]);

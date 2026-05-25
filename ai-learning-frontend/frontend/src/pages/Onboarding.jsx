@@ -32,8 +32,8 @@ export default function Onboarding() {
       setActiveChild(data.data.child);
       setAuth(null, { ...user, linkedStudents: [...(user?.linkedStudents || []), data.data.child._id] });
       navigate("/");
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(err?.response?.data?.error || "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }

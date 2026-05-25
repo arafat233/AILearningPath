@@ -129,7 +129,8 @@ export default function Layout() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const { activeChild } = useAuthStore();
+  const { activeChild, setActiveChild } = useAuthStore();
+  const profile = activeChild || user;
   const isParent = user?.role === "parent" || user?.role === "teacher";
 
   const initials = user?.name
@@ -169,7 +170,7 @@ export default function Layout() {
             <StellarLogo size={28} />
             <div className="flex flex-col justify-center min-w-0">
               <span className="text-[14px] font-bold text-[var(--label)] tracking-tight leading-tight">Stellar</span>
-              <span className="text-[11px] text-apple-gray leading-tight">CBSE · Class {user?.grade || "10"}</span>
+              <span className="text-[11px] text-apple-gray leading-tight">{profile?.examBoard || "CBSE"} · Class {profile?.grade || "10"}</span>
             </div>
           </div>
         </div>

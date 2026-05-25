@@ -1,28 +1,78 @@
 import express from "express";
-import { Topic } from "../models/index.js";
+import { Topic, Question } from "../models/index.js";
 import { optionalAuth } from "../middleware/auth.js";
-import { User } from "../models/index.js";
+import { boardIdFilter, questionBoardFilter } from "../utils/boardFilter.js";
 import { getCachedBoard } from "../services/adaptiveService.js";
 
 const r = express.Router();
 
 // Supports ?grade=10&subject=Math&board=CBSE query filters.
 // When the user is logged in their board is read from Redis/DB and overrides the query param.
+//
+// Merges two sources so newer boards/grades aren't invisible to Practice:
+//   1. Legacy `Topic` collection — has explicit examBoard/grade/subject fields.
+//      Populated mainly for CBSE Class 10 from earlier seed work.
+//   2. `NcertTopicContent` — newer architecture where board+grade are encoded
+//      in the topicId prefix (e.g. ap_ssc_math9_ch1_irrational_numbers).
+// Without the merge, AP_SSC / ICSE / and any non-CBSE-10 user gets an empty
+// Practice topic picker.
 r.get("/", optionalAuth, async (req, res, next) => {
   try {
-    const filter = { deletedAt: null };
-    if (req.query.grade)   filter.grade   = req.query.grade;
-    if (req.query.subject) filter.subject = req.query.subject;
+    const { grade, subject } = req.query;
 
-    // Board filter: prefer user's stored board (auth), else query param, else default CBSE
+    // Board: prefer user's stored board (auth), else query param, else default CBSE
     let board = (req.query.board || "CBSE").toUpperCase();
     if (req.user?.id) {
       try { board = await getCachedBoard(req.user.id); } catch { /* keep default */ }
     }
-    filter.examBoard = board;
 
-    const topics = await Topic.find(filter).sort({ examFrequency: -1 });
-    res.json(topics);
+    // Source 1 — legacy Topic (mostly CBSE Class 10; populated by earlier seeds)
+    const legacyFilter = { deletedAt: null, examBoard: board };
+    if (grade)   legacyFilter.grade   = grade;
+    if (subject) legacyFilter.subject = subject;
+    const legacy = await Topic.find(legacyFilter).sort({ examFrequency: -1 }).lean();
+
+    // Source 2 — distinct chapter names from the Question collection, scoped
+    // to the user's board (so Practice always shows topics that actually have
+    // questions to serve). This covers AP_SSC / ICSE / and any future board
+    // whose content hasn't been backfilled into the legacy Topic collection.
+    let fromQuestions = [];
+    if (subject) {
+      // Question.subject uses long-form names (Mathematics, Social Science)
+      // while Topic.subject + frontend use short forms (Math, Social).
+      const subjectFull =
+        subject === "Math"   ? "Mathematics"   :
+        subject === "Social" ? "Social Science" :
+        subject;
+      const qConditions = [
+        { subject: { $in: [subject, subjectFull] } },
+        questionBoardFilter(board),
+        boardIdFilter(board, "topicId"),
+      ];
+      // For Math, encode grade via the topicId pattern (math9_, cbse_math9_,
+      // icse_math9_, ap_ssc_math9_) so Class 9 questions don't mix with 10.
+      if (subject === "Math" && grade) {
+        qConditions.push({
+          $or: [
+            { topicId: new RegExp(`_math${grade}_`) },
+            { topicId: new RegExp(`^math${grade}_`) },
+          ],
+        });
+      }
+      const distinctTopics = await Question.distinct("topic", { $and: qConditions });
+      fromQuestions = distinctTopics
+        .filter(Boolean)
+        .map((name) => ({ name, examBoard: board, grade, subject }));
+    }
+
+    // Merge — dedupe by `name`. Legacy first so its richer metadata
+    // (examFrequency etc.) wins for any names that exist in both.
+    const seenNames = new Set(legacy.map((t) => t.name));
+    const merged = [
+      ...legacy,
+      ...fromQuestions.filter((t) => !seenNames.has(t.name)),
+    ];
+    res.json(merged);
   } catch (err) {
     next(err);
   }

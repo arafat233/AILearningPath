@@ -7,6 +7,7 @@ import {
   getPlannerClassStats, sendPlannerDigestNow,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 
 /* ─── constants ─────────────────────────────────────────── */
 const SUBJECT_COLORS = {
@@ -186,6 +187,7 @@ function PlanCreateModal({ onCreate, onClose, defaultSubjects, defaultGrade, def
 /* ─── Main ─────────────────────────────────────────────── */
 export default function Planner() {
   const { user } = useAuthStore();
+  const profile = useActiveProfile();
   const navigate = useNavigate();
 
   const [plan, setPlan]         = useState(null);
@@ -380,7 +382,7 @@ export default function Planner() {
         <button onClick={() => setShowCreate(true)} className="px-5 py-2.5 rounded-full bg-[#1c1c1e] text-white text-[14px] font-bold">Create plan →</button>
       </div>
       {showCreate && <PlanCreateModal onCreate={handleCreate} onClose={() => setShowCreate(false)}
-        defaultSubjects={user?.subjects} defaultGrade={user?.grade} defaultExamDate={user?.examDate} />}
+        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} />}
     </div>
   );
 
@@ -626,7 +628,7 @@ export default function Planner() {
           </button>
         </div>
         <div className="bg-white rounded-2xl p-4 border border-[#f0f0f5]">
-          <p className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93] mb-2">Compare with grade {user?.grade || "10"}</p>
+          <p className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93] mb-2">Compare with grade {profile?.grade || "10"}</p>
           {classStats?.peerCount > 0 ? (
             <>
               <p className="text-[12px] text-[#3A3A3C]">Class avg: <span className="font-bold">{classStats.avgHoursPerDay}h/day</span> · {classStats.avgCompletionPct}% completion</p>
@@ -643,7 +645,7 @@ export default function Planner() {
       </div>
 
       {showCreate && <PlanCreateModal onCreate={handleCreate} onClose={() => setShowCreate(false)}
-        defaultSubjects={user?.subjects} defaultGrade={user?.grade} defaultExamDate={user?.examDate} />}
+        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} />}
 
       {/* Toast (drag-confirm, rebalance status, digest status) */}
       {toast && (

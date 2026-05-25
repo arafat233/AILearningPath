@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listLessons, getRevisionDue, listNcertChapters, listNcertTopics, lessonsV2Dashboard, lessonsV2Search, lessonsV2Diagnostic, lessonsV2CoStudy, getPlan, getStudiedTopics } from "../services/api";
+import { listLessons, getRevisionDue, listNcertChapters, listNcertTopics, lessonsV2Dashboard, lessonsV2Search, lessonsV2Diagnostic, lessonsV2CoStudy, getPlan, getStudiedTopics, listAvailableSubjects } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useActiveProfile } from "../hooks/useActiveProfile";
 import { LessonsSkeleton } from "../components/Skeleton";
 
 // ── Mastery dot ─────────────────────────────────────────────────────
@@ -277,10 +278,10 @@ const ENG_CHAPTER_TITLES = {
 };
 
 // ── sub-components ─────────────────────────────────────────────────
-function SubjectBar({ active, onSelect }) {
+function SubjectBar({ active, onSelect, subjects = SUBJECTS }) {
   return (
     <div className="flex gap-1.5 flex-wrap">
-      {SUBJECTS.map(({ id, label, color }) => (
+      {subjects.map(({ id, label, color }) => (
         <button
           key={id}
           onClick={() => onSelect(id)}
@@ -887,18 +888,62 @@ const MathChapterCard = ({ chapterNumber, topics, onTopic, onPractice, isBookmar
 // ── main page ──────────────────────────────────────────────────────
 export default function Lessons() {
   const { user }  = useAuthStore();
+  const profile   = useActiveProfile();
   const navigate  = useNavigate();
-  const grade     = user?.grade || "10";
+  const grade     = profile?.grade || "10";
 
   const goToPractice = useCallback((topic) => navigate("/practice", { state: { topic } }), [navigate]);
   const goToLearn    = useCallback((topic) => navigate(`/lessons/${encodeURIComponent(topic)}?mode=short`), [navigate]);
   const goToChapter  = useCallback((chapterId) => navigate(`/ncert/chapters/${chapterId}`), [navigate]);
 
-  const [activeSubject, setActiveSubject] = useState(user?.subject || "Math");
+  const [activeSubject, setActiveSubject] = useState(profile?.subject || user?.subject || "Math");
   const [scienceSub,    setScienceSub]    = useState(null);
   const [sstSub,        setSstSub]        = useState(null);
   const [hindiSub,      setHindiSub]      = useState(null);
   const [contentTab,    setContentTab]    = useState("curriculum");
+
+  // Board+grade-aware subject availability — see /api/v1/ncert/available-subjects.
+  // null = loading / unknown (failsafe: render the full SUBJECTS list).
+  // [] or [{id,chapterCount},…] = authoritative, hide subjects without content.
+  const [availableSubjects, setAvailableSubjects] = useState(null);
+  const board = profile?.examBoard || "CBSE";
+  useEffect(() => {
+    if (!board || !grade) return;
+    let cancelled = false;
+    listAvailableSubjects(board, grade)
+      .then((r) => {
+        if (cancelled) return;
+        const rows = r.data?.data || [];
+        setAvailableSubjects(rows.map((row) => ({
+          id: row.subject === "Mathematics" ? "Math" : row.subject,
+          chapterCount: row.chapterCount,
+        })));
+      })
+      .catch(() => { if (!cancelled) setAvailableSubjects(null); });
+    return () => { cancelled = true; };
+  }, [board, grade]);
+
+  const availableIdSet = useMemo(
+    () => new Set((availableSubjects || []).map((a) => a.id)),
+    [availableSubjects]
+  );
+  const chapterCountMap = useMemo(
+    () => Object.fromEntries((availableSubjects || []).map((a) => [a.id, a.chapterCount])),
+    [availableSubjects]
+  );
+  const visibleSubjects = useMemo(
+    () => (availableSubjects ? SUBJECTS.filter((s) => availableIdSet.has(s.id)) : SUBJECTS),
+    [availableSubjects, availableIdSet]
+  );
+
+  // If the current activeSubject isn't in the available set, fall back to the
+  // first available one so the user never lands on an empty subject page.
+  useEffect(() => {
+    if (!availableSubjects || availableSubjects.length === 0) return;
+    if (!availableIdSet.has(activeSubject)) {
+      setActiveSubject(visibleSubjects[0]?.id || "Math");
+    }
+  }, [availableSubjects]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [chapters,    setChapters]    = useState([]);
   const [lessons,     setLessons]     = useState([]);
@@ -971,7 +1016,7 @@ export default function Lessons() {
     Promise.all([
       listLessons(activeSubject, grade).catch(() => ({ data: [] })),
       getRevisionDue().catch(() => ({ data: [] })),
-      listNcertChapters(ncertSubject(activeSubject), grade).catch(() => ({ data: [] })),
+      listNcertChapters(ncertSubject(activeSubject), grade, board).catch(() => ({ data: [] })),
       activeSubject === "Science"
         ? listNcertTopics(undefined, "Science").catch(() => ({ data: { data: [] } }))
         : Promise.resolve({ data: { data: [] } }),
@@ -997,7 +1042,7 @@ export default function Lessons() {
       setHinTopics(hin.data?.data ?? []);
       setMathTopics(math.data?.data ?? []);
     }).finally(() => setLoading(false));
-  }, [activeSubject, grade]);
+  }, [activeSubject, grade, board]);
 
   // v2 dashboard fetch — runs in parallel
   const refreshDashboard = useCallback(() => {
@@ -1153,7 +1198,7 @@ export default function Lessons() {
   //   grade "10" AP_SSC   → ap_ssc_math10_*    (cloned from CBSE 10; same NCERT curriculum)
   //   grade "1-8"         → math{grade}_*      (legacy v2; awaits standardization plow)
   const mathChapterGroups = useMemo(() => {
-    const board = (user?.examBoard || "CBSE").toUpperCase();
+    const board = (profile?.examBoard || user?.examBoard || "CBSE").toUpperCase();
     const gradeTopics = grade === "9" && board === "ICSE"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("icse_math9_"))
       : grade === "9" && board === "AP_SSC"
@@ -1191,7 +1236,7 @@ export default function Lessons() {
     return Object.keys(groups)
       .map((n) => ({ chapterNumber: Number(n), topics: groups[n] }))
       .sort((a, b) => a.chapterNumber - b.chapterNumber);
-  }, [mathTopics, grade, user?.examBoard]);
+  }, [mathTopics, grade, profile?.examBoard, user?.examBoard]);
 
   // Merge three signals into a single per-topic state:
   //   1. masteryMap (from practice attempts — server-side)
@@ -1287,7 +1332,7 @@ export default function Lessons() {
   const heroProgress    = heroTotalLessons ? Math.round((heroDoneLessons / heroTotalLessons) * 100) : 0;
   const heroEstLeftH    = heroTotalLessons ? Math.max(0, Math.round(((heroTotalLessons - heroDoneLessons) * 8) / 60)) : 0;
   const heroDueNow      = (revisionDue || []).length;
-  const otherSubjects   = SUBJECTS.filter((s) => s.id !== activeSubject);
+  const otherSubjects   = visibleSubjects.filter((s) => s.id !== activeSubject);
 
   return (
     <div className="space-y-5">
@@ -1341,7 +1386,7 @@ export default function Lessons() {
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-[14px] font-semibold text-[var(--label)] truncate">{s.label}</p>
-                  <p className="text-[11px] text-apple-gray">{SUBJECT_CH_FALLBACK[s.id] || "—"} chapters</p>
+                  <p className="text-[11px] text-apple-gray">{chapterCountMap[s.id] || SUBJECT_CH_FALLBACK[s.id] || "—"} chapters</p>
                 </div>
                 <span className="text-[#c7c7cc] group-hover:text-[#1c1c1e] transition-colors">→</span>
               </button>
@@ -1467,7 +1512,7 @@ export default function Lessons() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex gap-0.5 p-1 bg-white shadow-sm border border-[#f0f0f5] rounded-full w-fit">
           {[
-            { id: "curriculum",  label: "NCERT chapters" },
+            { id: "curriculum",  label: "Chapters" },
             { id: "ai-lessons",  label: "AI lessons" },
           ].map((t) => (
             <button key={t.id} onClick={() => setContentTab(t.id)}
@@ -1638,7 +1683,7 @@ export default function Lessons() {
                       chapterNumber={g.chapterNumber}
                       topics={g.topics}
                       meta={metaFor(g.chapterNumber)}
-                      titleMap={mathChapterTitles(grade, user?.examBoard)}
+                      titleMap={mathChapterTitles(grade, profile?.examBoard || user?.examBoard)}
                       onTopic={(topicId) => navigate(`/ncert/topics/${topicId}`)}
                       onPractice={() => navigate("/practice", {
                         state: { mixTopics: g.topics.map((t) => t.topicId), autoStart: true },

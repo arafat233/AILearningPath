@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getNcertChapter, getStudiedTopics, toggleNcertStudied } from "../services/api";
+import { getNcertChapter, getStudiedTopics, toggleNcertStudied, listNcertTopics } from "../services/api";
 
 const DIFF_STYLE = {
   easy:   { background: "#E8F9EE", color: "#34C759" },
@@ -97,15 +97,15 @@ function TopicBlock({ topic, navigate, studied, onToggle }) {
         </div>
       </div>
 
-      {/* Questions */}
-      {topic.questions?.length > 0 ? (
+      {/* Inline questions — only shown for chapters that embed questions
+          per topic. For the flat NcertTopicContent path, questions live in
+          the Question collection and are reached via Practice. */}
+      {topic.questions?.length > 0 && (
         <div>
           {topic.questions.map((q, i) => (
             <QuestionCard key={q.id || i} q={q} index={i} />
           ))}
         </div>
-      ) : (
-        <p style={{ fontSize: "13px", color: "#86868B", marginLeft: "14px" }}>No questions for this topic.</p>
       )}
     </div>
   );
@@ -115,6 +115,7 @@ export default function NcertChapterView() {
   const { chapterId } = useParams();
   const navigate      = useNavigate();
   const [chapter, setChapter]           = useState(null);
+  const [flatTopics, setFlatTopics]     = useState([]); // Used when chapter has no embedded subchapters
   const [loading, setLoading]           = useState(true);
   const [studiedSet, setStudiedSet]     = useState(new Set());
 
@@ -133,6 +134,18 @@ export default function NcertChapterView() {
       setStudiedSet(new Set(stRes.data?.data || []));
     }).catch(() => {}).finally(() => setLoading(false));
   }, [chapterId]);
+
+  // For chapters with no embedded subchapters (new architecture — AP_SSC, CBSE 9,
+  // and most boards going forward), the topic list lives in NcertTopicContent.
+  // Fall back to that endpoint so the page is still useful.
+  useEffect(() => {
+    if (!chapter) return;
+    const hasEmbedded = (chapter.subchapters?.length || 0) > 0;
+    if (hasEmbedded) { setFlatTopics([]); return; }
+    listNcertTopics(chapter.number, chapter.subject, chapter.chapterId)
+      .then((r) => setFlatTopics(r.data?.data || []))
+      .catch(() => setFlatTopics([]));
+  }, [chapter]);
 
   // Re-fetch studied topics when the user returns to this tab/page (e.g. back from /ncert/topics/X)
   useEffect(() => {
@@ -173,10 +186,15 @@ export default function NcertChapterView() {
     </div>
   );
 
-  // Flatten all topics from this chapter
-  const allTopics = chapter.subchapters?.flatMap(
+  // Topic flattening — handles BOTH the legacy embedded-subchapters shape AND
+  // the new flat-NcertTopicContent shape. The flat shape carries no inline
+  // questions; we render the topic header + Study button only.
+  const embeddedTopics = chapter.subchapters?.flatMap(
     (sc) => sc.concepts?.flatMap((c) => c.topics || []) || []
   ) || [];
+  const hasEmbedded = embeddedTopics.length > 0;
+  const fallbackTopics = flatTopics.map((t) => ({ id: t.topicId, name: t.name, questions: [] }));
+  const allTopics = hasEmbedded ? embeddedTopics : fallbackTopics;
 
   const totalTopics     = allTopics.length;
   const studiedTopics   = allTopics.filter((t) => studiedSet.has(t.id)).length;
@@ -210,15 +228,19 @@ export default function NcertChapterView() {
               {chapter.title}
             </h1>
             <div className="flex flex-wrap gap-2">
-              <span style={{ fontSize: "11px", background: "#F5F5F7", color: "#86868B", padding: "3px 10px", borderRadius: "20px", fontWeight: 500 }}>
-                {chapter.subchapters?.length ?? 0} sections
-              </span>
+              {hasEmbedded && (
+                <span style={{ fontSize: "11px", background: "#F5F5F7", color: "#86868B", padding: "3px 10px", borderRadius: "20px", fontWeight: 500 }}>
+                  {chapter.subchapters?.length ?? 0} sections
+                </span>
+              )}
               <span style={{ fontSize: "11px", background: "#EEF4FF", color: "#007AFF", padding: "3px 10px", borderRadius: "20px", fontWeight: 500 }}>
                 {totalTopics} topics
               </span>
-              <span style={{ fontSize: "11px", background: "#E8F9EE", color: "#34C759", padding: "3px 10px", borderRadius: "20px", fontWeight: 500 }}>
-                {totalQuestions} questions
-              </span>
+              {totalQuestions > 0 && (
+                <span style={{ fontSize: "11px", background: "#E8F9EE", color: "#34C759", padding: "3px 10px", borderRadius: "20px", fontWeight: 500 }}>
+                  {totalQuestions} questions
+                </span>
+              )}
             </div>
             {chapter.overview && (
               <p style={{ fontSize: "13px", color: "#86868B", marginTop: "12px", lineHeight: 1.6 }}>{chapter.overview}</p>
@@ -253,12 +275,14 @@ export default function NcertChapterView() {
                 <strong style={{ color: "#1D1D1F" }}>{studiedTopics}</strong> / {totalTopics} topics studied
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#007AFF" }} />
-              <span style={{ fontSize: "12px", color: "#86868B" }}>
-                <strong style={{ color: "#1D1D1F" }}>{studiedQuestions}</strong> / {totalQuestions} questions covered
-              </span>
-            </div>
+            {totalQuestions > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#007AFF" }} />
+                <span style={{ fontSize: "12px", color: "#86868B" }}>
+                  <strong style={{ color: "#1D1D1F" }}>{studiedQuestions}</strong> / {totalQuestions} questions covered
+                </span>
+              </div>
+            )}
           </div>
 
           {pct === 100 && (
@@ -269,8 +293,8 @@ export default function NcertChapterView() {
         </div>
       )}
 
-      {/* Subchapters */}
-      {chapter.subchapters?.map((sc) => (
+      {/* Subchapters (legacy embedded shape) */}
+      {hasEmbedded && chapter.subchapters?.map((sc) => (
         <div key={sc.id} style={{ background: "#fff", borderRadius: "18px", padding: "28px 32px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-2" style={{ marginBottom: "20px" }}>
             <span style={{ fontSize: "12px", fontFamily: "ui-monospace, monospace", color: "#86868B", background: "#F5F5F7", padding: "2px 8px", borderRadius: "6px" }}>
@@ -297,6 +321,31 @@ export default function NcertChapterView() {
           ))}
         </div>
       ))}
+
+      {/* Flat-topic shape — used when chapter has no embedded subchapters.
+          Topic content + questions live in NcertTopicContent / Question. */}
+      {!hasEmbedded && fallbackTopics.length > 0 && (
+        <div style={{ background: "#fff", borderRadius: "18px", padding: "28px 32px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center gap-2" style={{ marginBottom: "20px" }}>
+            <h2 style={{ fontSize: "17px", fontWeight: 600, color: "#1D1D1F", letterSpacing: "-0.01em" }}>Topics</h2>
+          </div>
+          {fallbackTopics.map((topic) => (
+            <TopicBlock
+              key={topic.id}
+              topic={topic}
+              navigate={navigate}
+              studied={studiedSet.has(topic.id)}
+              onToggle={handleToggle}
+            />
+          ))}
+        </div>
+      )}
+
+      {!hasEmbedded && fallbackTopics.length === 0 && (
+        <div style={{ background: "#fff", borderRadius: "18px", padding: "28px 32px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <p style={{ fontSize: "14px", color: "#86868B" }}>No topics found for this chapter yet.</p>
+        </div>
+      )}
     </div>
   );
 }

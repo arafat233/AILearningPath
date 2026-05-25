@@ -48,8 +48,14 @@ jest.unstable_mockModule("../services/analysisService.js", () => ({
 }));
 
 jest.unstable_mockModule("../services/adaptiveService.js", () => ({
-  getNextQuestion:     mockGetNextQuestion,
+  getNextQuestion:        mockGetNextQuestion,
   getInterleavedQuestion: jest.fn(),
+  // Newer exports — must be mocked or ESM throws "does not provide export X" at load time.
+  // These are called with .catch() / .then() in the controller, so they must
+  // return resolved promises, NOT undefined.
+  getCachedProfile:       jest.fn().mockResolvedValue(null),
+  getCachedBoard:         jest.fn().mockResolvedValue("CBSE"),
+  invalidateProfileCache: jest.fn().mockResolvedValue(null),
 }));
 
 jest.unstable_mockModule("../services/profileService.js", () => ({

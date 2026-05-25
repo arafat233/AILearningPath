@@ -293,6 +293,7 @@
     "validate:track-isolation:verbose": "node config/validateTrackIsolation.mjs --verbose",
     "smoke": "node scripts/smoke.mjs",
     "seed:pro-java-pilot": "node config/seedJavaPilot.js",
+    "acceptance:pro-java": "node scripts/acceptanceTest.mjs",
     "seed:ap-ssc-math10-chapters":   "node config/seedApSscMath10NcertChapters.js",
     "seed:ap-ssc-math10":            "node config/seedApSscMath10.js",
     "seed:ap-ssc-math10-dag":        "node config/seedApSscMath10TopicDAG.js",

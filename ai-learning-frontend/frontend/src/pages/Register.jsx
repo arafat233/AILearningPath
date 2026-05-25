@@ -22,7 +22,11 @@ export default function Register() {
   const [searchParams]  = useSearchParams();
   const prefillEmail    = searchParams.get("email") || "";
 
-  const [form, setForm]             = useState({ name: "", email: prefillEmail, password: "", grade: "10", examDate: "" });
+  // Grade + examDate were collected here historically; PRO_TRACK_PLAN.md
+  // decision #7 moved them out of Register so the form is identical for
+  // both school and professional users. The school onboarding flow asks
+  // for them after /welcome → /start.
+  const [form, setForm]             = useState({ name: "", email: prefillEmail, password: "" });
   const [error, setError]           = useState("");
   const [emailExists, setEmailExists] = useState(false);
   const [showPass, setShowPass]     = useState(false);
@@ -38,7 +42,8 @@ export default function Register() {
     try {
       const { data } = await register(form);
       setAuth(null, data.data.user);
-      navigate("/onboarding");
+      // After register → /welcome to pick a learning track (school / pro / competitive).
+      navigate("/welcome");
     } catch (err) {
       const status  = err.response?.status;
       const message = err.response?.data?.error || "Registration failed";

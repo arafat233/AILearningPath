@@ -35,6 +35,8 @@ const Onboarding       = lazy(() => import("./pages/Onboarding"));
 const StartOnboarding  = lazy(() => import("./pages/StartOnboarding"));
 const Dashboard        = lazy(() => import("./pages/Dashboard"));
 // Pro-track pages — only loaded on /pro/* (PRO_TRACK_PLAN.md §10 Phase 6)
+const Welcome          = lazy(() => import("./pages/Welcome"));
+const ProOnboarding    = lazy(() => import("./pages/onboarding/Pro"));
 const ProTrackPicker   = lazy(() => import("./pages/professional/ProTrackPicker"));
 const ProCourseLanding = lazy(() => import("./pages/professional/ProCourseLanding"));
 const ProModuleView    = lazy(() => import("./pages/professional/ProModuleView"));
@@ -187,6 +189,8 @@ export default function App() {
           <Route path="/c/:token"                   element={<SharedCollection />} />
           <Route path="/u/:slug"                    element={<PublicProfile />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
+          <Route path="/welcome"              element={<Protected><Welcome /></Protected>} />
+          <Route path="/onboarding/pro"       element={<Protected><ProOnboarding /></Protected>} />
           <Route path="/child-picker"         element={<Protected><ChildPicker /></Protected>} />
           <Route path="/placement-quiz"       element={<Protected><PlacementQuiz /></Protected>} />
 

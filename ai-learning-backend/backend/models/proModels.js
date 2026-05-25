@@ -84,8 +84,15 @@ const proExerciseSchema = new Schema({
   moduleId:        { type: String, required: true, index: true },
   topicId:         { type: String, required: true, index: true },
   exerciseId:      { type: String, required: true, unique: true },              // "java_m1_t1_ex_1"
+  // 1-based display order within a topic; lower = shown first. Set by the
+  // seed from the array index in exercises.json, so reordering the JSON
+  // array reorders the UI without renaming any exerciseId (URLs stable).
+  position:        { type: Number, default: 0, index: true },
   level:           { type: String, enum: ["warmup", "easy", "medium", "hard"], required: true },
-  type:            { type: String, enum: ["fill_blank", "code_analysis", "free_code", "mcq"], required: true },
+  // NOTE: enum kept loose since pilot content uses code_scratch / predict_output /
+  // debug / fill_blank — Mongoose enum was the wrong allowlist. Allow any string;
+  // the frontend dispatches on this value.
+  type:            { type: String, required: true },
   title:           { type: String, default: "" },
   scenario:        { type: String, default: "" },
   instructions:    { type: String, default: "" },

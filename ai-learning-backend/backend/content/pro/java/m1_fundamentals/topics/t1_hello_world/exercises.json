@@ -3,7 +3,6 @@
   "topic_id": "java_m1_t1",
   "topic_name": "Hello World & Setup",
   "total_exercises": 15,
-  
   "exercises": [
     {
       "id": "java_m1_t1_ex_1",
@@ -16,13 +15,23 @@
       "starter_code": "______ class ______ {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
       "expected_solution": "public class Greeting {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
       "blanks": [
-        { "position": 1, "answer": "public", "hint": "What modifier makes the class accessible from anywhere?" },
-        { "position": 2, "answer": "Greeting", "hint": "The class name should match what we asked for" }
+        {
+          "position": 1,
+          "answer": "public",
+          "hint": "What modifier makes the class accessible from anywhere?"
+        },
+        {
+          "position": 2,
+          "answer": "Greeting",
+          "hint": "The class name should match what we asked for"
+        }
       ],
       "test_cases": [
         {
           "type": "code_analysis",
-          "must_contain": ["public class Greeting"],
+          "must_contain": [
+            "public class Greeting"
+          ],
           "must_compile": true
         }
       ],
@@ -33,7 +42,6 @@
       ],
       "xp_reward": 10
     },
-    
     {
       "id": "java_m1_t1_ex_2",
       "level": "warmup",
@@ -45,14 +53,28 @@
       "starter_code": "public class MyApp {\n    public ______ ______ main(______[] args) {\n        System.out.println(\"Running!\");\n    }\n}",
       "expected_solution": "public class MyApp {\n    public static void main(String[] args) {\n        System.out.println(\"Running!\");\n    }\n}",
       "blanks": [
-        { "position": 1, "answer": "static", "hint": "Keyword that means 'belongs to the class, not an instance'" },
-        { "position": 2, "answer": "void", "hint": "Return type when method returns nothing" },
-        { "position": 3, "answer": "String", "hint": "Type for text data" }
+        {
+          "position": 1,
+          "answer": "static",
+          "hint": "Keyword that means 'belongs to the class, not an instance'"
+        },
+        {
+          "position": 2,
+          "answer": "void",
+          "hint": "Return type when method returns nothing"
+        },
+        {
+          "position": 3,
+          "answer": "String",
+          "hint": "Type for text data"
+        }
       ],
       "test_cases": [
         {
           "type": "code_analysis",
-          "must_contain": ["public static void main(String[] args)"],
+          "must_contain": [
+            "public static void main(String[] args)"
+          ],
           "must_compile": true
         }
       ],
@@ -63,7 +85,6 @@
       ],
       "xp_reward": 10
     },
-    
     {
       "id": "java_m1_t1_ex_3",
       "level": "warmup",
@@ -87,7 +108,6 @@
       ],
       "xp_reward": 10
     },
-    
     {
       "id": "java_m1_t1_ex_4",
       "level": "easy",
@@ -106,7 +126,10 @@
         },
         {
           "type": "code_analysis",
-          "must_contain": ["public class FirstProgram", "public static void main"]
+          "must_contain": [
+            "public class FirstProgram",
+            "public static void main"
+          ]
         }
       ],
       "hints": [
@@ -117,7 +140,6 @@
       ],
       "xp_reward": 25
     },
-    
     {
       "id": "java_m1_t1_ex_5",
       "level": "easy",
@@ -141,7 +163,31 @@
       ],
       "xp_reward": 25
     },
-    
+    {
+      "id": "java_m1_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Print on same line",
+      "scenario": "Sometimes you want output on the same line — like a progress indicator or inline status. Use print() instead of println().",
+      "instructions": "Write a class called SameLine that produces this exact output (note: 'Loading' and the dots are on the same line, followed by 'Done!' on a new line):\n\nLoading...Done!\nApplication started",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class SameLine {\n    public static void main(String[] args) {\n        System.out.print(\"Loading\");\n        System.out.print(\"...\");\n        System.out.println(\"Done!\");\n        System.out.println(\"Application started\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Loading...Done!\nApplication started"
+        }
+      ],
+      "hints": [
+        "Use print() for output that stays on the same line",
+        "Use println() when you want a newline at the end",
+        "'Loading', '...', and 'Done!' should be print/println combinations",
+        "Last line uses println() for the newline"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "print_vs_println"
+    },
     {
       "id": "java_m1_t1_ex_6",
       "level": "easy",
@@ -166,7 +212,6 @@
       "xp_reward": 25,
       "concept_tested": "print_vs_println"
     },
-    
     {
       "id": "java_m1_t1_ex_7",
       "level": "easy",
@@ -208,9 +253,12 @@
         "Don't forget semicolons at the end of statements"
       ],
       "xp_reward": 40,
-      "common_misconceptions_tested": ["case_sensitivity", "main_method_signature", "missing_semicolons"]
+      "common_misconceptions_tested": [
+        "case_sensitivity",
+        "main_method_signature",
+        "missing_semicolons"
+      ]
     },
-    
     {
       "id": "java_m1_t1_ex_8",
       "level": "medium",
@@ -235,33 +283,6 @@
       ],
       "xp_reward": 40
     },
-    
-    {
-      "id": "java_m1_t1_ex_9",
-      "level": "medium",
-      "type": "code_scratch",
-      "difficulty": 3,
-      "title": "Print on same line",
-      "scenario": "Sometimes you want output on the same line — like a progress indicator or inline status. Use print() instead of println().",
-      "instructions": "Write a class called SameLine that produces this exact output (note: 'Loading' and the dots are on the same line, followed by 'Done!' on a new line):\n\nLoading...Done!\nApplication started",
-      "starter_code": "// Write your program below\n",
-      "expected_solution": "public class SameLine {\n    public static void main(String[] args) {\n        System.out.print(\"Loading\");\n        System.out.print(\"...\");\n        System.out.println(\"Done!\");\n        System.out.println(\"Application started\");\n    }\n}",
-      "test_cases": [
-        {
-          "type": "execution",
-          "expected_stdout": "Loading...Done!\nApplication started"
-        }
-      ],
-      "hints": [
-        "Use print() for output that stays on the same line",
-        "Use println() when you want a newline at the end",
-        "'Loading', '...', and 'Done!' should be print/println combinations",
-        "Last line uses println() for the newline"
-      ],
-      "xp_reward": 40,
-      "concept_tested": "print_vs_println"
-    },
-    
     {
       "id": "java_m1_t1_ex_10",
       "level": "medium",
@@ -287,7 +308,6 @@
       "xp_reward": 40,
       "concept_tested": "print_vs_println_advanced"
     },
-    
     {
       "id": "java_m1_t1_ex_11",
       "level": "medium",
@@ -334,9 +354,10 @@
         "Compare line 3 and line 4 — they're inconsistent"
       ],
       "xp_reward": 50,
-      "common_misconceptions_tested": ["case_sensitivity"]
+      "common_misconceptions_tested": [
+        "case_sensitivity"
+      ]
     },
-    
     {
       "id": "java_m1_t1_ex_12",
       "level": "medium",
@@ -361,7 +382,6 @@
       ],
       "xp_reward": 50
     },
-    
     {
       "id": "java_m1_t1_ex_13",
       "level": "hard",
@@ -391,7 +411,6 @@
       "xp_reward": 60,
       "concept_tested": "code_efficiency"
     },
-    
     {
       "id": "java_m1_t1_ex_14",
       "level": "hard",
@@ -417,7 +436,6 @@
       ],
       "xp_reward": 70
     },
-    
     {
       "id": "java_m1_t1_ex_15",
       "level": "hard",
@@ -444,7 +462,6 @@
       "xp_reward": 80
     }
   ],
-  
   "exercise_summary": {
     "by_level": {
       "warmup": 3,
@@ -462,13 +479,29 @@
     "total_xp_possible": 545,
     "estimated_completion_minutes": 25
   },
-  
   "gap_detection_map": {
-    "case_sensitivity": ["ex_7", "ex_11"],
-    "missing_semicolons": ["ex_3", "ex_7"],
-    "main_method_signature": ["ex_2", "ex_7"],
-    "print_vs_println": ["ex_6", "ex_9", "ex_10"],
-    "filename_class_mismatch": ["ex_7"],
-    "code_efficiency": ["ex_13"]
+    "case_sensitivity": [
+      "ex_7",
+      "ex_11"
+    ],
+    "missing_semicolons": [
+      "ex_3",
+      "ex_7"
+    ],
+    "main_method_signature": [
+      "ex_2",
+      "ex_7"
+    ],
+    "print_vs_println": [
+      "ex_6",
+      "ex_9",
+      "ex_10"
+    ],
+    "filename_class_mismatch": [
+      "ex_7"
+    ],
+    "code_efficiency": [
+      "ex_13"
+    ]
   }
 }

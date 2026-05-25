@@ -2,50 +2,291 @@
  * ProTopicView — /pro/:trackSlug/:moduleId/:topicId
  *
  * Renders the teaching content for one ProTopic and the list of exercises
- * underneath. The source JSON is freeform (Schema.Types.Mixed) so we render
- * defensively — missing blocks simply don't show.
+ * underneath. Source JSON is freeform (Schema.Types.Mixed) so we render
+ * defensively — known shapes get dedicated components, unknown shapes
+ * fall back to a recursive renderer (never raw JSON dump).
+ *
+ * Known shapes:
+ *   hook                              { real_world_problem, what_you_will_build }
+ *   teaching.concept_explanation      { intro, why_it_matters, analogy }
+ *   teaching.syntax_breakdown         { code, annotations[{code_part, explanation}] }
+ *   teaching.visual_aid               { type, description, alt_text }
+ *   commonGaps[]                      { gap_id, what_students_get_wrong, remediation, detection_pattern }
+ *   industryApplications              { ... } — recursive fallback
+ *   interviewRelevance                { ... } — recursive fallback
  */
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { proGetTopic, proListExercises } from "../../services/api";
 
-function Section({ label, children }) {
-  return (
-    <section>
-      <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-2">{label}</p>
-      {children}
-    </section>
-  );
+// Lazy-loaded so the SyntaxHighlighter + Prism payload doesn't bloat the
+// initial route bundle. The fallback below is a plain <pre> while loading.
+const JavaCode = lazy(() => import("../../components/pro/JavaCode.jsx"));
+
+// ─── Generic recursive renderer (no more JSON dumps) ──────────────────────────
+function prettyKey(k) {
+  return k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// Stringify whatever shape the source JSON gave us. Some blocks are
-// strings, some are nested objects with sub-keys. Render the best version.
-function renderBlock(block) {
-  if (!block) return null;
-  if (typeof block === "string") {
-    return <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{block}</p>;
+function GenericBlock({ value, depth = 0 }) {
+  if (value == null || value === "") return null;
+  if (typeof value === "string") {
+    return <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{value}</p>;
   }
-  if (Array.isArray(block)) {
+  if (typeof value === "number" || typeof value === "boolean") {
+    return <p className="text-[14px] text-[var(--label)]">{String(value)}</p>;
+  }
+  if (Array.isArray(value)) {
+    // Arrays of strings → bullets; arrays of objects → stacked cards
+    if (value.every((v) => typeof v === "string")) {
+      return (
+        <ul className="space-y-1.5 list-disc pl-5">
+          {value.map((b, i) => <li key={i} className="text-[14px] text-[var(--label)] leading-relaxed">{b}</li>)}
+        </ul>
+      );
+    }
     return (
-      <ul className="space-y-1.5 list-disc pl-5">
-        {block.map((b, i) => <li key={i} className="text-[14px] text-[var(--label)]">{typeof b === "string" ? b : JSON.stringify(b)}</li>)}
-      </ul>
+      <div className="space-y-3">
+        {value.map((item, i) => (
+          <div key={i} className={depth > 0 ? "border-l-2 border-[var(--separator)] pl-4" : "card p-4"}>
+            <GenericBlock value={item} depth={depth + 1} />
+          </div>
+        ))}
+      </div>
     );
   }
+  // Object: render each key with its label + recurse
   return (
-    <div className="space-y-3">
-      {Object.entries(block).map(([k, v]) => (
+    <div className="space-y-4">
+      {Object.entries(value).map(([k, v]) => (
         <div key={k}>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-apple-gray mb-1">{k.replace(/_/g, " ")}</p>
-          {typeof v === "string"
-            ? <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{v}</p>
-            : <pre className="text-[12px] text-[var(--label)] bg-[var(--fill)] rounded-lg p-3 overflow-x-auto"><code>{JSON.stringify(v, null, 2)}</code></pre>}
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-apple-gray mb-1.5">
+            {prettyKey(k)}
+          </p>
+          <GenericBlock value={v} depth={depth + 1} />
         </div>
       ))}
     </div>
   );
 }
 
+// ─── Shape-aware renderers ────────────────────────────────────────────────────
+
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch {}
+      }}
+      className="absolute top-2 right-2 text-[11px] font-semibold px-2.5 py-1 rounded-md bg-[var(--fill)] hover:bg-apple-blue hover:text-white text-apple-gray transition-colors"
+    >
+      {copied ? "Copied" : "Copy"}
+    </button>
+  );
+}
+
+function CodeBlock({ code, language = "java" }) {
+  return (
+    <div className="relative rounded-xl overflow-hidden border border-[var(--separator)] bg-[#1e1e1e]">
+      <CopyButton text={code} />
+      <Suspense fallback={
+        <pre className="p-4 pr-16 text-[13px] text-[#d4d4d4] overflow-x-auto"><code>{code}</code></pre>
+      }>
+        <JavaCode code={code} language={language} />
+      </Suspense>
+    </div>
+  );
+}
+
+// Detects any teaching sub-block that should be rendered as a code+annotations
+// section. Used by the page to discover blocks like `syntax_breakdown` AND
+// future content authors' additions (e.g. `print_vs_println`) without code
+// changes — just author content with `{code, annotations[]}` and it renders.
+function isSyntaxLikeBlock(block) {
+  return block && typeof block === "object"
+    && typeof block.code === "string"
+    && Array.isArray(block.annotations);
+}
+
+function SyntaxBreakdown({ block }) {
+  if (!block?.code) return <GenericBlock value={block} />;
+  return (
+    <div className="space-y-4">
+      {block.intro && (
+        <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{block.intro}</p>
+      )}
+      <CodeBlock code={block.code} />
+      {Array.isArray(block.annotations) && block.annotations.length > 0 && (
+        <div className="space-y-2.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-apple-gray">Line-by-line</p>
+          {block.annotations.map((a, i) => (
+            <div key={i} className="card p-4 border-l-4 border-apple-blue">
+              <code className="text-[12px] font-mono px-2 py-0.5 bg-[var(--fill)] text-apple-blue rounded inline-block mb-1.5">
+                {a.code_part}
+              </code>
+              <p className="text-[13px] text-[var(--label)] leading-relaxed">{a.explanation}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VisualAid({ block }) {
+  if (!block) return null;
+  return (
+    <div className="card p-5 border-l-4 border-apple-purple bg-apple-purple/5">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-xl bg-apple-purple/10 flex items-center justify-center shrink-0">
+          <span className="text-apple-purple text-[18px]">▦</span>
+        </div>
+        <div className="flex-1">
+          <p className="text-[11px] font-bold tracking-wider uppercase text-apple-purple mb-1">
+            {block.type || "Visual aid"}
+          </p>
+          <p className="text-[14px] text-[var(--label)] leading-relaxed">{block.description}</p>
+          {block.alt_text && (
+            <p className="text-[12px] text-apple-gray mt-2 italic">Alt: {block.alt_text}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ConceptExplanation({ block }) {
+  if (!block || typeof block !== "object") return <GenericBlock value={block} />;
+  const order = ["intro", "why_it_matters", "analogy"];
+  const keys = order.filter((k) => block[k]).concat(Object.keys(block).filter((k) => !order.includes(k)));
+  const labels = {
+    intro:          "The big picture",
+    why_it_matters: "Why this matters",
+    analogy:        "An analogy",
+  };
+  const accents = {
+    intro:          "border-apple-blue",
+    why_it_matters: "border-apple-orange",
+    analogy:        "border-apple-green",
+  };
+  return (
+    <div className="space-y-3">
+      {keys.map((k) => (
+        <div key={k} className={`card p-4 border-l-4 ${accents[k] || "border-[var(--separator)]"}`}>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-apple-gray mb-1.5">
+            {labels[k] || prettyKey(k)}
+          </p>
+          <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{block[k]}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CommonGapCard({ gap, index }) {
+  return (
+    <div className="card p-5 border-l-4 border-apple-orange">
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-7 h-7 rounded-full bg-apple-orange/15 flex items-center justify-center text-apple-orange text-[12px] font-bold shrink-0">
+          {index + 1}
+        </div>
+        <p className="text-[14px] font-semibold text-[var(--label)] flex-1">
+          {prettyKey(gap.gap_id || `Gap ${index + 1}`)}
+        </p>
+      </div>
+      <div className="space-y-2.5 pl-10">
+        {gap.what_students_get_wrong && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-apple-red mb-1">What gets missed</p>
+            <p className="text-[13px] text-[var(--label)] leading-relaxed">{gap.what_students_get_wrong}</p>
+          </div>
+        )}
+        {gap.remediation && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-apple-green mb-1">How to fix</p>
+            <p className="text-[13px] text-[var(--label)] leading-relaxed">{gap.remediation}</p>
+          </div>
+        )}
+        {gap.detection_pattern && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-apple-gray mb-1">Detection</p>
+            <p className="text-[12px] text-apple-gray italic leading-relaxed">{gap.detection_pattern}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HookBlock({ block }) {
+  if (!block) return null;
+  const cards = [
+    { key: "real_world_problem", label: "Real-world problem", icon: "🌍", accent: "border-apple-blue" },
+    { key: "what_you_will_build", label: "What you'll build",  icon: "🛠", accent: "border-apple-green" },
+  ].filter((c) => block[c.key]);
+  // Render known keys as styled cards, plus any extra keys via GenericBlock.
+  const extraKeys = Object.keys(block).filter((k) => !cards.find((c) => c.key === k));
+  return (
+    <div className="space-y-3">
+      <div className="grid md:grid-cols-2 gap-3">
+        {cards.map((c) => (
+          <div key={c.key} className={`card p-5 border-l-4 ${c.accent}`}>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-apple-gray mb-1.5">{c.label}</p>
+            <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{block[c.key]}</p>
+          </div>
+        ))}
+      </div>
+      {extraKeys.length > 0 && (
+        <div className="card p-4 space-y-3">
+          {extraKeys.map((k) => (
+            <div key={k}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-apple-gray mb-1">{prettyKey(k)}</p>
+              <GenericBlock value={block[k]} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Section nav (sticky, smooth-scroll) ──────────────────────────────────────
+function SectionNav({ items }) {
+  return (
+    <nav className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur bg-[var(--bg)]/85 border-b border-[var(--separator)] mb-4">
+      <ul className="flex gap-1.5 overflow-x-auto no-scrollbar text-[12px] font-semibold">
+        {items.map((it) => (
+          <li key={it.id} className="shrink-0">
+            <a
+              href={`#${it.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(it.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="inline-block px-3 py-1.5 rounded-full text-apple-gray hover:bg-apple-blue hover:text-white transition-colors"
+            >
+              {it.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function SectionHeading({ id, eyebrow, title }) {
+  return (
+    <header id={id} className="scroll-mt-20">
+      {eyebrow && (
+        <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-1">{eyebrow}</p>
+      )}
+      <h2 className="text-[20px] font-bold tracking-tight text-[var(--label)]">{title}</h2>
+    </header>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ProTopicView() {
   const { trackSlug, moduleId, topicId } = useParams();
   const navigate = useNavigate();
@@ -65,6 +306,35 @@ export default function ProTopicView() {
       .catch((err) => setError(err?.response?.data?.error || "Could not load topic."));
   }, [topicId]);
 
+  // Auto-discover every code+annotations teaching sub-block (syntax_breakdown,
+  // print_vs_println, future ones). They render identically and each gets its
+  // own nav entry + section heading derived from the key name.
+  const syntaxBlocks = useMemo(() => {
+    if (!topic?.teaching) return [];
+    return Object.entries(topic.teaching)
+      .filter(([_, v]) => isSyntaxLikeBlock(v))
+      .map(([k, v]) => ({ key: k, block: v }));
+  }, [topic]);
+
+  const navItems = useMemo(() => {
+    if (!topic) return [];
+    const items = [];
+    if (topic.hook && Object.keys(topic.hook).length) items.push({ id: "sec-hook", label: "Hook" });
+    if (topic.teaching?.concept_explanation) items.push({ id: "sec-concept", label: "Concept" });
+    // Nav entry per syntax-like teaching block.
+    for (const { key } of syntaxBlocks) {
+      items.push({ id: `sec-${key}`, label: prettyKey(key) });
+    }
+    if (topic.teaching?.visual_aid) items.push({ id: "sec-visual", label: "Visual" });
+    if (topic.commonGaps && (Array.isArray(topic.commonGaps) ? topic.commonGaps.length : Object.keys(topic.commonGaps).length)) {
+      items.push({ id: "sec-gaps", label: "Common gaps" });
+    }
+    if (topic.industryApplications && Object.keys(topic.industryApplications).length) items.push({ id: "sec-industry", label: "Industry" });
+    if (topic.interviewRelevance && Object.keys(topic.interviewRelevance).length)     items.push({ id: "sec-interview", label: "Interview" });
+    items.push({ id: "sec-exercises", label: `Exercises (${exercises.length})` });
+    return items;
+  }, [topic, exercises.length, syntaxBlocks]);
+
   if (error) {
     return (
       <div className="card p-8 text-center max-w-md mx-auto">
@@ -77,41 +347,105 @@ export default function ProTopicView() {
   }
   if (!topic) return <div className="text-[13px] text-apple-gray">Loading…</div>;
 
+  // Pull teaching sub-blocks out for shape-aware rendering. Anything that
+  // isn't a known shape AND isn't a code+annotations block falls through to
+  // GenericBlock below.
+  const t = topic.teaching || {};
+  const syntaxKeys     = new Set(syntaxBlocks.map((s) => s.key));
+  const teachingKnown  = new Set(["concept_explanation", "visual_aid", ...syntaxKeys]);
+  const teachingExtras = Object.fromEntries(Object.entries(t).filter(([k]) => !teachingKnown.has(k)));
+  const commonGaps = Array.isArray(topic.commonGaps)
+    ? topic.commonGaps
+    : (topic.commonGaps && typeof topic.commonGaps === "object" ? Object.values(topic.commonGaps) : []);
+
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6">
       <button onClick={() => navigate(`/pro/${trackSlug}/${moduleId}`)} className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors">
         ← Back to module
       </button>
 
+      {/* Topic header */}
       <div>
         <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8e8e93]">Topic {topic.topicNumber}</p>
         <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)] mt-1">{topic.name}</h1>
         {topic.metadata?.career_relevance && (
           <p className="text-[14px] text-apple-gray italic mt-2">{topic.metadata.career_relevance}</p>
         )}
-      </div>
-
-      {/* Teaching blocks. Source JSON is loose, render whichever exist. */}
-      <div className="card p-6 space-y-6">
-        {topic.hook && Object.keys(topic.hook).length > 0 && (
-          <Section label="Hook">{renderBlock(topic.hook)}</Section>
-        )}
-        {topic.teaching && Object.keys(topic.teaching).length > 0 && (
-          <Section label="Teaching">{renderBlock(topic.teaching)}</Section>
-        )}
-        {topic.industryApplications && Object.keys(topic.industryApplications).length > 0 && (
-          <Section label="Industry applications">{renderBlock(topic.industryApplications)}</Section>
-        )}
-        {topic.interviewRelevance && Object.keys(topic.interviewRelevance).length > 0 && (
-          <Section label="Interview relevance">{renderBlock(topic.interviewRelevance)}</Section>
-        )}
-        {topic.commonGaps && Object.keys(topic.commonGaps).length > 0 && (
-          <Section label="Common gaps">{renderBlock(topic.commonGaps)}</Section>
+        {topic.metadata?.estimated_time_minutes && (
+          <p className="text-[12px] text-apple-gray mt-1.5">
+            <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--fill)] font-semibold">
+              ~{topic.metadata.estimated_time_minutes} min
+            </span>
+          </p>
         )}
       </div>
 
-      <div>
-        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Exercises ({exercises.length})</p>
+      <SectionNav items={navItems} />
+
+      {/* Hook */}
+      {topic.hook && Object.keys(topic.hook).length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-hook" eyebrow="Why this topic" title="Hook" />
+          <HookBlock block={topic.hook} />
+        </section>
+      )}
+
+      {/* Teaching — split into three known sub-sections */}
+      {t.concept_explanation && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-concept" eyebrow="Teaching" title="Concept" />
+          <ConceptExplanation block={t.concept_explanation} />
+        </section>
+      )}
+      {syntaxBlocks.map(({ key, block }) => (
+        <section key={key} className="space-y-3">
+          <SectionHeading id={`sec-${key}`} eyebrow="Teaching" title={prettyKey(key)} />
+          <SyntaxBreakdown block={block} />
+        </section>
+      ))}
+      {t.visual_aid && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-visual" eyebrow="Teaching" title="Visual aid" />
+          <VisualAid block={t.visual_aid} />
+        </section>
+      )}
+      {/* Unknown teaching keys fall back to generic */}
+      {Object.keys(teachingExtras).length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-teaching-extras" eyebrow="Teaching" title="More" />
+          <div className="card p-5"><GenericBlock value={teachingExtras} /></div>
+        </section>
+      )}
+
+      {/* Common gaps */}
+      {commonGaps.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-gaps" eyebrow="Pitfalls" title="Common gaps" />
+          <div className="grid md:grid-cols-2 gap-3">
+            {commonGaps.map((g, i) => <CommonGapCard key={g.gap_id || i} gap={g} index={i} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Industry & Interview */}
+      {topic.industryApplications && Object.keys(topic.industryApplications).length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-industry" eyebrow="In the wild" title="Industry applications" />
+          <div className="card p-5"><GenericBlock value={topic.industryApplications} /></div>
+        </section>
+      )}
+      {topic.interviewRelevance && Object.keys(topic.interviewRelevance).length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-interview" eyebrow="Career" title="Interview relevance" />
+          <div className="card p-5 border-l-4 border-apple-purple">
+            <GenericBlock value={topic.interviewRelevance} />
+          </div>
+        </section>
+      )}
+
+      {/* Exercises */}
+      <section className="space-y-3">
+        <SectionHeading id="sec-exercises" eyebrow="Practice" title={`Exercises (${exercises.length})`} />
         <div className="flex flex-col gap-2.5">
           {exercises.map((ex) => (
             <button
@@ -135,7 +469,7 @@ export default function ProTopicView() {
             </button>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -40,12 +40,13 @@ async function readJson(file) {
 }
 
 // ── snake_case → camelCase mapping for ProExercise ──────────────────────────
-function mapExercise(raw, trackKey, moduleId, topicId) {
+function mapExercise(raw, trackKey, moduleId, topicId, position) {
   return {
     trackKey,
     moduleId,
     topicId,
     exerciseId:       raw.id,
+    position,                              // display order (1-based, from array index)
     level:            raw.level,
     type:             raw.type,
     title:            raw.title || "",
@@ -169,9 +170,12 @@ async function run() {
   console.log(`✓ ProTopic: ${TOPIC_ID}`);
 
   // ── 4. ProExercises ────────────────────────────────────────────────────────
+  // Array index drives display order (position field). Authors reorder the
+  // JSON array → frontend reorders. Exercise IDs stay stable (URLs unaffected).
   let exInserted = 0;
-  for (const raw of exercises.exercises || []) {
-    const doc = mapExercise(raw, TRACK_KEY, MODULE_ID, TOPIC_ID);
+  const rawExercises = exercises.exercises || [];
+  for (let i = 0; i < rawExercises.length; i++) {
+    const doc = mapExercise(rawExercises[i], TRACK_KEY, MODULE_ID, TOPIC_ID, i + 1);
     await ProExercise.findOneAndUpdate({ exerciseId: doc.exerciseId }, doc, { upsert: true, new: true, setDefaultsOnInsert: true });
     exInserted++;
   }

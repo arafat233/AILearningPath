@@ -80,7 +80,10 @@ export async function listExercisesForTopic(topicId, userId) {
   }
   return ProExercise.find({ topicId })
     .select("exerciseId level type title scenario instructions starterCode hints xpReward difficulty")
-    .sort({ exerciseId: 1 })
+    // position is the explicit display-order column (set by the seed from
+    // exercises.json array index). exerciseId fallback keeps old data
+    // (no position set) sorted lexicographically as before.
+    .sort({ position: 1, exerciseId: 1 })
     .lean();
 }
 

@@ -85,11 +85,33 @@ async function assertWithinRateLimit(userId) {
  * Run a single piece of source against Judge0 and return the normalised
  * result. Use this for arbitrary runs (e.g. "Run" button output).
  */
+/**
+ * Judge0 always writes Java source to `/box/Main.java`, but Java's rule says
+ * `public class Foo` MUST live in `Foo.java`. Exercises (e.g. "Refactor
+ * verbose code" with `public class ServerStartup`) name their class freely.
+ * Rewrite the public class identifier to `Main` everywhere in the source
+ * before sandboxing so the compile succeeds. Non-Java sources fall through
+ * untouched.
+ *
+ * Important: code_analysis `must_contain` checks run against the ORIGINAL
+ * source (the student's actual text), so test cases that look for
+ * "public class FirstProgram" still match after this rewrite.
+ */
+function normalizeJavaForJudge0(source) {
+  const m = source.match(/public\s+class\s+(\w+)/);
+  if (!m) return source;
+  const original = m[1];
+  if (original === "Main") return source;
+  // Word-boundary replace so partial matches (e.g. `ServerStartupError`) are safe.
+  return source.replace(new RegExp(`\\b${original}\\b`, "g"), "Main");
+}
+
 export async function runCode({ userId, source, language, stdin = "" }) {
   if (!source || typeof source !== "string") throw new AppError("source is required", 400);
   if (userId) await assertWithinRateLimit(userId);
 
   const languageId = lookupLanguageId(language);
+  const sandboxSource = language === "java" ? normalizeJavaForJudge0(source) : source;
   const t0 = Date.now();
   let response;
   try {
@@ -100,7 +122,7 @@ export async function runCode({ userId, source, language, stdin = "" }) {
         "X-Auth-Token":  JUDGE0_AUTH_TOKEN,
       },
       body: JSON.stringify({
-        source_code: source,
+        source_code: sandboxSource,
         language_id: languageId,
         stdin,
       }),
@@ -143,28 +165,110 @@ export async function runCode({ userId, source, language, stdin = "" }) {
 /**
  * Run source plus an exercise's testCases[] and report which passed.
  *
- * Test-case shape (from exercises.json — kept generic):
- *   { id, type: "must_contain"|"must_compile"|"stdout_equals"|"stdout_contains",
- *     value, hidden? }
+ * Supported test-case shapes (from exercises.json):
+ *   Pilot content uses:
+ *     { type: "execution",     expected_stdout, must_compile? }
+ *     { type: "code_analysis", must_contain: [str...], must_compile? }
+ *   Legacy / future shapes (kept for back-compat):
+ *     { type: "must_contain"|"must_compile"|"stdout_equals"|"stdout_contains", value }
  *
  * Strategy:
  *   - Run once via Judge0. Use the same submission for every test case
  *     (no per-case re-execution — saves 80% of sandbox calls).
- *   - For "must_compile": did the compile succeed? (status.id 6 = compile
- *     error in Judge0 — anything else passes that check.)
- *   - For "stdout_equals" / "stdout_contains": compare against `result.stdout`.
- *   - For "must_contain": grep `source` for `value` literally.
- *   - All other shapes pass through to caller (advanced tests like AST
- *     checks can be wired in later).
+ *   - For "must_compile" / `must_compile: true`: did the compile succeed?
+ *     (Judge0 status.id 6 = Compilation Error. Any other status passes.)
+ *   - For stdout matches: compare result.stdout to expected_stdout / value.
+ *   - For source matches: grep the ORIGINAL student source (NOT the
+ *     normalized Main-rewritten version) so "public class FirstProgram"
+ *     style assertions still hit the student's real text.
+ *   - Unknown shapes fail loudly with the type name so content authors
+ *     spot the typo instead of seeing a silent pass.
  */
+// Test types that genuinely need the sandbox (compile + run + stdout).
+// `text_match` and bare `code_analysis` operate purely on student text.
+function needsSandbox(testCases) {
+  return (testCases || []).some((tc) => {
+    if (!tc || !tc.type) return false;
+    if (["execution", "stdout_equals", "stdout_contains", "must_compile"].includes(tc.type)) return true;
+    if (tc.type === "code_analysis" && tc.must_compile) return true;
+    return false;
+  });
+}
+
 export async function runTestCases({ userId, source, language, testCases }) {
-  const result = await runCode({ userId, source, language });
-  const compilePassed = !/compilation error|compile error/i.test(result.stderr);
+  // Skip the Judge0 call entirely for predict_output / text-only exercises.
+  // Charging the user the rate-limit slot + 1-2s of latency to "compile"
+  // their predicted output text was both wasteful AND showed a confusing
+  // "Compilation Error" badge in the sandbox panel.
+  const result = needsSandbox(testCases)
+    ? await runCode({ userId, source, language })
+    : { stdout: "", stderr: "", status: "Not run", timeMs: 0, memoryKb: 0, exitCode: null };
+
+  // Judge0 reports compilation errors via status.id=6; falling back to
+  // string-matching stderr keeps this working if status normalization changes.
+  const compilePassed = result.status !== "Compilation Error"
+    && !/compilation error|compile error/i.test(result.stderr || "");
+  const stderrTrim = (result.stderr || "").slice(0, 200);
 
   const cases = (testCases || []).map((tc, idx) => {
     const id = tc.id || `case_${idx + 1}`;
     try {
       switch (tc.type) {
+        case "execution": {
+          // expected_stdout (required), must_compile (optional).
+          const expected   = String(tc.expected_stdout ?? "").trim();
+          const actual     = (result.stdout || "").trim();
+          const stdoutOk   = actual === expected;
+          const compileOk  = tc.must_compile ? compilePassed : true;
+          return {
+            caseId: id,
+            passed: stdoutOk && compileOk,
+            message: !compileOk
+              ? `Did not compile: ${stderrTrim}`
+              : stdoutOk
+                ? "Output matches expected"
+                : `Expected: "${expected.slice(0, 60).replace(/\n/g, "\\n")}"  ·  Got: "${actual.slice(0, 60).replace(/\n/g, "\\n")}"`,
+          };
+        }
+        case "code_analysis": {
+          // must_contain (array of strings), must_compile (optional).
+          // We grep the ORIGINAL student source so identifier-based asserts
+          // ("public class FirstProgram") still match after Main-rewrite.
+          const needles  = Array.isArray(tc.must_contain) ? tc.must_contain : [];
+          const missing  = needles.filter((s) => typeof s === "string" && !source.includes(s));
+          const compileOk = tc.must_compile ? compilePassed : true;
+          const passed   = missing.length === 0 && compileOk;
+          return {
+            caseId: id,
+            passed,
+            message: !compileOk
+              ? `Did not compile: ${stderrTrim}`
+              : missing.length > 0
+                ? `Missing in your code: ${missing.map((s) => `"${s}"`).join(", ")}`
+                : "All required pieces present",
+          };
+        }
+        case "text_match": {
+          // predict_output exercises: student types the expected stdout as
+          // plain text. We compare `source` (student input) to `tc.expected`.
+          // CRLF is always normalized to LF (Windows users would otherwise
+          // fail every line-break exercise). `normalize_whitespace: true`
+          // additionally collapses runs of whitespace before comparing.
+          const expected = String(tc.expected ?? "");
+          const actual   = source;
+          const normalize = (s) => {
+            const lf = s.replace(/\r\n/g, "\n");
+            return tc.normalize_whitespace ? lf.replace(/\s+/g, " ").trim() : lf;
+          };
+          const passed = normalize(actual) === normalize(expected);
+          return {
+            caseId: id,
+            passed,
+            message: passed
+              ? "Output matches expected"
+              : `Expected: "${expected.slice(0, 80).replace(/\n/g, "\\n")}"  ·  Got: "${actual.slice(0, 80).replace(/\n/g, "\\n")}"`,
+          };
+        }
         case "must_contain":
           return {
             caseId: id,
@@ -172,17 +276,17 @@ export async function runTestCases({ userId, source, language, testCases }) {
             message: tc.value ? `must contain: "${tc.value}"` : "(no value supplied)",
           };
         case "must_compile":
-          return { caseId: id, passed: compilePassed, message: compilePassed ? "compiled OK" : result.stderr.slice(0, 200) };
+          return { caseId: id, passed: compilePassed, message: compilePassed ? "compiled OK" : stderrTrim };
         case "stdout_equals":
           return {
             caseId: id,
-            passed: result.stdout.trim() === String(tc.value ?? "").trim(),
+            passed: (result.stdout || "").trim() === String(tc.value ?? "").trim(),
             message: `stdout = "${(result.stdout || "").slice(0, 80).replace(/\n/g, "\\n")}"`,
           };
         case "stdout_contains":
           return {
             caseId: id,
-            passed: result.stdout.includes(String(tc.value ?? "")),
+            passed: (result.stdout || "").includes(String(tc.value ?? "")),
             message: `stdout contains "${tc.value}"`,
           };
         default:

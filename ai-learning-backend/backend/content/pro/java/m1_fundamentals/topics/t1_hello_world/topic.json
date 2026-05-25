@@ -73,14 +73,46 @@
         }
       ]
     },
-    
+
+    "print_vs_println": {
+      "intro": "Java gives you TWO ways to print: print() and println(). The difference is small but it trips up almost every beginner. Read this carefully before doing the next exercise — you'll be quizzed on subtle cases.\n\n— println(\"X\") writes X and then moves to the next line.\n— print(\"X\")   writes X and stays on the same line (next output continues right after).\n— println()    with no argument just emits a blank line (it's the newline without any text).\n\nSeveral print() calls in a row stick their text together with no separator. So `print(\"A\"); print(\"B\");` produces `AB` on one line, not two.",
+      "code": "public class PrintDemo {\n    public static void main(String[] args) {\n        System.out.print(\"Loading\");\n        System.out.print(\"...\");\n        System.out.println(\"OK\");\n        System.out.println();\n        System.out.println(\"Done\");\n    }\n}",
+      "annotations": [
+        {
+          "code_part": "System.out.print(\"Loading\")",
+          "explanation": "Writes \"Loading\" to the console. The cursor stays right after the 'g' — no newline."
+        },
+        {
+          "code_part": "System.out.print(\"...\")",
+          "explanation": "Writes \"...\" immediately after \"Loading\" on the SAME LINE. The console now shows: Loading..."
+        },
+        {
+          "code_part": "System.out.println(\"OK\")",
+          "explanation": "Writes \"OK\" then moves to the next line. The line reads: Loading...OK. Future output starts on line 2."
+        },
+        {
+          "code_part": "System.out.println()",
+          "explanation": "No argument — this just emits a newline by itself. Use it to insert a blank line between sections of output."
+        },
+        {
+          "code_part": "System.out.println(\"Done\")",
+          "explanation": "Writes \"Done\" then a newline. Sits on its own line because of the blank println() above it."
+        },
+        {
+          "code_part": "Expected output (4 lines including the blank one)",
+          "explanation": "Loading...OK\n[blank line]\nDone\n\nNote: even though the source has 5 println/print calls, the output has only 4 visible lines because consecutive print()s concatenated."
+        }
+      ]
+    },
+
     "visual_aid": {
       "type": "diagram",
       "description": "Show the Java execution pipeline: HelloWorld.java → javac → HelloWorld.class → java → JVM → Output. Arrows indicate flow. Each stage has icons (source file, compiler, bytecode file, VM, terminal output).",
       "alt_text": "Diagram showing source code being compiled to bytecode, then executed by JVM"
     }
   },
-  
+
+
   "worked_example": {
     "scenario": "You just joined a startup as a junior Java developer. On day one, your tech lead Priya says: 'Set up your environment and write a program that introduces yourself to the team. Just a console output is fine.' This is a real onboarding task at many companies — they want to verify your setup works before giving you real work.",
     

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { proGetExercise, proSubmitExercise } from "../../services/api";
 import CodeEditor from "../../components/pro/CodeEditor";
+import FillBlankEditor from "../../components/pro/FillBlankEditor";
 
 export default function ProExerciseRunner() {
   const { exerciseId } = useParams();
@@ -41,7 +42,12 @@ export default function ProExerciseRunner() {
 
   const handleSubmit = async () => {
     if (!code || !code.trim()) {
-      setError("Write some code first.");
+      setError(ex?.type === "predict_output" ? "Type your predicted output first." : "Write some code first.");
+      return;
+    }
+    if (ex?.type === "fill_blank" && code.includes("______")) {
+      const remaining = (code.match(/______/g) || []).length;
+      setError(`Fill in ${remaining} more blank${remaining === 1 ? "" : "s"} before submitting.`);
       return;
     }
     setError("");
@@ -128,11 +134,39 @@ export default function ProExerciseRunner() {
         <div className="card overflow-hidden">
           <div className="px-4 py-2 border-b border-apple-gray5 flex items-center justify-between">
             <span className="text-[11px] font-semibold text-apple-gray">
-              {ex.type === "fill_blank" ? "Fill in the blanks" : "Your solution"}
+              {ex.type === "predict_output"
+                ? "Predicted output"
+                : ex.type === "fill_blank"
+                  ? "Fill in the blanks"
+                  : "Your solution"}
             </span>
-            <span className="text-[10px] text-apple-gray3">Java · sandboxed</span>
+            <span className="text-[10px] text-apple-gray3">
+              {ex.type === "predict_output"
+                ? "Plain text · matched literally"
+                : ex.type === "fill_blank"
+                  ? "Fill the inline blanks · Java sandboxed"
+                  : "Java · sandboxed"}
+            </span>
           </div>
-          <CodeEditor value={code} onChange={setCode} language="java" height="420px" />
+          {ex.type === "predict_output" ? (
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder={"Type the exact output you expect from running the code above.\n\nInclude every character — spaces, line breaks, punctuation.\nDo NOT add a trailing blank line unless the program prints one."}
+              spellCheck={false}
+              className="w-full h-[420px] p-4 bg-[#1e1e1e] text-[#d4d4d4] font-mono text-[13px] leading-[1.6] resize-none outline-none whitespace-pre"
+              style={{ fontFamily: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace' }}
+            />
+          ) : ex.type === "fill_blank" ? (
+            <FillBlankEditor
+              skeleton={ex.starterCode || ""}
+              blanks={ex.blanks || []}
+              onChange={setCode}
+              height="420px"
+            />
+          ) : (
+            <CodeEditor value={code} onChange={setCode} language="java" height="420px" />
+          )}
         </div>
 
         {error && (
@@ -146,7 +180,9 @@ export default function ProExerciseRunner() {
           disabled={running}
           className="btn-primary w-full text-[14px] font-semibold disabled:opacity-50"
         >
-          {running ? "Running in sandbox…" : "Run & submit →"}
+          {running
+            ? (ex.type === "predict_output" ? "Checking…" : "Running in sandbox…")
+            : (ex.type === "predict_output" ? "Submit answer →" : "Run & submit →")}
         </button>
 
         {result && (

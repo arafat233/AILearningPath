@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   getReport, getAIAdvice, getAIUsage, getAICacheStats,
   getLinkRequests, respondToLinkRequest,
@@ -11,6 +11,8 @@ import {
 import { useAuthStore } from "../store/authStore";
 import { DashboardSkeleton } from "../components/Skeleton";
 import AICreditsIndicator from "../components/AICreditsIndicator";
+import TrackTabs from "../components/TrackTabs";
+import ProDashboardSnapshot from "../components/pro/ProDashboardSnapshot";
 
 /* ── Constants ───────────────────────────────────────────────────── */
 
@@ -143,6 +145,7 @@ const AriaDot = () => (
 export default function Dashboard() {
   const { user, activeChild } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const child    = activeChild || user;
 
   const [report,     setReport]     = useState(null);
@@ -317,8 +320,24 @@ export default function Dashboard() {
     if (path) navigate(path, state ? { state } : undefined);
   };
 
+  // PRO_TRACK_PLAN.md Phase 9: when ?track=pro_<lang> is present in the
+  // URL, render the compact pro snapshot instead of the K-12 dashboard.
+  // The TrackTabs at the top is the same UI on both branches.
+  const trackParam = searchParams.get("track") || "school";
+  if (trackParam.startsWith("pro_")) {
+    return (
+      <div className="space-y-5">
+        <TrackTabs />
+        <ProDashboardSnapshot trackKey={trackParam} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
+
+      {/* ── Track tabs (school / pro · only renders when 2+ tracks are enrolled) ── */}
+      <TrackTabs />
 
       {/* ── Top control bar: streak strip + mood + density + speak plan ── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">

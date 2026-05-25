@@ -85,6 +85,60 @@ export default function Settings() {
         <p className="text-[14px] text-apple-gray mt-0.5">Update your profile and exam details</p>
       </div>
 
+      {/* My Tracks — multi-track switcher per PRO_TRACK_PLAN.md Phase 9 */}
+      <div className="card p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-[var(--label)]">My Tracks</h2>
+          <button onClick={() => navigate("/welcome")}
+            className="text-[12px] text-apple-blue font-medium hover:opacity-70 transition-opacity">
+            + Add another track
+          </button>
+        </div>
+        {(user?.tracks?.length || 0) === 0 && !user?.examBoard ? (
+          <p className="text-[13px] text-apple-gray">No tracks yet. Pick one from the Welcome page.</p>
+        ) : (
+          <div className="space-y-2">
+            {/* School row — synthesised from examBoard+grade if no explicit tracks entry */}
+            {(user?.examBoard || user?.tracks?.some((t) => t.key === "school")) && (
+              <div className="flex items-center gap-3 p-3 rounded-apple border border-apple-gray5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[13px] font-bold shrink-0" style={{ background: "linear-gradient(135deg,#0ea5e9,#22d3ee)" }}>S</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-[var(--label)]">School (K-12)</p>
+                  <p className="text-[11px] text-apple-gray">{user?.examBoard || "—"} · Class {user?.grade || "—"}</p>
+                </div>
+                <button onClick={() => navigate("/?track=school")}
+                  className="text-[11px] text-apple-blue hover:opacity-70 transition-opacity font-medium">
+                  Open
+                </button>
+              </div>
+            )}
+            {(user?.tracks || []).filter((t) => t.key !== "school").map((t) => {
+              const lang = t.key.startsWith("pro_") ? t.key.slice(4) : t.key;
+              const label = `Pro · ${lang.charAt(0).toUpperCase() + lang.slice(1)}`;
+              return (
+                <div key={t.key} className="flex items-center gap-3 p-3 rounded-apple border border-apple-gray5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[13px] font-bold shrink-0" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)" }}>{lang[0]?.toUpperCase() || "P"}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-medium text-[var(--label)]">{label}</p>
+                    <p className="text-[11px] text-apple-gray">
+                      Enrolled {t.enrolledAt ? new Date(t.enrolledAt).toLocaleDateString() : ""} · role: {t.role || "learner"}
+                    </p>
+                  </div>
+                  <button onClick={() => navigate(`/?track=${t.key}`)}
+                    className="text-[11px] text-apple-blue hover:opacity-70 transition-opacity font-medium">
+                    Open
+                  </button>
+                  <button onClick={() => navigate(`/pro/${lang}`)}
+                    className="text-[11px] text-apple-gray hover:text-apple-blue transition-colors">
+                    Course →
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* My Children */}
       <div className="card p-5 space-y-3">
         <div className="flex items-center justify-between">

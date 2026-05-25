@@ -17,6 +17,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { proGetExercise, proSubmitExercise } from "../../services/api";
+import CodeEditor from "../../components/pro/CodeEditor";
 
 export default function ProExerciseRunner() {
   const { exerciseId } = useParams();
@@ -129,15 +130,9 @@ export default function ProExerciseRunner() {
             <span className="text-[11px] font-semibold text-apple-gray">
               {ex.type === "fill_blank" ? "Fill in the blanks" : "Your solution"}
             </span>
-            <span className="text-[10px] text-apple-gray3">Editor: textarea (Monaco coming)</span>
+            <span className="text-[10px] text-apple-gray3">Java · sandboxed</span>
           </div>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            spellCheck={false}
-            className="w-full px-4 py-3 font-mono text-[13px] leading-relaxed bg-[var(--fill)] focus:outline-none resize-y"
-            rows={18}
-          />
+          <CodeEditor value={code} onChange={setCode} language="java" height="420px" />
         </div>
 
         {error && (

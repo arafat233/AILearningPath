@@ -16,6 +16,7 @@ import { User } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 import { runTestCases } from "./codeExecutionService.js";
 import { isEnrolled, invalidateEnrolment } from "../middleware/trackFilter.js";
+import { trackEvent } from "../utils/eventTracker.js";
 import logger from "../utils/logger.js";
 
 // ── Tracks ──────────────────────────────────────────────────────────────────
@@ -67,6 +68,7 @@ export async function getTopic(topicId, userId) {
   if (!(await isEnrolled(userId, topic.trackKey))) {
     throw new AppError("Not enrolled in this track.", 403);
   }
+  trackEvent(userId, "pro.topic_viewed", { topicId, trackKey: topic.trackKey, moduleId: topic.moduleId });
   return topic;
 }
 
@@ -90,6 +92,9 @@ export async function getExercise(exerciseId, userId) {
   if (!(await isEnrolled(userId, ex.trackKey))) {
     throw new AppError("Not enrolled in this track.", 403);
   }
+  trackEvent(userId, "pro.exercise_started", {
+    exerciseId, trackKey: ex.trackKey, topicId: ex.topicId, level: ex.level, type: ex.type,
+  });
   // Strip expectedSolution + testCases from the client response — those
   // are graded server-side; never exposed.
   const { expectedSolution: _es, testCases: _tc, ...safe } = ex;
@@ -113,12 +118,14 @@ export async function submitExercise({ userId, exerciseId, code }) {
   const track = await ProTrack.findOne({ key: ex.trackKey }).select("language").lean();
   const language = track?.language || "java";
 
+  const t0 = Date.now();
   const { sandboxResult, testResults, passed } = await runTestCases({
     userId,
     source: code,
     language,
     testCases: ex.testCases || [],
   });
+  const durationMs = Date.now() - t0;
 
   const xpAwarded = passed ? (ex.xpReward || 0) : 0;
 
@@ -154,6 +161,24 @@ export async function submitExercise({ userId, exerciseId, code }) {
     casesPassed: testResults.filter((t) => t.passed).length,
     casesTotal:  testResults.length,
   });
+
+  // Analytics — fire-and-forget. attempts = total ProSubmission rows
+  // for this user × exercise, which is INCLUDING the row we just wrote.
+  const attempts = await ProSubmission.countDocuments({ userId, exerciseId }).catch(() => 0);
+  trackEvent(userId, "pro.code_submitted", {
+    exerciseId, trackKey: ex.trackKey, language, durationMs,
+    sandboxStatus: sandboxResult.status,
+    sandboxTimeMs: sandboxResult.timeMs,
+  });
+  if (passed) {
+    trackEvent(userId, "pro.exercise_passed", { exerciseId, trackKey: ex.trackKey, attempts, xpAwarded });
+  } else {
+    // Best-guess failure reason for analytics: first failing testcase, else
+    // sandboxStatus (Compilation Error / Time Limit Exceeded / etc.)
+    const firstFail = testResults.find((t) => !t.passed);
+    const reason = firstFail?.message?.slice(0, 200) || sandboxResult.status || "unknown";
+    trackEvent(userId, "pro.exercise_failed", { exerciseId, trackKey: ex.trackKey, attempts, reason });
+  }
 
   return { sandboxResult, testResults, passed, xpAwarded };
 }
@@ -212,5 +237,6 @@ export async function enroll(userId, trackKey) {
   );
   invalidateEnrolment(userId, trackKey);
   logger.info("[pro] enrolment", { userId, trackKey });
+  trackEvent(userId, "pro.enrolled", { trackKey });
   return { trackKey, alreadyEnrolled: false };
 }

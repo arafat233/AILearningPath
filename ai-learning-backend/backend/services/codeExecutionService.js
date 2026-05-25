@@ -16,6 +16,7 @@
 import logger from "../utils/logger.js";
 import { incrBy } from "../utils/redisClient.js";
 import { AppError } from "../utils/AppError.js";
+import { trackEvent } from "../utils/eventTracker.js";
 
 const JUDGE0_URL        = process.env.JUDGE0_URL        || "http://localhost:2358";
 const JUDGE0_AUTH_TOKEN = process.env.JUDGE0_AUTH_TOKEN || "";
@@ -69,9 +70,11 @@ async function assertWithinRateLimit(userId) {
     incrBy(todayKey(userId), 1, 60 * 60 * 24),
   ]);
   if (hourCount > RATE_PER_HOUR) {
+    trackEvent(userId, "pro.sandbox.rate_limited", { window: "hour", hourCount, limit: RATE_PER_HOUR });
     throw new AppError(`Hourly rate limit reached (${RATE_PER_HOUR}/hr). Try again in an hour.`, 429);
   }
   if (dayCount > RATE_PER_DAY) {
+    trackEvent(userId, "pro.sandbox.rate_limited", { window: "day", dayCount, limit: RATE_PER_DAY });
     throw new AppError(`Daily rate limit reached (${RATE_PER_DAY}/day). Try again tomorrow.`, 429);
   }
 }
@@ -118,6 +121,16 @@ export async function runCode({ userId, source, language, stdin = "" }) {
   const ms     = Date.now() - t0;
   // PII guard: log only metadata.
   logger.info("[sandbox] runCode", { userId, language, status: result.status, durationMs: ms });
+  // Per-call latency event so a follow-up script can compute p50/p95.
+  if (userId) {
+    trackEvent(userId, "pro.sandbox.latency", {
+      language,
+      status:   result.status,
+      durationMs: ms,
+      sandboxTimeMs: result.timeMs,
+      memoryKb: result.memoryKb,
+    });
+  }
   return result;
 }
 

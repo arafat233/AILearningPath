@@ -86,6 +86,7 @@ const NAV = [
   { to: "/school",      label: "School Groups",icon: "school"                },
   { to: "/mock-paper",  label: "Mock Paper",   icon: "mock"                  },
   { to: "/voice-tutor", label: "Voice Tutor",  icon: "voiceTutor"            },
+  { to: "/pro",         label: "Pro Tracks",   icon: "upgrade"               },
   { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];
 

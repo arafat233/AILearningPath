@@ -34,6 +34,12 @@ const Register         = lazy(() => import("./pages/Register"));
 const Onboarding       = lazy(() => import("./pages/Onboarding"));
 const StartOnboarding  = lazy(() => import("./pages/StartOnboarding"));
 const Dashboard        = lazy(() => import("./pages/Dashboard"));
+// Pro-track pages — only loaded on /pro/* (PRO_TRACK_PLAN.md §10 Phase 6)
+const ProTrackPicker   = lazy(() => import("./pages/professional/ProTrackPicker"));
+const ProCourseLanding = lazy(() => import("./pages/professional/ProCourseLanding"));
+const ProModuleView    = lazy(() => import("./pages/professional/ProModuleView"));
+const ProTopicView     = lazy(() => import("./pages/professional/ProTopicView"));
+const ProExerciseRunner= lazy(() => import("./pages/professional/ProExerciseRunner"));
 const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/Practice"));
@@ -231,6 +237,16 @@ export default function App() {
             <Route path="privacy"                 element={<PrivacyPolicy />} />
             <Route path="certificate"             element={<Certificate />} />
             <Route path="school"                  element={<SchoolGroups />} />
+
+            {/* ── Pro track (Java pilot) — gated server-side by
+                 PRO_TRACKS_ENABLED_FOR_EMAILS; no extra client guard
+                 needed because every page makes API calls that 403
+                 cleanly if the user isn't allowed in. ── */}
+            <Route path="pro"                                          element={<ProTrackPicker />} />
+            <Route path="pro/:trackSlug"                               element={<ProCourseLanding />} />
+            <Route path="pro/:trackSlug/:moduleId"                     element={<ProModuleView />} />
+            <Route path="pro/:trackSlug/:moduleId/:topicId"            element={<ProTopicView />} />
+            <Route path="pro/exercise/:exerciseId"                     element={<ProExerciseRunner />} />
           </Route>
         </Routes>
       </Suspense>

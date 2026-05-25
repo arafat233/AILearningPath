@@ -415,3 +415,17 @@ export const getSchoolDetail      = (id)                       => api.get(`/v1/s
 export const getDynamicTopics     = ()                         => api.get("/v1/schools/dynamic-topics");
 export const getHomeworkQuestion  = (params)                   => api.get("/v1/schools/homework", { params });
 export const getHomeworkSet       = (data)                     => api.post("/v1/schools/homework-set", data);
+
+// ── Pro track (PRO_TRACK_PLAN.md §4.4) ──────────────────────────────────────
+// All /api/v1/pro/* routes are gated behind PRO_TRACKS_ENABLED_FOR_EMAILS
+// on the backend. Frontend calls are otherwise normal — the actAsChild
+// header is suppressed for /pro/* because pro routes are in the skip list.
+export const proListTracks         = ()                              => api.get("/v1/pro/tracks");
+export const proGetTrack           = (trackSlug)                     => api.get(`/v1/pro/tracks/${trackSlug}`);
+export const proGetModule          = (trackSlug, moduleId)           => api.get(`/v1/pro/tracks/${trackSlug}/modules/${moduleId}`);
+export const proGetTopic           = (topicId)                       => api.get(`/v1/pro/topics/${topicId}`);
+export const proListExercises      = (topicId)                       => api.get(`/v1/pro/topics/${topicId}/exercises`);
+export const proGetExercise        = (exerciseId)                    => api.get(`/v1/pro/exercises/${exerciseId}`);
+export const proSubmitExercise     = (exerciseId, code)              => api.post(`/v1/pro/exercises/${exerciseId}/submit`, { code });
+export const proGetProgress        = (trackKey)                      => api.get(`/v1/pro/progress/${trackKey}`);
+export const proEnroll             = (trackKey)                      => api.post("/v1/pro/enroll", { trackKey });

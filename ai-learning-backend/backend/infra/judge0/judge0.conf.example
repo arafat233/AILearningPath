@@ -19,7 +19,7 @@ CPU_TIME_LIMIT=5            # hard CPU seconds
 CPU_EXTRA_TIME=1            # grace time before SIGKILL
 WALL_TIME_LIMIT=10          # wall-clock seconds
 MEMORY_LIMIT=262144         # 256 MB in KB
-STACK_LIMIT=131072          # 128 MB in KB
+STACK_LIMIT=128000          # max accepted by Judge0 1.13.0 (128000 KB ~= 128 MB)
 MAX_PROCESSES_AND_OR_THREADS=64
 ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT=false
 ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT=true

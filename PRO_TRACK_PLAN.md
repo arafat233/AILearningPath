@@ -399,9 +399,9 @@ These don't block the pilot, but we'll need to decide before bulk import:
 | 8 | done | `f121b435` | Monaco editor lazy-chunked, replaced textarea |
 | 9 | done | `f121b435` | TrackTabs + ProDashboardSnapshot + Settings "My Tracks" |
 | 10 | done | `7b896a52` | 8 funnel + health events emitted via existing `trackEvent` helper |
-| 11 | ⏳ pending | — | Needs Docker installed + `docker compose up` + auth-token wiring |
-| 12 | ⏳ in progress | (current commit) | docs + memory updates |
-| 13 | ⏳ pending | — | Tag `pilot-pro-java-v1` after Phase 11 acceptance |
+| 11 | 🟡 deferred to VM | (this commit) | Attempted on Docker Desktop Windows 2026-05-25; sandbox failed with the known `/box/Main.java` cgroups issue. Code is unchanged — `infra/judge0/install-on-vm.sh` runs the same compose on Linux where the sandbox works. Re-attempt against a Hetzner / Oracle VM. |
+| 12 | ✅ done | `98fe56df` | BLUEPRINT + CONTENT_STATUS + plan §9 + migrations README |
+| 13 | ⏳ pending | — | Tag `pilot-pro-java-v1` after VM acceptance |
 
 ### Lessons learned (2026-05-25 build day)
 
@@ -411,6 +411,8 @@ These don't block the pilot, but we'll need to decide before bulk import:
 - **Test mocks went stale faster than expected** during prior refactors. Adding `validate:track-isolation` + `smoke` to CI catches the next round of drift in < 30 s.
 - **Local-only Judge0 is the right call for the pilot.** Production hosting (Oracle vs. tiny VPS vs. managed) is a real decision; deferring it to Phase 14 freed today to focus on the actual application code.
 - **Monaco lazy-loading mattered**. ~2 MB chunk only ships when a user actually opens an exercise — Dashboard/Lessons users never pay the cost.
+- **Judge0's `isolate` sandbox is NOT viable on Docker Desktop Windows.** Local compose comes up clean, server returns 200, but every submission fails with `rb_sysopen - /box/Main.java`. Root cause: cgroups v1 mounts inside a WSL2 VM don't line up the way isolate expects. The fix is environmental — run Judge0 on a real Linux host. Wrote `install-on-vm.sh` for the one-shot remote install. This is documented in `infra/judge0/README.md` so the next contributor doesn't waste a half-day re-discovering it.
+- **STACK_LIMIT trap on Judge0 1.13.x.** Judge0's per-submission validator caps stack_limit at 128000 KB even though everything in their docs uses 131072. Either pick 128000 or override per-submission — we standardised on 128000 in `judge0.conf.example`.
 
 ### Items that turned out NOT to be needed for Day 1
 

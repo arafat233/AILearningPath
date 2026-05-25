@@ -1,7 +1,32 @@
-# Judge0 — Local Sandbox Runbook
+# Judge0 — Sandbox Runbook
 
-Local-only Judge0 instance for the pro-track Java pilot. Production hosting
-decision is deferred to Phase 14 (`PRO_TRACK_PLAN.md`).
+## Where to run Judge0
+
+**On a Linux VM** (Hetzner CX22 / Oracle E4.Flex / any Ubuntu 22.04+ x86_64
+host with ≥ 2 vCPU + 4 GB RAM + 20 GB free disk). This is the documented,
+supported path.
+
+**NOT on Docker Desktop Windows.** Judge0's `isolate` sandbox needs cgroups
+v1 mounted a specific way that Docker Desktop on Windows can't reliably
+deliver. Containers start fine; submissions fail with
+`No such file or directory @ rb_sysopen - /box/Main.java`. The
+`docker-compose.judge0.yml` in this folder is identical to what would run
+in production — the failure is environmental, not a bug in the compose.
+
+## Fastest path — one-command VM install
+
+```bash
+ssh ubuntu@<your-vm-ip>
+curl -fsSL https://raw.githubusercontent.com/arafat233/AILearningPath/main/ai-learning-backend/backend/infra/judge0/install-on-vm.sh | bash
+```
+
+The script installs Docker if missing, drops a hardened compose + conf into
+`~/stellar-judge0/`, generates the auth token, brings the stack up, waits
+for `/about` to return 200, runs a Java Hello World smoke test, and prints
+the exact `.env` block to paste into the backend.
+
+After it succeeds, lock down port 2358 to your backend's IP only via the
+provider's security list / firewall.
 
 ## One-time setup
 

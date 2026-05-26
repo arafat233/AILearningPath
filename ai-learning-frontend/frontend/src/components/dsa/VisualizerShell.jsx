@@ -31,6 +31,17 @@ import HeapSandbox        from "./modes/HeapSandbox.jsx";
 import HashTableSandbox   from "./modes/HashTableSandbox.jsx";
 import StringMatchSandbox from "./modes/StringMatchSandbox.jsx";
 import GraphSandbox       from "./modes/GraphSandbox.jsx";
+import SlidingWindowSandbox  from "./modes/SlidingWindowSandbox.jsx";
+import DutchFlagSandbox      from "./modes/DutchFlagSandbox.jsx";
+import PalindromeSandbox     from "./modes/PalindromeSandbox.jsx";
+import LCSGridSandbox        from "./modes/LCSGridSandbox.jsx";
+import FloydCycleSandbox     from "./modes/FloydCycleSandbox.jsx";
+import MonotonicStackSandbox from "./modes/MonotonicStackSandbox.jsx";
+import TreeTraversalSandbox  from "./modes/TreeTraversalSandbox.jsx";
+import TrieSandbox           from "./modes/TrieSandbox.jsx";
+import KLargestSandbox       from "./modes/KLargestSandbox.jsx";
+import GraphTopoSandbox      from "./modes/GraphTopoSandbox.jsx";
+import GraphDijkstraSandbox  from "./modes/GraphDijkstraSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -47,6 +58,17 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "hash-table":      return <HashTableSandbox   />;
     case "string-matching": return <StringMatchSandbox />;
     case "graph":           return <GraphSandbox       />;
+    case "sliding-window":   return <SlidingWindowSandbox  />;
+    case "dutch-flag":       return <DutchFlagSandbox      />;
+    case "palindrome":       return <PalindromeSandbox     />;
+    case "dp-grid":          return <LCSGridSandbox        />;
+    case "linked-list-cycle": return <FloydCycleSandbox    />;
+    case "monotonic-stack":  return <MonotonicStackSandbox />;
+    case "tree-traversal":   return <TreeTraversalSandbox  />;
+    case "trie":             return <TrieSandbox           />;
+    case "k-largest":        return <KLargestSandbox       />;
+    case "graph-topo":       return <GraphTopoSandbox      />;
+    case "graph-dijkstra":   return <GraphDijkstraSandbox  />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

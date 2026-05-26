@@ -347,26 +347,40 @@ function mapProject(raw, moduleId, topicId) {
 //   "tree" | "array-pointers"
 const TOPIC_VISUALIZERS = {
   // A11 — proof topic (sorting).
-  "java_m38_t1": { kind: "sorting-sandbox",  config: {} },
+  "java_m38_t1": { kind: "sorting-sandbox",   config: {} },
   // A13 — Two Pointers — O(n) Pair Problems.
-  "java_m30_t1": { kind: "array-pointers",   config: {} },
+  "java_m30_t1": { kind: "array-pointers",    config: {} },
   // A14 — Linked List Basics + Reversal share the same replay widget for now.
-  "java_m32_t1": { kind: "linked-list",      config: {} },
-  "java_m32_t3": { kind: "linked-list",      config: {} },
+  "java_m32_t1": { kind: "linked-list",       config: {} },
+  "java_m32_t3": { kind: "linked-list",       config: {} },
   // A15 — Stack Fundamentals (LIFO, push/pop/peek).
-  "java_m33_t1": { kind: "stack",            config: {} },
-  // A16 — Tree Traversals (BST insert + animated search).
-  "java_m35_t1": { kind: "tree",             config: {} },
+  "java_m33_t1": { kind: "stack",             config: {} },
+  // A16 (re-wired) — M35-T1 is actually "Tree Traversals" per content;
+  // the BST insert/search demo moved to M35-T3 "BST Operations".
+  "java_m35_t1": { kind: "tree-traversal",    config: {} },   // was: tree
+  "java_m35_t3": { kind: "tree",              config: {} },   // new home for BST demo
   // A17 — Binary Search Basics.
-  "java_m39_t1": { kind: "binary-search",    config: {} },
+  "java_m39_t1": { kind: "binary-search",     config: {} },
   // A18 — Heap Fundamentals (min-heap insert + extract, array+tree paired).
-  "java_m36_t1": { kind: "heap",             config: {} },
+  "java_m36_t1": { kind: "heap",              config: {} },
   // A19 — Hash Fundamentals (separate-chaining put/get, collisions visible).
   "java_m34_t1": { kind: "hash-table",        config: {} },
   // A20 — Pattern Matching — KMP (text + pattern + failure table view).
   "java_m31_t2": { kind: "string-matching",   config: {} },
   // A21 — Graph Representation (BFS + DFS on a 7-node graph with cycle).
   "java_m37_t1": { kind: "graph",             config: {} },
+  // A22-A33 — T2-T5 coverage across DSA modules.
+  "java_m30_t2": { kind: "sliding-window",    config: {} },   // A22
+  "java_m30_t4": { kind: "dutch-flag",        config: {} },   // A23
+  "java_m31_t3": { kind: "palindrome",        config: {} },   // A24
+  "java_m31_t5": { kind: "dp-grid",           config: {} },   // A25 (LCS)
+  "java_m32_t2": { kind: "linked-list-cycle", config: {} },   // A26 (two-pointer on LL ≈ Floyd's)
+  "java_m32_t4": { kind: "linked-list-cycle", config: {} },   // A26 (Floyd's exact)
+  "java_m33_t2": { kind: "monotonic-stack",   config: {} },   // A27
+  "java_m35_t5": { kind: "trie",              config: {} },   // A28
+  "java_m36_t2": { kind: "k-largest",         config: {} },   // A29
+  "java_m37_t3": { kind: "graph-topo",        config: {} },   // A30
+  "java_m37_t4": { kind: "graph-dijkstra",    config: {} },   // A31
 };
 
 function mapTopic(raw, moduleId) {

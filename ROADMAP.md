@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A21 wired — 10 visualizer kinds live on 11 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A33 wired — 21 visualizer kinds live on 24 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -75,6 +75,23 @@ After A17: VisualizerShell dispatches all 6 kinds (sorting-sandbox + 5 new). See
 - [x] **A21.** M37-T1 Graph Representation → `graph` — done 2026-05-26. New `algorithms/graph.js` (BFS via queue, DFS via explicit stack; both on adjacency-list converted from edge list) + `GraphVisualizer.jsx` (SVG with precomputed positions — force-directed layout deliberately deferred to a future iteration) + `modes/GraphSandbox.jsx`. Fixed 7-node graph with a cycle (A-B-E-D-A) and a bridge (E-G-F) so BFS vs DFS produce visibly different traversal orders.
 
 After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M34/M35/M36/M37/M38/M39). Remaining DSA gaps that *could* get visualizers later (none planned for now): M29 (DSA1 intro), M40 (DSA12), M41 (DSA13).
+
+**Phase 1.A extended — T2–T5 coverage across DSA modules:**
+
+- [x] **A22.** M30-T2 Sliding Window → `sliding-window` — done 2026-05-26. Fixed-size window with incremental sum update (sub leaving + add entering). Default [2,1,5,1,3,2,7,4,6,1] k=3 makes the increment visible.
+- [x] **A23.** M30-T4 Dutch National Flag → `dutch-flag` — done 2026-05-26. 3-way partition with low/mid/high pointers; cells flip between sorted/default/compare states as the three regions grow.
+- [x] **A24.** M31-T3 Palindromes → `palindrome` — done 2026-05-26. Expand-around-center, handles both odd- and even-length centres. Default "babad" → "bab" or "aba".
+- [x] **A25.** M31-T5 LCS DP → `dp-grid` — done 2026-05-26. New `DPGridVisualizer.jsx` shows 2D table filling with dependency arrows + traceback path. Default "abcbdab" × "bdcaba" → "bcba" or "bdab".
+- [x] **A26.** M32-T2 + T4 Floyd's Cycle → `linked-list-cycle` — done 2026-05-26. New `CycleListVisualizer.jsx` renders the cycle as an arc back to entry index with slow/fast pointer labels above nodes.
+- [x] **A27.** M33-T2 Monotonic Stack → `monotonic-stack` — done 2026-05-26. Next-Greater-Element demo with stack + array + result row side-by-side. Reuses StackVisualizer + ArrayVisualizer.
+- [x] **A28.** M35-T1 **rewire** → `tree-traversal` — done 2026-05-26. The old BST sandbox was on a topic actually titled "Tree Traversals" — content mismatch. New `TreeTraversalSandbox.jsx` supports inorder / preorder / postorder / level-order / zigzag with code per mode.
+- [x] **A29.** M35-T3 BST Operations → `tree` — done 2026-05-26. Moved the existing TreeSandbox (BST insert + search) to this topic where it actually belongs.
+- [x] **A30.** M35-T5 Trie → `trie` — done 2026-05-26. New `TrieVisualizer.jsx` (N-ary children, edge labels). Demo seeded with cat/car/card/care/dog/do/dot so shared prefixes are visible from frame 0.
+- [x] **A31.** M36-T2 K-Largest → `k-largest` — done 2026-05-26. Min-heap of size K maintained while streaming; shows stream + heap-array + heap-tree in lockstep.
+- [x] **A32.** M37-T3 Topological Sort → `graph-topo` — done 2026-05-26. Kahn's algorithm on a course-prerequisite DAG. Extended `GraphVisualizer` to support `directed` (arrowheads), `nodeLabels` (in-degree).
+- [x] **A33.** M37-T4 Dijkstra → `graph-dijkstra` — done 2026-05-26. Weighted directed graph; `GraphVisualizer` now renders edge weights and node distance labels. PQ + visited shown below.
+
+**After A33:** 21 visualizer kinds live across 24 topics. DSA progression M30-M39 now has at least one visualizer per topic-with-an-algorithm (10 modules × ~2-3 visualizer-friendly topics each). Coverage gap remaining: M30-T3 prefix sums, M30-T5 synthesis, M31-T1 string fundamentals, M31-T4 anagrams (already covered conceptually by hash-table), M32-T5 LL merge, M33-T3 queue, M33-T4 deque max, M33-T5 synthesis, M34-T2 through M34-T5 (HashMap patterns covered conceptually by hash-table; LRU would be a separate combined widget), M35-T2 binary tree problems, M35-T4 tree path problems, M36-T3 through M36-T5, M37-T2 BFS/DFS applications, M37-T5 graph synthesis, M38-T2 through M38-T5, M39-T2 through M39-T5. Most of these are pattern-application or synthesis topics where a dedicated widget would duplicate the T1 widget; deliberately deferred.
 
 ---
 

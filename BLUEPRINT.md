@@ -1445,30 +1445,57 @@ Frontend
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`: sorting-sandbox |
-                                                binary-search | linked-list | stack |
-                                                tree | array-pointers | heap |
-                                                hash-table | string-matching | graph
-    modes/                                    Per-kind orchestrators
-      SortingSandbox (inline in shell)          M38-T1 — 5 sort algos + student mode
-      BinarySearchSandbox.jsx                   M39-T1 — L/R/mid pointer replay
-      LinkedListSandbox.jsx                     M32-T1, T3 — intro/insert/delete replay
-      StackSandbox.jsx                          M33-T1 — push/pop/peek (interactive)
-      TreeSandbox.jsx                           M35-T1 — BST insert + animated search
-      ArrayPointersSandbox.jsx                  M30-T1 — two-pointer 2-sum demo
-      HeapSandbox.jsx                           M36-T1 — array+tree paired heap ops
-      HashTableSandbox.jsx                      M34-T1 — separate-chaining put/get
-      StringMatchSandbox.jsx                    M31-T2 — KMP w/ failure table
-      GraphSandbox.jsx                          M37-T1 — BFS/DFS on 7-node graph
-    algorithms/                               Step generators: bubble/insertion/
-                                                selection/merge/quick sort, binary/
-                                                linear search, linked-list ops, heap,
-                                                hashTable, kmp, graph
+    VisualizerShell.jsx                       Dispatcher on `kind`. 21 kinds:
+                                                sorting-sandbox · binary-search ·
+                                                linked-list · stack · tree ·
+                                                array-pointers · heap · hash-table ·
+                                                string-matching · graph ·
+                                                sliding-window · dutch-flag ·
+                                                palindrome · dp-grid ·
+                                                linked-list-cycle · monotonic-stack ·
+                                                tree-traversal · trie · k-largest ·
+                                                graph-topo · graph-dijkstra
+    modes/                                    Per-kind orchestrators (T1 + T2-T5)
+      SortingSandbox (inline in shell)          M38-T1 sorts + student mode
+      BinarySearchSandbox.jsx                   M39-T1 binary search
+      LinkedListSandbox.jsx                     M32-T1, T3 linked list ops
+      StackSandbox.jsx                          M33-T1 LIFO push/pop/peek
+      TreeSandbox.jsx                           M35-T3 BST insert + search
+      ArrayPointersSandbox.jsx                  M30-T1 two-pointer 2-sum
+      HeapSandbox.jsx                           M36-T1 heap ops (array+tree paired)
+      HashTableSandbox.jsx                      M34-T1 separate-chaining put/get
+      StringMatchSandbox.jsx                    M31-T2 KMP w/ failure table
+      GraphSandbox.jsx                          M37-T1 BFS/DFS
+      SlidingWindowSandbox.jsx                  M30-T2 fixed-size window
+      DutchFlagSandbox.jsx                      M30-T4 3-way partition
+      PalindromeSandbox.jsx                     M31-T3 expand-around-center
+      LCSGridSandbox.jsx                        M31-T5 LCS DP grid
+      FloydCycleSandbox.jsx                     M32-T2, T4 tortoise & hare
+      MonotonicStackSandbox.jsx                 M33-T2 next-greater-element
+      TreeTraversalSandbox.jsx                  M35-T1 in/pre/post/level/zigzag
+      TrieSandbox.jsx                           M35-T5 prefix tree insert+search
+      KLargestSandbox.jsx                       M36-T2 streaming K-largest
+      GraphTopoSandbox.jsx                      M37-T3 Kahn's topological sort
+      GraphDijkstraSandbox.jsx                  M37-T4 Dijkstra SSSP
+    algorithms/                               Step generators: 5 sorts, binary/
+                                                linear search, linked-list ops,
+                                                heap, hashTable, kmp, graph (BFS/
+                                                DFS), slidingWindow, dutchFlag,
+                                                palindrome, lcs, floydCycle,
+                                                monotonicStack, treeTraversals,
+                                                trie, kLargest, graphTopo, dijkstra
     runners/studentRunner.js                  JS code tracer (50k-step loop guard)
-    ArrayBars / ArrayVisualizer /             Render primitives — framer-motion
-      LinkedListVisualizer / StackVisualizer /
-      TreeVisualizer / HashTableVisualizer /
-      StringMatchVisualizer / GraphVisualizer
+    Render primitives (framer-motion)         ArrayBars · ArrayVisualizer ·
+                                                LinkedListVisualizer ·
+                                                StackVisualizer · TreeVisualizer ·
+                                                HashTableVisualizer ·
+                                                StringMatchVisualizer ·
+                                                GraphVisualizer (now supports
+                                                  directed + edge weights +
+                                                  node labels) ·
+                                                DPGridVisualizer ·
+                                                CycleListVisualizer ·
+                                                TrieVisualizer
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 
